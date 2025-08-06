@@ -11,6 +11,12 @@ export interface Project {
   _updatedAt?: Date;
 }
 
+export interface HtmlHistory {
+  html: string;
+  timestamp: number;
+  prompt?: string;
+}
+
 export interface User {
   id: string;
   fullname: string;
