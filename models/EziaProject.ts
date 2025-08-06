@@ -215,9 +215,4 @@ EziaProjectSchema.methods.publish = function() {
   this.deployment.last_deployed = new Date();
 };
 
-export interface IEziaProjectDocument extends IEziaProject, Document {
-  addVersion(html: string, created_by: string, change_summary: string): void;
-  publish(): void;
-}
-
-export const EziaProject = mongoose.models.EziaProject || mongoose.model<IEziaProjectDocument>('EziaProject', EziaProjectSchema);
+export const EziaProject = mongoose.models.EziaProject || mongoose.model<IEziaProject>('EziaProject', EziaProjectSchema);

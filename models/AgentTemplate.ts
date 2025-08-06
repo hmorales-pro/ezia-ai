@@ -140,9 +140,7 @@ const AgentTemplateSchema = new Schema<IAgentTemplate>({
 AgentTemplateSchema.index({ type: 1, team: 1 });
 AgentTemplateSchema.index({ 'relationships.reports_to': 1 });
 
-export interface IAgentTemplateDocument extends IAgentTemplate, Document {}
-
-export const AgentTemplate = mongoose.models.AgentTemplate || mongoose.model<IAgentTemplateDocument>('AgentTemplate', AgentTemplateSchema);
+export const AgentTemplate = mongoose.models.AgentTemplate || mongoose.model<IAgentTemplate>('AgentTemplate', AgentTemplateSchema);
 
 // Templates par défaut pour Ezia
 export const DEFAULT_AGENT_TEMPLATES: Partial<IAgentTemplate>[] = [

@@ -191,9 +191,4 @@ AgentSessionSchema.methods.addMessage = function(role: string, content: string, 
   });
 };
 
-export interface IAgentSessionDocument extends IAgentSession, Document {
-  complete(): void;
-  addMessage(role: string, content: string, metadata?: any): void;
-}
-
-export const AgentSession = mongoose.models.AgentSession || mongoose.model<IAgentSessionDocument>('AgentSession', AgentSessionSchema);
+export const AgentSession = mongoose.models.AgentSession || mongoose.model<IAgentSession>('AgentSession', AgentSessionSchema);

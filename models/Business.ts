@@ -205,8 +205,4 @@ BusinessSchema.virtual('completion_score').get(function() {
   return Math.round(score);
 });
 
-export interface IBusinessDocument extends IBusiness, Document {
-  completion_score: number;
-}
-
-export const Business = mongoose.models.Business || mongoose.model<IBusinessDocument>('Business', BusinessSchema);
+export const Business = mongoose.models.Business || mongoose.model<IBusiness>('Business', BusinessSchema);
