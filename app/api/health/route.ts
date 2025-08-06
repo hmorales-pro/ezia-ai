@@ -4,6 +4,22 @@ import dbConnect from "@/lib/mongodb";
 
 // Health check endpoint pour diagnostiquer les problèmes
 export async function GET() {
+  let databaseStatus = "unknown";
+  let databaseError: string | undefined;
+
+  // Test database connection
+  if (!isUsingMemoryDB() && process.env.MONGODB_URI) {
+    try {
+      await dbConnect();
+      databaseStatus = "connected";
+    } catch (error) {
+      databaseStatus = "error";
+      databaseError = error instanceof Error ? error.message : "Unknown error";
+    }
+  } else if (isUsingMemoryDB()) {
+    databaseStatus = "memory-db-active";
+  }
+
   const health = {
     status: "ok",
     timestamp: new Date().toISOString(),
@@ -16,23 +32,10 @@ export async function GET() {
     },
     database: {
       type: isUsingMemoryDB() ? "memory" : "mongodb",
-      status: "unknown",
-      error: undefined as string | undefined
+      status: databaseStatus,
+      ...(databaseError && { error: databaseError })
     }
   };
-
-  // Test database connection
-  if (!isUsingMemoryDB() && process.env.MONGODB_URI) {
-    try {
-      await dbConnect();
-      health.database.status = "connected";
-    } catch (error) {
-      health.database.status = "error";
-      health.database.error = error instanceof Error ? error.message : "Unknown error";
-    }
-  } else if (isUsingMemoryDB()) {
-    health.database.status = "memory-db-active";
-  }
 
   return NextResponse.json(health);
 }
