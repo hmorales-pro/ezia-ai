@@ -222,7 +222,7 @@ async function executeAction(
 ) {
   switch (actionType) {
     case "create_website":
-      return await createWebsiteProject(businessId, businessName, aiResponse, user, business);
+      return await createWebsiteProject(businessId, businessName, aiResponse, user, business, request);
     
     case "market_analysis":
       return await updateMarketAnalysis(businessId, aiResponse, business);
@@ -246,7 +246,8 @@ async function createWebsiteProject(
   businessName: string,
   aiResponse: string,
   user: { id: string },
-  business: { name: string; description: string }
+  business: { name: string; description: string },
+  request: NextRequest
 ) {
   try {
     // Extraire le code HTML/CSS de la réponse de l'IA
@@ -397,16 +398,12 @@ footer {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.HF_TOKEN || process.env.DEFAULT_HF_TOKEN}`
+            'Cookie': request.headers.get('cookie') || ''
           },
           body: JSON.stringify({
-            namespace: user.id,
-            repoId: projectData.repoId,
-            name: projectData.name,
-            description: projectData.description,
-            visibility: projectData.visibility,
-            framework: projectData.framework,
-            code: defaultHtml
+            title: projectData.name,
+            html: defaultHtml,
+            prompts: [`Création du site web pour ${businessName}`]
           })
         });
         
@@ -414,22 +411,24 @@ footer {
           throw new Error('Failed to create project');
         }
         
-        createdProject = await projectResponse.json();
+        const responseData = await projectResponse.json();
+        createdProject = responseData.project;
         
         // Mettre à jour le business avec l'URL du site
+        const spaceId = responseData.path || createdProject.space_id;
         await Business.findOneAndUpdate(
           { business_id: businessId },
           { 
-            website_url: `https://hmorales-${projectData.repoId}.hf.space`,
-            space_id: projectData.repoId
+            website_url: `https://huggingface.co/spaces/${spaceId}`,
+            space_id: spaceId
           }
         );
       }
 
       return {
         type: "website_created",
-        projectId: createdProject.repoId,
-        url: `https://hmorales-${createdProject.repoId}.hf.space`,
+        projectId: createdProject.space_id || projectData.repoId,
+        url: `https://huggingface.co/spaces/${user.id}/${projectData.repoId}`,
         message: `Site web créé avec succès ! Il sera disponible dans quelques minutes.`
       };
     }
@@ -458,30 +457,29 @@ footer {
       await dbConnect();
       
       // Créer le projet via l'API DeepSite existante
-      const projectResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/me/projects`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          namespace: user.id,
-          repoId: projectData.repoId,
-          name: projectData.name,
-          description: projectData.description,
-          visibility: projectData.visibility,
-          framework: projectData.framework,
-          code: `<!DOCTYPE html>
+      const fullHtml = `<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${businessName}</title>
-    <style>${projectData.css}</style>
+    <style>${css}</style>
 </head>
 <body>
-${projectData.code}
+${html}
 </body>
-</html>`
+</html>`;
+      
+      const projectResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/me/projects`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': request.headers.get('cookie') || ''
+        },
+        body: JSON.stringify({
+          title: projectData.name,
+          html: fullHtml,
+          prompts: [`Création du site web personnalisé pour ${businessName}`]
         })
       });
       
@@ -489,21 +487,23 @@ ${projectData.code}
         throw new Error('Failed to create project');
       }
       
-      createdProject = await projectResponse.json();
+      const responseData = await projectResponse.json();
+      createdProject = responseData.project;
       
+      const spaceId = responseData.path || createdProject.space_id;
       await Business.findOneAndUpdate(
         { business_id: businessId },
         { 
-          website_url: `https://hmorales-${projectData.repoId}.hf.space`,
-          space_id: projectData.repoId
+          website_url: `https://huggingface.co/spaces/${spaceId}`,
+          space_id: spaceId
         }
       );
     }
 
     return {
       type: "website_created",
-      projectId: createdProject.repoId,
-      url: `https://hmorales-${createdProject.repoId}.hf.space`,
+      projectId: createdProject.space_id || projectData.repoId,
+      url: `https://huggingface.co/spaces/${user.id}/${projectData.repoId}`,
       message: `Site web personnalisé créé ! Il sera disponible dans quelques minutes.`
     };
     
