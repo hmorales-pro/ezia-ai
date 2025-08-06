@@ -95,7 +95,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Valider le stage si présent
     if (filteredUpdates.stage) {
       const validStages = ['idea', 'startup', 'growth', 'established'];
-      if (!validStages.includes(filteredUpdates.stage)) {
+      if (!validStages.includes(filteredUpdates.stage as string)) {
         return NextResponse.json(
           { ok: false, error: "Invalid stage value" },
           { status: 400 }
