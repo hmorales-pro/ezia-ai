@@ -17,11 +17,15 @@ import {
   MessageSquare,
   ArrowLeft,
   Edit,
-  Trash2
+  Trash2,
+  BarChart3,
+  Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { EziaChat } from "@/components/ezia-chat";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface Business {
   _id: string;
@@ -70,6 +74,8 @@ export default function BusinessDetailPage() {
   const [business, setBusiness] = useState<Business | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatAction, setChatAction] = useState<string>("general");
 
   useEffect(() => {
     fetchBusiness();
@@ -227,8 +233,15 @@ export default function BusinessDetailPage() {
             </Card>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <h3 className="text-lg font-semibold mb-4">Actions rapides</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setChatAction("create_website");
+                  setChatOpen(true);
+                }}
+              >
                 <CardContent className="p-6">
                   <Building2 className="w-8 h-8 text-blue-600 mb-2" />
                   <h3 className="font-medium">Créer un site web</h3>
@@ -237,7 +250,13 @@ export default function BusinessDetailPage() {
                   </p>
                 </CardContent>
               </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setChatAction("market_analysis");
+                  setChatOpen(true);
+                }}
+              >
                 <CardContent className="p-6">
                   <Target className="w-8 h-8 text-green-600 mb-2" />
                   <h3 className="font-medium">Analyse de marché</h3>
@@ -246,12 +265,86 @@ export default function BusinessDetailPage() {
                   </p>
                 </CardContent>
               </Card>
-              <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setChatAction("marketing_strategy");
+                  setChatOpen(true);
+                }}
+              >
                 <CardContent className="p-6">
                   <TrendingUp className="w-8 h-8 text-purple-600 mb-2" />
                   <h3 className="font-medium">Stratégie marketing</h3>
                   <p className="text-sm text-gray-600 mt-1">
                     Développez votre stratégie de croissance
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* More Actions */}
+            <h3 className="text-lg font-semibold mb-4">Autres services Ezia</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setChatAction("content_calendar");
+                  setChatOpen(true);
+                }}
+              >
+                <CardContent className="p-4">
+                  <Calendar className="w-6 h-6 text-indigo-600 mb-2" />
+                  <h4 className="font-medium text-sm">Calendrier de contenu</h4>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Planifiez vos publications
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setChatAction("competitor_analysis");
+                  setChatOpen(true);
+                }}
+              >
+                <CardContent className="p-4">
+                  <BarChart3 className="w-6 h-6 text-orange-600 mb-2" />
+                  <h4 className="font-medium text-sm">Analyse concurrentielle</h4>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Étudiez vos concurrents
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setChatAction("branding");
+                  setChatOpen(true);
+                }}
+              >
+                <CardContent className="p-4">
+                  <Sparkles className="w-6 h-6 text-pink-600 mb-2" />
+                  <h4 className="font-medium text-sm">Identité de marque</h4>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Définissez votre image
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setChatAction("social_media");
+                  setChatOpen(true);
+                }}
+              >
+                <CardContent className="p-4">
+                  <MessageSquare className="w-6 h-6 text-blue-600 mb-2" />
+                  <h4 className="font-medium text-sm">Réseaux sociaux</h4>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Stratégie sociale
                   </p>
                 </CardContent>
               </Card>
@@ -293,7 +386,13 @@ export default function BusinessDetailPage() {
                   <div className="text-center py-8">
                     <Target className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-500">Aucune analyse de marché disponible</p>
-                    <Button className="mt-4">
+                    <Button 
+                      className="mt-4"
+                      onClick={() => {
+                        setChatAction("market_analysis");
+                        setChatOpen(true);
+                      }}
+                    >
                       <MessageSquare className="w-4 h-4 mr-2" />
                       Demander à Ezia
                     </Button>
@@ -346,7 +445,13 @@ export default function BusinessDetailPage() {
                   <div className="text-center py-8">
                     <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-500">Aucune stratégie marketing définie</p>
-                    <Button className="mt-4">
+                    <Button 
+                      className="mt-4"
+                      onClick={() => {
+                        setChatAction("marketing_strategy");
+                        setChatOpen(true);
+                      }}
+                    >
                       <MessageSquare className="w-4 h-4 mr-2" />
                       Créer avec Ezia
                     </Button>
@@ -461,6 +566,40 @@ export default function BusinessDetailPage() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Ezia Chat Dialog */}
+        <Dialog open={chatOpen} onOpenChange={setChatOpen}>
+          <DialogContent className="max-w-4xl h-[80vh] p-0">
+            <EziaChat
+              businessId={businessId}
+              businessName={business.name}
+              actionType={chatAction}
+              onActionComplete={(result) => {
+                console.log("Action completed:", result);
+                // Recharger les données du business
+                fetchBusiness();
+                if (result.type === "website_created") {
+                  // Ouvrir le site dans un nouvel onglet après un délai
+                  setTimeout(() => {
+                    window.open(result.url, "_blank");
+                  }, 3000);
+                }
+              }}
+              onClose={() => setChatOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Floating Action Button pour chat général */}
+        <Button
+          className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg"
+          onClick={() => {
+            setChatAction("general");
+            setChatOpen(true);
+          }}
+        >
+          <MessageSquare className="w-6 h-6" />
+        </Button>
       </div>
     </div>
   );

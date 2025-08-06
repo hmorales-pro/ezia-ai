@@ -13,8 +13,14 @@ interface MemoryBusiness {
   completion_score?: number;
   website_url?: string;
   social_media?: Record<string, unknown>;
-  market_analysis?: Record<string, unknown>;
-  marketing_strategy?: Record<string, unknown>;
+  market_analysis?: {
+    opportunities?: Array<unknown>;
+    [key: string]: unknown;
+  };
+  marketing_strategy?: {
+    content_calendar?: Array<unknown>;
+    [key: string]: unknown;
+  };
   ezia_interactions?: Array<Record<string, unknown>>;
   metrics?: Record<string, unknown>;
   goals?: Array<unknown>;
