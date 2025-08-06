@@ -20,3 +20,4 @@ Ezia is a coding platform powered by AI, designed to make coding smarter and mor
 ## How to use it locally
 
 Follow [this discussion](https://huggingface.co/spaces/enzostvs/ezia/discussions/74)
+# Force rebuild Mer  6 aoû 2025 16:02:31 CEST
