@@ -274,7 +274,7 @@ export default function DashboardPage() {
         </section>
       )}
 
-      <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
+      <LoginModal open={showLoginModal} onClose={setShowLoginModal} />
     </div>
   );
 }
