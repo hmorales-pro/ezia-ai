@@ -73,7 +73,8 @@ export default function NewBusinessPage() {
       }
     } catch (error) {
       console.error("Error creating business:", error);
-      toast.error((error as any).response?.data?.error || "Erreur lors de la création du business");
+      const errorMessage = error instanceof Error ? error.message : "Erreur lors de la création du business";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
