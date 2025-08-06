@@ -92,7 +92,7 @@ colorTo: ${colorTo}
 sdk: static
 pinned: false
 tags:
-  - deepsite
+  - ezia
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference`;

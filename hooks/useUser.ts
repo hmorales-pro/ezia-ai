@@ -17,7 +17,7 @@ export const useUser = (initialData?: {
   const client = useQueryClient();
   const router = useRouter();
   const [, setCookie, removeCookie] = useCookie(cookie_name);
-  const [currentRoute, setCurrentRoute] = useCookie("deepsite-currentRoute");
+  const [currentRoute, setCurrentRoute] = useCookie("ezia-currentRoute");
 
   const { data: { user, errCode } = { user: null, errCode: null }, isLoading } =
     useQuery({

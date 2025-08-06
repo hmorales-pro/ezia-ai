@@ -75,17 +75,17 @@ export function Footer({
       </div>
       <div className="flex justify-end items-center gap-2.5">
         <a
-          href="https://huggingface.co/spaces/victor/deepsite-gallery"
+          href="https://huggingface.co/spaces/victor/ezia-gallery"
           target="_blank"
         >
           <Button size="sm" variant="ghost">
             <SparkleIcon className="size-3.5" />
-            <span className="max-lg:hidden">DeepSite Gallery</span>
+            <span className="max-lg:hidden">Ezia Gallery</span>
           </Button>
         </a>
         <a
           target="_blank"
-          href="https://huggingface.co/spaces/enzostvs/deepsite/discussions/157"
+          href="https://huggingface.co/spaces/enzostvs/ezia/discussions/157"
         >
           <Button size="sm" variant="outline">
             <HelpCircle className="size-3.5" />

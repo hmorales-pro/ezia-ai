@@ -71,7 +71,7 @@ export async function GET(
       );
     }
     let html = await response.text();
-    // remove the last p tag including this url https://enzostvs-deepsite.hf.space
+    // remove the last p tag including this url https://ezia.hf.space
     html = html.replace(getPTag(namespace + "/" + repoId), "");
 
     return NextResponse.json(

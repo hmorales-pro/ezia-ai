@@ -6,7 +6,7 @@ export async function getAuth() {
   const authList = await headers();
   const host = authList.get("host") ?? "localhost:3000";
   const url = host.includes("/spaces/enzostvs")
-    ? "enzostvs-deepsite.hf.space"
+    ? "ezia.hf.space"
     : host;
   const redirect_uri =
     `${host.includes("localhost") ? "http://" : "https://"}` +

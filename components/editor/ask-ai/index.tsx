@@ -302,7 +302,7 @@ export function AskAI({
               }}
             >
               <p className="text-sm font-medium text-neutral-300 group-hover:text-neutral-200 transition-colors duration-200">
-                {isThinking ? "DeepSite is thinking..." : "DeepSite's plan"}
+                {isThinking ? "Ezia is thinking..." : "Ezia's plan"}
               </p>
               <ChevronDown
                 className={classNames(
@@ -368,10 +368,10 @@ export function AskAI({
             )}
             placeholder={
               selectedElement
-                ? `Ask DeepSite about ${selectedElement.tagName.toLowerCase()}...`
+                ? `Ask Ezia about ${selectedElement.tagName.toLowerCase()}...`
                 : hasAsked
-                ? "Ask DeepSite for edits"
-                : "Ask DeepSite anything..."
+                ? "Ask Ezia for edits"
+                : "Ask Ezia anything..."
             }
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
@@ -407,7 +407,7 @@ export function AskAI({
                   align="start"
                   className="bg-neutral-950 text-xs text-neutral-200 py-1 px-2 rounded-md -translate-y-0.5"
                 >
-                  Select an element on the page to ask DeepSite edit it
+                  Select an element on the page to ask Ezia edit it
                   directly.
                 </TooltipContent>
               </Tooltip>

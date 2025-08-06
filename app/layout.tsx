@@ -23,34 +23,34 @@ const ptSans = PT_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "DeepSite | Build with AI ✨",
+  title: "Ezia | Build with AI ✨",
   description:
-    "DeepSite is a web development tool that helps you build websites with AI, no code required. Let's deploy your website with DeepSite and enjoy the magic of AI.",
+    "Ezia is a web development tool that helps you build websites with AI, no code required. Let's deploy your website with Ezia and enjoy the magic of AI.",
   openGraph: {
-    title: "DeepSite | Build with AI ✨",
+    title: "Ezia | Build with AI ✨",
     description:
-      "DeepSite is a web development tool that helps you build websites with AI, no code required. Let's deploy your website with DeepSite and enjoy the magic of AI.",
-    url: "https://deepsite.hf.co",
-    siteName: "DeepSite",
+      "Ezia is a web development tool that helps you build websites with AI, no code required. Let's deploy your website with Ezia and enjoy the magic of AI.",
+    url: "https://ezia.hf.co",
+    siteName: "Ezia",
     images: [
       {
-        url: "https://deepsite.hf.co/banner.png",
+        url: "https://ezia.hf.co/banner.png",
         width: 1200,
         height: 630,
-        alt: "DeepSite Open Graph Image",
+        alt: "Ezia Open Graph Image",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "DeepSite | Build with AI ✨",
+    title: "Ezia | Build with AI ✨",
     description:
-      "DeepSite is a web development tool that helps you build websites with AI, no code required. Let's deploy your website with DeepSite and enjoy the magic of AI.",
-    images: ["https://deepsite.hf.co/banner.png"],
+      "Ezia is a web development tool that helps you build websites with AI, no code required. Let's deploy your website with Ezia and enjoy the magic of AI.",
+    images: ["https://ezia.hf.co/banner.png"],
   },
   appleWebApp: {
     capable: true,
-    title: "DeepSite",
+    title: "Ezia",
     statusBarStyle: "black-translucent",
   },
   icons: {
@@ -92,7 +92,7 @@ export default async function RootLayout({
     <html lang="en">
       <Script
         defer
-        data-domain="deepsite.hf.co"
+        data-domain="ezia.hf.co"
         src="https://plausible.io/js/script.js"
       ></Script>
       <body

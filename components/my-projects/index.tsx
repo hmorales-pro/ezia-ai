@@ -26,10 +26,10 @@ export function MyProjects({
           <div className="text-left">
             <h1 className="text-3xl font-bold text-white">
               <span className="capitalize">{user.fullname}</span>&apos;s
-              DeepSite Projects
+              Ezia Projects
             </h1>
             <p className="text-muted-foreground text-base mt-1 max-w-xl">
-              Create, manage, and explore your DeepSite projects.
+              Create, manage, and explore your Ezia projects.
             </p>
           </div>
           <LoadProject
