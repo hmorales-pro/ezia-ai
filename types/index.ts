@@ -13,8 +13,8 @@ export interface Project {
 
 export interface HtmlHistory {
   html: string;
-  timestamp: number;
-  prompt?: string;
+  createdAt: Date;
+  prompt: string;
 }
 
 export interface User {
