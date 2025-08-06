@@ -41,7 +41,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       session
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching session:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to fetch session" },
@@ -153,7 +153,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       message: `Session ${action} successful`
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error updating session:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to update session" },
@@ -192,7 +192,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       message: "Session deleted successfully"
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error deleting session:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to delete session" },

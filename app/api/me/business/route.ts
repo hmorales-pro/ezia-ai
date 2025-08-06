@@ -5,7 +5,7 @@ import { Business } from "@/models/Business";
 import { nanoid } from "nanoid";
 
 // GET /api/me/business - Liste tous les business de l'utilisateur
-export async function GET(request: NextRequest) {
+export async function GET() {
   const user = await isAuthenticated();
   if (user instanceof NextResponse || !user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       businesses,
       count: businesses.length
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching businesses:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to fetch businesses" },
@@ -132,11 +132,11 @@ export async function POST(request: NextRequest) {
       message: "Business created successfully"
     }, { status: 201 });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error creating business:", error);
     
     // Gérer les erreurs de duplication
-    if (error.code === 11000) {
+    if ((error as any).code === 11000) {
       return NextResponse.json(
         { ok: false, error: "A business with this ID already exists" },
         { status: 400 }

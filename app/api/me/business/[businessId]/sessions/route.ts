@@ -43,7 +43,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Construire la requête
-    const query: any = {
+    const query: Record<string, any> = {
       business_id: businessId,
       user_id: user.id
     };
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching sessions:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to fetch sessions" },
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       message: "Session created successfully"
     }, { status: 201 });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error creating session:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to create session" },

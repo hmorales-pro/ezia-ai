@@ -53,7 +53,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       count: projects.length
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching projects:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to fetch projects" },
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       }, { status: 201 });
     }
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error creating/linking project:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to create/link project" },

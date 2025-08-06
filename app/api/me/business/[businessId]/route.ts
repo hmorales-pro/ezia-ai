@@ -40,7 +40,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       business
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching business:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to fetch business" },
@@ -85,7 +85,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     ];
 
     // Filtrer uniquement les champs autorisés
-    const filteredUpdates: any = {};
+    const filteredUpdates: Record<string, any> = {};
     for (const field of allowedFields) {
       if (updates[field] !== undefined) {
         filteredUpdates[field] = updates[field];
@@ -128,7 +128,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       message: "Business updated successfully"
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error updating business:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to update business" },
@@ -183,7 +183,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       message: "Business archived successfully"
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error deleting business:", error);
     return NextResponse.json(
       { ok: false, error: "Failed to delete business" },
