@@ -76,4 +76,4 @@ export function getMemoryDB(): MemoryDB {
   return memoryDB;
 }
 
-export const isUsingMemoryDB = () => !process.env.MONGODB_URI;
+export const isUsingMemoryDB = () => !process.env.MONGODB_URI || process.env.MONGODB_URI.trim() === '';

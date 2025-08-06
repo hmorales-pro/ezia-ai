@@ -117,8 +117,9 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error("Error creating test business:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { ok: false, error: "Failed to create test business" },
+      { ok: false, error: "Failed to create test business", details: errorMessage },
       { status: 500 }
     );
   }
