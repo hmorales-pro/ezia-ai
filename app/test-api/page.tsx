@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 
 export default function TestApiPage() {
-  const [result, setResult] = useState<any>(null);
-  const [error, setError] = useState<any>(null);
+  const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Test direct fetch

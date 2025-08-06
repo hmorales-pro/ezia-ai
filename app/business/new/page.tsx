@@ -75,14 +75,15 @@ export default function NewBusinessPage() {
       } else {
         toast.error(response.data.error || "Erreur lors de la création");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error creating business:", error);
-      console.error("Error response:", error.response);
-      console.error("Error config:", error.config);
+      const axiosError = error as {response?: {status?: number}, config?: {url?: string, baseURL?: string}};
+      console.error("Error response:", axiosError.response);
+      console.error("Error config:", axiosError.config);
       
-      if (error.response?.status === 404) {
-        console.error("404 URL attempted:", error.config?.url);
-        console.error("Full URL:", error.config?.baseURL + error.config?.url);
+      if (axiosError.response?.status === 404) {
+        console.error("404 URL attempted:", axiosError.config?.url);
+        console.error("Full URL:", (axiosError.config?.baseURL || '') + (axiosError.config?.url || ''));
       }
       
       const errorMessage = error instanceof Error ? error.message : "Erreur lors de la création du business";
