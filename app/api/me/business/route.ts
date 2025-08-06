@@ -41,8 +41,20 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Error fetching businesses:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    
+    // En production, log plus de détails
+    if (process.env.NODE_ENV === "production") {
+      console.error("Database type:", isUsingMemoryDB() ? "memory" : "mongodb");
+      console.error("MongoDB URI configured:", !!process.env.MONGODB_URI);
+    }
+    
     return NextResponse.json(
-      { ok: false, error: "Failed to fetch businesses" },
+      { 
+        ok: false, 
+        error: "Failed to fetch businesses",
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined
+      },
       { status: 500 }
     );
   }
