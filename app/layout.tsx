@@ -7,7 +7,6 @@ import TanstackProvider from "@/components/providers/tanstack-query-provider";
 import "@/assets/globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import MY_TOKEN_KEY from "@/lib/get-cookie-name";
-import { apiServer } from "@/lib/api";
 import AppContext from "@/components/contexts/app-context";
 import Script from "next/script";
 
@@ -70,15 +69,19 @@ async function getMe() {
   const cookieStore = await cookies();
   const token = cookieStore.get(MY_TOKEN_KEY())?.value;
   if (!token) return { user: null, errCode: null };
+  
   try {
-    const res = await apiServer.get("/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return { user: res.data.user, errCode: null };
+    // Utiliser isAuthenticated pour obtenir l'utilisateur depuis HuggingFace directement
+    const { isAuthenticated } = await import("@/lib/auth");
+    const user = await isAuthenticated();
+    
+    if (user && !(user instanceof Response)) {
+      return { user, errCode: null };
+    }
+    return { user: null, errCode: null };
   } catch (err: any) {
-    return { user: null, errCode: err.status };
+    console.error("Error getting user:", err);
+    return { user: null, errCode: err.status || null };
   }
 }
 
