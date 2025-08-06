@@ -393,7 +393,8 @@ footer {
       } else {
         await dbConnect();
         
-        // Créer le projet via l'API DeepSite existante  
+        // Créer le projet via l'API DeepSite existante
+        // Note: Cette API nécessite un token HuggingFace valide
         const projectResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/me/projects`, {
           method: 'POST',
           headers: {
@@ -408,7 +409,33 @@ footer {
         });
         
         if (!projectResponse.ok) {
-          throw new Error('Failed to create project');
+          console.log('DeepSite API failed, falling back to demo mode');
+          // Fallback vers l'API de démo
+          const demoResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/ezia/create-website`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Cookie': request.headers.get('cookie') || ''
+            },
+            body: JSON.stringify({
+              businessId,
+              businessName,
+              html: defaultHtml,
+              css: defaultCss
+            })
+          });
+          
+          if (!demoResponse.ok) {
+            throw new Error('Failed to create website in both modes');
+          }
+          
+          const demoData = await demoResponse.json();
+          return {
+            type: "website_created",
+            projectId: demoData.project.space_id,
+            url: demoData.project.url,
+            message: `Site web créé avec succès (mode démo) ! Prévisualisation disponible.`
+          };
         }
         
         const responseData = await projectResponse.json();
@@ -484,7 +511,33 @@ ${html}
       });
       
       if (!projectResponse.ok) {
-        throw new Error('Failed to create project');
+        console.log('DeepSite API failed for custom HTML, falling back to demo mode');
+        // Fallback vers l'API de démo
+        const demoResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/ezia/create-website`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': request.headers.get('cookie') || ''
+          },
+          body: JSON.stringify({
+            businessId,
+            businessName,
+            html,
+            css
+          })
+        });
+        
+        if (!demoResponse.ok) {
+          throw new Error('Failed to create website in both modes');
+        }
+        
+        const demoData = await demoResponse.json();
+        return {
+          type: "website_created",
+          projectId: demoData.project.space_id,
+          url: demoData.project.url,
+          message: `Site web personnalisé créé (mode démo) ! Prévisualisation disponible.`
+        };
       }
       
       const responseData = await projectResponse.json();
