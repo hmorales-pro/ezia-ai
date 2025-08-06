@@ -16,7 +16,8 @@ export async function GET() {
     },
     database: {
       type: isUsingMemoryDB() ? "memory" : "mongodb",
-      status: "unknown"
+      status: "unknown",
+      error: undefined as string | undefined
     }
   };
 
