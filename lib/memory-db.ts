@@ -9,6 +9,7 @@ interface MemoryBusiness {
   stage: string;
   is_active: boolean;
   _createdAt: Date;
+  _updatedAt?: Date;
   completion_score?: number;
   website_url?: string;
   social_media?: Record<string, unknown>;
@@ -63,6 +64,28 @@ class MemoryDB {
     
     Object.assign(business, update);
     return true;
+  }
+
+  async findOne(query: Record<string, unknown>): Promise<MemoryBusiness | null> {
+    for (const business of this.businesses.values()) {
+      let matches = true;
+      for (const [key, value] of Object.entries(query)) {
+        if ((business as unknown as Record<string, unknown>)[key] !== value) {
+          matches = false;
+          break;
+        }
+      }
+      if (matches) return business;
+    }
+    return null;
+  }
+
+  async update(query: Record<string, unknown>, updates: Partial<MemoryBusiness>): Promise<MemoryBusiness | null> {
+    const business = await this.findOne(query);
+    if (!business) return null;
+    
+    Object.assign(business, updates);
+    return business;
   }
 }
 
