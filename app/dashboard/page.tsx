@@ -46,7 +46,7 @@ export default function DashboardPage() {
 
   const fetchBusinesses = async () => {
     try {
-      const response = await api.get("/api/me/business");
+      const response = await api.get("/me/business");
       if (response.data.ok) {
         setBusinesses(response.data.businesses);
       }

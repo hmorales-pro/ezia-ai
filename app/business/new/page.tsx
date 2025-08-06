@@ -63,7 +63,11 @@ export default function NewBusinessPage() {
     setLoading(true);
     
     try {
-      const response = await api.post("/api/me/business", formData);
+      console.log("Submitting to:", "/me/business");
+      console.log("FormData:", formData);
+      console.log("API base URL:", api.defaults.baseURL);
+      
+      const response = await api.post("/me/business", formData);
       
       if (response.data.ok) {
         toast.success("Business créé avec succès !");
@@ -71,8 +75,16 @@ export default function NewBusinessPage() {
       } else {
         toast.error(response.data.error || "Erreur lors de la création");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating business:", error);
+      console.error("Error response:", error.response);
+      console.error("Error config:", error.config);
+      
+      if (error.response?.status === 404) {
+        console.error("404 URL attempted:", error.config?.url);
+        console.error("Full URL:", error.config?.baseURL + error.config?.url);
+      }
+      
       const errorMessage = error instanceof Error ? error.message : "Erreur lors de la création du business";
       toast.error(errorMessage);
     } finally {
