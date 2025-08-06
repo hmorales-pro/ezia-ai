@@ -3,6 +3,7 @@ import { isAuthenticated } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
 import { nanoid } from "nanoid";
+import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 
 // GET /api/me/business - Liste tous les business de l'utilisateur
 export async function GET() {
@@ -12,16 +13,26 @@ export async function GET() {
   }
 
   try {
-    await dbConnect();
-
-    const businesses = await Business.find({
-      user_id: user.id,
-      is_active: true
-    })
-      .sort({ _createdAt: -1 })
-      .limit(50)
-      .select('-__v')
-      .lean();
+    let businesses;
+    
+    if (isUsingMemoryDB()) {
+      console.log("Using in-memory database for businesses");
+      const memoryDB = getMemoryDB();
+      businesses = await memoryDB.find({
+        user_id: user.id,
+        is_active: true
+      });
+    } else {
+      await dbConnect();
+      businesses = await Business.find({
+        user_id: user.id,
+        is_active: true
+      })
+        .sort({ _createdAt: -1 })
+        .limit(50)
+        .select('-__v')
+        .lean();
+    }
 
     return NextResponse.json({
       ok: true,
@@ -65,13 +76,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await dbConnect();
-
-    // Vérifier le nombre de business existants (limite à 10 par utilisateur)
-    const existingCount = await Business.countDocuments({
-      user_id: user.id,
-      is_active: true
-    });
+    let existingCount: number;
+    
+    if (isUsingMemoryDB()) {
+      console.log("Using in-memory database for business creation");
+      const memoryDB = getMemoryDB();
+      existingCount = await memoryDB.countDocuments({
+        user_id: user.id,
+        is_active: true
+      });
+    } else {
+      await dbConnect();
+      existingCount = await Business.countDocuments({
+        user_id: user.id,
+        is_active: true
+      });
+    }
 
     if (existingCount >= 10) {
       return NextResponse.json(
@@ -119,12 +139,17 @@ export async function POST(request: NextRequest) {
       is_active: true
     };
 
-    const business = await Business.create(businessData);
-
-    // Retourner le business créé
-    const createdBusiness = await Business.findById(business._id)
-      .select('-__v')
-      .lean();
+    let createdBusiness;
+    
+    if (isUsingMemoryDB()) {
+      const memoryDB = getMemoryDB();
+      createdBusiness = await memoryDB.create(businessData);
+    } else {
+      const business = await Business.create(businessData);
+      createdBusiness = await Business.findById(business._id)
+        .select('-__v')
+        .lean();
+    }
 
     return NextResponse.json({
       ok: true,
