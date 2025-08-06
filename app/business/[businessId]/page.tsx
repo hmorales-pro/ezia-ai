@@ -25,7 +25,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EziaChat } from "@/components/ezia-chat";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface Business {
   _id: string;
@@ -569,7 +569,11 @@ export default function BusinessDetailPage() {
 
         {/* Ezia Chat Dialog */}
         <Dialog open={chatOpen} onOpenChange={setChatOpen}>
-          <DialogContent className="max-w-4xl h-[80vh] p-0">
+          <DialogContent className="max-w-4xl h-[80vh] p-0" aria-describedby="ezia-chat-description">
+            <DialogTitle className="sr-only">Assistant Ezia</DialogTitle>
+            <DialogDescription className="sr-only" id="ezia-chat-description">
+              Discutez avec Ezia pour gérer votre business {business.name}
+            </DialogDescription>
             <EziaChat
               businessId={businessId}
               businessName={business.name}

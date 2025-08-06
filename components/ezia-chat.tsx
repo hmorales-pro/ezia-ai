@@ -168,7 +168,11 @@ export function EziaChat({
         signal: abortControllerRef.current.signal
       });
 
-      if (!response.ok) throw new Error("Failed to get response");
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error("API Error:", errorData);
+        throw new Error(`Failed to get response: ${response.status}`);
+      }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();

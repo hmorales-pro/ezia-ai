@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
     const systemPrompt = buildSystemPrompt(actionType, businessName, business, context);
 
     // Stream la réponse
+    const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
@@ -52,9 +53,8 @@ export async function POST(request: NextRequest) {
             [...systemPrompt, ...messages],
             async (chunk) => {
               fullResponse += chunk;
-              controller.enqueue(
-                `data: ${JSON.stringify({ content: chunk })}\n\n`
-              );
+              const data = encoder.encode(`data: ${JSON.stringify({ content: chunk })}\n\n`);
+              controller.enqueue(data);
             }
           );
 
@@ -66,22 +66,25 @@ export async function POST(request: NextRequest) {
               businessName,
               fullResponse,
               user,
-              business
+              business,
+              request
             );
           }
 
           // Sauvegarder l'interaction
           await saveInteraction(businessId, actionType, fullResponse, user.id);
 
-          controller.enqueue(
+          const doneData = encoder.encode(
             `data: ${JSON.stringify({ done: true, result: actionResult })}\n\n`
           );
+          controller.enqueue(doneData);
           controller.close();
         } catch (error) {
           console.error("Streaming error:", error);
-          controller.enqueue(
+          const errorData = encoder.encode(
             `data: ${JSON.stringify({ error: "Streaming failed" })}\n\n`
           );
+          controller.enqueue(errorData);
           controller.close();
         }
       }
@@ -214,7 +217,8 @@ async function executeAction(
   businessName: string,
   aiResponse: string,
   user: { id: string },
-  business: { name: string; description: string; industry: string; stage: string }
+  business: { name: string; description: string; industry: string; stage: string },
+  request: NextRequest
 ) {
   switch (actionType) {
     case "create_website":
