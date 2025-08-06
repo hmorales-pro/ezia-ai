@@ -56,7 +56,7 @@ export interface IBusiness {
   ezia_interactions: Array<{
     timestamp: Date;
     agent: string;              // Nom de l'agent (Ezia, chef d'équipe, etc.)
-    type: string;               // Type d'interaction
+    interaction_type: string;   // Type d'interaction (renamed from 'type' to avoid mongoose conflicts)
     summary: string;            // Résumé de l'interaction
     recommendations?: string[]; // Recommandations données
   }>;
@@ -100,70 +100,73 @@ const BusinessSchema = new Schema<IBusiness>({
   },
   
   // Contact & Présence
-  website_url: String,
-  space_id: String,
-  email: String,
-  phone: String,
+  website_url: { type: String },
+  space_id: { type: String },
+  email: { type: String },
+  phone: { type: String },
   
   // Réseaux sociaux
   social_media: {
-    linkedin: String,
-    twitter: String,
-    instagram: String,
-    facebook: String,
-    youtube: String
+    linkedin: { type: String },
+    twitter: { type: String },
+    instagram: { type: String },
+    facebook: { type: String },
+    youtube: { type: String }
   },
   
   // Analyse de marché
   market_analysis: {
-    target_audience: String,
-    value_proposition: String,
-    market_size: String,
-    competitors: [String],
-    opportunities: [String],
-    threats: [String],
-    last_updated: Date
+    target_audience: { type: String },
+    value_proposition: { type: String },
+    market_size: { type: String },
+    competitors: [{ type: String }],
+    opportunities: [{ type: String }],
+    threats: [{ type: String }],
+    last_updated: { type: Date }
   },
   
   // Marketing
   marketing_strategy: {
-    positioning: String,
-    key_messages: [String],
-    channels: [String],
+    positioning: { type: String },
+    key_messages: [{ type: String }],
+    channels: [{ type: String }],
     content_calendar: [{
-      date: Date,
-      type: String,
-      content: String,
+      date: { type: Date },
+      type: { type: String },
+      content: { type: String },
       status: {
         type: String,
         enum: ['draft', 'scheduled', 'published']
       }
     }],
-    last_updated: Date
+    last_updated: { type: Date }
   },
   
   // Historique Ezia
-  ezia_interactions: [{
-    timestamp: { type: Date, default: Date.now },
-    agent: String,
-    type: String,
-    summary: String,
-    recommendations: [String]
-  }],
+  ezia_interactions: {
+    type: [{
+      timestamp: { type: Date, default: Date.now },
+      agent: { type: String },
+      interaction_type: { type: String },
+      summary: { type: String },
+      recommendations: [{ type: String }]
+    }],
+    default: []
+  },
   
   // Métriques
   metrics: {
-    website_visits: Number,
-    conversion_rate: Number,
-    social_engagement: Number,
-    last_updated: Date
+    website_visits: { type: Number },
+    conversion_rate: { type: Number },
+    social_engagement: { type: Number },
+    last_updated: { type: Date }
   },
   
   // Objectifs
   goals: [{
-    title: String,
-    description: String,
-    target_date: Date,
+    title: { type: String },
+    description: { type: String },
+    target_date: { type: Date },
     status: {
       type: String,
       enum: ['pending', 'in_progress', 'completed'],

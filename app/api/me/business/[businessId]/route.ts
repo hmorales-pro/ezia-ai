@@ -112,7 +112,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
           ezia_interactions: {
             timestamp: new Date(),
             agent: "Ezia",
-            type: "business_update",
+            interaction_type: "business_update",
             summary: `Business mis à jour: ${Object.keys(filteredUpdates).join(', ')}`
           }
         }
@@ -171,7 +171,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
           ezia_interactions: {
             timestamp: new Date(),
             agent: "Ezia",
-            type: "business_deletion",
+            interaction_type: "business_deletion",
             summary: "Business archivé"
           }
         }

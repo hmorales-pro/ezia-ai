@@ -87,13 +87,14 @@ export async function POST(request: Request) {
       ezia_interactions: [{
         timestamp: new Date(),
         agent: "Ezia",
-        type: "business_creation",
+        interaction_type: "business_creation",
         summary: `Business de test "${name}" créé`,
         recommendations: []
       }],
       metrics: {},
       goals: []
     };
+
 
     let createdBusiness;
     

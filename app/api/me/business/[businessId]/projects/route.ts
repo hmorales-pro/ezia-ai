@@ -152,7 +152,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             ezia_interactions: {
               timestamp: new Date(),
               agent: "Ezia",
-              type: "project_linked",
+              interaction_type: "project_linked",
               summary: `Site web lié au business: ${space_id}`
             }
           }

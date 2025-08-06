@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       ezia_interactions: [{
         timestamp: new Date(),
         agent: "Ezia",
-        type: "business_creation",
+        interaction_type: "business_creation",
         summary: `Business "${name}" créé avec succès`,
         recommendations: [
           "Compléter l'analyse de marché",

@@ -164,7 +164,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           ezia_interactions: {
             timestamp: new Date(),
             agent: sessionData.agent.name,
-            type: 'session_started',
+            interaction_type: 'session_started',
             summary: `Nouvelle session: ${objective}`
           }
         }
