@@ -15,7 +15,7 @@ export default function Home() {
           Vibe Coding has never been so easy.
         </p>
         <div className="mt-14 max-w-2xl w-full mx-auto">
-          <AskAi />
+          {/* AI Interface */}
         </div>
         <div className="absolute inset-0 pointer-events-none -z-[1]">
           <div className="w-full h-full bg-gradient-to-r from-purple-500 to-pink-500 opacity-10 blur-3xl rounded-full" />

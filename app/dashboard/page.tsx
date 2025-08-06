@@ -159,7 +159,7 @@ export default function DashboardPage() {
               </h4>
               <p className="text-zinc-400 mb-6">
                 Commencez par créer votre premier business pour bénéficier 
-                de l'accompagnement complet d'Ezia.
+                de l&apos;accompagnement complet d&apos;Ezia.
               </p>
               <Button onClick={handleCreateBusiness} className="bg-violet-600 hover:bg-violet-700">
                 <Plus className="w-4 h-4 mr-2" />
@@ -267,7 +267,7 @@ export default function DashboardPage() {
               <h4 className="text-lg font-semibold mb-2">Accompagnement continu</h4>
               <p className="text-sm text-zinc-400">
                 Un suivi personnalisé avec des recommandations adaptées à 
-                l'évolution de votre business.
+                l&apos;évolution de votre business.
               </p>
             </Card>
           </div>

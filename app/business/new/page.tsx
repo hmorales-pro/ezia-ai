@@ -71,9 +71,9 @@ export default function NewBusinessPage() {
       } else {
         toast.error(response.data.error || "Erreur lors de la création");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error creating business:", error);
-      toast.error(error.response?.data?.error || "Erreur lors de la création du business");
+      toast.error((error as any).response?.data?.error || "Erreur lors de la création du business");
     } finally {
       setLoading(false);
     }
@@ -140,7 +140,7 @@ export default function NewBusinessPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="industry">Secteur d'activité *</Label>
+                <Label htmlFor="industry">Secteur d&apos;activité *</Label>
                 <Select
                   value={formData.industry}
                   onValueChange={(value) => setFormData({ ...formData, industry: value })}
@@ -214,7 +214,7 @@ export default function NewBusinessPage() {
 
         <div className="mt-6 p-4 bg-violet-900/20 rounded-lg border border-violet-600/30">
           <p className="text-sm text-violet-200">
-            <strong>💡 Astuce :</strong> Plus vous donnez d'informations précises, 
+            <strong>💡 Astuce :</strong> Plus vous donnez d&apos;informations précises, 
             mieux Ezia pourra vous accompagner. Vous pourrez toujours modifier 
             ces informations plus tard.
           </p>
