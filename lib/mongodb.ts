@@ -19,14 +19,24 @@ async function dbConnect() {
   }
 
   if (!cached.promise) {
+    const mongoOptions = {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
+    };
+    
     cached.promise = mongoose
-      .connect(MONGODB_URI as string)
+      .connect(MONGODB_URI as string, mongoOptions)
       .then((mongoose) => {
         console.log("MongoDB connected successfully");
         return mongoose;
       })
       .catch((error) => {
         console.error("MongoDB connection error:", error);
+        // Log more details in production
+        if (process.env.NODE_ENV === 'production') {
+          console.error("MongoDB URI length:", MONGODB_URI.length);
+          console.error("MongoDB URI starts with:", MONGODB_URI.substring(0, 20) + "...");
+        }
         throw error;
       });
   }
