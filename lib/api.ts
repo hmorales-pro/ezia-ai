@@ -2,7 +2,7 @@ import axios from "axios";
 import MY_TOKEN_KEY from "./get-cookie-name";
 
 export const api = axios.create({
-  baseURL: `/api`,
+  baseURL: "", // Remove baseURL to see what happens
   headers: {
     cache: "no-store",
   },

@@ -26,7 +26,7 @@ export function SaveButton({
     setLoading(true);
 
     try {
-      const res = await api.put(`/me/projects/${namespace}/${repoId}`, {
+      const res = await api.put(`/api/me/projects/${namespace}/${repoId}`, {
         html,
         prompts,
       });

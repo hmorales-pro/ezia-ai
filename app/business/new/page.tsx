@@ -67,7 +67,7 @@ export default function NewBusinessPage() {
       console.log("FormData:", formData);
       console.log("API base URL:", api.defaults.baseURL);
       
-      const response = await api.post("/me/business", formData);
+      const response = await api.post("/api/me/business", formData);
       
       if (response.data.ok) {
         toast.success("Business créé avec succès !");

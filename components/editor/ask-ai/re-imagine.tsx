@@ -40,7 +40,7 @@ export function ReImagine({
       return;
     }
     setIsLoading(true);
-    const response = await api.put("/re-design", {
+    const response = await api.put("/api/re-design", {
       url: url.trim(),
     });
     if (response?.data?.ok) {
