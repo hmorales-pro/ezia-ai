@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
     console.error("Error creating business:", error);
     
     // Gérer les erreurs de duplication
-    if ((error as any).code === 11000) {
+    if ((error as Error & {code?: number}).code === 11000) {
       return NextResponse.json(
         { ok: false, error: "A business with this ID already exists" },
         { status: 400 }

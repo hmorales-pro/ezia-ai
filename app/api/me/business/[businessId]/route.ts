@@ -85,7 +85,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     ];
 
     // Filtrer uniquement les champs autorisés
-    const filteredUpdates: Record<string, any> = {};
+    const filteredUpdates: Record<string, unknown> = {};
     for (const field of allowedFields) {
       if (updates[field] !== undefined) {
         filteredUpdates[field] = updates[field];

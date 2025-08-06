@@ -43,7 +43,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Construire la requête
-    const query: Record<string, any> = {
+    const query: Record<string, unknown> = {
       business_id: businessId,
       user_id: user.id
     };
