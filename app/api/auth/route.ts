@@ -23,8 +23,8 @@ export async function POST(req: NextRequest) {
   const host =
     req.headers.get("host") ?? req.headers.get("origin") ?? "localhost:3000";
 
-  const url = host.includes("/spaces/enzostvs")
-    ? "ezia.hf.space"
+  const url = host.includes("/spaces/hmorales")
+    ? "hmorales-ezia.hf.space"
     : host;
   const redirect_uri =
     `${host.includes("localhost") ? "http://" : "https://"}` +
