@@ -106,7 +106,7 @@ export function EziaChatV2({ // Component name kept for compatibility
     const initialMessage: Message = {
       id: "initial",
       role: "assistant",
-      content: `Bonjour ! Je suis l'agent spécialisé de l'Eziom Agency. ${config.description} pour **${businessName}**.
+      content: `Bonjour ! Je suis l'agent spécialisé d'Ezia. ${config.description} pour **${businessName}**.
 
 Souhaitez-vous que je commence l'analyse ou avez-vous des questions spécifiques ?`,
       timestamp: new Date()

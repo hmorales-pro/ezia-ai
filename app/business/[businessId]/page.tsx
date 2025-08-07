@@ -602,7 +602,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
         {/* Ezia Chat Dialog */}
         <Dialog open={chatOpen} onOpenChange={setChatOpen}>
           <DialogContent className="max-w-4xl h-[80vh] p-0" aria-describedby="ezia-chat-description">
-            <DialogTitle className="sr-only">Agence Eziom</DialogTitle>
+            <DialogTitle className="sr-only">Agence Ezia</DialogTitle>
             <DialogDescription className="sr-only" id="ezia-chat-description">
               Discutez avec votre équipe d'agents IA pour gérer votre business {business.name}
             </DialogDescription>

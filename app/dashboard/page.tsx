@@ -145,7 +145,7 @@ export default function DashboardPage() {
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">Eziom Agency</h1>
+                <h1 className="text-xl font-bold">Ezia</h1>
                 <p className="text-xs text-[#666666]">Tableau de bord</p>
               </div>
             </Link>
@@ -466,7 +466,7 @@ export default function DashboardPage() {
                 Votre agence digitale IA
               </h2>
               <p className="text-xl text-[#666666] mb-12">
-                Eziom Agency met à votre disposition une équipe complète d'experts IA pour développer 
+                Ezia met à votre disposition une équipe complète d'experts IA pour développer 
                 votre présence en ligne et faire croître votre business.
               </p>
               <div className="flex gap-4 justify-center">

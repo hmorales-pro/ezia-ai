@@ -179,7 +179,7 @@ Crée un planning de contenu sur 30 jours avec:
 5. Idées de posts spécifiques`
   };
 
-  const systemContext = `Tu es un agent spécialisé de l'Eziom Agency, expert en stratégie business. 
+  const systemContext = `Tu es un agent spécialisé d'Ezia, expert en stratégie business. 
 Tu fournis des analyses professionnelles, détaillées et actionnables en français.
 Utilise un ton professionnel mais accessible.
 Structure tes réponses avec des titres clairs et des points numérotés.`;

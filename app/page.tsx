@@ -40,7 +40,7 @@ export default function HomePage() {
                   </div>
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
                 </div>
-                <span className="text-xl font-bold text-[#1E1E1E]">Eziom Agency</span>
+                <span className="text-xl font-bold text-[#1E1E1E]">Ezia</span>
               </Link>
             </div>
 
@@ -135,7 +135,7 @@ export default function HomePage() {
           </h1>
           
           <p className="text-xl md:text-2xl text-[#666666] mb-10 max-w-3xl mx-auto leading-relaxed">
-            Eziom Agency réunit une équipe d'experts IA spécialisés pour propulser 
+            Ezia réunit une équipe d'experts IA spécialisés pour propulser 
             votre business en ligne. De la création web à la stratégie marketing.
           </p>
           
@@ -325,7 +325,7 @@ export default function HomePage() {
               Prêt à transformer votre idée en business ?
             </h2>
             <p className="text-xl text-[#666666] mb-8">
-              Rejoignez des milliers d'entrepreneurs qui font confiance à Eziom Agency 
+              Rejoignez des milliers d'entrepreneurs qui font confiance à Ezia 
               pour développer leur présence en ligne.
             </p>
             <Button 
@@ -348,10 +348,10 @@ export default function HomePage() {
               <div className="w-8 h-8 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-lg flex items-center justify-center shadow-md">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-semibold text-[#1E1E1E]">Eziom Agency</span>
+              <span className="text-lg font-semibold text-[#1E1E1E]">Ezia</span>
             </div>
             <p className="text-[#666666] text-sm">
-              © 2024 Eziom Agency. Tous droits réservés. Fait avec ❤️ en France
+              © 2024 Ezia. Tous droits réservés. Fait avec ❤️ en France
             </p>
           </div>
         </div>

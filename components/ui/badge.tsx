@@ -15,7 +15,7 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
-        eziom: "border-[#C837F4]/20 bg-gradient-to-r from-[#C837F4]/10 to-[#B028F2]/10 text-[#C837F4]",
+        ezia: "border-[#C837F4]/20 bg-gradient-to-r from-[#C837F4]/10 to-[#B028F2]/10 text-[#C837F4]",
       },
     },
     defaultVariants: {

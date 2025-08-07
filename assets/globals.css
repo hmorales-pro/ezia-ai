@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Dark variant removed - Eziom Agency uses light theme only */
+/* Dark variant removed - Ezia uses light theme only */
 
 @theme inline {
   --color-background: var(--background);
@@ -45,7 +45,7 @@
 
 :root {
   --radius: 0.625rem;
-  /* Eziom Agency Color Scheme */
+  /* Ezia Color Scheme */
   --background: #EDEAE3; /* Light beige/pale gray */
   --foreground: #1E1E1E; /* Deep black for text */
   --card: #FFFFFF; /* White cards on beige background */
@@ -79,7 +79,7 @@
   --sidebar-ring: #C837F4;
 }
 
-/* Dark theme removed - Eziom Agency uses light theme only */
+/* Dark theme removed - Ezia uses light theme only */
 
 @layer base {
   * {

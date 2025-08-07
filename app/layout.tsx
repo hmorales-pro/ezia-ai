@@ -22,34 +22,34 @@ const ptSans = PT_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Eziom Agency | Votre Partenaire Business IA",
+  title: "Ezia | Votre Partenaire Business IA",
   description:
-    "Eziom Agency est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
+    "Ezia est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
   openGraph: {
-    title: "Eziom Agency | Votre Partenaire Business IA",
+    title: "Ezia | Votre Partenaire Business IA",
     description:
-      "Eziom Agency est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
-    url: "https://eziom.agency",
-    siteName: "Eziom Agency",
+      "Ezia est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
+    url: "https://ezia.agency",
+    siteName: "Ezia",
     images: [
       {
-        url: "https://eziom.agency/banner.png",
+        url: "https://ezia.agency/banner.png",
         width: 1200,
         height: 630,
-        alt: "Eziom Agency Open Graph Image",
+        alt: "Ezia Open Graph Image",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Eziom Agency | Votre Partenaire Business IA",
+    title: "Ezia | Votre Partenaire Business IA",
     description:
-      "Eziom Agency est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
-    images: ["https://eziom.agency/banner.png"],
+      "Ezia est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
+    images: ["https://ezia.agency/banner.png"],
   },
   appleWebApp: {
     capable: true,
-    title: "Eziom Agency",
+    title: "Ezia",
     statusBarStyle: "black-translucent",
   },
   icons: {
@@ -95,7 +95,7 @@ export default async function RootLayout({
     <html lang="en">
       <Script
         defer
-        data-domain="eziom.agency"
+        data-domain="ezia.agency"
         src="https://plausible.io/js/script.js"
       ></Script>
       <body
