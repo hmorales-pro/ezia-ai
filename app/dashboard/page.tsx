@@ -159,6 +159,15 @@ export default function DashboardPage() {
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => router.push("/pricing")}
+                    className="text-[#666666] hover:text-[#1E1E1E] border-[#E0E0E0] hover:bg-gray-50"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Abonnement
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => router.push("/projects")}
                     className="text-[#666666] hover:text-[#1E1E1E] border-[#E0E0E0] hover:bg-gray-50"
                   >

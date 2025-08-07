@@ -3,7 +3,7 @@ import { isAuthenticated } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
-import { generateSimpleAIResponse } from "@/lib/simple-ai-service";
+import { generateWithMistralAPI } from "@/lib/mistral-ai-service";
 import MY_TOKEN_KEY from "@/lib/get-cookie-name";
 
 export async function POST(request: NextRequest) {
@@ -37,9 +37,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
 
-    // Obtenir le token de l'utilisateur ou le token par défaut
-    const userToken = request.cookies.get(MY_TOKEN_KEY())?.value;
-    const token = userToken || process.env.DEFAULT_HF_TOKEN || process.env.HF_TOKEN;
+    // Plus besoin de token HuggingFace, on utilise Mistral API directement
 
     // Préparer le contexte selon le type d'action
     const contexts: Record<string, string> = {
@@ -62,13 +60,11 @@ ${business.website_url ? `Site web: ${business.website_url}` : ''}
 
 ${userPrompt ? `Demande spécifique: ${userPrompt}` : 'Fournis une analyse complète.'}`;
 
-    // Générer la réponse avec le service simplifié
-    const response = await generateSimpleAIResponse(businessContext, {
-      systemContext,
-      token,
-      maxTokens: 2000,
-      temperature: 0.8
-    });
+    // Générer la réponse avec Mistral API ou réponses par défaut
+    const response = await generateWithMistralAPI(
+      businessContext,
+      systemContext
+    );
 
     if (!response.success) {
       return NextResponse.json(

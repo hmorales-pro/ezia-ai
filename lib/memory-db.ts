@@ -94,6 +94,60 @@ class MemoryDB {
     Object.assign(business, updates);
     return business;
   }
+
+  async updateBusinessInteraction(businessId: string, interaction: unknown): Promise<void> {
+    for (const business of this.businesses.values()) {
+      if (business.business_id === businessId) {
+        if (!business.ezia_interactions) {
+          business.ezia_interactions = [];
+        }
+        business.ezia_interactions.push(interaction as Record<string, unknown>);
+        business._updatedAt = new Date();
+        break;
+      }
+    }
+  }
+
+  async updateBusiness(businessId: string, updates: Partial<MemoryBusiness>): Promise<void> {
+    for (const business of this.businesses.values()) {
+      if (business.business_id === businessId) {
+        Object.assign(business, updates, { _updatedAt: new Date() });
+        break;
+      }
+    }
+  }
+
+  // Méthodes pour les abonnements
+  async getSubscription(userId: string): Promise<MemorySubscription | null> {
+    return this.subscriptions.get(userId) || null;
+  }
+
+  async createSubscription(subscription: MemorySubscription): Promise<MemorySubscription> {
+    this.subscriptions.set(subscription.user_id, subscription);
+    return subscription;
+  }
+
+  async updateSubscription(userId: string, updates: Partial<MemorySubscription>): Promise<MemorySubscription | null> {
+    const subscription = this.subscriptions.get(userId);
+    if (subscription) {
+      Object.assign(subscription, updates);
+      subscription.updated_at = new Date();
+      return subscription;
+    }
+    return null;
+  }
+
+  async incrementUsage(userId: string, usageType: string, increment: number): Promise<MemorySubscription | null> {
+    const subscription = this.subscriptions.get(userId);
+    if (subscription && subscription.usage) {
+      const key = usageType as keyof typeof subscription.usage;
+      if (key in subscription.usage) {
+        subscription.usage[key] += increment;
+        subscription.updated_at = new Date();
+      }
+    }
+    return subscription || null;
+  }
 }
 
 // Singleton instance

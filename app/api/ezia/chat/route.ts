@@ -5,7 +5,7 @@ import { Business } from "@/models/Business";
 // import { Project } from "@/models/Project";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 import { nanoid } from "nanoid";
-import { generateSimpleAIResponse } from "@/lib/simple-ai-service";
+import { generateWithMistralAPI } from "@/lib/mistral-ai-service";
 
 export async function POST(request: NextRequest) {
   const user = await isAuthenticated();
@@ -49,17 +49,14 @@ export async function POST(request: NextRequest) {
           let fullResponse = "";
           let actionResult = null;
 
-          // Générer la réponse avec le service simplifié
+          // Générer la réponse avec Mistral API
           const userMessage = messages[messages.length - 1]?.content || "";
-          const token = request.cookies.get("HF_TOKEN")?.value || process.env.DEFAULT_HF_TOKEN;
-          
           const systemContext = systemPrompt[0]?.content || "";
-          const response = await generateSimpleAIResponse(userMessage, {
-            systemContext,
-            token,
-            maxTokens: 2000,
-            temperature: 0.8
-          });
+          
+          const response = await generateWithMistralAPI(
+            userMessage,
+            systemContext
+          );
           
           if (response.success && response.content) {
             fullResponse = response.content;

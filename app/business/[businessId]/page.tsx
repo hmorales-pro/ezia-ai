@@ -614,7 +614,8 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
                 console.log("Action completed:", result);
                 // Recharger les données du business
                 fetchBusiness();
-                setChatOpen(false);
+                // Ne pas fermer la modale pour voir le résultat
+                // setChatOpen(false);
               }}
               onClose={() => setChatOpen(false)}
             />
