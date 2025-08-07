@@ -196,6 +196,7 @@ export default function BusinessDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatAction, setChatAction] = useState<string>("general");
+  const [activeTab, setActiveTab] = useState<string>("overview");
 
   useEffect(() => {
     fetchBusiness();
@@ -205,6 +206,19 @@ export default function BusinessDetailPage() {
     if (action) {
       setChatAction(action);
       setChatOpen(true);
+    }
+    
+    // Vérifier si un onglet est spécifié dans l'URL
+    const tab = searchParams.get("tab");
+    if (tab) {
+      setActiveTab(tab);
+    }
+    
+    // Si on arrive sur market_analysis via action, basculer sur l'onglet market
+    if (action === "market_analysis" && !tab) {
+      setActiveTab("market");
+    } else if (action === "marketing_strategy" && !tab) {
+      setActiveTab("marketing");
     }
   }, [businessId, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -316,7 +330,19 @@ export default function BusinessDetailPage() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={(value) => {
+            setActiveTab(value);
+            // Mettre à jour l'URL avec le nouvel onglet
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('tab', value);
+            // Supprimer le paramètre action s'il existe
+            newUrl.searchParams.delete('action');
+            router.push(newUrl.pathname + newUrl.search);
+          }}
+          className="space-y-6"
+        >
           <TabsList>
             <TabsTrigger value="overview">Vue d&apos;ensemble</TabsTrigger>
             <TabsTrigger value="market">Analyse de marché</TabsTrigger>
