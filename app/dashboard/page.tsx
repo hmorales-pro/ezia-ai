@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useUser } from "@/hooks/useUser";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -133,19 +134,21 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header amélioré */}
-      <header className="border-b border-zinc-800 backdrop-blur-sm bg-black/50 sticky top-0 z-50">
+      <header className="border-b border-white/10 backdrop-blur-xl bg-black/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3">
               <div className="relative">
-                <Sparkles className="w-8 h-8 text-violet-500" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-black" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">Ezia Dashboard</h1>
-                <p className="text-xs text-zinc-400">Votre assistante IA business</p>
+                <h1 className="text-xl font-bold">Dashboard</h1>
+                <p className="text-xs text-gray-400">Gérez vos business</p>
               </div>
-            </div>
+            </Link>
             <div className="flex items-center gap-4">
               {user ? (
                 <>
@@ -154,16 +157,20 @@ export default function DashboardPage() {
                     <p className="text-xs text-zinc-400">{user.email}</p>
                   </div>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     onClick={() => router.push("/projects")}
+                    className="text-gray-300 hover:text-white"
                   >
                     <Globe className="w-4 h-4 mr-2" />
                     Projets Web
                   </Button>
                 </>
               ) : (
-                <Button onClick={() => setShowLoginModal(true)} className="bg-violet-600 hover:bg-violet-700">
+                <Button 
+                  onClick={() => setShowLoginModal(true)} 
+                  className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0"
+                >
                   Se connecter
                 </Button>
               )}
@@ -273,7 +280,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={handleCreateBusiness}
                   size="sm"
-                  className="bg-violet-600 hover:bg-violet-700"
+                  className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Nouveau
@@ -281,15 +288,18 @@ export default function DashboardPage() {
               </div>
 
               {businesses.length === 0 ? (
-                <Card className="p-12 text-center bg-zinc-900 border-zinc-800">
-                  <Building2 className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
+                <Card className="p-12 text-center bg-white/5 backdrop-blur-sm border border-white/10">
+                  <Building2 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-2">
                     Commencez votre aventure entrepreneuriale
                   </h3>
-                  <p className="text-zinc-400 mb-6 max-w-md mx-auto">
+                  <p className="text-gray-400 mb-6 max-w-md mx-auto">
                     Créez votre premier business et laissez Ezia vous guider dans chaque étape de votre développement.
                   </p>
-                  <Button onClick={handleCreateBusiness} className="bg-violet-600 hover:bg-violet-700">
+                  <Button 
+                    onClick={handleCreateBusiness} 
+                    className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0"
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Créer mon premier business
                   </Button>
@@ -299,7 +309,7 @@ export default function DashboardPage() {
                   {businesses.map((business) => (
                     <Card
                       key={business.business_id}
-                      className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 cursor-pointer transition-all group"
+                      className="bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 cursor-pointer transition-all group"
                       onClick={() => handleBusinessClick(business.business_id)}
                     >
                       <CardContent className="p-6">

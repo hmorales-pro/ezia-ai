@@ -21,7 +21,7 @@ export function QuickActionCard({
 }: QuickActionCardProps) {
   return (
     <Card 
-      className="p-6 bg-zinc-900 border-zinc-800 hover:border-zinc-700 cursor-pointer transition-all group relative overflow-hidden"
+      className="p-6 bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 cursor-pointer transition-all group relative overflow-hidden"
       onClick={onClick}
     >
       {/* Gradient overlay on hover */}
@@ -29,17 +29,19 @@ export function QuickActionCard({
       
       <div className="relative">
         <div className="flex items-start justify-between mb-4">
-          <Icon className={cn("w-8 h-8", iconColor)} />
+          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
+            <Icon className="w-8 h-8 text-white" />
+          </div>
           {badge && (
-            <span className="text-xs px-2 py-1 rounded-full bg-violet-500/20 text-violet-400">
+            <span className="text-xs px-2 py-1 rounded-full bg-violet-500/20 text-violet-400 border border-violet-500/30">
               {badge}
             </span>
           )}
         </div>
-        <h3 className="text-lg font-semibold mb-2 group-hover:text-violet-400 transition-colors">
+        <h3 className="text-lg font-semibold mb-2 group-hover:text-white transition-colors">
           {title}
         </h3>
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-gray-400">
           {description}
         </p>
       </div>

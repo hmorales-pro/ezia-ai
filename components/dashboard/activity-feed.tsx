@@ -36,13 +36,13 @@ const activityColors = {
 
 export function ActivityFeed({ activities }: ActivityFeedProps) {
   return (
-    <Card className="bg-zinc-900 border-zinc-800">
+    <Card className="bg-white/5 backdrop-blur-sm border border-white/10">
       <CardHeader>
         <CardTitle className="text-lg">Activité récente</CardTitle>
       </CardHeader>
       <CardContent>
         {activities.length === 0 ? (
-          <p className="text-sm text-zinc-400 text-center py-8">
+          <p className="text-sm text-gray-400 text-center py-8">
             Aucune activité récente
           </p>
         ) : (
