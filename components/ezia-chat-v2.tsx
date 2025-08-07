@@ -236,17 +236,17 @@ Souhaitez-vous que je commence l'analyse ou avez-vous des questions spécifiques
   };
 
   return (
-    <div className="flex flex-col h-full bg-zinc-950">
+    <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="border-b border-zinc-800 p-4">
+      <div className="border-b border-[#E0E0E0] p-4 bg-[#FAF9F5]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={cn("p-2 rounded-lg", config.bgColor)}>
               <ActionIcon className={cn("w-6 h-6", config.color)} />
             </div>
             <div>
-              <h3 className="font-semibold">{config.title}</h3>
-              <p className="text-sm text-zinc-400">{businessName}</p>
+              <h3 className="font-semibold text-[#1E1E1E]">{config.title}</h3>
+              <p className="text-sm text-[#666666]">{businessName}</p>
             </div>
           </div>
           {onClose && (
@@ -277,8 +277,8 @@ Souhaitez-vous que je commence l'analyse ou avez-vous des questions spécifiques
                 className={cn(
                   "max-w-[80%] rounded-lg p-4",
                   message.role === "user"
-                    ? "bg-violet-600 text-white"
-                    : "bg-zinc-900 border border-zinc-800",
+                    ? "bg-[#6D3FC8] text-white"
+                    : "bg-[#F5F5F5] border border-[#E0E0E0] text-[#1E1E1E]",
                   message.error && "border-red-500/50"
                 )}
               >
@@ -288,7 +288,7 @@ Souhaitez-vous que je commence l'analyse ou avez-vous des questions spécifiques
                     <span className="text-sm">L'agent analyse...</span>
                   </div>
                 ) : (
-                  <div className="prose prose-invert prose-sm max-w-none">
+                  <div className="prose prose-sm max-w-none">
                     <ReactMarkdown>{message.content}</ReactMarkdown>
                   </div>
                 )}
@@ -299,19 +299,19 @@ Souhaitez-vous que je commence l'analyse ou avez-vous des questions spécifiques
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t border-zinc-800 p-4">
+      <div className="border-t border-[#E0E0E0] p-4 bg-[#FAF9F5]">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={isAnalyzing ? "Analyse en cours..." : "Posez votre question ou tapez 'commence' pour démarrer"}
             disabled={isLoading || isAnalyzing}
-            className="flex-1 bg-zinc-900 border-zinc-800"
+            className="flex-1 bg-white border-[#E0E0E0] text-[#1E1E1E]"
           />
           <Button 
             type="submit" 
             disabled={!input.trim() || isLoading || isAnalyzing}
-            className="bg-violet-600 hover:bg-violet-700"
+            className="bg-[#6D3FC8] hover:bg-[#5A35A5] text-white"
           >
             {isAnalyzing ? (
               <Loader2 className="w-4 h-4 animate-spin" />

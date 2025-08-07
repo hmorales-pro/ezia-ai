@@ -23,7 +23,7 @@ Créer un projet digital complet demande :
   - projets SaaS simples
 - Assistant IA conversationnel (MistralAI)
 - Orchestration d'agents IA spécialisés :
-  - **Kiko** : développement
+  - **Lex** : développement
   - **Milo** : branding & naming
   - **Yuna** : UX / recherche utilisateur
   - **Vera** : contenu éditorial & SEO
@@ -46,26 +46,7 @@ Créer un projet digital complet demande :
 - Agences web (prototype rapide pour clients)  
 - TPE sans ressources internes tech/SEO
 
-## 6. Style & Design  
-- Style doux, accessible et professionnel  
-- Fond clair `#FAF9F5` avec texture “grain de sable”  
-- Accent couleur violet `#6D3FC8`  
-- Design minimaliste, guidé par la conversation  
-- **Mascottes kawaii** pour chaque agent IA, façon figurines attachantes  
-- Inspirations : Lovable.dev (sans builder), Notion, MGX, Framer AI
-
-## 7. Contraintes ou exigences techniques  
-- **Frontend** : Next.js (App Router)
-- **Backend** : Supabase (auth, DB, fonctions serverless)
-- **LLM** : MistralAI (orchestration conversationnelle et agents spécialisés)
-- **Déploiement initial** : Netlify
-- **Déploiement futur** : hébergement souverain (France/UE)
-- **Context7** :
-  - utilisé pour enrichir dynamiquement le contexte technique de chaque projet
-  - les agents codeurs utilisent des extraits à jour de doc officielle (Next, Supabase, Tailwind, etc.)
-  - fonctionne en local, en API ou via outils comme Cursor
-
-## 8. Inspirations / Références  
+## 6. Inspirations / Références  
 - [Lovable.dev](https://lovable.dev)  
 - [Framer AI](https://framer.com/ai)  
 - [Durable.co](https://durable.co)  

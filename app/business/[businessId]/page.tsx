@@ -488,7 +488,52 @@ export default function BusinessDetailPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {business.market_analysis.target_audience ? (
+                {/* Chercher d'abord dans les interactions pour les analyses récentes */}
+                {(() => {
+                  const marketAnalysisInteraction = business.ezia_interactions
+                    ?.filter(i => i.interaction_type === 'market_analysis' && i.content)
+                    ?.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+                  
+                  if (marketAnalysisInteraction) {
+                    return (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-medium text-gray-700">Dernière analyse</h3>
+                          <span className="text-sm text-gray-500">
+                            {format(new Date(marketAnalysisInteraction.timestamp), "d MMM yyyy", { locale: fr })}
+                          </span>
+                        </div>
+                        <div className="prose prose-sm max-w-none">
+                          <ReactMarkdown>{marketAnalysisInteraction.content || marketAnalysisInteraction.summary}</ReactMarkdown>
+                        </div>
+                        {marketAnalysisInteraction.recommendations && marketAnalysisInteraction.recommendations.length > 0 && (
+                          <div className="mt-4">
+                            <h4 className="font-medium text-gray-700 mb-2">Recommandations</h4>
+                            <ul className="list-disc list-inside text-gray-600 space-y-1">
+                              {marketAnalysisInteraction.recommendations.map((rec, idx) => (
+                                <li key={idx}>{rec}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        <div className="flex justify-center mt-6">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setChatAction("market_analysis");
+                              setChatOpen(true);
+                            }}
+                          >
+                            <Target className="w-4 h-4 mr-2" />
+                            Nouvelle analyse
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  // Sinon afficher les données existantes ou le placeholder
+                  return business.market_analysis.target_audience ? (
                   <>
                     <div>
                       <h3 className="font-medium text-gray-700">Audience cible</h3>
@@ -509,22 +554,23 @@ export default function BusinessDetailPage() {
                       </div>
                     )}
                   </>
-                ) : (
-                  <div className="text-center py-8">
-                    <Target className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Aucune analyse de marché disponible</p>
-                    <Button 
-                      className="mt-4"
-                      onClick={() => {
-                        setChatAction("market_analysis");
-                        setChatOpen(true);
-                      }}
-                    >
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Consulter l'agence
-                    </Button>
-                  </div>
-                )}
+                  ) : (
+                    <div className="text-center py-8">
+                      <Target className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">Aucune analyse de marché disponible</p>
+                      <Button 
+                        className="mt-4"
+                        onClick={() => {
+                          setChatAction("market_analysis");
+                          setChatOpen(true);
+                        }}
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Consulter l'agence
+                      </Button>
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           </TabsContent>
@@ -539,11 +585,58 @@ export default function BusinessDetailPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {business.marketing_strategy.positioning ? (
+                {/* Chercher d'abord dans les interactions pour les stratégies récentes */}
+                {(() => {
+                  const marketingInteraction = business.ezia_interactions
+                    ?.filter(i => i.interaction_type === 'marketing_strategy' && i.content)
+                    ?.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+                  
+                  if (marketingInteraction) {
+                    return (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-medium text-gray-700">Dernière stratégie</h3>
+                          <span className="text-sm text-gray-500">
+                            {format(new Date(marketingInteraction.timestamp), "d MMM yyyy", { locale: fr })}
+                          </span>
+                        </div>
+                        <div className="prose prose-sm max-w-none">
+                          <ReactMarkdown>{marketingInteraction.content || marketingInteraction.summary}</ReactMarkdown>
+                        </div>
+                        {marketingInteraction.recommendations && marketingInteraction.recommendations.length > 0 && (
+                          <div className="mt-4">
+                            <h4 className="font-medium text-gray-700 mb-2">Recommandations</h4>
+                            <ul className="list-disc list-inside text-gray-600 space-y-1">
+                              {marketingInteraction.recommendations.map((rec, idx) => (
+                                <li key={idx}>{rec}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        <div className="flex justify-center mt-6">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setChatAction("marketing_strategy");
+                              setChatOpen(true);
+                            }}
+                          >
+                            <TrendingUp className="w-4 h-4 mr-2" />
+                            Nouvelle stratégie
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  // Sinon afficher les données existantes ou le placeholder
+                  return business.marketing_strategy.positioning ? (
                   <>
                     <div>
                       <h3 className="font-medium text-gray-700">Positionnement</h3>
-                      <p className="mt-1 text-[#666666]">{business.marketing_strategy.positioning}</p>
+                      <div className="mt-1 text-[#666666] prose prose-sm max-w-none">
+                        <ReactMarkdown>{business.marketing_strategy.positioning}</ReactMarkdown>
+                      </div>
                     </div>
                     {business.marketing_strategy.key_messages.length > 0 && (
                       <div>
@@ -568,22 +661,23 @@ export default function BusinessDetailPage() {
                       </div>
                     )}
                   </>
-                ) : (
-                  <div className="text-center py-8">
-                    <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Aucune stratégie marketing définie</p>
-                    <Button 
-                      className="mt-4"
-                      onClick={() => {
-                        setChatAction("marketing_strategy");
-                        setChatOpen(true);
-                      }}
-                    >
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Créer avec l'agence
-                    </Button>
-                  </div>
-                )}
+                  ) : (
+                    <div className="text-center py-8">
+                      <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">Aucune stratégie marketing définie</p>
+                      <Button 
+                        className="mt-4"
+                        onClick={() => {
+                          setChatAction("marketing_strategy");
+                          setChatOpen(true);
+                        }}
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Créer avec l'agence
+                      </Button>
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           </TabsContent>
