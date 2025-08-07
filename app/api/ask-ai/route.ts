@@ -86,12 +86,32 @@ export async function POST(request: NextRequest) {
   }
 
   const DEFAULT_PROVIDER = PROVIDERS.novita;
-  const selectedProvider =
-    provider === "auto"
-      ? PROVIDERS[selectedModel.autoProvider as keyof typeof PROVIDERS]
-      : PROVIDERS[provider as keyof typeof PROVIDERS] ?? DEFAULT_PROVIDER;
+  
+  // Si le provider est "auto", essayer d'utiliser le provider recommandé du modèle
+  let selectedProvider;
+  if (provider === "auto") {
+    // Utiliser le provider recommandé du modèle
+    selectedProvider = PROVIDERS[selectedModel.autoProvider as keyof typeof PROVIDERS];
+    
+    // Si le provider recommandé n'existe pas, utiliser le premier provider disponible
+    if (!selectedProvider && selectedModel.providers.length > 0) {
+      const firstProvider = selectedModel.providers[0];
+      selectedProvider = PROVIDERS[firstProvider as keyof typeof PROVIDERS];
+    }
+  } else {
+    selectedProvider = PROVIDERS[provider as keyof typeof PROVIDERS];
+  }
+  
+  // Fallback au provider par défaut si aucun provider n'est trouvé
+  if (!selectedProvider) {
+    selectedProvider = DEFAULT_PROVIDER;
+  }
 
   try {
+    // Log pour debug
+    console.log("AI Request - Provider:", selectedProvider.id, "Model:", selectedModel.value);
+    console.log("Token available:", !!token, "BillTo:", billTo);
+    
     // Create a stream response
     const encoder = new TextEncoder();
     const stream = new TransformStream();
@@ -177,6 +197,7 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (error: any) {
+        console.error("AI inference error:", error);
         if (error.message?.includes("exceeded your monthly included credits")) {
           await writer.write(
             encoder.encode(
@@ -184,6 +205,17 @@ export async function POST(request: NextRequest) {
                 ok: false,
                 openProModal: true,
                 message: error.message,
+              })
+            )
+          );
+        } else if (error.message?.includes("Failed to perform inference")) {
+          // Erreur d'inférence, probablement un problème de token ou de provider
+          await writer.write(
+            encoder.encode(
+              JSON.stringify({
+                ok: false,
+                openSelectProvider: true,
+                message: "Le provider AI sélectionné n'est pas disponible. Veuillez en choisir un autre ou vérifier votre token HuggingFace.",
               })
             )
           );
@@ -279,10 +311,26 @@ export async function PUT(request: NextRequest) {
   const client = new InferenceClient(token);
 
   const DEFAULT_PROVIDER = PROVIDERS.novita;
-  const selectedProvider =
-    provider === "auto"
-      ? PROVIDERS[selectedModel.autoProvider as keyof typeof PROVIDERS]
-      : PROVIDERS[provider as keyof typeof PROVIDERS] ?? DEFAULT_PROVIDER;
+  
+  // Si le provider est "auto", essayer d'utiliser le provider recommandé du modèle
+  let selectedProvider;
+  if (provider === "auto") {
+    // Utiliser le provider recommandé du modèle
+    selectedProvider = PROVIDERS[selectedModel.autoProvider as keyof typeof PROVIDERS];
+    
+    // Si le provider recommandé n'existe pas, utiliser le premier provider disponible
+    if (!selectedProvider && selectedModel.providers.length > 0) {
+      const firstProvider = selectedModel.providers[0];
+      selectedProvider = PROVIDERS[firstProvider as keyof typeof PROVIDERS];
+    }
+  } else {
+    selectedProvider = PROVIDERS[provider as keyof typeof PROVIDERS];
+  }
+  
+  // Fallback au provider par défaut si aucun provider n'est trouvé
+  if (!selectedProvider) {
+    selectedProvider = DEFAULT_PROVIDER;
+  }
 
   try {
     const response = await client.chatCompletion(

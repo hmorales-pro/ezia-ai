@@ -60,7 +60,8 @@ export function AskAI({
   const [prompt, setPrompt] = useState(initialPrompt ? decodeURIComponent(initialPrompt) : "");
   const [hasAsked, setHasAsked] = useState(false);
   const [previousPrompt, setPreviousPrompt] = useState("");
-  const [provider, setProvider] = useLocalStorage("provider", "auto");
+  // Utiliser un provider spécifique par défaut au lieu de "auto" pour éviter les erreurs
+  const [provider, setProvider] = useLocalStorage("provider", "novita");
   const [model, setModel] = useLocalStorage("model", MODELS[0].value);
   const [openProvider, setOpenProvider] = useState(false);
   const [providerError, setProviderError] = useState("");
@@ -182,7 +183,8 @@ export function AskAI({
                   setOpen(true);
                 } else if (jsonResponse.openSelectProvider) {
                   setOpenProvider(true);
-                  setProviderError(jsonResponse.message);
+                  setProviderError(jsonResponse.message || "Erreur avec le provider AI. Veuillez en sélectionner un autre.");
+                  toast.error("Erreur avec le provider AI. Veuillez en sélectionner un autre dans les paramètres.");
                 } else if (jsonResponse.openProModal) {
                   setOpenProModal(true);
                 } else {

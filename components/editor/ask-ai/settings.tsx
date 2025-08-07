@@ -81,7 +81,62 @@ export function Settings({
             )}
             <label className="block">
               <p className="text-neutral-300 text-sm mb-2.5">
-                Choose a DeepSeek model
+                Choisir un fournisseur AI
+              </p>
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <button
+                  type="button"
+                  onClick={() => onChange("novita")}
+                  className={classNames(
+                    "p-2 rounded-lg border transition-all duration-200",
+                    provider === "novita"
+                      ? "border-blue-500 bg-blue-500/10 text-blue-400"
+                      : "border-neutral-700 hover:border-neutral-600"
+                  )}
+                >
+                  NovitaAI
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onChange("groq")}
+                  className={classNames(
+                    "p-2 rounded-lg border transition-all duration-200",
+                    provider === "groq"
+                      ? "border-blue-500 bg-blue-500/10 text-blue-400"
+                      : "border-neutral-700 hover:border-neutral-600"
+                  )}
+                >
+                  Groq
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onChange("together")}
+                  className={classNames(
+                    "p-2 rounded-lg border transition-all duration-200",
+                    provider === "together"
+                      ? "border-blue-500 bg-blue-500/10 text-blue-400"
+                      : "border-neutral-700 hover:border-neutral-600"
+                  )}
+                >
+                  Together AI
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onChange("auto")}
+                  className={classNames(
+                    "p-2 rounded-lg border transition-all duration-200",
+                    provider === "auto"
+                      ? "border-blue-500 bg-blue-500/10 text-blue-400"
+                      : "border-neutral-700 hover:border-neutral-600"
+                  )}
+                >
+                  Auto
+                </button>
+              </div>
+            </label>
+            <label className="block">
+              <p className="text-neutral-300 text-sm mb-2.5">
+                Choisir un modèle
               </p>
               <Select defaultValue={model} onValueChange={onModelChange}>
                 <SelectTrigger className="w-full">
