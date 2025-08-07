@@ -40,7 +40,7 @@ export default function HomePage() {
                   </div>
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
                 </div>
-                <span className="text-xl font-bold text-[#1E1E1E]">Ezia</span>
+                <span className="text-xl font-bold text-[#1E1E1E]">Eziom Agency</span>
               </Link>
             </div>
 
@@ -123,20 +123,20 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C837F4]/10 border border-[#C837F4]/20 rounded-full text-sm mb-8">
             <Zap className="w-4 h-4 text-[#C837F4]" />
-            <span className="text-[#666666]">Votre assistante IA business</span>
+            <span className="text-[#666666]">Votre agence digitale propulsée par l'IA</span>
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Développez votre business
+            Votre agence digitale
             <br />
             <span className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] bg-clip-text text-transparent">
-              avec l'IA
+              qui travaille 24/7
             </span>
           </h1>
           
           <p className="text-xl md:text-2xl text-[#666666] mb-10 max-w-3xl mx-auto leading-relaxed">
-            Ezia est votre cheffe de projet IA qui vous accompagne dans la création et 
-            la croissance de votre présence en ligne. Site web, marketing, stratégie - tout en un.
+            Eziom Agency réunit une équipe d'experts IA spécialisés pour propulser 
+            votre business en ligne. De la création web à la stratégie marketing.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
@@ -185,10 +185,10 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Tout ce dont vous avez besoin
+              Une équipe complète d'experts IA
             </h2>
             <p className="text-xl text-[#666666]">
-              Une plateforme complète pour développer votre business
+              Chaque agent spécialisé dans son domaine pour votre succès
             </p>
           </div>
 
@@ -198,10 +198,10 @@ export default function HomePage() {
               <div className="w-14 h-14 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-xl flex items-center justify-center mb-6 shadow-md">
                 <Globe className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Création de site web</h3>
+              <h3 className="text-2xl font-semibold mb-3">Agent Web Designer</h3>
               <p className="text-[#666666] leading-relaxed">
-                Générez un site web professionnel en quelques clics avec notre IA. 
-                Design moderne, responsive et optimisé SEO.
+                Notre expert IA en développement web crée des sites professionnels, 
+                modernes et optimisés SEO en quelques minutes.
               </p>
             </div>
 
@@ -210,10 +210,10 @@ export default function HomePage() {
               <div className="w-14 h-14 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-xl flex items-center justify-center mb-6 shadow-md">
                 <Target className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Analyse de marché</h3>
+              <h3 className="text-2xl font-semibold mb-3">Agent Analyste Marché</h3>
               <p className="text-[#666666] leading-relaxed">
-                Comprenez votre marché, identifiez les opportunités et positionnez 
-                votre offre avec l'aide de notre IA.
+                Notre analyste IA étudie votre marché, identifie les opportunités 
+                et positionne votre offre pour maximiser votre impact.
               </p>
             </div>
 
@@ -222,10 +222,10 @@ export default function HomePage() {
               <div className="w-14 h-14 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-xl flex items-center justify-center mb-6 shadow-md">
                 <TrendingUp className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Stratégie marketing</h3>
+              <h3 className="text-2xl font-semibold mb-3">Agent Marketing Stratégique</h3>
               <p className="text-[#666666] leading-relaxed">
-                Développez une stratégie marketing complète avec des recommandations 
-                personnalisées et actionnables.
+                Notre stratège marketing IA conçoit des campagnes personnalisées 
+                avec des recommandations actionnables pour votre croissance.
               </p>
             </div>
 
@@ -234,10 +234,10 @@ export default function HomePage() {
               <div className="w-14 h-14 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-xl flex items-center justify-center mb-6 shadow-md">
                 <BarChart3 className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Analyse concurrentielle</h3>
+              <h3 className="text-2xl font-semibold mb-3">Agent Veille Concurrentielle</h3>
               <p className="text-[#666666] leading-relaxed">
-                Étudiez vos concurrents et identifiez vos avantages compétitifs 
-                pour vous démarquer sur le marché.
+                Notre expert en compétition analyse vos concurrents et identifie 
+                vos avantages uniques pour dominer votre marché.
               </p>
             </div>
 
@@ -246,10 +246,10 @@ export default function HomePage() {
               <div className="w-14 h-14 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-xl flex items-center justify-center mb-6 shadow-md">
                 <Users className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Réseaux sociaux</h3>
+              <h3 className="text-2xl font-semibold mb-3">Agent Social Media</h3>
               <p className="text-[#666666] leading-relaxed">
-                Créez du contenu engageant et développez votre présence sur les 
-                réseaux sociaux avec notre IA.
+                Notre community manager IA crée du contenu viral et gère 
+                votre présence sur tous les réseaux sociaux.
               </p>
             </div>
 
@@ -258,10 +258,10 @@ export default function HomePage() {
               <div className="w-14 h-14 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-xl flex items-center justify-center mb-6 shadow-md">
                 <Target className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Objectifs & KPIs</h3>
+              <h3 className="text-2xl font-semibold mb-3">Agent Business Analyst</h3>
               <p className="text-[#666666] leading-relaxed">
-                Définissez et suivez vos objectifs business avec des métriques 
-                claires et un suivi en temps réel.
+                Notre analyste business suit vos KPIs, optimise vos performances 
+                et vous guide vers vos objectifs avec précision.
               </p>
             </div>
           </div>
@@ -273,10 +273,10 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Comment ça marche ?
+              Votre agence en action
             </h2>
             <p className="text-xl text-[#666666]">
-              Lancez votre business en 3 étapes simples
+              Démarrez avec votre équipe d'experts IA en 3 étapes
             </p>
           </div>
 
@@ -285,10 +285,10 @@ export default function HomePage() {
               <div className="w-20 h-20 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 text-white shadow-lg">
                 1
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Créez votre business</h3>
+              <h3 className="text-2xl font-semibold mb-3">Briefez votre agence</h3>
               <p className="text-[#666666]">
-                Décrivez votre projet et vos objectifs. Ezia comprend vos besoins 
-                et prépare un plan personnalisé.
+                Décrivez votre projet et vos objectifs. Notre équipe d'IA comprend 
+                vos besoins et prépare un plan personnalisé.
               </p>
             </div>
 
@@ -296,10 +296,10 @@ export default function HomePage() {
               <div className="w-20 h-20 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 text-white shadow-lg">
                 2
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Lancez votre site</h3>
+              <h3 className="text-2xl font-semibold mb-3">L'agence se met au travail</h3>
               <p className="text-[#666666]">
-                Générez un site web professionnel en quelques clics. 
-                Personnalisez-le selon vos préférences.
+                Nos agents créent votre site, analysent votre marché et 
+                préparent votre stratégie de lancement.
               </p>
             </div>
 
@@ -307,10 +307,10 @@ export default function HomePage() {
               <div className="w-20 h-20 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 text-white shadow-lg">
                 3
               </div>
-              <h3 className="text-2xl font-semibold mb-3">Développez avec l'IA</h3>
+              <h3 className="text-2xl font-semibold mb-3">Croissance continue</h3>
               <p className="text-[#666666]">
-                Utilisez nos outils IA pour analyser, optimiser et faire croître 
-                votre business en continu.
+                Votre équipe d'agents travaille 24/7 pour optimiser, 
+                analyser et faire croître votre business.
               </p>
             </div>
           </div>
@@ -325,8 +325,8 @@ export default function HomePage() {
               Prêt à transformer votre idée en business ?
             </h2>
             <p className="text-xl text-[#666666] mb-8">
-              Rejoignez des milliers d'entrepreneurs qui utilisent Ezia pour 
-              développer leur présence en ligne.
+              Rejoignez des milliers d'entrepreneurs qui font confiance à Eziom Agency 
+              pour développer leur présence en ligne.
             </p>
             <Button 
               size="lg"
@@ -348,10 +348,10 @@ export default function HomePage() {
               <div className="w-8 h-8 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-lg flex items-center justify-center shadow-md">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-semibold text-[#1E1E1E]">Ezia</span>
+              <span className="text-lg font-semibold text-[#1E1E1E]">Eziom Agency</span>
             </div>
             <p className="text-[#666666] text-sm">
-              © 2024 Ezia. Tous droits réservés. Fait avec ❤️ en France
+              © 2024 Eziom Agency. Tous droits réservés. Fait avec ❤️ en France
             </p>
           </div>
         </div>

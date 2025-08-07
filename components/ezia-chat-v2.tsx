@@ -85,7 +85,7 @@ const actionConfigs = {
   }
 };
 
-export function EziaChatV2({
+export function EziaChatV2({ // Component name kept for compatibility
   businessId,
   businessName,
   actionType = "market_analysis",
@@ -102,11 +102,11 @@ export function EziaChatV2({
   const ActionIcon = config.icon;
 
   useEffect(() => {
-    // Message initial d'Ezia
+    // Message initial de l'agence
     const initialMessage: Message = {
       id: "initial",
       role: "assistant",
-      content: `Bonjour ! Je suis Ezia, votre assistante IA. ${config.description} pour **${businessName}**.
+      content: `Bonjour ! Je suis l'agent spécialisé de l'Eziom Agency. ${config.description} pour **${businessName}**.
 
 Souhaitez-vous que je commence l'analyse ou avez-vous des questions spécifiques ?`,
       timestamp: new Date()
@@ -266,7 +266,7 @@ Souhaitez-vous que je commence l'analyse ou avez-vous des questions spécifiques
                 {message.isStreaming ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">Ezia analyse...</span>
+                    <span className="text-sm">L'agent analyse...</span>
                   </div>
                 ) : (
                   <div className="prose prose-invert prose-sm max-w-none">

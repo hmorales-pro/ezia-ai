@@ -28,17 +28,17 @@ export const LoginModal = ({
   };
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg lg:!p-8 !rounded-3xl !bg-white !border-[#E0E0E0] shadow-xl">
+      <DialogContent className="sm:max-w-lg lg:!p-8 !rounded-2xl !bg-white !border-[#E0E0E0] shadow-xl">
         <DialogTitle className="hidden" />
         <main className="flex flex-col items-start text-left relative pt-2">
           <div className="flex items-center justify-start -space-x-4 mb-5">
-            <div className="size-14 rounded-full bg-pink-200 shadow-2xs flex items-center justify-center text-3xl opacity-50">
+            <div className="size-14 rounded-full bg-[#C837F4]/20 shadow-sm flex items-center justify-center text-3xl opacity-70">
               💪
             </div>
-            <div className="size-16 rounded-full bg-amber-200 shadow-2xl flex items-center justify-center text-4xl z-2">
+            <div className="size-16 rounded-full bg-gradient-to-br from-[#C837F4] to-[#B028F2] shadow-lg flex items-center justify-center text-4xl z-2">
               😎
             </div>
-            <div className="size-14 rounded-full bg-sky-200 shadow-2xs flex items-center justify-center text-3xl opacity-50">
+            <div className="size-14 rounded-full bg-[#B028F2]/20 shadow-sm flex items-center justify-center text-3xl opacity-70">
               🙌
             </div>
           </div>
@@ -47,9 +47,8 @@ export const LoginModal = ({
             {description}
           </p>
           <Button
-            className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-lg hover:shadow-xl transition-all"
             size="lg"
-            className="w-full !text-base !h-11 mt-8"
+            className="w-full !text-base !h-11 mt-8 bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-lg hover:shadow-xl transition-all"
             onClick={handleClick}
           >
             Log In to Continue

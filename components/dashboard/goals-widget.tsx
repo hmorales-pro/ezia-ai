@@ -32,10 +32,10 @@ export function GoalsWidget({ businessId, businessName, goals = [] }: GoalsWidge
     : 0;
 
   return (
-    <Card className="bg-zinc-900 border-zinc-800">
+    <Card className="bg-white border-[#E0E0E0] shadow-lg">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Target className="w-5 h-5 text-violet-500" />
+          <Target className="w-5 h-5 text-[#C837F4]" />
           Objectifs
         </CardTitle>
         <Link href={`/business/${businessId}/goals`}>
@@ -48,8 +48,8 @@ export function GoalsWidget({ businessId, businessName, goals = [] }: GoalsWidge
       <CardContent>
         {goals.length === 0 ? (
           <div className="text-center py-6">
-            <Target className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
-            <p className="text-sm text-zinc-400 mb-3">
+            <Target className="w-12 h-12 text-[#666666] mx-auto mb-3" />
+            <p className="text-sm text-[#666666] mb-3">
               Aucun objectif défini
             </p>
             <Link href={`/business/${businessId}/goals`}>
@@ -61,17 +61,17 @@ export function GoalsWidget({ businessId, businessName, goals = [] }: GoalsWidge
         ) : (
           <div className="space-y-4">
             {/* Stats rapides */}
-            <div className="grid grid-cols-3 gap-2 pb-3 border-b border-zinc-800">
+            <div className="grid grid-cols-3 gap-2 pb-3 border-b border-[#E0E0E0]">
               <div className="text-center">
-                <p className="text-xs text-zinc-500">Total</p>
+                <p className="text-xs text-[#666666]">Total</p>
                 <p className="text-lg font-bold">{goals.length}</p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-zinc-500">Complétés</p>
-                <p className="text-lg font-bold text-green-500">{completedCount}</p>
+                <p className="text-xs text-[#666666]">Complétés</p>
+                <p className="text-lg font-bold text-[#B028F2]">{completedCount}</p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-zinc-500">Progression</p>
+                <p className="text-xs text-[#666666]">Progression</p>
                 <p className="text-lg font-bold">{avgProgress}%</p>
               </div>
             </div>
@@ -84,8 +84,8 @@ export function GoalsWidget({ businessId, businessName, goals = [] }: GoalsWidge
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{goal.title}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <Calendar className="w-3 h-3 text-zinc-500" />
-                        <span className="text-xs text-zinc-500">
+                        <Calendar className="w-3 h-3 text-[#666666]" />
+                        <span className="text-xs text-[#666666]">
                           {format(new Date(goal.target_date), "d MMM", { locale: fr })}
                         </span>
                       </div>
@@ -100,7 +100,7 @@ export function GoalsWidget({ businessId, businessName, goals = [] }: GoalsWidge
             </div>
 
             {goals.length > 3 && (
-              <p className="text-xs text-zinc-500 text-center pt-2">
+              <p className="text-xs text-[#666666] text-center pt-2">
                 +{goals.length - 3} autres objectifs
               </p>
             )}

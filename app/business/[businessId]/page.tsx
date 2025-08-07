@@ -203,7 +203,7 @@ export default function BusinessDetailPage() {
             <TabsTrigger value="market">Analyse de marché</TabsTrigger>
             <TabsTrigger value="marketing">Marketing</TabsTrigger>
             <TabsTrigger value="goals">Objectifs</TabsTrigger>
-            <TabsTrigger value="interactions">Interactions Ezia</TabsTrigger>
+            <TabsTrigger value="interactions">Interactions Agence</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -313,7 +313,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
             </div>
 
             {/* More Actions */}
-            <h3 className="text-lg font-semibold mb-4">Autres services Ezia</h3>
+            <h3 className="text-lg font-semibold mb-4">Nos autres agents</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card 
                 className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
@@ -424,7 +424,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
                       }}
                     >
                       <MessageSquare className="w-4 h-4 mr-2" />
-                      Demander à Ezia
+                      Consulter l'agence
                     </Button>
                   </div>
                 )}
@@ -483,7 +483,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
                       }}
                     >
                       <MessageSquare className="w-4 h-4 mr-2" />
-                      Créer avec Ezia
+                      Créer avec l'agence
                     </Button>
                   </div>
                 )}
@@ -559,7 +559,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
           <TabsContent value="interactions" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Historique des interactions avec Ezia</CardTitle>
+                <CardTitle>Historique des interactions avec l'agence</CardTitle>
                 <CardDescription>
                   Toutes vos conversations et recommandations
                 </CardDescription>
@@ -602,9 +602,9 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
         {/* Ezia Chat Dialog */}
         <Dialog open={chatOpen} onOpenChange={setChatOpen}>
           <DialogContent className="max-w-4xl h-[80vh] p-0" aria-describedby="ezia-chat-description">
-            <DialogTitle className="sr-only">Assistant Ezia</DialogTitle>
+            <DialogTitle className="sr-only">Agence Eziom</DialogTitle>
             <DialogDescription className="sr-only" id="ezia-chat-description">
-              Discutez avec Ezia pour gérer votre business {business.name}
+              Discutez avec votre équipe d'agents IA pour gérer votre business {business.name}
             </DialogDescription>
             <EziaChatV2
               businessId={businessId}

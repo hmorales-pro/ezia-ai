@@ -145,8 +145,8 @@ export default function DashboardPage() {
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">Dashboard</h1>
-                <p className="text-xs text-[#666666]">Gérez vos business</p>
+                <h1 className="text-xl font-bold">Eziom Agency</h1>
+                <p className="text-xs text-[#666666]">Tableau de bord</p>
               </div>
             </Link>
             <div className="flex items-center gap-4">
@@ -204,7 +204,7 @@ export default function DashboardPage() {
               iconColor="text-green-500"
             />
             <StatCard
-              title="Interactions Ezia"
+              title="Interactions Agence"
               value={globalStats.totalInteractions}
               icon={MessageSquare}
               iconColor="text-orange-500"
@@ -294,7 +294,7 @@ export default function DashboardPage() {
                     Commencez votre aventure entrepreneuriale
                   </h3>
                   <p className="text-[#666666] mb-6 max-w-md mx-auto">
-                    Créez votre premier business et laissez Ezia vous guider dans chaque étape de votre développement.
+                    Créez votre premier business et laissez notre équipe d'agents IA vous accompagner dans chaque étape.
                   </p>
                   <Button 
                     onClick={handleCreateBusiness} 
@@ -463,11 +463,11 @@ export default function DashboardPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-[#1E1E1E] to-[#666666] bg-clip-text text-transparent">
-                Votre cheffe de projet IA
+                Votre agence digitale IA
               </h2>
               <p className="text-xl text-[#666666] mb-12">
-                Je suis Ezia, votre assistante IA qui vous accompagne dans le développement 
-                de votre présence en ligne et la croissance de votre business.
+                Eziom Agency met à votre disposition une équipe complète d'experts IA pour développer 
+                votre présence en ligne et faire croître votre business.
               </p>
               <div className="flex gap-4 justify-center">
                 <Button
@@ -494,7 +494,7 @@ export default function DashboardPage() {
                 <Target className="w-12 h-12 text-[#C837F4] mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Analyse de marché</h3>
                 <p className="text-[#666666]">
-                  Comprenez votre marché, identifiez les opportunités et positionnez votre offre avec l'aide d'Ezia.
+                  Notre agent analyste étudie votre marché, identifie les opportunités et positionne votre offre.
                 </p>
               </Card>
               
@@ -502,7 +502,7 @@ export default function DashboardPage() {
                 <Globe className="w-12 h-12 text-[#C837F4] mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Présence en ligne</h3>
                 <p className="text-[#666666]">
-                  Création de sites web professionnels, stratégie réseaux sociaux et optimisation de votre visibilité.
+                  Nos agents créent votre site web, gèrent vos réseaux sociaux et optimisent votre visibilité.
                 </p>
               </Card>
               
@@ -510,7 +510,7 @@ export default function DashboardPage() {
                 <MessageSquare className="w-12 h-12 text-[#C837F4] mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Accompagnement continu</h3>
                 <p className="text-[#666666]">
-                  Un suivi personnalisé avec des recommandations adaptées à l'évolution de votre business.
+                  Une équipe complète d'agents IA travaille 24/7 pour faire évoluer votre business.
                 </p>
               </Card>
             </div>

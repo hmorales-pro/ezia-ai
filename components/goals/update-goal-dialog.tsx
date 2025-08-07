@@ -80,10 +80,10 @@ export function UpdateGoalDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-zinc-950 border-zinc-800">
+      <DialogContent className="sm:max-w-[500px] bg-white border-[#E0E0E0] shadow-xl rounded-2xl">
         <DialogHeader>
-          <DialogTitle>Mettre à jour l'objectif</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-[#1E1E1E]">Mettre à jour l'objectif</DialogTitle>
+          <DialogDescription className="text-[#666666]">
             Enregistrez votre progression et ajoutez une note
           </DialogDescription>
         </DialogHeader>
@@ -102,7 +102,7 @@ export function UpdateGoalDialog({
               step={5}
               className="py-4"
             />
-            <div className="flex justify-between text-xs text-zinc-500">
+            <div className="flex justify-between text-xs text-[#666666]">
               <span>0%</span>
               <span>50%</span>
               <span>100%</span>
@@ -113,25 +113,25 @@ export function UpdateGoalDialog({
           <div className="space-y-2">
             <Label>Statut</Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="bg-zinc-900 border-zinc-800">
+              <SelectTrigger className="bg-white border-[#E0E0E0] text-[#1E1E1E]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="active">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-blue-500" />
+                    <TrendingUp className="w-4 h-4 text-[#C837F4]" />
                     En cours
                   </div>
                 </SelectItem>
                 <SelectItem value="completed">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <CheckCircle className="w-4 h-4 text-[#B028F2]" />
                     Complété
                   </div>
                 </SelectItem>
                 <SelectItem value="paused">
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full border-2 border-yellow-500" />
+                    <div className="w-4 h-4 rounded-full border-2 border-[#666666]" />
                     En pause
                   </div>
                 </SelectItem>
@@ -147,22 +147,22 @@ export function UpdateGoalDialog({
               placeholder="Qu'avez-vous accompli ? Quels sont les prochains steps ?"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="bg-zinc-900 border-zinc-800 min-h-[100px]"
+              className="bg-white border-[#E0E0E0] text-[#1E1E1E] min-h-[100px]"
               required
             />
           </div>
 
           {/* Suggestion automatique si 100% */}
           {progress === 100 && status !== 'completed' && (
-            <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-              <p className="text-sm text-green-400">
+            <div className="p-3 bg-[#C837F4]/10 border border-[#C837F4]/20 rounded-lg">
+              <p className="text-sm text-[#C837F4]">
                 🎉 Félicitations ! Voulez-vous marquer cet objectif comme complété ?
               </p>
               <Button
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="mt-2 text-green-400 hover:text-green-300"
+                className="mt-2 text-[#C837F4] hover:text-[#B028F2]"
                 onClick={() => setStatus('completed')}
               >
                 Marquer comme complété
@@ -177,13 +177,14 @@ export function UpdateGoalDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={loading}
+              className="border-[#E0E0E0] text-[#666666] hover:text-[#1E1E1E]"
             >
               Annuler
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="bg-violet-600 hover:bg-violet-700"
+              className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-lg hover:shadow-xl transition-all"
             >
               {loading ? (
                 <>

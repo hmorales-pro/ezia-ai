@@ -25,6 +25,7 @@ const buttonVariants = cva(
           "text-[#1E1E1E] shadow-xs focus-visible:ring-[#C837F4]/40 bg-[#666666]/10 hover:bg-[#666666]/20",
         black: "bg-[#1E1E1E] text-white hover:brightness-110",
         sky: "bg-sky-500 text-white hover:brightness-110",
+        eziom: "bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-lg hover:shadow-xl transition-all",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

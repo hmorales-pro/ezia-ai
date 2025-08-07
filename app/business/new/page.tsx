@@ -123,8 +123,8 @@ export default function NewBusinessPage() {
           <CardHeader>
             <CardTitle className="text-2xl">Créer votre business</CardTitle>
             <CardDescription>
-              Commençons par les informations de base. Ezia utilisera ces données 
-              pour personnaliser son accompagnement.
+              Commençons par les informations de base. Notre équipe d'agents IA utilisera ces données 
+              pour personnaliser leur accompagnement.
             </CardDescription>
           </CardHeader>
           <CardContent>

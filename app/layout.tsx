@@ -22,34 +22,34 @@ const ptSans = PT_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Ezia | Build with AI ✨",
+  title: "Eziom Agency | Votre Partenaire Business IA",
   description:
-    "Ezia is a web development tool that helps you build websites with AI, no code required. Let's deploy your website with Ezia and enjoy the magic of AI.",
+    "Eziom Agency est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
   openGraph: {
-    title: "Ezia | Build with AI ✨",
+    title: "Eziom Agency | Votre Partenaire Business IA",
     description:
-      "Ezia is a web development tool that helps you build websites with AI, no code required. Let's deploy your website with Ezia and enjoy the magic of AI.",
-    url: "https://ezia.hf.co",
-    siteName: "Ezia",
+      "Eziom Agency est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
+    url: "https://eziom.agency",
+    siteName: "Eziom Agency",
     images: [
       {
-        url: "https://ezia.hf.co/banner.png",
+        url: "https://eziom.agency/banner.png",
         width: 1200,
         height: 630,
-        alt: "Ezia Open Graph Image",
+        alt: "Eziom Agency Open Graph Image",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ezia | Build with AI ✨",
+    title: "Eziom Agency | Votre Partenaire Business IA",
     description:
-      "Ezia is a web development tool that helps you build websites with AI, no code required. Let's deploy your website with Ezia and enjoy the magic of AI.",
-    images: ["https://ezia.hf.co/banner.png"],
+      "Eziom Agency est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
+    images: ["https://eziom.agency/banner.png"],
   },
   appleWebApp: {
     capable: true,
-    title: "Ezia",
+    title: "Eziom Agency",
     statusBarStyle: "black-translucent",
   },
   icons: {
@@ -95,7 +95,7 @@ export default async function RootLayout({
     <html lang="en">
       <Script
         defer
-        data-domain="ezia.hf.co"
+        data-domain="eziom.agency"
         src="https://plausible.io/js/script.js"
       ></Script>
       <body

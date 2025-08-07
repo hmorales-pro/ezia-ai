@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
 function buildSystemPrompt(actionType: string, businessName: string, business: { name: string; description: string; industry: string; stage: string }, context: string) {
   const basePrompt = [{
     role: "system",
-    content: `Tu es Ezia, l'assistante IA spécialisée en développement business. Tu aides l'utilisateur avec son business "${businessName}".
+    content: `Tu es un agent spécialisé de l'Eziom Agency, expert en développement business. Tu aides l'utilisateur avec son business "${businessName}".
 
 Informations sur le business:
 - Nom: ${business.name}

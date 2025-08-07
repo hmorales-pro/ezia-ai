@@ -104,10 +104,10 @@ export function CreateGoalDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] bg-zinc-950 border-zinc-800">
+      <DialogContent className="sm:max-w-[600px] bg-white border-[#E0E0E0] shadow-xl rounded-2xl">
         <DialogHeader>
-          <DialogTitle>Créer un nouvel objectif</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-[#1E1E1E]">Créer un nouvel objectif</DialogTitle>
+          <DialogDescription className="text-[#666666]">
             Définissez un objectif mesurable pour votre business
           </DialogDescription>
         </DialogHeader>
@@ -121,7 +121,7 @@ export function CreateGoalDialog({
               placeholder="Ex: Atteindre 10K€ de CA mensuel"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="bg-zinc-900 border-zinc-800"
+              className="bg-white border-[#E0E0E0] text-[#1E1E1E]"
               required
             />
           </div>
@@ -147,7 +147,7 @@ export function CreateGoalDialog({
               onValueChange={(value) => setFormData({ ...formData, category: value })}
               required
             >
-              <SelectTrigger className="bg-zinc-900 border-zinc-800">
+              <SelectTrigger className="bg-white border-[#E0E0E0] text-[#1E1E1E]">
                 <SelectValue placeholder="Sélectionnez une catégorie" />
               </SelectTrigger>
               <SelectContent>
@@ -155,7 +155,7 @@ export function CreateGoalDialog({
                   <SelectItem key={cat.value} value={cat.value}>
                     <div>
                       <p className="font-medium">{cat.label}</p>
-                      <p className="text-xs text-zinc-500">{cat.description}</p>
+                      <p className="text-xs text-[#666666]">{cat.description}</p>
                     </div>
                   </SelectItem>
                 ))}
@@ -171,7 +171,7 @@ export function CreateGoalDialog({
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal bg-zinc-900 border-zinc-800",
+                    "w-full justify-start text-left font-normal bg-white border-[#E0E0E0] text-[#1E1E1E]",
                     !formData.target_date && "text-muted-foreground"
                   )}
                 >
@@ -207,7 +207,7 @@ export function CreateGoalDialog({
                   ...formData,
                   metrics: { ...formData.metrics, target_value: e.target.value }
                 })}
-                className="bg-zinc-900 border-zinc-800"
+                className="bg-white border-[#E0E0E0] text-[#1E1E1E]"
               />
               <Input
                 placeholder="Unité (€, %, clients...)"
@@ -216,7 +216,7 @@ export function CreateGoalDialog({
                   ...formData,
                   metrics: { ...formData.metrics, unit: e.target.value }
                 })}
-                className="bg-zinc-900 border-zinc-800"
+                className="bg-white border-[#E0E0E0] text-[#1E1E1E]"
               />
             </div>
           </div>
@@ -228,13 +228,14 @@ export function CreateGoalDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={loading}
+              className="border-[#E0E0E0] text-[#666666] hover:text-[#1E1E1E]"
             >
               Annuler
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="bg-violet-600 hover:bg-violet-700"
+              className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-lg hover:shadow-xl transition-all"
             >
               {loading ? (
                 <>
