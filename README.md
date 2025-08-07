@@ -7,7 +7,7 @@ sdk: docker
 pinned: true
 app_port: 3000
 license: mit
-short_description: Votre chef de projet IA et son équipe pour créer des sites web en conversant
+short_description: Créez des sites web en conversant avec votre équipe IA
 models:
   - mistralai/Mistral-7B-Instruct-v0.3
 ---
