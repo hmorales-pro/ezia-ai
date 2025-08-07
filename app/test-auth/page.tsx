@@ -32,18 +32,18 @@ export default function TestAuthPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Test d'Authentification OAuth</h1>
+        <h1 className="text-3xl font-bold mb-8">Test d&apos;Authentification OAuth</h1>
         
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>État de l'authentification</CardTitle>
-            <CardDescription>Informations sur l'utilisateur connecté</CardDescription>
+            <CardTitle>État de l&apos;authentification</CardTitle>
+            <CardDescription>Informations sur l&apos;utilisateur connecté</CardDescription>
           </CardHeader>
           <CardContent>
             {user ? (
               <div className="space-y-2">
                 <p><strong>Nom :</strong> {user.name}</p>
-                <p><strong>Email :</strong> {user.email || "Non disponible"}</p>
+                <p><strong>Nom complet :</strong> {user.fullname || "Non disponible"}</p>
                 <p><strong>ID :</strong> {user.id}</p>
                 <Button onClick={handleLogout} variant="destructive" className="mt-4">
                   Se déconnecter
@@ -63,7 +63,7 @@ export default function TestAuthPage() {
         <Card>
           <CardHeader>
             <CardTitle>Logs de débogage</CardTitle>
-            <CardDescription>Suivi du processus d'authentification</CardDescription>
+            <CardDescription>Suivi du processus d&apos;authentification</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="bg-gray-100 p-4 rounded-lg">
@@ -72,7 +72,7 @@ export default function TestAuthPage() {
               </pre>
             </div>
             <div className="mt-4 space-y-2 text-sm">
-              <p><strong>URL actuelle :</strong> {typeof window !== 'undefined' ? window.location.href : 'N/A'}</p>
+              <p><strong>URL actuelle :</strong> {typeof window !== "undefined" ? window.location.href : "N/A"}</p>
               <p><strong>OAuth redirect URI :</strong> https://hmorales-ezia.hf.space/auth/callback</p>
             </div>
           </CardContent>

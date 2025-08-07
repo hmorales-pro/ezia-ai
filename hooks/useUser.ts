@@ -55,7 +55,7 @@ export const useUser = (initialData?: {
     setLoadingAuth(true);
     if (loadingAuth) return;
     await api
-      .post("/auth", { code })
+      .post("/api/auth", { code })
       .then(async (res: any) => {
         if (res.data) {
           setCookie(res.data.access_token, {
