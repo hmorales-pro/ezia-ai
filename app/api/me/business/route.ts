@@ -4,6 +4,7 @@ import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
 import { nanoid } from "nanoid";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
+import { calculateBusinessCompletion } from "@/lib/business-utils";
 
 // GET /api/me/business - Liste tous les business de l'utilisateur
 export async function GET() {
@@ -34,10 +35,21 @@ export async function GET() {
         .lean();
     }
 
+    // Calculer le score de complétion pour chaque business
+    const businessesWithScores = businesses.map((business: any) => {
+      const metrics = calculateBusinessCompletion(business);
+      return {
+        ...business,
+        completion_score: metrics.completion_score,
+        tasks_completed: metrics.tasks_completed,
+        total_tasks: metrics.total_tasks
+      };
+    });
+
     return NextResponse.json({
       ok: true,
-      businesses,
-      count: businesses.length
+      businesses: businessesWithScores,
+      count: businessesWithScores.length
     });
   } catch (error) {
     console.error("Error fetching businesses:", error);

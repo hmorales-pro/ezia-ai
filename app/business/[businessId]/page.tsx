@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ import {
 import Link from "next/link";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { EziaChat } from "@/components/ezia-chat";
+import { EziaChatV2 } from "@/components/ezia-chat-v2";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface Business {
@@ -69,6 +69,7 @@ interface Business {
 export default function BusinessDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const businessId = params.businessId as string;
   
   const [business, setBusiness] = useState<Business | null>(null);
@@ -79,7 +80,14 @@ export default function BusinessDetailPage() {
 
   useEffect(() => {
     fetchBusiness();
-  }, [businessId]); // eslint-disable-line react-hooks/exhaustive-deps
+    
+    // Vérifier si une action est demandée via l'URL
+    const action = searchParams.get("action");
+    if (action) {
+      setChatAction(action);
+      setChatOpen(true);
+    }
+  }, [businessId, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchBusiness = async () => {
     try {
@@ -596,7 +604,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
             <DialogDescription className="sr-only" id="ezia-chat-description">
               Discutez avec Ezia pour gérer votre business {business.name}
             </DialogDescription>
-            <EziaChat
+            <EziaChatV2
               businessId={businessId}
               businessName={business.name}
               actionType={chatAction}
@@ -604,12 +612,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
                 console.log("Action completed:", result);
                 // Recharger les données du business
                 fetchBusiness();
-                if (result.type === "website_created") {
-                  // Ouvrir le site dans un nouvel onglet après un délai
-                  setTimeout(() => {
-                    window.open(result.url, "_blank");
-                  }, 3000);
-                }
+                setChatOpen(false);
               }}
               onClose={() => setChatOpen(false)}
             />

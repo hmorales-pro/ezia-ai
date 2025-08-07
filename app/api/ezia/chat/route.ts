@@ -6,6 +6,7 @@ import { Business } from "@/models/Business";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 import { streamAIResponse } from "@/lib/ai-stream";
 import { nanoid } from "nanoid";
+import { generateWithMistral, MISTRAL_PROMPTS } from "@/lib/mistral-service";
 
 export async function POST(request: NextRequest) {
   const user = await isAuthenticated();
