@@ -391,8 +391,30 @@ export default function BusinessDetailPage() {
               <Card 
                 className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
-                  setChatAction("create_website");
-                  setChatOpen(true);
+                  // Préparer le prompt avec les informations du business
+                  const prompt = `Crée un site web moderne et professionnel pour ${business.name}.
+
+Description du business : ${business.description}
+Industrie : ${business.industry}
+Étape : ${business.stage}
+
+${business.market_analysis?.target_audience ? `Audience cible : ${business.market_analysis.target_audience}` : ''}
+${business.market_analysis?.value_proposition ? `Proposition de valeur : ${business.market_analysis.value_proposition}` : ''}
+
+Le site doit inclure :
+- Une page d'accueil attrayante
+- Une section présentant les services/produits
+- Une section "À propos"
+- Une page de contact
+- Un design responsive et moderne
+
+Utilise des couleurs professionnelles et un style adapté à l'industrie ${business.industry}.`;
+
+                  // Encoder le prompt pour l'URL
+                  const encodedPrompt = encodeURIComponent(prompt);
+                  
+                  // Rediriger vers l'interface DeepSite avec le prompt
+                  router.push(`/projects/new?prompt=${encodedPrompt}&businessId=${businessId}`);
                 }}
               >
                 <CardContent className="p-6">
