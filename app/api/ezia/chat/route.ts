@@ -4,9 +4,8 @@ import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
 // import { Project } from "@/models/Project";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
-import { streamAIResponse } from "@/lib/ai-stream";
 import { nanoid } from "nanoid";
-import { generateWithMistral, MISTRAL_PROMPTS } from "@/lib/mistral-service";
+import { generateAIResponse } from "@/lib/ai-service";
 
 export async function POST(request: NextRequest) {
   const user = await isAuthenticated();
@@ -50,14 +49,32 @@ export async function POST(request: NextRequest) {
           let fullResponse = "";
           let actionResult = null;
 
-          await streamAIResponse(
-            [...systemPrompt, ...messages],
-            async (chunk) => {
-              fullResponse += chunk;
-              const data = encoder.encode(`data: ${JSON.stringify({ content: chunk })}\n\n`);
+          // Générer la réponse avec le nouveau service AI
+          const userMessage = messages[messages.length - 1]?.content || "";
+          const token = request.cookies.get("HF_TOKEN")?.value || process.env.DEFAULT_HF_TOKEN;
+          
+          const systemContext = systemPrompt[0]?.content || "";
+          const response = await generateAIResponse(userMessage, {
+            systemContext,
+            token,
+            maxTokens: 2000,
+            temperature: 0.8
+          });
+          
+          if (response.success && response.content) {
+            fullResponse = response.content;
+            // Envoyer la réponse en streaming simulé
+            const chunks = response.content.split(" ");
+            for (const chunk of chunks) {
+              const data = encoder.encode(`data: ${JSON.stringify({ content: chunk + " " })}\n\n`);
               controller.enqueue(data);
+              await new Promise(resolve => setTimeout(resolve, 20)); // Petit délai pour simuler le streaming
             }
-          );
+          } else {
+            fullResponse = "Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.";
+            const data = encoder.encode(`data: ${JSON.stringify({ content: fullResponse })}\n\n`);
+            controller.enqueue(data);
+          }
 
           // Exécuter l'action si nécessaire
           if (actionType !== "general") {

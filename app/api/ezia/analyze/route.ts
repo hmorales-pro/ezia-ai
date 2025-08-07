@@ -3,7 +3,7 @@ import { isAuthenticated } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
-import { generateWithMistral, MISTRAL_PROMPTS } from "@/lib/mistral-service";
+import { generateBusinessAnalysis } from "@/lib/ai-service";
 import MY_TOKEN_KEY from "@/lib/get-cookie-name";
 
 export async function POST(request: NextRequest) {
@@ -41,26 +41,20 @@ export async function POST(request: NextRequest) {
     const userToken = request.cookies.get(MY_TOKEN_KEY())?.value;
     const token = userToken || process.env.DEFAULT_HF_TOKEN || process.env.HF_TOKEN;
 
-    // Construire le prompt basé sur l'action
-    const systemContext = MISTRAL_PROMPTS[actionType as keyof typeof MISTRAL_PROMPTS] || MISTRAL_PROMPTS.market_analysis;
-    
-    const businessContext = `
-Business: ${business.name}
-Description: ${business.description}
-Industrie: ${business.industry}
-Stade: ${business.stage}
-${business.website_url ? `Site web: ${business.website_url}` : ''}
+    // Préparer les informations business
+    const businessInfo = {
+      name: business.name,
+      sector: business.industry,
+      description: business.description,
+      target: business.market_analysis?.target_audience || "Grand public"
+    };
 
-${business.market_analysis?.target_audience ? `Audience cible actuelle: ${business.market_analysis.target_audience}` : ''}
-${business.market_analysis?.value_proposition ? `Proposition de valeur: ${business.market_analysis.value_proposition}` : ''}
-`;
-
-    const finalPrompt = userPrompt 
-      ? `${businessContext}\n\nDemande spécifique de l'utilisateur: ${userPrompt}`
-      : `${businessContext}\n\nFournis une analyse complète et détaillée.`;
-
-    // Générer avec Mistral
-    const response = await generateWithMistral(finalPrompt, systemContext, token);
+    // Générer l'analyse avec le nouveau service AI
+    const response = await generateBusinessAnalysis(
+      businessInfo,
+      actionType,
+      token
+    );
 
     if (!response.success) {
       return NextResponse.json(

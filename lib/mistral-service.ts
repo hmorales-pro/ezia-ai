@@ -30,22 +30,61 @@ export async function generateWithMistral(
 
 ${prompt} [/INST]`;
 
-    const response = await hf.textGeneration({
-      model: MISTRAL_MODEL,
-      inputs: formattedPrompt,
-      parameters: {
-        max_new_tokens: 1500,
-        temperature: 0.7,
-        top_p: 0.95,
-        repetition_penalty: 1.1,
-        return_full_text: false,
-        stop: ["</s>", "[INST]", "[/INST]"]
+    // Essayer d'abord avec conversationalPipeline pour la compatibilité
+    let response;
+    try {
+      response = await hf.conversational({
+        model: MISTRAL_MODEL,
+        inputs: {
+          past_user_inputs: [],
+          generated_responses: [],
+          text: prompt
+        },
+        parameters: {
+          max_new_tokens: 1500,
+          temperature: 0.7,
+          top_p: 0.95,
+          repetition_penalty: 1.1
+        }
+      });
+    } catch (convError) {
+      // Si conversational échoue, essayer textGeneration
+      try {
+        const textResponse = await hf.textGeneration({
+          model: MISTRAL_MODEL,
+          inputs: formattedPrompt,
+          parameters: {
+            max_new_tokens: 1500,
+            temperature: 0.7,
+            top_p: 0.95,
+            repetition_penalty: 1.1,
+            return_full_text: false,
+            stop: ["</s>", "[INST]", "[/INST]"]
+          }
+        });
+        response = { generated_text: textResponse.generated_text };
+      } catch (textError) {
+        // En dernier recours, utiliser un modèle alternatif
+        const altResponse = await hf.textGeneration({
+          model: "microsoft/Phi-3-mini-4k-instruct",
+          inputs: formattedPrompt,
+          parameters: {
+            max_new_tokens: 1500,
+            temperature: 0.7,
+            return_full_text: false
+          }
+        });
+        response = { generated_text: altResponse.generated_text };
       }
-    });
+    }
 
+    const generatedText = response.generated_text || 
+                          (response.generated_responses && response.generated_responses[0]) || 
+                          "";
+    
     return {
       success: true,
-      content: response.generated_text.trim()
+      content: generatedText.trim()
     };
   } catch (error: any) {
     console.error("Mistral generation error:", error);
