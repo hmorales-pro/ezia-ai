@@ -14,6 +14,7 @@ import {
   SEARCH_START,
 } from "@/lib/prompts";
 import MY_TOKEN_KEY from "@/lib/get-cookie-name";
+import { generateWithFallback } from "@/lib/fallback-ai";
 
 const ipAddresses = new Map();
 
@@ -208,17 +209,34 @@ export async function POST(request: NextRequest) {
               })
             )
           );
-        } else if (error.message?.includes("Failed to perform inference")) {
-          // Erreur d'inférence, probablement un problème de token ou de provider
-          await writer.write(
-            encoder.encode(
-              JSON.stringify({
-                ok: false,
-                openSelectProvider: true,
-                message: "Le provider AI sélectionné n'est pas disponible. Veuillez en choisir un autre ou vérifier votre token HuggingFace.",
-              })
-            )
-          );
+        } else if (error.message?.includes("Failed to perform inference") || error.message?.includes("HTTP error")) {
+          // Erreur d'inférence, essayer avec le modèle de fallback
+          console.log("Trying fallback model due to provider error");
+          try {
+            const fallbackHtml = await generateWithFallback(
+              token,
+              redesignMarkdown
+                ? `Create a new design based on this markdown:\n\n${redesignMarkdown}`
+                : html
+                ? `Create a new design based on this HTML:\n\n${html}`
+                : prompt,
+              INITIAL_SYSTEM_PROMPT
+            );
+            
+            await writer.write(encoder.encode(fallbackHtml));
+            completeResponse = fallbackHtml;
+          } catch (fallbackError: any) {
+            console.error("Fallback also failed:", fallbackError);
+            await writer.write(
+              encoder.encode(
+                JSON.stringify({
+                  ok: false,
+                  openSelectProvider: true,
+                  message: "Le service AI n'est pas disponible. Veuillez vous connecter ou réessayer plus tard.",
+                })
+              )
+            );
+          }
         } else {
           await writer.write(
             encoder.encode(
