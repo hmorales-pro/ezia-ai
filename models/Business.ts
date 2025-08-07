@@ -71,11 +71,30 @@ export interface IBusiness {
   
   // Objectifs business
   goals: Array<{
+    goal_id: string;
     title: string;
     description: string;
+    category: 'revenue' | 'growth' | 'product' | 'marketing' | 'operations' | 'other';
     target_date: Date;
-    status: 'pending' | 'in_progress' | 'completed';
-    progress?: number;          // 0-100
+    created_at: Date;
+    completed_at?: Date;
+    status: 'active' | 'completed' | 'paused' | 'cancelled';
+    progress: number;          // 0-100
+    metrics?: {
+      target_value?: string;
+      unit?: string;
+      current_value?: string;
+    };
+    milestones?: Array<{
+      title: string;
+      achieved_at: Date;
+    }>;
+    updates?: Array<{
+      date: Date;
+      note: string;
+      progress: number;
+      updated_by?: string;
+    }>;
   }>;
   
   // Metadata
@@ -164,15 +183,38 @@ const BusinessSchema = new Schema<IBusiness>({
   
   // Objectifs
   goals: [{
-    title: { type: String },
-    description: { type: String },
-    target_date: { type: Date },
+    goal_id: { type: String, required: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    category: {
+      type: String,
+      enum: ['revenue', 'growth', 'product', 'marketing', 'operations', 'other'],
+      required: true
+    },
+    target_date: { type: Date, required: true },
+    created_at: { type: Date, default: Date.now },
+    completed_at: { type: Date },
     status: {
       type: String,
-      enum: ['pending', 'in_progress', 'completed'],
-      default: 'pending'
+      enum: ['active', 'completed', 'paused', 'cancelled'],
+      default: 'active'
     },
-    progress: { type: Number, min: 0, max: 100 }
+    progress: { type: Number, min: 0, max: 100, default: 0 },
+    metrics: {
+      target_value: { type: String },
+      unit: { type: String },
+      current_value: { type: String }
+    },
+    milestones: [{
+      title: { type: String },
+      achieved_at: { type: Date }
+    }],
+    updates: [{
+      date: { type: Date, default: Date.now },
+      note: { type: String },
+      progress: { type: Number },
+      updated_by: { type: String }
+    }]
   }],
   
   // Metadata

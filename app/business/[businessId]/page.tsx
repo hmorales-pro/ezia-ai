@@ -501,10 +501,12 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
                     Suivez vos objectifs et votre progression
                   </CardDescription>
                 </div>
-                <Button>
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Ajouter un objectif
-                </Button>
+                <Link href={`/business/${businessId}/goals`}>
+                  <Button>
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Gérer les objectifs
+                  </Button>
+                </Link>
               </CardHeader>
               <CardContent>
                 {business.goals.length > 0 ? (
