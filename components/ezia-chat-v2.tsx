@@ -41,6 +41,13 @@ interface EziaChatV2Props {
 }
 
 const actionConfigs = {
+  create_website: {
+    icon: Globe,
+    title: "Créer un site web",
+    description: "Je vais coordonner mon équipe pour créer votre site web professionnel",
+    color: "text-purple-600",
+    bgColor: "bg-purple-600/10"
+  },
   market_analysis: {
     icon: Target,
     title: "Analyse de marché",
@@ -165,8 +172,20 @@ Souhaitez-vous que je commence l'analyse ou avez-vous des questions spécifiques
           onActionComplete({
             type: actionType,
             content: response.data.content,
-            interaction: response.data.interaction
+            interaction: response.data.interaction,
+            project: response.data.project
           });
+        }
+        
+        // Si c'est une création de site web, proposer de voir le site
+        if (actionType === "create_website" && response.data.project) {
+          const viewSiteMessage: Message = {
+            id: (Date.now() + 2).toString(),
+            role: "assistant",
+            content: `🌐 [Cliquez ici pour voir votre nouveau site web](${response.data.project.preview_url})`,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, viewSiteMessage]);
         }
       } else {
         throw new Error(response.data.error || "Erreur lors de l'analyse");

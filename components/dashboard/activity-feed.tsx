@@ -26,12 +26,12 @@ const activityIcons = {
 };
 
 const activityColors = {
-  market_analysis: "text-[#C837F4]",
-  marketing_strategy: "text-[#B028F2]",
+  market_analysis: "text-[#6D3FC8]",
+  marketing_strategy: "text-[#5A35A5]",
   website_creation: "text-[#9B21D5]",
-  content_calendar: "text-[#C837F4]",
+  content_calendar: "text-[#6D3FC8]",
   general: "text-[#666666]",
-  branding: "text-[#B028F2]"
+  branding: "text-[#5A35A5]"
 };
 
 export function ActivityFeed({ activities }: ActivityFeedProps) {

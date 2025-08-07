@@ -83,7 +83,7 @@ export function GoalCard({ goal, onUpdate, onEdit }: GoalCardProps) {
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <Target className="w-5 h-5 text-[#C837F4]" />
+              <Target className="w-5 h-5 text-[#6D3FC8]" />
               <h3 className="font-semibold text-lg">{goal.title}</h3>
               <Badge 
                 variant="secondary" 

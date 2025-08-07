@@ -32,7 +32,7 @@ export function ProgressChart({ title, items }: ProgressChartProps) {
               className="h-2"
               style={{ 
                 // @ts-ignore
-                '--progress-color': item.color || '#C837F4' 
+                '--progress-color': item.color || '#6D3FC8' 
               }}
             />
           </div>

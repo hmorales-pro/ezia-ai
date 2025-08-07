@@ -16,7 +16,7 @@ export default async function Auth() {
   }
 
   return (
-    <div className="p-4 min-h-screen bg-[#EDEAE3]">
+    <div className="p-4 min-h-screen bg-[#FAF9F5]">
       <div className="border bg-red-50 border-red-200 text-red-600 px-5 py-3 rounded-lg max-w-md mx-auto mt-10 shadow-md">
         <h1 className="text-xl font-bold text-red-700">Error</h1>
         <p className="text-sm text-red-600">

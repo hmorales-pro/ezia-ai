@@ -22,10 +22,10 @@ const buttonVariants = cva(
         lightGray: "bg-gray-200/60 hover:bg-gray-200",
         link: "text-primary underline-offset-4 hover:underline",
         ghostDarker:
-          "text-[#1E1E1E] shadow-xs focus-visible:ring-[#C837F4]/40 bg-[#666666]/10 hover:bg-[#666666]/20",
+          "text-[#1E1E1E] shadow-xs focus-visible:ring-[#6D3FC8]/40 bg-[#666666]/10 hover:bg-[#666666]/20",
         black: "bg-[#1E1E1E] text-white hover:brightness-110",
         sky: "bg-sky-500 text-white hover:brightness-110",
-        ezia: "bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-lg hover:shadow-xl transition-all",
+        ezia: "bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white border-0 shadow-lg hover:shadow-xl transition-all",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

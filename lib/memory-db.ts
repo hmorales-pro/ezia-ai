@@ -27,9 +27,63 @@ interface MemoryBusiness {
   goals?: Array<unknown>;
 }
 
+interface MemoryProject {
+  _id: string;
+  project_id: string;
+  business_id: string;
+  user_id: string;
+  name: string;
+  type: 'site-vitrine' | 'landing-page' | 'blog' | 'saas';
+  description: string;
+  status: 'active' | 'archived' | 'draft';
+  code: string;
+  agents_contributions: {
+    kiko?: string;
+    milo?: string;
+    yuna?: string;
+    vera?: string;
+  };
+  preview_url: string;
+  deploy_url?: string;
+  custom_domain?: string;
+  deployments: Array<{
+    provider: 'netlify' | 'vercel' | 'cloudflare';
+    url: string;
+    deployed_at: Date;
+    status: 'success' | 'failed' | 'pending';
+  }>;
+  analytics: {
+    views: number;
+    last_viewed: Date;
+  };
+  created_at: Date;
+  updated_at: Date;
+}
+
+interface MemorySubscription {
+  _id: string;
+  user_id: string;
+  plan: string;
+  status: 'active' | 'cancelled' | 'expired';
+  created_at: Date;
+  updated_at: Date;
+  usage: {
+    analyses: number;
+    websites: number;
+    interactions: number;
+    generations: number;
+  };
+  next_billing_date?: Date;
+  stripe_customer_id?: string;
+  stripe_subscription_id?: string;
+}
+
 class MemoryDB {
   private businesses: Map<string, MemoryBusiness> = new Map();
+  private projects: Map<string, MemoryProject> = new Map();
+  private subscriptions: Map<string, MemorySubscription> = new Map();
   private idCounter = 1;
+  private projectIdCounter = 1;
 
   async create(data: Omit<MemoryBusiness, '_id' | '_createdAt'>): Promise<MemoryBusiness> {
     const business: MemoryBusiness = {
@@ -147,6 +201,60 @@ class MemoryDB {
       }
     }
     return subscription || null;
+  }
+
+  // Project methods
+  async createProject(data: Omit<MemoryProject, '_id' | 'created_at' | 'updated_at'>): Promise<MemoryProject> {
+    const project: MemoryProject = {
+      ...data,
+      _id: `memory_project_${this.projectIdCounter++}`,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    this.projects.set(project.project_id, project);
+    return project;
+  }
+
+  async findProjectById(projectId: string): Promise<MemoryProject | null> {
+    return this.projects.get(projectId) || null;
+  }
+
+  async findProjectsByBusiness(businessId: string): Promise<MemoryProject[]> {
+    const results: MemoryProject[] = [];
+    for (const project of this.projects.values()) {
+      if (project.business_id === businessId && project.status === 'active') {
+        results.push(project);
+      }
+    }
+    return results.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
+  }
+
+  async findProjectsByUser(userId: string): Promise<MemoryProject[]> {
+    const results: MemoryProject[] = [];
+    for (const project of this.projects.values()) {
+      if (project.user_id === userId) {
+        results.push(project);
+      }
+    }
+    return results.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
+  }
+
+  async updateProject(projectId: string, updates: Partial<MemoryProject>): Promise<MemoryProject | null> {
+    const project = this.projects.get(projectId);
+    if (project) {
+      Object.assign(project, updates, { updated_at: new Date() });
+      return project;
+    }
+    return null;
+  }
+
+  async incrementProjectViews(projectId: string): Promise<void> {
+    const project = this.projects.get(projectId);
+    if (project) {
+      project.analytics.views += 1;
+      project.analytics.last_viewed = new Date();
+      project.updated_at = new Date();
+    }
   }
 }
 

@@ -125,21 +125,21 @@ export default function DashboardPage() {
 
   if (userLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#EDEAE3] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#C837F4]" />
+      <div className="min-h-screen bg-[#FAF9F5] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#6D3FC8]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#EDEAE3] text-[#1E1E1E] overflow-y-auto">
+    <div className="min-h-screen bg-[#FAF9F5] text-[#1E1E1E] overflow-y-auto">
       {/* Header amélioré */}
       <header className="border-b border-[#E0E0E0] backdrop-blur-xl bg-white/90 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-xl flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#6D3FC8] to-[#5A35A5] rounded-xl flex items-center justify-center shadow-md">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
@@ -178,7 +178,7 @@ export default function DashboardPage() {
               ) : (
                 <Button 
                   onClick={() => setShowLoginModal(true)} 
-                  className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-md hover:shadow-lg transition-all"
+                  className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white border-0 shadow-md hover:shadow-lg transition-all"
                 >
                   Se connecter
                 </Button>
@@ -289,7 +289,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={handleCreateBusiness}
                   size="sm"
-                  className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-md hover:shadow-lg transition-all"
+                  className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white border-0 shadow-md hover:shadow-lg transition-all"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Nouveau
@@ -307,7 +307,7 @@ export default function DashboardPage() {
                   </p>
                   <Button 
                     onClick={handleCreateBusiness} 
-                    className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-md hover:shadow-lg transition-all"
+                    className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white border-0 shadow-md hover:shadow-lg transition-all"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Créer mon premier business
@@ -325,8 +325,8 @@ export default function DashboardPage() {
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <Building2 className="w-6 h-6 text-[#C837F4]" />
-                              <h3 className="text-lg font-semibold group-hover:text-[#C837F4] transition-colors">
+                              <Building2 className="w-6 h-6 text-[#6D3FC8]" />
+                              <h3 className="text-lg font-semibold group-hover:text-[#6D3FC8] transition-colors">
                                 {business.name}
                               </h3>
                               <span className={cn(
@@ -360,7 +360,7 @@ export default function DashboardPage() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-2xl font-bold text-[#C837F4]">
+                            <div className="text-2xl font-bold text-[#6D3FC8]">
                               {business.completion_score || 0}%
                             </div>
                             <p className="text-xs text-[#666666]">Complété</p>
@@ -397,7 +397,7 @@ export default function DashboardPage() {
                             <Target className="w-3 h-3 mr-1" />
                             Analyse
                           </Button>
-                          <ChevronRight className="w-4 h-4 ml-auto text-[#666666] group-hover:text-[#C837F4] transition-colors" />
+                          <ChevronRight className="w-4 h-4 ml-auto text-[#666666] group-hover:text-[#6D3FC8] transition-colors" />
                         </div>
                       </CardContent>
                     </Card>
@@ -441,7 +441,7 @@ export default function DashboardPage() {
                         router.push(`/projects/new?prompt=${prompt}&businessId=${selectedBusiness.business_id}`);
                       }}
                     >
-                      <p className="text-sm font-medium group-hover:text-[#C837F4] transition-colors">
+                      <p className="text-sm font-medium group-hover:text-[#6D3FC8] transition-colors">
                         Créer votre site web
                       </p>
                       <p className="text-xs text-[#666666] mt-1">
@@ -453,7 +453,7 @@ export default function DashboardPage() {
                     className="w-full text-left p-3 rounded-lg bg-gray-50 hover:bg-gray-100 border border-[#E0E0E0] transition-all group hover:shadow-md"
                     onClick={() => selectedBusiness && router.push(`/business/${selectedBusiness.business_id}?action=competitor_analysis`)}
                   >
-                    <p className="text-sm font-medium group-hover:text-[#C837F4] transition-colors">
+                    <p className="text-sm font-medium group-hover:text-[#6D3FC8] transition-colors">
                       Analyser la concurrence
                     </p>
                     <p className="text-xs text-[#666666] mt-1">
@@ -468,7 +468,7 @@ export default function DashboardPage() {
       ) : (
         /* Hero Section pour les non-connectés */
         <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#C837F4]/10 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#6D3FC8]/10 via-transparent to-transparent" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-[#1E1E1E] to-[#666666] bg-clip-text text-transparent">
@@ -482,7 +482,7 @@ export default function DashboardPage() {
                 <Button
                   size="lg"
                   onClick={handleCreateBusiness}
-                  className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white shadow-lg hover:shadow-xl transition-all"
+                  className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white shadow-lg hover:shadow-xl transition-all"
                 >
                   <Plus className="w-5 h-5 mr-2" />
                   Commencer gratuitement
@@ -500,7 +500,7 @@ export default function DashboardPage() {
             {/* Features Grid */}
             <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
               <Card className="p-8 bg-white border-[#E0E0E0] backdrop-blur-sm shadow-lg">
-                <Target className="w-12 h-12 text-[#C837F4] mb-4" />
+                <Target className="w-12 h-12 text-[#6D3FC8] mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Analyse de marché</h3>
                 <p className="text-[#666666]">
                   Notre agent analyste étudie votre marché, identifie les opportunités et positionne votre offre.
@@ -508,7 +508,7 @@ export default function DashboardPage() {
               </Card>
               
               <Card className="p-8 bg-white border-[#E0E0E0] backdrop-blur-sm shadow-lg">
-                <Globe className="w-12 h-12 text-[#C837F4] mb-4" />
+                <Globe className="w-12 h-12 text-[#6D3FC8] mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Présence en ligne</h3>
                 <p className="text-[#666666]">
                   Nos agents créent votre site web, gèrent vos réseaux sociaux et optimisent votre visibilité.
@@ -516,7 +516,7 @@ export default function DashboardPage() {
               </Card>
               
               <Card className="p-8 bg-white border-[#E0E0E0] backdrop-blur-sm shadow-lg">
-                <MessageSquare className="w-12 h-12 text-[#C837F4] mb-4" />
+                <MessageSquare className="w-12 h-12 text-[#6D3FC8] mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Accompagnement continu</h3>
                 <p className="text-[#666666]">
                   Une équipe complète d'agents IA travaille 24/7 pour faire évoluer votre business.

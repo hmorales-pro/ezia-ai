@@ -23,7 +23,7 @@ export function InviteFriends() {
           <Button
             size="iconXs"
             variant="outline"
-            className="!border-[#E0E0E0] !text-[#666666] !hover:!border-[#C837F4] hover:!text-[#C837F4]"
+            className="!border-[#E0E0E0] !text-[#666666] !hover:!border-[#6D3FC8] hover:!text-[#6D3FC8]"
           >
             <TiUserAdd className="size-4" />
           </Button>
@@ -32,13 +32,13 @@ export function InviteFriends() {
           <DialogTitle className="hidden" />
           <main>
             <div className="flex items-center justify-start -space-x-4 mb-5">
-              <div className="size-11 rounded-full bg-[#C837F4]/20 shadow-sm flex items-center justify-center text-2xl">
+              <div className="size-11 rounded-full bg-[#6D3FC8]/20 shadow-sm flex items-center justify-center text-2xl">
                 😎
               </div>
-              <div className="size-11 rounded-full bg-gradient-to-br from-[#C837F4] to-[#B028F2] shadow-lg flex items-center justify-center text-2xl z-2">
+              <div className="size-11 rounded-full bg-gradient-to-br from-[#6D3FC8] to-[#5A35A5] shadow-lg flex items-center justify-center text-2xl z-2">
                 😇
               </div>
-              <div className="size-11 rounded-full bg-[#B028F2]/20 shadow-sm flex items-center justify-center text-2xl">
+              <div className="size-11 rounded-full bg-[#5A35A5]/20 shadow-sm flex items-center justify-center text-2xl">
                 😜
               </div>
             </div>
@@ -58,7 +58,7 @@ export function InviteFriends() {
                 <Button
                   variant="lightGray"
                   size="sm"
-                  className="!text-[#666666] hover:!text-[#C837F4]"
+                  className="!text-[#666666] hover:!text-[#6D3FC8]"
                 >
                   <FaXTwitter className="size-4" />
                   Share on

@@ -16,14 +16,14 @@ export function StatCard({
   value,
   change,
   icon: Icon,
-  iconColor = "text-[#C837F4]",
+  iconColor = "text-[#6D3FC8]",
   trend = "neutral"
 }: StatCardProps) {
   return (
     <Card className="bg-white backdrop-blur-sm border border-[#E0E0E0] hover:shadow-lg transition-all shadow-md">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#C837F4]/20 to-[#B028F2]/20 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6D3FC8]/20 to-[#5A35A5]/20 flex items-center justify-center">
             <Icon className={cn("w-6 h-6", iconColor)} />
           </div>
           {change !== undefined && (

@@ -46,37 +46,37 @@
 :root {
   --radius: 0.625rem;
   /* Ezia Color Scheme */
-  --background: #EDEAE3; /* Light beige/pale gray */
+  --background: #FAF9F5; /* Light background with sand grain texture */
   --foreground: #1E1E1E; /* Deep black for text */
   --card: #FFFFFF; /* White cards on beige background */
   --card-foreground: #1E1E1E;
   --popover: #FFFFFF;
   --popover-foreground: #1E1E1E;
-  --primary: #C837F4; /* Flashy violet/magenta for CTAs */
+  --primary: #6D3FC8; /* Violet accent for CTAs */
   --primary-foreground: #FFFFFF;
   --secondary: #F5F5F5; /* Slightly darker than background */
   --secondary-foreground: #1E1E1E;
   --muted: #F5F5F5;
   --muted-foreground: #666666; /* Dark gray for secondary text */
-  --accent: #B028F2; /* Darker shade of violet */
+  --accent: #6D3FC8; /* Violet accent */
   --accent-foreground: #FFFFFF;
   --destructive: #DC2626;
   --border: #E0E0E0; /* Light gray borders */
   --input: #F5F5F5;
-  --ring: #C837F4; /* Violet for focus states */
-  --chart-1: #C837F4;
-  --chart-2: #B028F2;
-  --chart-3: #9B21D5;
-  --chart-4: #7C1AC3;
-  --chart-5: #5E14B8;
+  --ring: #6D3FC8; /* Violet for focus states */
+  --chart-1: #6D3FC8;
+  --chart-2: #5A35A5;
+  --chart-3: #4A2B87;
+  --chart-4: #3A2169;
+  --chart-5: #2A174B;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #1E1E1E;
-  --sidebar-primary: #C837F4;
+  --sidebar-primary: #6D3FC8;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #F5F5F5;
   --sidebar-accent-foreground: #1E1E1E;
   --sidebar-border: #E0E0E0;
-  --sidebar-ring: #C837F4;
+  --sidebar-ring: #6D3FC8;
 }
 
 /* Dark theme removed - Ezia uses light theme only */

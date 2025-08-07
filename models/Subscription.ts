@@ -78,11 +78,31 @@ const SubscriptionSchema = new Schema<ISubscription>({
   cancelled_at: Date
 });
 
+// Plan type definition
+interface PlanDefinition {
+  name: string;
+  price: number;
+  price_yearly?: number;
+  emoji?: string;
+  features: {
+    max_businesses: number;
+    max_analyses_per_month: number;
+    max_websites: number;
+    priority_support: boolean;
+    custom_domain: boolean;
+    white_label: boolean;
+    api_access: boolean;
+  };
+  description: string;
+  tagline?: string;
+}
+
 // Plans Ezia
-export const EZIA_PLANS = {
+export const EZIA_PLANS: Record<string, PlanDefinition> = {
   free: {
-    name: 'Gratuit',
+    name: 'Découverte',
     price: 0,
+    emoji: '🌱',
     features: {
       max_businesses: 1,
       max_analyses_per_month: 5,
@@ -92,12 +112,14 @@ export const EZIA_PLANS = {
       white_label: false,
       api_access: false
     },
-    description: 'Parfait pour découvrir Ezia'
+    description: 'Idéal pour tester Ezia',
+    tagline: 'Votre premier projet gratuit'
   },
   starter: {
-    name: 'Starter',
+    name: 'Créateur',
     price: 29,
     price_yearly: 290, // 2 mois offerts
+    emoji: '🚀',
     features: {
       max_businesses: 3,
       max_analyses_per_month: 50,
@@ -107,12 +129,14 @@ export const EZIA_PLANS = {
       white_label: false,
       api_access: false
     },
-    description: 'Pour les entrepreneurs qui démarrent'
+    description: 'Pour lancer vos projets',
+    tagline: 'L\'équipe complète à petit prix'
   },
   pro: {
-    name: 'Pro',
+    name: 'Entrepreneur',
     price: 79,
     price_yearly: 790, // 2 mois offerts
+    emoji: '✨',
     features: {
       max_businesses: 10,
       max_analyses_per_month: -1, // illimité
@@ -122,12 +146,14 @@ export const EZIA_PLANS = {
       white_label: false,
       api_access: true
     },
-    description: 'Pour les professionnels ambitieux'
+    description: 'Pour développer votre activité',
+    tagline: 'Conversations illimitées'
   },
   enterprise: {
-    name: 'Enterprise',
+    name: 'Agence',
     price: 299,
     price_yearly: 2990, // 2 mois offerts
+    emoji: '🏆',
     features: {
       max_businesses: -1, // illimité
       max_analyses_per_month: -1, // illimité
@@ -137,7 +163,8 @@ export const EZIA_PLANS = {
       white_label: true,
       api_access: true
     },
-    description: 'Pour les grandes organisations'
+    description: 'Pour les équipes et agences',
+    tagline: 'Tout illimité + agents personnalisés'
   }
 };
 

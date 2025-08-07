@@ -26,7 +26,7 @@ export default function AuthCallback({
   );
 
   return (
-    <div className="h-screen flex flex-col justify-center items-center bg-[#EDEAE3]">
+    <div className="h-screen flex flex-col justify-center items-center bg-[#FAF9F5]">
       <div className="!rounded-2xl !p-0 !bg-white !border-[#E0E0E0] min-w-xs text-center overflow-hidden ring-[8px] ring-white/20 shadow-xl">
         <header className="bg-gray-50 p-6 border-b border-[#E0E0E0]">
           <div className="flex items-center justify-center -space-x-4 mb-3">
@@ -55,7 +55,7 @@ export default function AuthCallback({
             </p>
             {showButton ? (
               <Link href="/">
-                <Button className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-lg hover:shadow-xl transition-all">
+                <Button className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white border-0 shadow-lg hover:shadow-xl transition-all">
                   Go to Home
                 </Button>
               </Link>

@@ -62,7 +62,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#EDEAE3",
+  themeColor: "#FAF9F5",
 };
 
 async function getMe() {
@@ -99,7 +99,7 @@ export default async function RootLayout({
         src="https://plausible.io/js/script.js"
       ></Script>
       <body
-        className={`${inter.variable} ${ptSans.variable} antialiased bg-[#EDEAE3] min-h-[100dvh]`}
+        className={`${inter.variable} ${ptSans.variable} antialiased bg-[#FAF9F5] min-h-[100dvh]`}
       >
         <Toaster richColors position="bottom-center" />
         <TanstackProvider>

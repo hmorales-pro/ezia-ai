@@ -119,13 +119,13 @@ export function UpdateGoalDialog({
               <SelectContent>
                 <SelectItem value="active">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-[#C837F4]" />
+                    <TrendingUp className="w-4 h-4 text-[#6D3FC8]" />
                     En cours
                   </div>
                 </SelectItem>
                 <SelectItem value="completed">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-[#B028F2]" />
+                    <CheckCircle className="w-4 h-4 text-[#5A35A5]" />
                     Complété
                   </div>
                 </SelectItem>
@@ -154,15 +154,15 @@ export function UpdateGoalDialog({
 
           {/* Suggestion automatique si 100% */}
           {progress === 100 && status !== 'completed' && (
-            <div className="p-3 bg-[#C837F4]/10 border border-[#C837F4]/20 rounded-lg">
-              <p className="text-sm text-[#C837F4]">
+            <div className="p-3 bg-[#6D3FC8]/10 border border-[#6D3FC8]/20 rounded-lg">
+              <p className="text-sm text-[#6D3FC8]">
                 🎉 Félicitations ! Voulez-vous marquer cet objectif comme complété ?
               </p>
               <Button
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="mt-2 text-[#C837F4] hover:text-[#B028F2]"
+                className="mt-2 text-[#6D3FC8] hover:text-[#5A35A5]"
                 onClick={() => setStatus('completed')}
               >
                 Marquer comme complété
@@ -184,7 +184,7 @@ export function UpdateGoalDialog({
             <Button
               type="submit"
               disabled={loading}
-              className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-lg hover:shadow-xl transition-all"
+              className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white border-0 shadow-lg hover:shadow-xl transition-all"
             >
               {loading ? (
                 <>

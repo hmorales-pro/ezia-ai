@@ -42,7 +42,7 @@ export function MyProjects({
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <Link
             href="/projects/new"
-            className="bg-white rounded-xl h-44 flex items-center justify-center text-[#666666] border border-[#E0E0E0] hover:shadow-lg hover:text-[#C837F4] transition-all duration-200 shadow-md"
+            className="bg-white rounded-xl h-44 flex items-center justify-center text-[#666666] border border-[#E0E0E0] hover:shadow-lg hover:text-[#6D3FC8] transition-all duration-200 shadow-md"
           >
             <Plus className="size-5 mr-1.5" />
             Create Project

@@ -140,7 +140,7 @@ function InteractionCard({ interaction }: { interaction: Business['ezia_interact
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-[#C837F4] hover:text-[#B028F2]"
+              className="text-[#6D3FC8] hover:text-[#5A35A5]"
             >
               {isExpanded ? (
                 <>
@@ -239,7 +239,7 @@ export default function BusinessDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C837F4] mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6D3FC8] mx-auto"></div>
           <p className="mt-4 text-[#666666]">Chargement...</p>
         </div>
       </div>
@@ -278,7 +278,7 @@ export default function BusinessDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDEAE3]">
+    <div className="min-h-screen bg-[#FAF9F5]">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-[#E0E0E0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -343,7 +343,7 @@ export default function BusinessDetailPage() {
                       href={business.website_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="mt-1 text-[#C837F4] hover:text-[#B028F2] hover:underline flex items-center gap-1 transition-colors"
+                      className="mt-1 text-[#6D3FC8] hover:text-[#5A35A5] hover:underline flex items-center gap-1 transition-colors"
                     >
                       <Globe className="w-4 h-4" />
                       {business.website_url}
@@ -365,34 +365,12 @@ export default function BusinessDetailPage() {
               <Card 
                 className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
-                  // Préparer le prompt avec les informations du business
-                  const prompt = `Crée un site web moderne et professionnel pour ${business.name}.
-
-Description du business : ${business.description}
-Industrie : ${business.industry}
-Étape : ${business.stage}
-
-${business.market_analysis?.target_audience ? `Audience cible : ${business.market_analysis.target_audience}` : ''}
-${business.market_analysis?.value_proposition ? `Proposition de valeur : ${business.market_analysis.value_proposition}` : ''}
-
-Le site doit inclure :
-- Une page d'accueil attrayante
-- Une section présentant les services/produits
-- Une section "À propos"
-- Une page de contact
-- Un design responsive et moderne
-
-Utilise des couleurs professionnelles et un style adapté à l'industrie ${business.industry}.`;
-
-                  // Encoder le prompt pour l'URL
-                  const encodedPrompt = encodeURIComponent(prompt);
-                  
-                  // Rediriger vers l'interface DeepSite avec le prompt
-                  router.push(`/projects/new?prompt=${encodedPrompt}&businessId=${businessId}`);
+                  setChatAction("create_website");
+                  setChatOpen(true);
                 }}
               >
                 <CardContent className="p-6">
-                  <Building2 className="w-8 h-8 text-[#C837F4] mb-2" />
+                  <Building2 className="w-8 h-8 text-[#6D3FC8] mb-2" />
                   <h3 className="font-medium">Créer un site web</h3>
                   <p className="text-sm text-[#666666] mt-1">
                     Lancez votre présence en ligne avec DeepSite
@@ -407,7 +385,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
                 }}
               >
                 <CardContent className="p-6">
-                  <Target className="w-8 h-8 text-[#C837F4] mb-2" />
+                  <Target className="w-8 h-8 text-[#6D3FC8] mb-2" />
                   <h3 className="font-medium">Analyse de marché</h3>
                   <p className="text-sm text-[#666666] mt-1">
                     Comprenez votre marché et vos clients

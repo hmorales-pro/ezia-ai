@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, X, ArrowLeft, Sparkles } from "lucide-react";
+import { CheckCircle, X, ArrowLeft, Sparkles, Bot, Globe, MessageSquare, Code2, Rocket, Users, Heart, Zap } from "lucide-react";
 import { api } from "@/lib/api";
 import { useUser } from "@/components/contexts/user-context";
 import { toast } from "sonner";
@@ -24,6 +24,8 @@ interface Plan {
     api_access: boolean;
   };
   description: string;
+  tagline?: string;
+  emoji?: string;
 }
 
 export default function PricingPage() {
@@ -66,7 +68,7 @@ export default function PricingPage() {
       setTimeout(() => {
         router.push('/dashboard');
       }, 1500);
-    } catch (error) {
+    } catch {
       toast.error("Erreur lors de la mise à jour de l'abonnement");
     } finally {
       setLoading(false);
@@ -87,9 +89,9 @@ export default function PricingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#EDEAE3] flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAF9F5] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#C837F4] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-[#6D3FC8] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[#666666]">Chargement des plans...</p>
         </div>
       </div>
@@ -99,21 +101,21 @@ export default function PricingPage() {
   const planOrder = ['free', 'starter', 'pro', 'enterprise'];
 
   return (
-    <div className="min-h-screen bg-[#EDEAE3]">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF9F5] via-[#FAF9F5] to-purple-50/20">
       {/* Header */}
-      <div className="bg-white border-b border-[#E0E0E0] shadow-sm">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-[#E0E0E0]/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/dashboard')}
-                className="mr-4"
+                className="mr-4 hover:bg-purple-50"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Retour
               </Button>
-              <h1 className="text-2xl font-bold text-[#1E1E1E]">Plans et tarifs</h1>
+              <h1 className="text-2xl font-bold text-[#1E1E1E]">Choisissez votre équipe Ezia</h1>
             </div>
             
             {/* Toggle Monthly/Yearly */}
@@ -123,7 +125,7 @@ export default function PricingPage() {
               </span>
               <button
                 onClick={() => setIsYearly(!isYearly)}
-                className="relative inline-flex h-6 w-11 items-center rounded-full bg-[#E0E0E0] transition-colors focus:outline-none focus:ring-2 focus:ring-[#C837F4] focus:ring-offset-2"
+                className="relative inline-flex h-6 w-11 items-center rounded-full bg-[#E0E0E0] transition-colors focus:outline-none focus:ring-2 focus:ring-[#6D3FC8] focus:ring-offset-2"
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -133,25 +135,55 @@ export default function PricingPage() {
               </button>
               <span className={`text-sm ${isYearly ? 'text-[#1E1E1E] font-semibold' : 'text-[#666666]'}`}>
                 Annuel
-                <Badge className="ml-2 bg-[#C837F4] text-white">-2 mois</Badge>
+                <Badge className="ml-2 bg-[#6D3FC8] text-white">-2 mois</Badge>
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Plans */}
+      {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-[#1E1E1E] mb-4">
-            Choisissez votre plan Ezia
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <Bot className="w-4 h-4" />
+            <span>Votre chef de projet IA et son équipe</span>
+          </div>
+          <h2 className="text-5xl font-bold text-[#1E1E1E] mb-6">
+            Créez vos projets web en <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">conversant</span>
           </h2>
-          <p className="text-xl text-[#666666]">
-            Commencez gratuitement, évoluez selon vos besoins
+          <p className="text-xl text-[#666666] max-w-3xl mx-auto leading-relaxed">
+            Ezia est votre chef de projet IA qui coordonne une équipe d'agents spécialisés. 
+            Créez des sites web, landing pages et projets digitaux simplement en discutant.
           </p>
+          
+          {/* Key Features */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto">
+            <div className="flex flex-col items-center p-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                <MessageSquare className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="font-semibold text-[#1E1E1E] mb-1">100% Conversationnel</h3>
+              <p className="text-sm text-[#666666]">Créez tout en discutant naturellement</p>
+            </div>
+            <div className="flex flex-col items-center p-4">
+              <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mb-3">
+                <Code2 className="w-6 h-6 text-pink-600" />
+              </div>
+              <h3 className="font-semibold text-[#1E1E1E] mb-1">Sans code</h3>
+              <p className="text-sm text-[#666666]">Aucune compétence technique requise</p>
+            </div>
+            <div className="flex flex-col items-center p-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                <Heart className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-[#1E1E1E] mb-1">IA Française</h3>
+              <p className="text-sm text-[#666666]">Conçu avec Mistral AI</p>
+            </div>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {planOrder.map((planKey) => {
             const plan = plans[planKey];
             if (!plan) return null;
@@ -164,25 +196,38 @@ export default function PricingPage() {
             return (
               <Card
                 key={planKey}
-                className={`relative overflow-hidden transition-all ${
+                className={`relative overflow-hidden transition-all hover:scale-[1.02] ${
                   isPro 
-                    ? 'border-2 border-[#C837F4] shadow-xl scale-105' 
-                    : 'border border-[#E0E0E0] shadow-md hover:shadow-lg'
+                    ? 'border-2 border-purple-500 shadow-2xl shadow-purple-500/20' 
+                    : 'border border-[#E0E0E0] shadow-md hover:shadow-xl'
                 } bg-white`}
               >
                 {isPro && (
-                  <div className="absolute top-0 right-0 bg-gradient-to-r from-[#C837F4] to-[#B028F2] text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
-                    POPULAIRE
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+                )}
+                {isPro && (
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
+                      <Zap className="w-3 h-3 mr-1" />
+                      Populaire
+                    </Badge>
                   </div>
                 )}
                 
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-[#1E1E1E]">
-                    {plan.name}
-                  </CardTitle>
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <CardTitle className="text-2xl font-bold text-[#1E1E1E]">
+                      {plan.emoji} {plan.name}
+                    </CardTitle>
+                  </div>
                   <CardDescription className="text-[#666666]">
                     {plan.description}
                   </CardDescription>
+                  {plan.tagline && (
+                    <p className="text-sm font-medium text-purple-600 mt-2">
+                      {plan.tagline}
+                    </p>
+                  )}
                 </CardHeader>
                 
                 <CardContent className="space-y-6">
@@ -202,29 +247,29 @@ export default function PricingPage() {
                   
                   <ul className="space-y-3">
                     <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-5 h-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-[#666666]">
-                        <strong className="text-[#1E1E1E]">{formatFeatureValue(plan.features.max_businesses)}</strong> business
+                        <strong className="text-[#1E1E1E]">{formatFeatureValue(plan.features.max_websites)}</strong> projets web
                       </span>
                     </li>
                     
                     <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-5 h-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-[#666666]">
-                        <strong className="text-[#1E1E1E]">{formatFeatureValue(plan.features.max_analyses_per_month)}</strong> analyses/mois
+                        <strong className="text-[#1E1E1E]">{formatFeatureValue(plan.features.max_analyses_per_month)}</strong> conversations/mois
                       </span>
                     </li>
                     
                     <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-5 h-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-[#666666]">
-                        <strong className="text-[#1E1E1E]">{formatFeatureValue(plan.features.max_websites)}</strong> sites web
+                        Équipe d'agents IA
                       </span>
                     </li>
                     
                     <li className="flex items-start">
                       {plan.features.priority_support ? (
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <CheckCircle className="w-5 h-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
                       ) : (
                         <X className="w-5 h-5 text-gray-300 mr-2 flex-shrink-0 mt-0.5" />
                       )}
@@ -235,31 +280,31 @@ export default function PricingPage() {
                     
                     <li className="flex items-start">
                       {plan.features.custom_domain ? (
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <CheckCircle className="w-5 h-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
                       ) : (
                         <X className="w-5 h-5 text-gray-300 mr-2 flex-shrink-0 mt-0.5" />
                       )}
                       <span className={`text-sm ${plan.features.custom_domain ? 'text-[#666666]' : 'text-gray-400'}`}>
-                        Domaine personnalisé
+                        Déploiement personnalisé
                       </span>
                     </li>
                     
                     <li className="flex items-start">
                       {plan.features.api_access ? (
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <CheckCircle className="w-5 h-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
                       ) : (
                         <X className="w-5 h-5 text-gray-300 mr-2 flex-shrink-0 mt-0.5" />
                       )}
                       <span className={`text-sm ${plan.features.api_access ? 'text-[#666666]' : 'text-gray-400'}`}>
-                        Accès API
+                        Intégrations avancées
                       </span>
                     </li>
                     
                     {planKey === 'enterprise' && (
                       <li className="flex items-start">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <CheckCircle className="w-5 h-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
                         <span className="text-sm text-[#666666]">
-                          Marque blanche
+                          Agents IA personnalisés
                         </span>
                       </li>
                     )}
@@ -277,16 +322,16 @@ export default function PricingPage() {
                     </Button>
                   ) : (
                     <Button
-                      className={`w-full ${
+                      className={`w-full transition-all ${
                         isPro 
-                          ? 'bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white' 
-                          : ''
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg' 
+                          : 'hover:border-purple-500 hover:text-purple-600'
                       }`}
                       variant={isPro ? "default" : "outline"}
                       onClick={() => handleUpgrade(planKey)}
                       disabled={loading}
                     >
-                      {planKey === 'free' ? 'Rétrograder' : 'Choisir ce plan'}
+                      {planKey === 'free' ? 'Commencer gratuitement' : 'Choisir ce plan'}
                     </Button>
                   )}
                 </CardFooter>
@@ -295,44 +340,100 @@ export default function PricingPage() {
           })}
         </div>
 
+        {/* What's Included Section */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 mb-16">
+          <h3 className="text-2xl font-bold text-[#1E1E1E] mb-6 text-center">
+            Ce qui est inclus dans tous les plans
+          </h3>
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
+                <Bot className="w-6 h-6 text-purple-600" />
+              </div>
+              <h4 className="font-semibold text-[#1E1E1E] mb-2">Ezia, votre chef de projet IA</h4>
+              <p className="text-sm text-[#666666]">Un assistant intelligent qui comprend vos besoins et coordonne votre projet</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
+                <Users className="w-6 h-6 text-pink-600" />
+              </div>
+              <h4 className="font-semibold text-[#1E1E1E] mb-2">Une équipe d&apos;agents spécialisés</h4>
+              <p className="text-sm text-[#666666]">Design, développement, SEO, marketing - tous les experts dont vous avez besoin</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
+                <Globe className="w-6 h-6 text-blue-600" />
+              </div>
+              <h4 className="font-semibold text-[#1E1E1E] mb-2">Hébergement inclus</h4>
+              <p className="text-sm text-[#666666]">Vos projets sont hébergés gratuitement avec des performances optimales</p>
+            </div>
+          </div>
+        </div>
+
         {/* FAQ Section */}
         <div className="mt-16 text-center">
-          <h3 className="text-2xl font-bold text-[#1E1E1E] mb-4">
+          <h3 className="text-3xl font-bold text-[#1E1E1E] mb-8">
             Questions fréquentes
           </h3>
           <div className="max-w-3xl mx-auto space-y-4 text-left">
-            <Card className="bg-white">
+            <Card className="bg-white border-[#E0E0E0]/50 hover:shadow-md transition-shadow">
               <CardHeader>
-                <CardTitle className="text-lg">Puis-je changer de plan à tout moment ?</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Rocket className="w-5 h-5 text-purple-600" />
+                  Comment fonctionne Ezia ?
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-[#666666]">
-                  Oui, vous pouvez passer à un plan supérieur ou inférieur à tout moment. 
-                  Les changements sont appliqués immédiatement.
+                  Ezia est votre chef de projet IA. Vous lui expliquez votre projet en langage naturel, 
+                  et elle coordonne son équipe d'agents pour créer votre site web, landing page ou application. 
+                  Tout se fait par conversation, sans code.
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-white">
+            <Card className="bg-white border-[#E0E0E0]/50 hover:shadow-md transition-shadow">
               <CardHeader>
-                <CardTitle className="text-lg">Que se passe-t-il si je dépasse mes limites ?</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-purple-600" />
+                  Qu&apos;est-ce qu&apos;une conversation ?
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-[#666666]">
-                  Nous vous préviendrons avant d'atteindre vos limites. Vous pourrez alors 
-                  passer à un plan supérieur ou attendre le mois suivant pour de nouvelles analyses.
+                  Une conversation est un échange avec Ezia pour créer ou modifier votre projet. 
+                  Chaque demande de création, modification ou amélioration compte comme une conversation. 
+                  Les discussions simples et questions ne sont pas comptées.
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-white">
+            <Card className="bg-white border-[#E0E0E0]/50 hover:shadow-md transition-shadow">
               <CardHeader>
-                <CardTitle className="text-lg">Y a-t-il des frais cachés ?</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-600" />
+                  Puis-je modifier mon plan ?
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-[#666666]">
-                  Non, les prix affichés sont tout compris. Pas de frais de configuration, 
-                  pas de coûts cachés. Vous payez uniquement l'abonnement mensuel ou annuel.
+                  Oui ! Vous pouvez changer de plan à tout moment. L&apos;upgrade est immédiat, 
+                  et si vous passez à un plan inférieur, il prendra effet au prochain cycle de facturation.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white border-[#E0E0E0]/50 hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-purple-600" />
+                  Où sont hébergés mes projets ?
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-[#666666]">
+                  Vos projets sont hébergés sur une infrastructure cloud performante et sécurisée. 
+                  L&apos;hébergement est inclus dans tous les plans, sans frais supplémentaires.
                 </p>
               </CardContent>
             </Card>

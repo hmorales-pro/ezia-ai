@@ -35,7 +35,7 @@ export function GoalsWidget({ businessId, businessName, goals = [] }: GoalsWidge
     <Card className="bg-white border-[#E0E0E0] shadow-lg">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Target className="w-5 h-5 text-[#C837F4]" />
+          <Target className="w-5 h-5 text-[#6D3FC8]" />
           Objectifs
         </CardTitle>
         <Link href={`/business/${businessId}/goals`}>
@@ -68,7 +68,7 @@ export function GoalsWidget({ businessId, businessName, goals = [] }: GoalsWidge
               </div>
               <div className="text-center">
                 <p className="text-xs text-[#666666]">Complétés</p>
-                <p className="text-lg font-bold text-[#B028F2]">{completedCount}</p>
+                <p className="text-lg font-bold text-[#5A35A5]">{completedCount}</p>
               </div>
               <div className="text-center">
                 <p className="text-xs text-[#666666]">Progression</p>

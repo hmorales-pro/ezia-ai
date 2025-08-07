@@ -1,21 +1,28 @@
 ---
-title: Ezia v2
-emoji: 🐳
-colorFrom: blue
-colorTo: blue
+title: Ezia vBeta
+emoji: 🤖
+colorFrom: purple
+colorTo: pink
 sdk: docker
 pinned: true
 app_port: 3000
 license: mit
-short_description: Generate any application with AI
+short_description: Votre chef de projet IA et son équipe pour créer des sites web en conversant
 models:
-  - deepseek-ai/DeepSeek-V3-0324
-  - deepseek-ai/DeepSeek-R1-0528
+  - mistralai/Mistral-7B-Instruct-v0.3
 ---
 
-# Ezia 🐳
+# Ezia vBeta 🤖
 
-Ezia is a coding platform powered by AI, designed to make coding smarter and more efficient. Tailored for developers, data scientists, and AI engineers, it integrates generative AI into your coding projects to enhance creativity and productivity.
+Ezia est votre chef de projet IA qui coordonne une équipe d'agents spécialisés pour créer des sites web, landing pages et projets digitaux simplement en discutant.
+
+## 🌟 Fonctionnalités principales
+
+- **Création de sites web conversationnelle** : Discutez avec Ezia et son équipe pour créer votre site web
+- **Équipe d'agents IA** : Kiko (développeur), Milo (designer), Yuna (UX), Vera (contenu/SEO)
+- **Gestion de business** : Créez et gérez vos entreprises avec analyses de marché et stratégies
+- **Sans code requis** : Tout se fait par conversation naturelle
+- **Hébergement inclus** : Vos projets sont automatiquement hébergés
 
 ## How to use it locally
 

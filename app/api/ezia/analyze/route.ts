@@ -39,6 +39,46 @@ export async function POST(request: NextRequest) {
 
     // Plus besoin de token HuggingFace, on utilise Mistral API directement
 
+    // Gérer la création de site web différemment
+    if (actionType === "create_website") {
+      // Rediriger vers l'API de création de projet
+      const createResponse = await fetch(`${request.nextUrl.origin}/api/projects/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': request.headers.get('cookie') || ''
+        },
+        body: JSON.stringify({
+          businessId,
+          projectType: 'site-vitrine',
+          projectName: business.name,
+          projectDescription: userPrompt || `Site web professionnel pour ${business.name} - ${business.description}`
+        })
+      });
+
+      const result = await createResponse.json();
+      
+      if (!createResponse.ok) {
+        return NextResponse.json(
+          { error: result.error || "Erreur lors de la création du site" },
+          { status: createResponse.status }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        content: `🎉 **Votre site web a été créé avec succès !**\n\nL'équipe Ezia a travaillé ensemble pour créer votre site web professionnel.\n\n**Contributions de l'équipe :**\n- 🧑‍💻 **Kiko** : Développement technique\n- 🎨 **Milo** : Design et branding\n- 🎯 **Yuna** : Expérience utilisateur\n- ✍️ **Vera** : Contenu et SEO\n\n[Voir votre site web](${result.project.preview_url})`,
+        project: result.project,
+        interaction: {
+          timestamp: new Date(),
+          agent: "Ezia",
+          interaction_type: "create_website",
+          summary: "Site web créé avec succès",
+          content: result.conversation
+        }
+      });
+    }
+
     // Préparer le contexte selon le type d'action
     const contexts: Record<string, string> = {
       market_analysis: "Tu es Ezia, experte en analyse de marché. Fournis une analyse détaillée en français.",

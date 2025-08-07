@@ -16,7 +16,7 @@ export function QuickActionCard({
   description,
   icon: Icon,
   onClick,
-  iconColor = "text-[#C837F4]",
+  iconColor = "text-[#6D3FC8]",
   badge
 }: QuickActionCardProps) {
   return (
@@ -25,20 +25,20 @@ export function QuickActionCard({
       onClick={onClick}
     >
       {/* Gradient overlay on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#C837F4]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#6D3FC8]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       
       <div className="relative">
         <div className="flex items-start justify-between mb-4">
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#C837F4] to-[#B028F2] flex items-center justify-center shadow-md">
+          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#6D3FC8] to-[#5A35A5] flex items-center justify-center shadow-md">
             <Icon className="w-8 h-8 text-white" />
           </div>
           {badge && (
-            <span className="text-xs px-2 py-1 rounded-full bg-[#C837F4]/20 text-[#C837F4] border border-[#C837F4]/30">
+            <span className="text-xs px-2 py-1 rounded-full bg-[#6D3FC8]/20 text-[#6D3FC8] border border-[#6D3FC8]/30">
               {badge}
             </span>
           )}
         </div>
-        <h3 className="text-lg font-semibold mb-2 text-[#1E1E1E] group-hover:text-[#C837F4] transition-colors">
+        <h3 className="text-lg font-semibold mb-2 text-[#1E1E1E] group-hover:text-[#6D3FC8] transition-colors">
           {title}
         </h3>
         <p className="text-sm text-[#666666]">
