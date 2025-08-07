@@ -125,28 +125,28 @@ export default function DashboardPage() {
 
   if (userLoading || loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-white" />
+      <div className="min-h-screen bg-[#EDEAE3] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#C837F4]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#EDEAE3] text-[#1E1E1E]">
       {/* Header amélioré */}
-      <header className="border-b border-white/10 backdrop-blur-xl bg-black/80 sticky top-0 z-50">
+      <header className="border-b border-[#E0E0E0] backdrop-blur-xl bg-white/90 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#C837F4] to-[#B028F2] rounded-xl flex items-center justify-center shadow-md">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-black" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold">Dashboard</h1>
-                <p className="text-xs text-gray-400">Gérez vos business</p>
+                <p className="text-xs text-[#666666]">Gérez vos business</p>
               </div>
             </Link>
             <div className="flex items-center gap-4">
@@ -154,13 +154,13 @@ export default function DashboardPage() {
                 <>
                   <div className="text-right">
                     <p className="text-sm font-medium">{user.fullname || user.name}</p>
-                    <p className="text-xs text-zinc-400">{user.email}</p>
+                    <p className="text-xs text-[#666666]">{user.email}</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => router.push("/projects")}
-                    className="text-gray-300 hover:text-white"
+                    className="text-[#666666] hover:text-[#1E1E1E] border-[#E0E0E0] hover:bg-gray-50"
                   >
                     <Globe className="w-4 h-4 mr-2" />
                     Projets Web
@@ -169,7 +169,7 @@ export default function DashboardPage() {
               ) : (
                 <Button 
                   onClick={() => setShowLoginModal(true)} 
-                  className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0"
+                  className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-md hover:shadow-lg transition-all"
                 >
                   Se connecter
                 </Button>
@@ -217,7 +217,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Actions rapides</h2>
                 <select
-                  className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm"
+                  className="bg-white border border-[#E0E0E0] rounded-lg px-4 py-2 text-sm shadow-sm"
                   value={selectedBusiness?.business_id || ""}
                   onChange={(e) => {
                     const business = businesses.find(b => b.business_id === e.target.value);
@@ -280,7 +280,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={handleCreateBusiness}
                   size="sm"
-                  className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0"
+                  className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-md hover:shadow-lg transition-all"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Nouveau
@@ -288,17 +288,17 @@ export default function DashboardPage() {
               </div>
 
               {businesses.length === 0 ? (
-                <Card className="p-12 text-center bg-white/5 backdrop-blur-sm border border-white/10">
-                  <Building2 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                <Card className="p-12 text-center bg-white backdrop-blur-sm border border-[#E0E0E0] shadow-lg">
+                  <Building2 className="w-16 h-16 text-[#666666] mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-2">
                     Commencez votre aventure entrepreneuriale
                   </h3>
-                  <p className="text-gray-400 mb-6 max-w-md mx-auto">
+                  <p className="text-[#666666] mb-6 max-w-md mx-auto">
                     Créez votre premier business et laissez Ezia vous guider dans chaque étape de votre développement.
                   </p>
                   <Button 
                     onClick={handleCreateBusiness} 
-                    className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0"
+                    className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-md hover:shadow-lg transition-all"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Créer mon premier business
@@ -309,15 +309,15 @@ export default function DashboardPage() {
                   {businesses.map((business) => (
                     <Card
                       key={business.business_id}
-                      className="bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 cursor-pointer transition-all group"
+                      className="bg-white backdrop-blur-sm border border-[#E0E0E0] hover:shadow-lg cursor-pointer transition-all group shadow-md"
                       onClick={() => handleBusinessClick(business.business_id)}
                     >
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <Building2 className="w-6 h-6 text-violet-500" />
-                              <h3 className="text-lg font-semibold group-hover:text-violet-400 transition-colors">
+                              <Building2 className="w-6 h-6 text-[#C837F4]" />
+                              <h3 className="text-lg font-semibold group-hover:text-[#C837F4] transition-colors">
                                 {business.name}
                               </h3>
                               <span className={cn(
@@ -330,10 +330,10 @@ export default function DashboardPage() {
                                 {business.stage}
                               </span>
                             </div>
-                            <p className="text-sm text-zinc-400 mb-3 line-clamp-2">
+                            <p className="text-sm text-[#666666] mb-3 line-clamp-2">
                               {business.description}
                             </p>
-                            <div className="flex items-center gap-4 text-xs text-zinc-500">
+                            <div className="flex items-center gap-4 text-xs text-[#666666]">
                               <span className="flex items-center gap-1">
                                 <BarChart3 className="w-3 h-3" />
                                 {business.industry}
@@ -351,10 +351,10 @@ export default function DashboardPage() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-2xl font-bold text-violet-400">
+                            <div className="text-2xl font-bold text-[#C837F4]">
                               {business.completion_score || 0}%
                             </div>
-                            <p className="text-xs text-zinc-500">Complété</p>
+                            <p className="text-xs text-[#666666]">Complété</p>
                           </div>
                         </div>
                         
@@ -388,7 +388,7 @@ export default function DashboardPage() {
                             <Target className="w-3 h-3 mr-1" />
                             Analyse
                           </Button>
-                          <ChevronRight className="w-4 h-4 ml-auto text-zinc-600 group-hover:text-violet-400 transition-colors" />
+                          <ChevronRight className="w-4 h-4 ml-auto text-[#666666] group-hover:text-[#C837F4] transition-colors" />
                         </div>
                       </CardContent>
                     </Card>
@@ -416,7 +416,7 @@ export default function DashboardPage() {
               )}
 
               {/* Actions suggérées */}
-              <Card className="bg-zinc-900 border-zinc-800">
+              <Card className="bg-white border-[#E0E0E0] shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Zap className="w-5 h-5 text-yellow-500" />
@@ -426,16 +426,16 @@ export default function DashboardPage() {
                 <CardContent className="space-y-3">
                   {selectedBusiness && !selectedBusiness.website_url && (
                     <button
-                      className="w-full text-left p-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors group"
+                      className="w-full text-left p-3 rounded-lg bg-gray-50 hover:bg-gray-100 border border-[#E0E0E0] transition-all group hover:shadow-md"
                       onClick={() => {
                         const prompt = encodeURIComponent(`Crée un site web moderne pour ${selectedBusiness.name}. ${selectedBusiness.description}`);
                         router.push(`/projects/new?prompt=${prompt}&businessId=${selectedBusiness.business_id}`);
                       }}
                     >
-                      <p className="text-sm font-medium group-hover:text-violet-400 transition-colors">
+                      <p className="text-sm font-medium group-hover:text-[#C837F4] transition-colors">
                         Créer votre site web
                       </p>
-                      <p className="text-xs text-zinc-400 mt-1">
+                      <p className="text-xs text-[#666666] mt-1">
                         Établissez votre présence en ligne
                       </p>
                     </button>
@@ -459,13 +459,13 @@ export default function DashboardPage() {
       ) : (
         /* Hero Section pour les non-connectés */
         <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-900/20 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#C837F4]/10 via-transparent to-transparent" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative">
             <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+              <h2 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-[#1E1E1E] to-[#666666] bg-clip-text text-transparent">
                 Votre cheffe de projet IA
               </h2>
-              <p className="text-xl text-zinc-400 mb-12">
+              <p className="text-xl text-[#666666] mb-12">
                 Je suis Ezia, votre assistante IA qui vous accompagne dans le développement 
                 de votre présence en ligne et la croissance de votre business.
               </p>
@@ -473,7 +473,7 @@ export default function DashboardPage() {
                 <Button
                   size="lg"
                   onClick={handleCreateBusiness}
-                  className="bg-violet-600 hover:bg-violet-700"
+                  className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white shadow-lg hover:shadow-xl transition-all"
                 >
                   <Plus className="w-5 h-5 mr-2" />
                   Commencer gratuitement
@@ -490,26 +490,26 @@ export default function DashboardPage() {
 
             {/* Features Grid */}
             <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="p-8 bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
-                <Target className="w-12 h-12 text-violet-500 mb-4" />
+              <Card className="p-8 bg-white border-[#E0E0E0] backdrop-blur-sm shadow-lg">
+                <Target className="w-12 h-12 text-[#C837F4] mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Analyse de marché</h3>
-                <p className="text-zinc-400">
+                <p className="text-[#666666]">
                   Comprenez votre marché, identifiez les opportunités et positionnez votre offre avec l'aide d'Ezia.
                 </p>
               </Card>
               
-              <Card className="p-8 bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
-                <Globe className="w-12 h-12 text-violet-500 mb-4" />
+              <Card className="p-8 bg-white border-[#E0E0E0] backdrop-blur-sm shadow-lg">
+                <Globe className="w-12 h-12 text-[#C837F4] mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Présence en ligne</h3>
-                <p className="text-zinc-400">
+                <p className="text-[#666666]">
                   Création de sites web professionnels, stratégie réseaux sociaux et optimisation de votre visibilité.
                 </p>
               </Card>
               
-              <Card className="p-8 bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
-                <MessageSquare className="w-12 h-12 text-violet-500 mb-4" />
+              <Card className="p-8 bg-white border-[#E0E0E0] backdrop-blur-sm shadow-lg">
+                <MessageSquare className="w-12 h-12 text-[#C837F4] mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Accompagnement continu</h3>
-                <p className="text-zinc-400">
+                <p className="text-[#666666]">
                   Un suivi personnalisé avec des recommandations adaptées à l'évolution de votre business.
                 </p>
               </Card>

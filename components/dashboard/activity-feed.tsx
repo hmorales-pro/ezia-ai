@@ -26,23 +26,23 @@ const activityIcons = {
 };
 
 const activityColors = {
-  market_analysis: "text-blue-500",
-  marketing_strategy: "text-green-500",
-  website_creation: "text-purple-500",
-  content_calendar: "text-orange-500",
-  general: "text-zinc-500",
-  branding: "text-pink-500"
+  market_analysis: "text-[#C837F4]",
+  marketing_strategy: "text-[#B028F2]",
+  website_creation: "text-[#9B21D5]",
+  content_calendar: "text-[#C837F4]",
+  general: "text-[#666666]",
+  branding: "text-[#B028F2]"
 };
 
 export function ActivityFeed({ activities }: ActivityFeedProps) {
   return (
-    <Card className="bg-white/5 backdrop-blur-sm border border-white/10">
+    <Card className="bg-white backdrop-blur-sm border border-[#E0E0E0] shadow-lg">
       <CardHeader>
         <CardTitle className="text-lg">Activité récente</CardTitle>
       </CardHeader>
       <CardContent>
         {activities.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-8">
+          <p className="text-sm text-[#666666] text-center py-8">
             Aucune activité récente
           </p>
         ) : (
@@ -63,10 +63,10 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                         {activity.type.replace(/_/g, ' ')}
                       </Badge>
                     </div>
-                    <p className="text-sm text-zinc-400 line-clamp-2">
+                    <p className="text-sm text-[#666666] line-clamp-2">
                       {activity.summary}
                     </p>
-                    <p className="text-xs text-zinc-500 mt-1">
+                    <p className="text-xs text-[#666666] mt-1">
                       {format(new Date(activity.timestamp), "d MMM à HH:mm", { locale: fr })}
                     </p>
                   </div>

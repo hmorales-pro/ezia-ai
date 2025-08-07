@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center cursor-pointer justify-center gap-2 whitespace-nowrap rounded-full text-sm font-sans font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center cursor-pointer justify-center gap-2 whitespace-nowrap rounded-full text-sm font-sans font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
@@ -14,16 +14,16 @@ const buttonVariants = cva(
         destructive:
           "bg-red-500 text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 [&_svg]:!text-white",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        lightGray: "bg-neutral-200/60 hover:bg-neutral-200",
+          "hover:bg-accent hover:text-accent-foreground",
+        lightGray: "bg-gray-200/60 hover:bg-gray-200",
         link: "text-primary underline-offset-4 hover:underline",
         ghostDarker:
-          "text-white shadow-xs focus-visible:ring-black/40 bg-black/40 hover:bg-black/70",
-        black: "bg-neutral-950 text-neutral-300 hover:brightness-110",
+          "text-[#1E1E1E] shadow-xs focus-visible:ring-[#C837F4]/40 bg-[#666666]/10 hover:bg-[#666666]/20",
+        black: "bg-[#1E1E1E] text-white hover:brightness-110",
         sky: "bg-sky-500 text-white hover:brightness-110",
       },
       size: {

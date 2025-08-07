@@ -77,13 +77,13 @@ export function GoalCard({ goal, onUpdate, onEdit }: GoalCardProps) {
   const isUrgent = daysRemaining <= 7 && daysRemaining >= 0 && goal.status === 'active';
 
   return (
-    <Card className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-all">
+    <Card className="bg-white border-[#E0E0E0] hover:shadow-lg transition-all shadow-md">
       <CardContent className="p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <Target className="w-5 h-5 text-violet-500" />
+              <Target className="w-5 h-5 text-[#C837F4]" />
               <h3 className="font-semibold text-lg">{goal.title}</h3>
               <Badge 
                 variant="secondary" 
@@ -92,7 +92,7 @@ export function GoalCard({ goal, onUpdate, onEdit }: GoalCardProps) {
                 {category.label}
               </Badge>
             </div>
-            <p className="text-sm text-zinc-400 line-clamp-2">{goal.description}</p>
+            <p className="text-sm text-[#666666] line-clamp-2">{goal.description}</p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -116,7 +116,7 @@ export function GoalCard({ goal, onUpdate, onEdit }: GoalCardProps) {
         {/* Progress */}
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-zinc-400">Progression</span>
+            <span className="text-sm text-[#666666]">Progression</span>
             <span className="text-sm font-medium">{goal.progress}%</span>
           </div>
           <Progress value={goal.progress} className="h-2" />
@@ -129,7 +129,7 @@ export function GoalCard({ goal, onUpdate, onEdit }: GoalCardProps) {
               <StatusIcon className={cn("w-3 h-3", status.color)} />
               <span className={status.color}>{status.label}</span>
             </div>
-            <div className="flex items-center gap-1 text-zinc-500">
+            <div className="flex items-center gap-1 text-[#666666]">
               <Calendar className="w-3 h-3" />
               <span>
                 {format(new Date(goal.target_date), "d MMM yyyy", { locale: fr })}
@@ -140,7 +140,7 @@ export function GoalCard({ goal, onUpdate, onEdit }: GoalCardProps) {
           {goal.status === 'active' && (
             <div className={cn(
               "flex items-center gap-1",
-              isOverdue ? "text-red-500" : isUrgent ? "text-yellow-500" : "text-zinc-500"
+              isOverdue ? "text-red-500" : isUrgent ? "text-orange-500" : "text-[#666666]"
             )}>
               <Clock className="w-3 h-3" />
               <span>
@@ -155,8 +155,8 @@ export function GoalCard({ goal, onUpdate, onEdit }: GoalCardProps) {
 
         {/* Milestones */}
         {goal.milestones && goal.milestones.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-zinc-800">
-            <p className="text-xs text-zinc-500 mb-2">
+          <div className="mt-4 pt-4 border-t border-[#E0E0E0]">
+            <p className="text-xs text-[#666666] mb-2">
               {goal.milestones.length} jalon{goal.milestones.length > 1 ? 's' : ''} atteint{goal.milestones.length > 1 ? 's' : ''}
             </p>
           </div>

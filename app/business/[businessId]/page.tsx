@@ -120,8 +120,8 @@ export default function BusinessDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C837F4] mx-auto"></div>
+          <p className="mt-4 text-[#666666]">Chargement...</p>
         </div>
       </div>
     );
@@ -150,18 +150,18 @@ export default function BusinessDetailPage() {
 
   const getStageColor = (stage: string) => {
     const colors = {
-      idea: "bg-yellow-100 text-yellow-800",
-      startup: "bg-blue-100 text-blue-800",
-      growth: "bg-green-100 text-green-800",
-      established: "bg-purple-100 text-purple-800"
+      idea: "bg-yellow-50 text-yellow-700",
+      startup: "bg-blue-50 text-blue-700",
+      growth: "bg-green-50 text-green-700",
+      established: "bg-purple-50 text-purple-700"
     };
     return colors[stage as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#EDEAE3]">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-sm border-b border-[#E0E0E0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -172,12 +172,12 @@ export default function BusinessDetailPage() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{business.name}</h1>
+                <h1 className="text-2xl font-bold text-[#1E1E1E]">{business.name}</h1>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge variant="secondary" className={getStageColor(business.stage)}>
                     {business.stage}
                   </Badge>
-                  <span className="text-sm text-gray-500">{business.industry}</span>
+                  <span className="text-sm text-[#666666]">{business.industry}</span>
                 </div>
               </div>
             </div>
@@ -214,17 +214,17 @@ export default function BusinessDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-medium text-gray-700">Description</h3>
-                  <p className="mt-1 text-gray-600">{business.description}</p>
+                  <h3 className="font-medium text-[#444444]">Description</h3>
+                  <p className="mt-1 text-[#666666]">{business.description}</p>
                 </div>
                 {business.website_url && (
                   <div>
-                    <h3 className="font-medium text-gray-700">Site web</h3>
+                    <h3 className="font-medium text-[#444444]">Site web</h3>
                     <a 
                       href={business.website_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="mt-1 text-blue-600 hover:underline flex items-center gap-1"
+                      className="mt-1 text-[#C837F4] hover:text-[#B028F2] hover:underline flex items-center gap-1 transition-colors"
                     >
                       <Globe className="w-4 h-4" />
                       {business.website_url}
@@ -232,8 +232,8 @@ export default function BusinessDetailPage() {
                   </div>
                 )}
                 <div>
-                  <h3 className="font-medium text-gray-700">Créé le</h3>
-                  <p className="mt-1 text-gray-600">
+                  <h3 className="font-medium text-[#444444]">Créé le</h3>
+                  <p className="mt-1 text-[#666666]">
                     {format(new Date(business._createdAt), "d MMMM yyyy", { locale: fr })}
                   </p>
                 </div>
@@ -244,7 +244,7 @@ export default function BusinessDetailPage() {
             <h3 className="text-lg font-semibold mb-4">Actions rapides</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
                   // Préparer le prompt avec les informations du business
                   const prompt = `Crée un site web moderne et professionnel pour ${business.name}.
@@ -273,30 +273,30 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
                 }}
               >
                 <CardContent className="p-6">
-                  <Building2 className="w-8 h-8 text-blue-600 mb-2" />
+                  <Building2 className="w-8 h-8 text-[#C837F4] mb-2" />
                   <h3 className="font-medium">Créer un site web</h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-[#666666] mt-1">
                     Lancez votre présence en ligne avec DeepSite
                   </p>
                 </CardContent>
               </Card>
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
                   setChatAction("market_analysis");
                   setChatOpen(true);
                 }}
               >
                 <CardContent className="p-6">
-                  <Target className="w-8 h-8 text-green-600 mb-2" />
+                  <Target className="w-8 h-8 text-[#C837F4] mb-2" />
                   <h3 className="font-medium">Analyse de marché</h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-[#666666] mt-1">
                     Comprenez votre marché et vos clients
                   </p>
                 </CardContent>
               </Card>
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
                   setChatAction("marketing_strategy");
                   setChatOpen(true);
@@ -305,7 +305,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
                 <CardContent className="p-6">
                   <TrendingUp className="w-8 h-8 text-purple-600 mb-2" />
                   <h3 className="font-medium">Stratégie marketing</h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-[#666666] mt-1">
                     Développez votre stratégie de croissance
                   </p>
                 </CardContent>
@@ -316,7 +316,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
             <h3 className="text-lg font-semibold mb-4">Autres services Ezia</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
                   setChatAction("content_calendar");
                   setChatOpen(true);
@@ -332,7 +332,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
               </Card>
               
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
                   setChatAction("competitor_analysis");
                   setChatOpen(true);
@@ -348,7 +348,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
               </Card>
               
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
                   setChatAction("branding");
                   setChatOpen(true);
@@ -364,7 +364,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
               </Card>
               
               <Card 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
                   setChatAction("social_media");
                   setChatOpen(true);
@@ -395,11 +395,11 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
                   <>
                     <div>
                       <h3 className="font-medium text-gray-700">Audience cible</h3>
-                      <p className="mt-1 text-gray-600">{business.market_analysis.target_audience}</p>
+                      <p className="mt-1 text-[#666666]">{business.market_analysis.target_audience}</p>
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-700">Proposition de valeur</h3>
-                      <p className="mt-1 text-gray-600">{business.market_analysis.value_proposition}</p>
+                      <p className="mt-1 text-[#666666]">{business.market_analysis.value_proposition}</p>
                     </div>
                     {business.market_analysis.competitors && business.market_analysis.competitors.length > 0 && (
                       <div>
@@ -446,7 +446,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
                   <>
                     <div>
                       <h3 className="font-medium text-gray-700">Positionnement</h3>
-                      <p className="mt-1 text-gray-600">{business.marketing_strategy.positioning}</p>
+                      <p className="mt-1 text-[#666666]">{business.marketing_strategy.positioning}</p>
                     </div>
                     {business.marketing_strategy.key_messages.length > 0 && (
                       <div>

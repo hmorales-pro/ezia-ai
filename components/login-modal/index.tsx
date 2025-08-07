@@ -28,7 +28,7 @@ export const LoginModal = ({
   };
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg lg:!p-8 !rounded-3xl !bg-white !border-neutral-100">
+      <DialogContent className="sm:max-w-lg lg:!p-8 !rounded-3xl !bg-white !border-[#E0E0E0] shadow-xl">
         <DialogTitle className="hidden" />
         <main className="flex flex-col items-start text-left relative pt-2">
           <div className="flex items-center justify-start -space-x-4 mb-5">
@@ -42,12 +42,12 @@ export const LoginModal = ({
               🙌
             </div>
           </div>
-          <p className="text-2xl font-bold text-neutral-950">{title}</p>
-          <p className="text-neutral-500 text-base mt-2 max-w-sm">
+          <p className="text-2xl font-bold text-[#1E1E1E]">{title}</p>
+          <p className="text-[#666666] text-base mt-2 max-w-sm">
             {description}
           </p>
           <Button
-            variant="black"
+            className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-lg hover:shadow-xl transition-all"
             size="lg"
             className="w-full !text-base !h-11 mt-8"
             onClick={handleClick}

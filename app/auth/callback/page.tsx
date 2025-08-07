@@ -26,9 +26,9 @@ export default function AuthCallback({
   );
 
   return (
-    <div className="h-screen flex flex-col justify-center items-center">
-      <div className="!rounded-2xl !p-0 !bg-white !border-neutral-100 min-w-xs text-center overflow-hidden ring-[8px] ring-white/20">
-        <header className="bg-neutral-50 p-6 border-b border-neutral-200/60">
+    <div className="h-screen flex flex-col justify-center items-center bg-[#EDEAE3]">
+      <div className="!rounded-2xl !p-0 !bg-white !border-[#E0E0E0] min-w-xs text-center overflow-hidden ring-[8px] ring-white/20 shadow-xl">
+        <header className="bg-gray-50 p-6 border-b border-[#E0E0E0]">
           <div className="flex items-center justify-center -space-x-4 mb-3">
             <div className="size-9 rounded-full bg-pink-200 shadow-2xs flex items-center justify-center text-xl opacity-50">
               🚀
@@ -40,27 +40,27 @@ export default function AuthCallback({
               🙌
             </div>
           </div>
-          <p className="text-xl font-semibold text-neutral-950">
+          <p className="text-xl font-semibold text-[#1E1E1E]">
             Login In Progress...
           </p>
-          <p className="text-sm text-neutral-500 mt-1.5">
+          <p className="text-sm text-[#666666] mt-1.5">
             Wait a moment while we log you in with your code.
           </p>
         </header>
         <main className="space-y-4 p-6">
           <div>
-            <p className="text-sm text-neutral-700 mb-4 max-w-xs">
+            <p className="text-sm text-[#444444] mb-4 max-w-xs">
               If you are not redirected automatically in the next 5 seconds,
               please click the button below
             </p>
             {showButton ? (
               <Link href="/">
-                <Button variant="black" className="relative">
+                <Button className="bg-gradient-to-r from-[#C837F4] to-[#B028F2] hover:from-[#B028F2] hover:to-[#9B21D5] text-white border-0 shadow-lg hover:shadow-xl transition-all">
                   Go to Home
                 </Button>
               </Link>
             ) : (
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-[#666666]">
                 Please wait, we are logging you in...
               </p>
             )}

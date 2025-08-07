@@ -16,7 +16,7 @@ interface ProgressChartProps {
 
 export function ProgressChart({ title, items }: ProgressChartProps) {
   return (
-    <Card className="bg-white/5 backdrop-blur-sm border border-white/10">
+    <Card className="bg-white backdrop-blur-sm border border-[#E0E0E0] shadow-lg">
       <CardHeader>
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
@@ -24,7 +24,7 @@ export function ProgressChart({ title, items }: ProgressChartProps) {
         {items.map((item, index) => (
           <div key={index}>
             <div className="flex justify-between mb-2">
-              <span className="text-sm text-gray-400">{item.label}</span>
+              <span className="text-sm text-[#666666]">{item.label}</span>
               <span className="text-sm font-medium">{item.value}%</span>
             </div>
             <Progress 
@@ -32,7 +32,7 @@ export function ProgressChart({ title, items }: ProgressChartProps) {
               className="h-2"
               style={{ 
                 // @ts-ignore
-                '--progress-color': item.color || '#8b5cf6' 
+                '--progress-color': item.color || '#C837F4' 
               }}
             />
           </div>
