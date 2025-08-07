@@ -19,13 +19,16 @@ import {
   Edit,
   Trash2,
   BarChart3,
-  Sparkles
+  Sparkles,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EziaChatV2 } from "@/components/ezia-chat-v2";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import ReactMarkdown from "react-markdown";
 
 interface Business {
   _id: string;
@@ -53,6 +56,7 @@ interface Business {
     agent: string;
     interaction_type: string;
     summary: string;
+    content?: string;
     recommendations?: string[];
   }>;
   goals: Array<{
@@ -64,6 +68,121 @@ interface Business {
   }>;
   _createdAt: string;
   _updatedAt: string;
+}
+
+// Component for displaying individual interactions
+function InteractionCard({ interaction }: { interaction: Business['ezia_interactions'][0] }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const getInteractionIcon = (type: string) => {
+    switch (type) {
+      case 'market_analysis':
+        return <Target className="w-4 h-4 text-blue-600" />;
+      case 'marketing_strategy':
+        return <TrendingUp className="w-4 h-4 text-green-600" />;
+      case 'competitor_analysis':
+        return <BarChart3 className="w-4 h-4 text-orange-600" />;
+      case 'content_calendar':
+        return <Calendar className="w-4 h-4 text-purple-600" />;
+      case 'branding':
+        return <Sparkles className="w-4 h-4 text-pink-600" />;
+      case 'social_media':
+        return <MessageSquare className="w-4 h-4 text-indigo-600" />;
+      default:
+        return <MessageSquare className="w-4 h-4 text-blue-600" />;
+    }
+  };
+  
+  const getInteractionLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      market_analysis: "Analyse de marché",
+      marketing_strategy: "Stratégie marketing",
+      competitor_analysis: "Analyse concurrentielle",
+      content_calendar: "Calendrier de contenu",
+      branding: "Identité de marque",
+      social_media: "Réseaux sociaux"
+    };
+    return labels[type] || type;
+  };
+
+  return (
+    <div className="border rounded-lg overflow-hidden">
+      <div className="p-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {getInteractionIcon(interaction.interaction_type)}
+            <span className="font-medium">{interaction.agent}</span>
+            <Badge variant="outline" className="text-xs">
+              {getInteractionLabel(interaction.interaction_type)}
+            </Badge>
+          </div>
+          <span className="text-sm text-gray-500">
+            {format(new Date(interaction.timestamp), "d MMM yyyy HH:mm", { locale: fr })}
+          </span>
+        </div>
+        
+        <p className="text-gray-700">{interaction.summary}</p>
+        
+        {interaction.recommendations && interaction.recommendations.length > 0 && (
+          <div className="mt-2">
+            <p className="text-sm font-medium text-gray-600">Recommandations:</p>
+            <ul className="mt-1 list-disc list-inside text-sm text-gray-600">
+              {interaction.recommendations.map((rec, recIndex) => (
+                <li key={recIndex}>{rec}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
+        {interaction.content && (
+          <div className="mt-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-[#C837F4] hover:text-[#B028F2]"
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="w-4 h-4 mr-1" />
+                  Masquer l'analyse complète
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-4 h-4 mr-1" />
+                  Voir l'analyse complète
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+      </div>
+      
+      {isExpanded && interaction.content && (
+        <div className="border-t bg-gray-50 p-6">
+          <div className="prose prose-sm max-w-none">
+            <ReactMarkdown
+              components={{
+                h1: ({ children }) => <h1 className="text-2xl font-bold mb-4">{children}</h1>,
+                h2: ({ children }) => <h2 className="text-xl font-semibold mt-6 mb-3">{children}</h2>,
+                h3: ({ children }) => <h3 className="text-lg font-medium mt-4 mb-2">{children}</h3>,
+                ul: ({ children }) => <ul className="list-disc list-inside my-2 space-y-1">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal list-inside my-2 space-y-1">{children}</ol>,
+                li: ({ children }) => <li className="ml-4">{children}</li>,
+                p: ({ children }) => <p className="my-2">{children}</p>,
+                strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                table: ({ children }) => <table className="border-collapse table-auto w-full my-4">{children}</table>,
+                th: ({ children }) => <th className="border border-gray-300 px-3 py-2 bg-gray-100">{children}</th>,
+                td: ({ children }) => <td className="border border-gray-300 px-3 py-2">{children}</td>,
+              }}
+            >
+              {interaction.content}
+            </ReactMarkdown>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function BusinessDetailPage() {
@@ -566,33 +685,26 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {business.ezia_interactions.map((interaction, index) => (
-                    <div key={index} className="p-4 border rounded-lg space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MessageSquare className="w-4 h-4 text-blue-600" />
-                          <span className="font-medium">{interaction.agent}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {interaction.interaction_type}
-                          </Badge>
-                        </div>
-                        <span className="text-sm text-gray-500">
-                          {format(new Date(interaction.timestamp), "d MMM yyyy HH:mm", { locale: fr })}
-                        </span>
-                      </div>
-                      <p className="text-gray-700">{interaction.summary}</p>
-                      {interaction.recommendations && interaction.recommendations.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-sm font-medium text-gray-600">Recommandations:</p>
-                          <ul className="mt-1 list-disc list-inside text-sm text-gray-600">
-                            {interaction.recommendations.map((rec, recIndex) => (
-                              <li key={recIndex}>{rec}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                  {business.ezia_interactions.length > 0 ? (
+                    business.ezia_interactions.map((interaction, index) => (
+                      <InteractionCard key={index} interaction={interaction} />
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">Aucune interaction pour le moment</p>
+                      <Button 
+                        className="mt-4"
+                        onClick={() => {
+                          setChatAction("general");
+                          setChatOpen(true);
+                        }}
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Démarrer une conversation
+                      </Button>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -601,7 +713,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
 
         {/* Ezia Chat Dialog */}
         <Dialog open={chatOpen} onOpenChange={setChatOpen}>
-          <DialogContent className="max-w-4xl h-[80vh] p-0" aria-describedby="ezia-chat-description">
+          <DialogContent className="max-w-4xl h-[80vh] p-0 !bg-white !border-[#E0E0E0]" aria-describedby="ezia-chat-description">
             <DialogTitle className="sr-only">Agence Ezia</DialogTitle>
             <DialogDescription className="sr-only" id="ezia-chat-description">
               Discutez avec votre équipe d'agents IA pour gérer votre business {business.name}

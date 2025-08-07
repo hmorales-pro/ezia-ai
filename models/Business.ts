@@ -58,6 +58,7 @@ export interface IBusiness {
     agent: string;              // Nom de l'agent (Ezia, chef d'équipe, etc.)
     interaction_type: string;   // Type d'interaction (renamed from 'type' to avoid mongoose conflicts)
     summary: string;            // Résumé de l'interaction
+    content?: string;           // Contenu complet de l'analyse/réponse
     recommendations?: string[]; // Recommandations données
   }>;
   
@@ -168,6 +169,7 @@ const BusinessSchema = new Schema<IBusiness>({
       agent: { type: String },
       interaction_type: { type: String },
       summary: { type: String },
+      content: { type: String },
       recommendations: [{ type: String }]
     }],
     default: []

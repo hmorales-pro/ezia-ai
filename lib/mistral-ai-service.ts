@@ -17,9 +17,12 @@ export async function generateWithMistralAPI(
   const mistralApiKey = apiKey || process.env.MISTRAL_API_KEY;
   
   if (!mistralApiKey) {
+    console.log("[Mistral] Pas de clé API, utilisation des réponses par défaut");
     // Si pas de clé Mistral, utiliser une réponse par défaut
     return generateDefaultBusinessResponse(prompt, systemContext);
   }
+  
+  console.log("[Mistral] Clé API détectée, appel à l'API Mistral");
 
   try {
     const response = await fetch(MISTRAL_API_URL, {
