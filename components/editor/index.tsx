@@ -27,7 +27,15 @@ import { SaveButton } from "./save-button";
 import { LoadProject } from "../my-projects/load-project";
 import { isTheSameHtml } from "@/lib/compare-html-diff";
 
-export const AppEditor = ({ project }: { project?: Project | null }) => {
+export const AppEditor = ({ 
+  project, 
+  initialPrompt,
+  businessId 
+}: { 
+  project?: Project | null;
+  initialPrompt?: string | null;
+  businessId?: string | null;
+}) => {
   const [htmlStorage, , removeHtmlStorage] = useLocalStorage("html_content");
   const [, copyToClipboard] = useCopyToClipboard();
   const { html, setHtml, htmlHistory, setHtmlHistory, prompts, setPrompts } =
@@ -239,6 +247,8 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
                   setHtml(newHtml);
                 }}
                 htmlHistory={htmlHistory}
+                initialPrompt={initialPrompt}
+                businessId={businessId}
                 onSuccess={(
                   finalHtml: string,
                   p: string,

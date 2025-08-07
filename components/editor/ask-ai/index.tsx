@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import classNames from "classnames";
 import { toast } from "sonner";
 import { useLocalStorage, useUpdateEffect } from "react-use";
@@ -35,6 +35,8 @@ export function AskAI({
   setIsEditableModeEnabled,
   onNewPrompt,
   onSuccess,
+  initialPrompt,
+  businessId, // eslint-disable-line @typescript-eslint/no-unused-vars
 }: {
   html: string;
   setHtml: (html: string) => void;
@@ -48,12 +50,14 @@ export function AskAI({
   setIsEditableModeEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   selectedElement?: HTMLElement | null;
   setSelectedElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  initialPrompt?: string | null;
+  businessId?: string | null;
 }) {
   const refThink = useRef<HTMLDivElement | null>(null);
   const audio = useRef<HTMLAudioElement | null>(null);
 
   const [open, setOpen] = useState(false);
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(initialPrompt ? decodeURIComponent(initialPrompt) : "");
   const [hasAsked, setHasAsked] = useState(false);
   const [previousPrompt, setPreviousPrompt] = useState("");
   const [provider, setProvider] = useLocalStorage("provider", "auto");
@@ -70,6 +74,17 @@ export function AskAI({
   const selectedModel = useMemo(() => {
     return MODELS.find((m: { value: string }) => m.value === model);
   }, [model]);
+
+  // Si un prompt initial est fourni (depuis Ezia), déclencher automatiquement
+  useEffect(() => {
+    if (initialPrompt && !hasAsked && !isAiWorking) {
+      // Petit délai pour laisser l'éditeur se charger complètement
+      const timer = setTimeout(() => {
+        callAi();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [initialPrompt, hasAsked]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const callAi = async (redesignMarkdown?: string) => {
     if (isAiWorking) return;
