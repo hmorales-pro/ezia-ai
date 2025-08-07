@@ -3,7 +3,7 @@ import { isAuthenticated } from "@/lib/auth";
 import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
-import { generateBusinessAnalysis } from "@/lib/ai-service";
+import { generateSimpleAIResponse } from "@/lib/simple-ai-service";
 import MY_TOKEN_KEY from "@/lib/get-cookie-name";
 
 export async function POST(request: NextRequest) {
@@ -41,20 +41,34 @@ export async function POST(request: NextRequest) {
     const userToken = request.cookies.get(MY_TOKEN_KEY())?.value;
     const token = userToken || process.env.DEFAULT_HF_TOKEN || process.env.HF_TOKEN;
 
-    // Préparer les informations business
-    const businessInfo = {
-      name: business.name,
-      sector: business.industry,
-      description: business.description,
-      target: business.market_analysis?.target_audience || "Grand public"
+    // Préparer le contexte selon le type d'action
+    const contexts: Record<string, string> = {
+      market_analysis: "Tu es Ezia, experte en analyse de marché. Fournis une analyse détaillée en français.",
+      marketing_strategy: "Tu es Ezia, experte en stratégie marketing. Crée une stratégie complète en français.",
+      competitor_analysis: "Tu es Ezia, analyste concurrentielle. Fournis une analyse approfondie en français.",
+      content_calendar: "Tu es Ezia, experte en content marketing. Crée un calendrier éditorial en français.",
+      branding: "Tu es Ezia, experte en branding. Développe une stratégie de marque en français.",
+      social_media: "Tu es Ezia, experte en réseaux sociaux. Crée une stratégie social media en français."
     };
 
-    // Générer l'analyse avec le nouveau service AI
-    const response = await generateBusinessAnalysis(
-      businessInfo,
-      actionType,
-      token
-    );
+    const systemContext = contexts[actionType] || contexts.market_analysis;
+    
+    const businessContext = `
+Business: ${business.name}
+Description: ${business.description}
+Industrie: ${business.industry}
+Stade: ${business.stage}
+${business.website_url ? `Site web: ${business.website_url}` : ''}
+
+${userPrompt ? `Demande spécifique: ${userPrompt}` : 'Fournis une analyse complète.'}`;
+
+    // Générer la réponse avec le service simplifié
+    const response = await generateSimpleAIResponse(businessContext, {
+      systemContext,
+      token,
+      maxTokens: 2000,
+      temperature: 0.8
+    });
 
     if (!response.success) {
       return NextResponse.json(

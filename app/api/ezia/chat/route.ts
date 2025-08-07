@@ -5,7 +5,7 @@ import { Business } from "@/models/Business";
 // import { Project } from "@/models/Project";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 import { nanoid } from "nanoid";
-import { generateAIResponse } from "@/lib/ai-service";
+import { generateSimpleAIResponse } from "@/lib/simple-ai-service";
 
 export async function POST(request: NextRequest) {
   const user = await isAuthenticated();
@@ -49,12 +49,12 @@ export async function POST(request: NextRequest) {
           let fullResponse = "";
           let actionResult = null;
 
-          // Générer la réponse avec le nouveau service AI
+          // Générer la réponse avec le service simplifié
           const userMessage = messages[messages.length - 1]?.content || "";
           const token = request.cookies.get("HF_TOKEN")?.value || process.env.DEFAULT_HF_TOKEN;
           
           const systemContext = systemPrompt[0]?.content || "";
-          const response = await generateAIResponse(userMessage, {
+          const response = await generateSimpleAIResponse(userMessage, {
             systemContext,
             token,
             maxTokens: 2000,
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
               await new Promise(resolve => setTimeout(resolve, 20)); // Petit délai pour simuler le streaming
             }
           } else {
-            fullResponse = "Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.";
+            fullResponse = response.error || "Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.";
             const data = encoder.encode(`data: ${JSON.stringify({ content: fullResponse })}\n\n`);
             controller.enqueue(data);
           }

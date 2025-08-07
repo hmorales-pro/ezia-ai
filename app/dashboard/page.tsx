@@ -132,7 +132,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#EDEAE3] text-[#1E1E1E]">
+    <div className="min-h-screen bg-[#EDEAE3] text-[#1E1E1E] overflow-y-auto">
       {/* Header amélioré */}
       <header className="border-b border-[#E0E0E0] backdrop-blur-xl bg-white/90 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -441,13 +441,13 @@ export default function DashboardPage() {
                     </button>
                   )}
                   <button
-                    className="w-full text-left p-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors group"
+                    className="w-full text-left p-3 rounded-lg bg-gray-50 hover:bg-gray-100 border border-[#E0E0E0] transition-all group hover:shadow-md"
                     onClick={() => selectedBusiness && router.push(`/business/${selectedBusiness.business_id}?action=competitor_analysis`)}
                   >
-                    <p className="text-sm font-medium group-hover:text-violet-400 transition-colors">
+                    <p className="text-sm font-medium group-hover:text-[#C837F4] transition-colors">
                       Analyser la concurrence
                     </p>
-                    <p className="text-xs text-zinc-400 mt-1">
+                    <p className="text-xs text-[#666666] mt-1">
                       Identifiez vos avantages compétitifs
                     </p>
                   </button>

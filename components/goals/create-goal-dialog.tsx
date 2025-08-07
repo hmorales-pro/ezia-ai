@@ -134,7 +134,7 @@ export function CreateGoalDialog({
               placeholder="Décrivez votre objectif et comment vous comptez l'atteindre..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="bg-zinc-900 border-zinc-800 min-h-[100px]"
+              className="bg-white border-[#E0E0E0] text-[#1E1E1E] min-h-[100px]"
               required
             />
           </div>
