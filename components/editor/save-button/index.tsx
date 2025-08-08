@@ -31,12 +31,12 @@ export function SaveButton({
         prompts,
       });
       if (res.data.ok) {
-        toast.success("Your space is updated! 🎉", {
+        toast.success("Votre site est mis à jour ! 🎉", {
           action: {
-            label: "See Space",
+            label: "Voir le site",
             onClick: () => {
               window.open(
-                `https://huggingface.co/spaces/${namespace}/${repoId}`,
+                `/preview/${namespace}/${repoId}`,
                 "_blank"
               );
             },
@@ -59,7 +59,7 @@ export function SaveButton({
         onClick={updateSpace}
       >
         <MdSave className="size-4" />
-        Deploy your Project{" "}
+        Publier votre projet{" "}
         {loading && <Loading className="ml-2 size-4 animate-spin" />}
       </Button>
       <Button
@@ -68,7 +68,7 @@ export function SaveButton({
         className="lg:hidden relative"
         onClick={updateSpace}
       >
-        Deploy {loading && <Loading className="ml-2 size-4 animate-spin" />}
+        Publier {loading && <Loading className="ml-2 size-4 animate-spin" />}
       </Button>
     </>
   );

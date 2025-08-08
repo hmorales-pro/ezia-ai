@@ -18,7 +18,7 @@ export const ProModal = ({
     if (!isTheSameHtml(html)) {
       setStorage(html);
     }
-    window.open("https://huggingface.co/subscribe/pro?from=Ezia", "_blank");
+    window.open("/tarifs", "_blank");
     onClose(false);
   };
   return (
@@ -38,34 +38,34 @@ export const ProModal = ({
             </div>
           </div>
           <h2 className="text-2xl font-bold text-[#1E1E1E]">
-            Only $9 to enhance your possibilities
+            Seulement 9$ pour améliorer vos possibilités
           </h2>
           <p className="text-[#666666] text-base mt-2 max-w-sm">
-            It seems like you have reached the monthly free limit of Ezia.
+            Il semble que vous ayez atteint la limite mensuelle gratuite d'Ezia.
           </p>
           <hr className="bg-[#E0E0E0] w-full max-w-[150px] my-6" />
           <p className="text-lg mt-3 text-[#1E1E1E] font-semibold">
-            Upgrade to a <ProTag className="mx-1" /> Account, and unlock your
-            Ezia high quota access ⚡
+            Passez à un compte <ProTag className="mx-1" /> et débloquez
+            votre accès à quota élevé Ezia ⚡
           </p>
           <ul className="mt-3 space-y-1 text-[#666666]">
             <li className="text-sm text-[#666666] space-x-2 flex items-center justify-start gap-2 mb-3">
-              You&apos;ll also unlock some Hugging Face PRO features, like:
+              Vous débloquerez également des fonctionnalités PRO, comme :
             </li>
             <li className="text-sm space-x-2 flex items-center justify-start gap-2">
               <CheckCheck className="text-[#6D3FC8] size-4" />
-              Get acces to thousands of AI app (ZeroGPU) with high quota
+              Accès à des milliers d'applications IA avec quota élevé
             </li>
             <li className="text-sm space-x-2 flex items-center justify-start gap-2">
               <CheckCheck className="text-[#6D3FC8] size-4" />
-              Get exclusive early access to new features and updates
+              Accès anticipé exclusif aux nouvelles fonctionnalités
             </li>
             <li className="text-sm space-x-2 flex items-center justify-start gap-2">
               <CheckCheck className="text-[#6D3FC8] size-4" />
-              Get free credits across all Inference Providers
+              Crédits gratuits sur tous les fournisseurs d'inférence
             </li>
             <li className="text-sm text-[#666666] space-x-2 flex items-center justify-start gap-2 mt-3">
-              ... and lots more!
+              ... et bien plus encore !
             </li>
           </ul>
           <Button
@@ -73,7 +73,7 @@ export const ProModal = ({
             className="w-full !text-base !h-11 mt-8 bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white border-0 shadow-lg hover:shadow-xl transition-all"
             onClick={handleProClick}
           >
-            Subscribe to PRO ($9/month)
+            S'abonner à PRO (9$/mois)
           </Button>
         </main>
       </DialogContent>

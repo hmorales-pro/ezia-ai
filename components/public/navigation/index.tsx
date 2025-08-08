@@ -8,7 +8,7 @@ import classNames from "classnames";
 
 import { Button } from "@/components/ui/button";
 import Logo from "@/assets/logo.svg";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks";
 import { UserMenu } from "@/components/user-menu";
 
 const navigationLinks = [

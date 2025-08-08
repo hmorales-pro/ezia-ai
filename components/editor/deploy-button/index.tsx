@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { toast } from "sonner";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MdSave } from "react-icons/md";
 import { Rocket } from "lucide-react";
 
-import SpaceIcon from "@/assets/space.svg";
+import { Globe } from "lucide-react";
 import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { LoginModal } from "@/components/login-modal";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks";
 
 export function DeployButton({
   html,
@@ -37,7 +36,7 @@ export function DeployButton({
 
   const createSpace = async () => {
     if (!config.title) {
-      toast.error("Please enter a title for your space.");
+      toast.error("Veuillez entrer un titre pour votre site.");
       return;
     }
     setLoading(true);
@@ -51,7 +50,7 @@ export function DeployButton({
       if (res.data.ok) {
         router.push(`/projects/${res.data.path}?deploy=true`);
       } else {
-        toast.error(res?.data?.error || "Failed to create space");
+        toast.error(res?.data?.error || "Échec de la création du projet");
       }
     } catch (err: any) {
       toast.error(err.response?.data?.error || err.message);
@@ -71,10 +70,10 @@ export function DeployButton({
               <div>
                 <Button variant="default" className="max-lg:hidden !px-4">
                   <MdSave className="size-4" />
-                  Deploy your Project
+                  Publier votre projet
                 </Button>
                 <Button variant="default" size="sm" className="lg:hidden">
-                  Deploy
+                  Publier
                 </Button>
               </div>
             </PopoverTrigger>
@@ -88,32 +87,28 @@ export function DeployButton({
                     🚀
                   </div>
                   <div className="size-11 rounded-full bg-red-200 shadow-2xl flex items-center justify-center z-2">
-                    <Image
-                      src={SpaceIcon}
-                      alt="Space Icon"
-                      className="size-7"
-                    />
+                    <Globe className="size-6 text-[#6D3FC8]" />
                   </div>
                   <div className="size-9 rounded-full bg-sky-200 shadow-2xs flex items-center justify-center text-xl opacity-50">
                     👻
                   </div>
                 </div>
                 <p className="text-xl font-semibold text-neutral-950">
-                  Deploy as Space!
+                  Publier votre site!
                 </p>
                 <p className="text-sm text-neutral-500 mt-1.5">
-                  Save and Deploy your project to a Space on the Hub. Spaces are
-                  a way to share your project with the world.
+                  Enregistrez et publiez votre projet en ligne. Une façon simple
+                  de partager votre création avec le monde.
                 </p>
               </header>
               <main className="space-y-4 p-6">
                 <div>
                   <p className="text-sm text-neutral-700 mb-2">
-                    Choose a title for your space:
+                    Choisissez un titre pour votre site :
                   </p>
                   <Input
                     type="text"
-                    placeholder="My Awesome Website"
+                    placeholder="Mon Super Site"
                     value={config.title}
                     onChange={(e) =>
                       setConfig({ ...config, title: e.target.value })
@@ -123,7 +118,7 @@ export function DeployButton({
                 </div>
                 <div>
                   <p className="text-sm text-neutral-700 mb-2">
-                    Then, let&apos;s deploy it!
+                    Ensuite, publiez-le en ligne !
                   </p>
                   <Button
                     variant="black"
@@ -131,7 +126,7 @@ export function DeployButton({
                     className="relative w-full"
                     disabled={loading}
                   >
-                    Deploy Space <Rocket className="size-4" />
+                    Publier le site <Rocket className="size-4" />
                     {loading && (
                       <Loading className="ml-2 size-4 animate-spin" />
                     )}
@@ -148,7 +143,7 @@ export function DeployButton({
               onClick={() => setOpen(true)}
             >
               <MdSave className="size-4" />
-              Save your Project
+              Enregistrer votre projet
             </Button>
             <Button
               variant="default"
@@ -156,7 +151,7 @@ export function DeployButton({
               className="lg:hidden"
               onClick={() => setOpen(true)}
             >
-              Save
+              Enregistrer
             </Button>
           </>
         )}
@@ -164,8 +159,8 @@ export function DeployButton({
           open={open}
           onClose={() => setOpen(false)}
           html={html}
-          title="Log In to save your Project"
-          description="Log In through your Hugging Face account to save your project and increase your monthly free limit."
+          title="Connectez-vous pour enregistrer votre projet"
+          description="Connectez-vous pour enregistrer votre projet et augmenter votre limite mensuelle gratuite."
         />
       </div>
     </div>

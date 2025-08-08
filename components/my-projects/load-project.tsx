@@ -14,7 +14,7 @@ import Loading from "@/components/loading";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks";
 import { LoginModal } from "../login-modal";
 import { useRouter } from "next/navigation";
 
@@ -34,9 +34,9 @@ export const LoadProject = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const checkIfUrlIsValid = (url: string) => {
-    // should match a hugging face spaces URL like: https://huggingface.co/spaces/username/project or https://hf.co/spaces/username/project
+    // should match a valid URL pattern
     const urlPattern = new RegExp(
-      /^(https?:\/\/)?(huggingface\.co|hf\.co)\/spaces\/([\w-]+)\/([\w-]+)$/,
+      /^(https?:\/\/)?(([\w-]+\.)+[\w-]+)(\/(\S*)?)?$/,
       "i"
     );
     return urlPattern.test(url);
@@ -45,23 +45,23 @@ export const LoadProject = ({
   const handleClick = async () => {
     if (isLoading) return; // Prevent multiple clicks while loading
     if (!url) {
-      toast.error("Please enter a URL.");
+      toast.error("Veuillez entrer une URL.");
       return;
     }
     if (!checkIfUrlIsValid(url)) {
-      toast.error("Please enter a valid Hugging Face Spaces URL.");
+      toast.error("Veuillez entrer une URL valide.");
       return;
     }
 
-    const [username, namespace] = url
-      .replace("https://huggingface.co/spaces/", "")
-      .replace("https://hf.co/spaces/", "")
-      .split("/");
+    // Extract username and namespace from URL - for now, use a placeholder
+    const urlParts = url.split('/');
+    const username = "user";
+    const namespace = urlParts[urlParts.length - 1] || "project";
 
     setIsLoading(true);
     try {
       const response = await api.post(`/api/me/projects/${username}/${namespace}`);
-      toast.success("Project imported successfully!");
+      toast.success("Projet importé avec succès !");
       setOpen(false);
       setUrl("");
       onSuccess(response.data.project);
@@ -88,7 +88,7 @@ export const LoadProject = ({
             onClick={() => setOpenLoginModal(true)}
           >
             <Import className="size-4 mr-1.5" />
-            Load existing Project
+            Charger un projet existant
           </Button>
           <Button
             variant="outline"
@@ -97,14 +97,14 @@ export const LoadProject = ({
             onClick={() => setOpenLoginModal(true)}
           >
             {fullXsBtn && <Import className="size-3.5 mr-1" />}
-            Load
-            {fullXsBtn && " existing Project"}
+            Charger
+            {fullXsBtn && " un projet"}
           </Button>
           <LoginModal
             open={openLoginModal}
             onClose={setOpenLoginModal}
-            title="Log In to load your Project"
-            description="Log In through Hugging Face to load an existing project and increase your free limit!"
+            title="Connectez-vous pour charger votre projet"
+            description="Connectez-vous pour charger un projet existant et augmenter votre limite gratuite."
           />
         </>
       ) : (
@@ -113,12 +113,12 @@ export const LoadProject = ({
             <div>
               <Button variant="outline" className="max-lg:hidden">
                 <Import className="size-4 mr-1.5" />
-                Load existing Project
+                Charger un projet existant
               </Button>
               <Button variant="outline" size="sm" className="lg:hidden">
                 {fullXsBtn && <Import className="size-3.5 mr-1" />}
-                Load
-                {fullXsBtn && " existing Project"}
+                Charger
+                {fullXsBtn && " un projet"}
               </Button>
             </div>
           </DialogTrigger>
@@ -137,21 +137,20 @@ export const LoadProject = ({
                 </div>
               </div>
               <p className="text-2xl font-semibold text-neutral-950">
-                Import a Project
+                Importer un projet
               </p>
               <p className="text-base text-neutral-500 mt-1.5">
-                Enter the URL of your Hugging Face Space to import an existing
-                project.
+                Entrez l'URL de votre projet pour l'importer dans Ezia.
               </p>
             </header>
             <main className="space-y-4 px-9 pb-9 pt-2">
               <div>
                 <p className="text-sm text-neutral-700 mb-2">
-                  Enter your Hugging Face Space
+                  Entrez l'URL de votre projet
                 </p>
                 <Input
                   type="text"
-                  placeholder="https://huggingface.com/spaces/username/project"
+                  placeholder="https://exemple.com/votre-projet"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   onBlur={(e) => {
@@ -161,7 +160,7 @@ export const LoadProject = ({
                       return;
                     }
                     if (!checkIfUrlIsValid(inputUrl)) {
-                      toast.error("Please enter a valid URL.");
+                      toast.error("Veuillez entrer une URL valide.");
                       return;
                     }
                     setUrl(inputUrl);
@@ -171,7 +170,7 @@ export const LoadProject = ({
               </div>
               <div>
                 <p className="text-sm text-neutral-700 mb-2">
-                  Then, let&apos;s import it!
+                  Importez votre projet !
                 </p>
                 <Button
                   variant="black"
@@ -184,10 +183,10 @@ export const LoadProject = ({
                         overlay={false}
                         className="ml-2 size-4 animate-spin"
                       />
-                      Fetching your Space...
+                      Récupération de votre projet...
                     </>
                   ) : (
-                    <>Import your Space</>
+                    <>Importer votre projet</>
                   )}
                 </Button>
               </div>

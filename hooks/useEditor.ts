@@ -1,7 +1,7 @@
 import { HtmlHistory } from "@/types";
 import { useState } from "react";
 
-export const useEditor = (defaultHtml: string) => {
+function useEditor(defaultHtml: string) {
   /**
    * State to manage the HTML content of the editor.
    * This will be the main content that users edit.
@@ -27,4 +27,6 @@ export const useEditor = (defaultHtml: string) => {
     prompts,
     setPrompts,
   };
-};
+}
+
+export { useEditor };

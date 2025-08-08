@@ -4,15 +4,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCookie } from "react-use";
 import { useRouter } from "next/navigation";
 
-import { User } from "@/types";
+import type { User } from "@/types";
 import MY_TOKEN_KEY from "@/lib/get-cookie-name";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 
-export const useUser = (initialData?: {
+function useUser(initialData?: {
   user: User | null;
   errCode: number | null;
-}) => {
+}) {
   const cookie_name = MY_TOKEN_KEY();
   const client = useQueryClient();
   const router = useRouter();
@@ -105,4 +105,7 @@ export const useUser = (initialData?: {
     loginFromCode,
     logout,
   };
-};
+}
+
+export default useUser;
+export { useUser };

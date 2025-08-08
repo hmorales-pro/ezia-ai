@@ -1,19 +1,64 @@
-FROM node:20-alpine
-USER root
+# Dockerfile optimisé pour Ezia sur VPS avec Dokploy
+FROM node:20-alpine AS builder
 
-USER 1000
-WORKDIR /usr/src/app
-# Copy package.json and package-lock.json to the container
-COPY --chown=1000 package.json package-lock.json ./
+# Install dependencies for native modules
+RUN apk add --no-cache libc6-compat python3 make g++
 
-# Copy the rest of the application files to the container
-COPY --chown=1000 . .
+WORKDIR /app
 
-RUN npm install
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build the application
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV SKIP_ENV_VALIDATION 1
+
 RUN npm run build
 
-# Expose the application port (assuming your app runs on port 3000)
+# Production stage
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Add non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Install only production dependencies
+COPY package*.json ./
+RUN npm ci --only=production && \
+    npm cache clean --force
+
+# Copy built application
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.ts ./
+COPY --from=builder /app/tailwind.config.ts ./
+
+# Create necessary directories
+RUN mkdir -p .next/cache && \
+    chown -R nextjs:nodejs /app
+
+USER nextjs
+
+# Expose port
 EXPOSE 3000
+
+# Environment variables
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
 
 # Start the application
 CMD ["npm", "start"]

@@ -7,7 +7,7 @@ export default function RedirectPage() {
   const router = useRouter();
   
   useEffect(() => {
-    router.push("/home");
+    router.push("/dashboard");
   }, [router]);
   
   return (

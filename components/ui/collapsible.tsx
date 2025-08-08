@@ -1,33 +1,27 @@
 "use client"
 
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
+import { stripDataSlot } from "@/lib/strip-data-slot"
 
 function Collapsible({
   ...props
 }: React.ComponentProps<typeof CollapsiblePrimitive.Root>) {
-  return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />
+  const cleanedProps = stripDataSlot(props);
+  return <CollapsiblePrimitive.Root {...cleanedProps} />;
 }
 
 function CollapsibleTrigger({
   ...props
 }: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger>) {
-  return (
-    <CollapsiblePrimitive.CollapsibleTrigger
-      data-slot="collapsible-trigger"
-      {...props}
-    />
-  )
+  const cleanedProps = stripDataSlot(props);
+  return <CollapsiblePrimitive.CollapsibleTrigger {...cleanedProps} />;
 }
 
 function CollapsibleContent({
   ...props
 }: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>) {
-  return (
-    <CollapsiblePrimitive.CollapsibleContent
-      data-slot="collapsible-content"
-      {...props}
-    />
-  )
+  const cleanedProps = stripDataSlot(props);
+  return <CollapsiblePrimitive.CollapsibleContent {...cleanedProps} />;
 }
 
 export { Collapsible, CollapsibleTrigger, CollapsibleContent }

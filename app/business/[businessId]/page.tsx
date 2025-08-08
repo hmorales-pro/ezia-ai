@@ -24,11 +24,12 @@ import {
   ChevronUp
 } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EziaChatV2 } from "@/components/ezia-chat-v2";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import ReactMarkdown from "react-markdown";
+import { ContentCalendar } from "@/components/business/content-calendar";
 
 interface Business {
   _id: string;
@@ -347,6 +348,7 @@ export default function BusinessDetailPage() {
             <TabsTrigger value="overview">Vue d&apos;ensemble</TabsTrigger>
             <TabsTrigger value="market">Analyse de marché</TabsTrigger>
             <TabsTrigger value="marketing">Marketing</TabsTrigger>
+            <TabsTrigger value="calendar">Calendrier</TabsTrigger>
             <TabsTrigger value="goals">Objectifs</TabsTrigger>
             <TabsTrigger value="interactions">Interactions Agence</TabsTrigger>
           </TabsList>
@@ -730,6 +732,103 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
             </Card>
           </TabsContent>
 
+          {/* Calendar Tab */}
+          <TabsContent value="calendar" className="space-y-6">
+            <ContentCalendar 
+              businessId={businessId} 
+              contentItems={(() => {
+                // Extraire les contenus depuis les interactions
+                const contentCalendarInteractions = business.ezia_interactions
+                  ?.filter(i => i.interaction_type === 'content_calendar' && i.content)
+                  ?.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+                
+                if (contentCalendarInteractions && contentCalendarInteractions.length > 0) {
+                  // Parser le contenu pour extraire les items de calendrier
+                  const items: any[] = [];
+                  contentCalendarInteractions.forEach((interaction) => {
+                    // Exemple de parsing - à adapter selon le format réel
+                    const lines = interaction.content.split('\n');
+                    lines.forEach((line, idx) => {
+                      if (line.includes('📅') || line.includes('Date:')) {
+                        // Extraire la date et le type de contenu
+                        const dateMatch = line.match(/(\d{4}-\d{2}-\d{2})/);
+                        if (dateMatch) {
+                          items.push({
+                            id: `${interaction._id}-${idx}`,
+                            date: dateMatch[1],
+                            title: lines[idx + 1] || 'Contenu planifié',
+                            type: line.includes('Article') ? 'article' : 
+                                  line.includes('Vidéo') ? 'video' : 
+                                  line.includes('Image') ? 'image' : 'social',
+                            status: 'scheduled',
+                            description: lines[idx + 2] || ''
+                          });
+                        }
+                      }
+                    });
+                  });
+                  return items;
+                }
+                
+                // Données d'exemple pour démonstration
+                return [
+                  {
+                    id: "1",
+                    date: format(new Date(), "yyyy-MM-dd"),
+                    title: "Lancement de notre nouveau service",
+                    type: "article",
+                    status: "scheduled",
+                    platform: ["Blog", "LinkedIn"],
+                    description: "Article détaillé sur notre nouvelle offre"
+                  },
+                  {
+                    id: "2",
+                    date: format(addDays(new Date(), 2), "yyyy-MM-dd"),
+                    title: "Behind the scenes",
+                    type: "video",
+                    status: "draft",
+                    platform: ["YouTube", "Instagram"],
+                    description: "Vidéo des coulisses de notre équipe"
+                  },
+                  {
+                    id: "3",
+                    date: format(addDays(new Date(), 5), "yyyy-MM-dd"),
+                    title: "Infographie résultats Q1",
+                    type: "image",
+                    status: "scheduled",
+                    platform: ["Twitter", "LinkedIn"],
+                    description: "Visualisation de nos performances"
+                  },
+                  {
+                    id: "4",
+                    date: format(addDays(new Date(), 7), "yyyy-MM-dd"),
+                    title: "#MondayMotivation",
+                    type: "social",
+                    status: "scheduled",
+                    platform: ["Twitter", "Instagram"],
+                    description: "Post motivationnel hebdomadaire"
+                  }
+                ];
+              })()}
+              onAddContent={(date) => {
+                setChatAction("content_calendar");
+                setChatOpen(true);
+              }}
+            />
+            
+            <div className="flex justify-center">
+              <Button
+                onClick={() => {
+                  setChatAction("content_calendar");
+                  setChatOpen(true);
+                }}
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Planifier du contenu avec l'équipe
+              </Button>
+            </div>
+          </TabsContent>
+
           {/* Goals Tab */}
           <TabsContent value="goals" className="space-y-6">
             <Card>
@@ -833,7 +932,7 @@ Utilise des couleurs professionnelles et un style adapté à l'industrie ${busin
 
         {/* Ezia Chat Dialog */}
         <Dialog open={chatOpen} onOpenChange={setChatOpen}>
-          <DialogContent className="max-w-4xl h-[80vh] p-0 !bg-white !border-[#E0E0E0]" aria-describedby="ezia-chat-description">
+          <DialogContent className="max-w-4xl h-[80vh] p-0 !bg-white !border-[#E0E0E0]" aria-describedby="ezia-chat-description" showCloseButton={false}>
             <DialogTitle className="sr-only">Agence Ezia</DialogTitle>
             <DialogDescription className="sr-only" id="ezia-chat-description">
               Discutez avec votre équipe d'agents IA pour gérer votre business {business.name}

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks";
 import { usePathname, useRouter } from "next/navigation";
 import { useMount } from "react-use";
 import { UserContext } from "@/components/contexts/user-context";
@@ -28,9 +28,9 @@ export default function AppContext({
     if (!initialData?.user && !user) {
       if ([401, 403].includes(errCode as number)) {
         logout();
-      } else if (pathname.includes("/spaces")) {
+      } else if (pathname.includes("/projects")) {
         if (errCode) {
-          toast.error("An error occured while trying to log in");
+          toast.error("Une erreur s'est produite lors de la connexion");
         }
         // If we did not manage to log in (probs because api is down), we simply redirect to the home page
         router.push("/");

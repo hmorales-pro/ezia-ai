@@ -20,7 +20,7 @@ export function ProjectCard({ project }: { project: Project }) {
         className="relative bg-white rounded-2xl overflow-hidden h-44 w-full flex items-center justify-end flex-col px-3 border border-[#E0E0E0] shadow-md hover:shadow-lg transition-all"
       >
         <iframe
-          src={`https://${project.space_id.replace("/", "-")}.static.hf.space/`}
+          src={`/preview/${project.space_id}`}
           frameBorder="0"
           className="absolute inset-0 w-full h-full top-0 left-0 group-hover:brightness-75 transition-all duration-200 pointer-events-none"
         ></iframe>
@@ -29,7 +29,7 @@ export function ProjectCard({ project }: { project: Project }) {
           variant="default"
           className="w-full transition-all duration-200 translate-y-full group-hover:-translate-y-3"
         >
-          Open project
+          Ouvrir le projet
         </Button>
       </Link>
       <div className="flex items-start justify-between gap-3">
@@ -38,7 +38,7 @@ export function ProjectCard({ project }: { project: Project }) {
             {project.space_id}
           </p>
           <p className="text-sm text-[#666666]">
-            Updated{" "}
+            Mis à jour{" "}
             {formatDistance(
               new Date(project._updatedAt || Date.now()),
               new Date(),

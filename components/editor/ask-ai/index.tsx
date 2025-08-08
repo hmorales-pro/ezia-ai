@@ -60,9 +60,11 @@ export function AskAI({
   const [prompt, setPrompt] = useState(initialPrompt ? decodeURIComponent(initialPrompt) : "");
   const [hasAsked, setHasAsked] = useState(false);
   const [previousPrompt, setPreviousPrompt] = useState("");
-  // Utiliser un provider spécifique par défaut au lieu de "auto" pour éviter les erreurs
-  const [provider, setProvider] = useLocalStorage("provider", "novita");
-  const [model, setModel] = useLocalStorage("model", MODELS[0].value);
+  // Si nous sommes dans Ezia, utiliser un modèle/provider différent par défaut
+  const defaultProvider = businessId ? "fireworks-ai" : "novita";
+  const defaultModel = businessId ? "Qwen/Qwen2.5-Coder-32B-Instruct" : MODELS[0].value;
+  const [provider, setProvider] = useLocalStorage("provider", defaultProvider);
+  const [model, setModel] = useLocalStorage("model", defaultModel);
   const [openProvider, setOpenProvider] = useState(false);
   const [providerError, setProviderError] = useState("");
   const [openProModal, setOpenProModal] = useState(false);
@@ -108,7 +110,7 @@ export function AskAI({
         const selectedElementHtml = selectedElement
           ? selectedElement.outerHTML
           : "";
-        const request = await fetch("/api/ask-ai", {
+        const request = await fetch(businessId ? "/api/ezia-ask-ai" : "/api/ask-ai", {
           method: "PUT",
           body: JSON.stringify({
             prompt,
@@ -117,6 +119,7 @@ export function AskAI({
             model,
             html,
             selectedElementHtml,
+            businessId,
           }),
           headers: {
             "Content-Type": "application/json",
@@ -149,7 +152,7 @@ export function AskAI({
           if (audio.current) audio.current.play();
         }
       } else {
-        const request = await fetch("/api/ask-ai", {
+        const request = await fetch(businessId ? "/api/ezia-ask-ai" : "/api/ask-ai", {
           method: "POST",
           body: JSON.stringify({
             prompt,
@@ -157,6 +160,7 @@ export function AskAI({
             model,
             html: isSameHtml ? "" : html,
             redesignMarkdown,
+            businessId,
           }),
           headers: {
             "Content-Type": "application/json",

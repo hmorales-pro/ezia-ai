@@ -1,15 +1,15 @@
 import { useLocalStorage } from "react-use";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks";
 import { isTheSameHtml } from "@/lib/compare-html-diff";
 
 export const LoginModal = ({
   open,
   html,
   onClose,
-  title = "Log In to use Ezia for free",
-  description = "Log In through your Hugging Face account to continue using Ezia and increase your monthly free limit.",
+  title = "Connectez-vous pour utiliser Ezia gratuitement",
+  description = "Connectez-vous pour continuer à utiliser Ezia et augmenter votre limite mensuelle gratuite.",
 }: {
   open: boolean;
   html?: string;
@@ -51,7 +51,7 @@ export const LoginModal = ({
             className="w-full !text-base !h-11 mt-8 bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white border-0 shadow-lg hover:shadow-xl transition-all"
             onClick={handleClick}
           >
-            Log In to Continue
+            Se connecter pour continuer
           </Button>
         </main>
       </DialogContent>

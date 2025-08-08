@@ -10,12 +10,12 @@ import Image from "next/image";
 const TABS = [
   {
     value: "chat",
-    label: "Chat",
+    label: "Editeur",
     icon: MessageCircleCode,
   },
   {
     value: "preview",
-    label: "Preview",
+    label: "Aperçu",
     icon: Eye,
   },
 ];

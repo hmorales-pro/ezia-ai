@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks";
 import { use, useState } from "react";
 import { useMount, useTimeoutFn } from "react-use";
 

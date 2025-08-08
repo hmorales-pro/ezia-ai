@@ -1,5 +1,5 @@
-import RedirectPage from "./redirect-page";
+import { redirect } from 'next/navigation'
 
 export default function Page() {
-  return <RedirectPage />;
+  redirect('/dashboard');
 }

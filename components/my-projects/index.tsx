@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks";
 import { Project } from "@/types";
 import { redirect } from "next/navigation";
 import { ProjectCard } from "./project-card";

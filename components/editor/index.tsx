@@ -123,12 +123,12 @@ export const AppEditor = ({
 
   useMount(() => {
     if (deploy && project?._id) {
-      toast.success("Your project is deployed! 🎉", {
+      toast.success("Votre projet est publié ! 🎉", {
         action: {
-          label: "See Project",
+          label: "Voir le projet",
           onClick: () => {
             window.open(
-              `https://huggingface.co/spaces/${project?.space_id}`,
+              `/preview/${project?.space_id}`,
               "_blank"
             );
           },

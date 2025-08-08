@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { MdAdd } from "react-icons/md";
 import { History } from "@/components/editor/history";
 import { UserMenu } from "@/components/user-menu";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks";
 
 const DEVICES = [
   {
@@ -64,7 +64,7 @@ export function Footer({
         {user && <p className="text-neutral-700">|</p>}
         <Button size="sm" variant="secondary" onClick={onReset}>
           <MdAdd className="text-sm" />
-          New <span className="max-lg:hidden">Project</span>
+          Nouveau <span className="max-lg:hidden">Projet</span>
         </Button>
         {htmlHistory && htmlHistory.length > 0 && (
           <>
@@ -75,26 +75,26 @@ export function Footer({
       </div>
       <div className="flex justify-end items-center gap-2.5">
         <a
-          href="https://huggingface.co/spaces/victor/ezia-gallery"
+          href="/gallery"
           target="_blank"
         >
           <Button size="sm" variant="ghost">
             <SparkleIcon className="size-3.5" />
-            <span className="max-lg:hidden">Ezia Gallery</span>
+            <span className="max-lg:hidden">Galerie Ezia</span>
           </Button>
         </a>
         <a
+          href="/help"
           target="_blank"
-          href="https://huggingface.co/spaces/enzostvs/ezia/discussions/157"
         >
           <Button size="sm" variant="outline">
             <HelpCircle className="size-3.5" />
-            <span className="max-lg:hidden">Help</span>
+            <span className="max-lg:hidden">Aide</span>
           </Button>
         </a>
         <Button size="sm" variant="outline" onClick={handleRefreshIframe}>
           <RefreshCcw className="size-3.5" />
-          <span className="max-lg:hidden">Refresh Preview</span>
+          <span className="max-lg:hidden">Actualiser Aperçu</span>
         </Button>
         <div className="flex items-center rounded-full p-0.5 bg-neutral-700/70 relative overflow-hidden z-0 max-lg:hidden gap-0.5">
           <div

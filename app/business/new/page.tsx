@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -94,9 +94,9 @@ export default function NewBusinessPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#FAF9F5]">
       {/* Header */}
-      <header className="border-b border-zinc-800">
+      <header className="border-b border-[#E0E0E0] bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -104,13 +104,14 @@ export default function NewBusinessPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => router.push("/dashboard")}
+                className="text-[#666666] hover:text-[#1E1E1E] hover:bg-[#F5F5F5]"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Retour
               </Button>
               <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-violet-500" />
-                <h1 className="text-xl font-semibold">Nouveau Business</h1>
+                <Building2 className="w-5 h-5 text-[#6D3FC8]" />
+                <h1 className="text-xl font-semibold text-[#1E1E1E]">Nouveau Business</h1>
               </div>
             </div>
           </div>
@@ -119,10 +120,10 @@ export default function NewBusinessPage() {
 
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Card className="bg-zinc-900 border-zinc-800">
+        <Card className="bg-white border-[#E0E0E0] shadow-lg">
           <CardHeader>
-            <CardTitle className="text-2xl">Créer votre business</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl text-[#1E1E1E]">Créer votre business</CardTitle>
+            <CardDescription className="text-[#666666]">
               Commençons par les informations de base. Notre équipe d'agents IA utilisera ces données 
               pour personnaliser leur accompagnement.
             </CardDescription>
@@ -130,42 +131,42 @@ export default function NewBusinessPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Nom du business *</Label>
+                <Label htmlFor="name" className="text-[#1E1E1E]">Nom du business *</Label>
                 <Input
                   id="name"
                   placeholder="Ex: Ma Super Startup"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="bg-zinc-800 border-zinc-700"
+                  className="bg-white border-[#E0E0E0] text-[#1E1E1E] placeholder:text-[#999999] focus:border-[#6D3FC8] focus:ring-[#6D3FC8]/20"
                   disabled={loading}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
+                <Label htmlFor="description" className="text-[#1E1E1E]">Description *</Label>
                 <Textarea
                   id="description"
                   placeholder="Décrivez votre business en quelques phrases..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="bg-zinc-800 border-zinc-700 min-h-[100px]"
+                  className="bg-white border-[#E0E0E0] text-[#1E1E1E] placeholder:text-[#999999] min-h-[100px] focus:border-[#6D3FC8] focus:ring-[#6D3FC8]/20"
                   disabled={loading}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="industry">Secteur d&apos;activité *</Label>
+                <Label htmlFor="industry" className="text-[#1E1E1E]">Secteur d&apos;activité *</Label>
                 <Select
                   value={formData.industry}
                   onValueChange={(value) => setFormData({ ...formData, industry: value })}
                   disabled={loading}
                 >
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700">
-                    <SelectValue placeholder="Sélectionnez un secteur" />
+                  <SelectTrigger className="bg-white border-[#E0E0E0] text-[#1E1E1E] hover:border-[#6D3FC8] focus:border-[#6D3FC8] focus:ring-[#6D3FC8]/20">
+                    <SelectValue placeholder="Sélectionnez un secteur" className="text-[#999999]" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-[#E0E0E0]">
                     {industries.map((industry) => (
-                      <SelectItem key={industry} value={industry}>
+                      <SelectItem key={industry} value={industry} className="text-[#1E1E1E] hover:bg-[#F5F5F5] focus:bg-[#F5F5F5]">
                         {industry}
                       </SelectItem>
                     ))}
@@ -174,7 +175,7 @@ export default function NewBusinessPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Stade de développement *</Label>
+                <Label className="text-[#1E1E1E]">Stade de développement *</Label>
                 <div className="grid grid-cols-2 gap-3">
                   {stages.map((stage) => (
                     <button
@@ -183,13 +184,13 @@ export default function NewBusinessPage() {
                       onClick={() => setFormData({ ...formData, stage: stage.value })}
                       className={`p-4 rounded-lg border text-left transition-all ${
                         formData.stage === stage.value
-                          ? "bg-violet-600/20 border-violet-600"
-                          : "bg-zinc-800 border-zinc-700 hover:border-zinc-600"
+                          ? "bg-[#6D3FC8]/10 border-[#6D3FC8] shadow-sm"
+                          : "bg-white border-[#E0E0E0] hover:border-[#6D3FC8]/50"
                       }`}
                       disabled={loading}
                     >
-                      <div className="font-medium mb-1">{stage.label}</div>
-                      <div className="text-xs text-zinc-400">{stage.description}</div>
+                      <div className="font-medium mb-1 text-[#1E1E1E]">{stage.label}</div>
+                      <div className="text-xs text-[#666666]">{stage.description}</div>
                     </button>
                   ))}
                 </div>
@@ -198,7 +199,7 @@ export default function NewBusinessPage() {
               <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"
-                  className="flex-1 bg-violet-600 hover:bg-violet-700"
+                  className="flex-1 bg-[#6D3FC8] hover:bg-[#5A35A5] text-white shadow-lg hover:shadow-xl transition-all"
                   disabled={loading}
                 >
                   {loading ? (
@@ -218,6 +219,7 @@ export default function NewBusinessPage() {
                   variant="outline"
                   onClick={() => router.push("/dashboard")}
                   disabled={loading}
+                  className="border-[#E0E0E0] text-[#666666] hover:bg-[#F5F5F5] hover:text-[#1E1E1E]"
                 >
                   Annuler
                 </Button>
@@ -226,8 +228,8 @@ export default function NewBusinessPage() {
           </CardContent>
         </Card>
 
-        <div className="mt-6 p-4 bg-violet-900/20 rounded-lg border border-violet-600/30">
-          <p className="text-sm text-violet-200">
+        <div className="mt-6 p-4 bg-[#6D3FC8]/10 rounded-lg border border-[#6D3FC8]/30">
+          <p className="text-sm text-[#6D3FC8]">
             <strong>💡 Astuce :</strong> Plus vous donnez d&apos;informations précises, 
             mieux Ezia pourra vous accompagner. Vous pourrez toujours modifier 
             ces informations plus tard.

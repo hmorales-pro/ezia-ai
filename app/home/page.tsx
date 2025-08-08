@@ -110,7 +110,7 @@ export default function HomePage() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link href="/pricing">
+              <Link href="/tarifs">
                 <Button size="lg" variant="outline" className="border-[#6D3FC8] text-[#6D3FC8] hover:bg-[#6D3FC8] hover:text-white">
                   Voir les tarifs
                 </Button>

@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
     // your project has type errors.
     ignoreBuildErrors: true,
   },
+  // Turbopack configuration (Turbopack is now stable in Next.js 15)
+  turbopack: {
+    resolveAlias: {
+      // Resolve any module issues
+    },
+  },
+  // Ensure proper module resolution
+  transpilePackages: ['@mistralai/mistralai'],
   webpack(config, options) {
     const { isServer } = options;
     config.module.rules.push({
@@ -32,6 +40,14 @@ const nextConfig: NextConfig = {
         },
       ],
     });
+
+    // Suppress specific warnings
+    config.ignoreWarnings = [
+      { module: /node_modules/ },
+      (warning: any) => warning.message && warning.message.includes('clientModules'),
+      (warning: any) => warning.message && warning.message.includes('entryCSSFiles'),
+      (warning: any) => warning.message && warning.message.includes('findSourceMapURL'),
+    ];
 
     return config;
   },

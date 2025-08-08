@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks";
 
 export const UserMenu = ({ className }: { className?: string }) => {
   const { logout, user } = useUser();
@@ -41,46 +41,46 @@ export const UserMenu = ({ className }: { className?: string }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start">
         <DropdownMenuLabel className="font-bold flex items-center gap-2 justify-center">
-          My Account
+          Mon Compte
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <Link href="/projects/new">
             <DropdownMenuItem>
               <CirclePlus className="size-4 text-neutral-100" />
-              New Project
+              Nouveau Projet
             </DropdownMenuItem>
           </Link>
           <Link href="/projects">
             <DropdownMenuItem>
               <Import className="size-4 text-neutral-100" />
-              Import Project
+              Importer un Projet
             </DropdownMenuItem>
           </Link>
           <Link href="/projects">
             <DropdownMenuItem>
               <FolderCode className="size-4 text-neutral-100" />
-              View Projects
+              Voir les Projets
             </DropdownMenuItem>
           </Link>
-          <a href="https://huggingface.co/settings/billing" target="_blank">
+          <Link href="/dashboard">
             <DropdownMenuItem>
               <ChartSpline className="size-4 text-neutral-100" />
-              Usage Quota
+              Quota d'utilisation
             </DropdownMenuItem>
-          </a>
+          </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => {
-            if (confirm("Are you sure you want to log out?")) {
+            if (confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
               logout();
             }
           }}
         >
           <Button size="xs" variant="destructive" className="w-full">
             <LogOut className="size-4" />
-            Log out
+            Déconnexion
           </Button>
         </DropdownMenuItem>
       </DropdownMenuContent>
