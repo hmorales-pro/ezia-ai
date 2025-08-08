@@ -3,7 +3,7 @@ services:
     # Use pre-built image instead of building
     image: ghcr.io/hmorales-pro/ezia-ai:latest
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
