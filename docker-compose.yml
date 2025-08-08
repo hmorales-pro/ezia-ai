@@ -1,24 +1,6 @@
+version: "3"
 services:
-  web:
-    image: ${DOCKER_IMAGE:-node:20-alpine}
-    working_dir: /app
+  app:
+    build: .
     ports:
-      - "${PORT:-3000}:3000"
-    environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://ezia.ai}
-      - MONGODB_URI=${MONGODB_URI}
-      - HF_TOKEN=${HF_TOKEN}
-      - DEFAULT_HF_TOKEN=${DEFAULT_HF_TOKEN}
-      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      - JWT_SECRET=${JWT_SECRET}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - DEEPSITE_HF_URL=${DEEPSITE_HF_URL:-https://huggingface.co/spaces}
-      - DEEPSITE_SPACE_ID=${DEEPSITE_SPACE_ID:-hmorales/deepsite-v2}
-      - NEXT_APP_API_URL=${NEXT_APP_API_URL:-https://ezia.ai}
-    volumes:
-      - ./:/app
-      - /app/node_modules
-      - /app/.next
-    command: sh -c "npm install && npm run build && npm start"
-    restart: unless-stopped
+      - "3000:3000"

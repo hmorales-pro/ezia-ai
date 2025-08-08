@@ -1,0 +1,11 @@
+# Configuration Dokploy pour mode Application
+name: ezia-ai
+type: application
+build:
+  type: dockerfile
+  dockerfile: ./Dockerfile
+  context: .
+port: 3000
+env:
+  NODE_ENV: production
+  PORT: 3000
