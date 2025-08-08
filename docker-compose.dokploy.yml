@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  web:  # Dokploy préfère 'web' comme nom de service principal
+    build: .
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - dokploy-network
+    # Dokploy gère automatiquement les ports et volumes
+
+networks:
+  dokploy-network:
+    external: true  # Utilise le réseau Dokploy existant

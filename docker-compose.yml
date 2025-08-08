@@ -3,7 +3,6 @@ version: '3.8'
 services:
   ezia:
     build: .
-    container_name: ezia-app
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -39,7 +38,6 @@ services:
 
   mongo:
     image: mongo:7
-    container_name: ezia-mongo
     restart: unless-stopped
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
