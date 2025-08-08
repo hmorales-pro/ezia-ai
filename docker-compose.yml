@@ -1,58 +1,24 @@
-version: '3.8'
-
 services:
-  ezia:
-    build: .
-    restart: unless-stopped
+  web:
+    image: ${DOCKER_IMAGE:-node:20-alpine}
+    working_dir: /app
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
     environment:
-      # Configuration de base
       - NODE_ENV=production
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://votre-domaine.com}
-      
-      # MongoDB (local ou Atlas)
-      - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/ezia}
-      
-      # Tokens HuggingFace
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://ezia.ai}
+      - MONGODB_URI=${MONGODB_URI}
       - HF_TOKEN=${HF_TOKEN}
       - DEFAULT_HF_TOKEN=${DEFAULT_HF_TOKEN}
-      
-      # Mistral AI pour Ezia
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      
-      # URLs des services HF
+      - JWT_SECRET=${JWT_SECRET}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - DEEPSITE_HF_URL=${DEEPSITE_HF_URL:-https://huggingface.co/spaces}
       - DEEPSITE_SPACE_ID=${DEEPSITE_SPACE_ID:-hmorales/deepsite-v2}
-      
-      # Configuration Next.js
-      - NEXT_APP_API_URL=${NEXT_APP_API_URL:-https://votre-domaine.com}
-      
-    depends_on:
-      - mongo
-    networks:
-      - ezia-network
+      - NEXT_APP_API_URL=${NEXT_APP_API_URL:-https://ezia.ai}
     volumes:
-      - ./uploads:/app/uploads
-      - ./.env.production:/app/.env.production:ro
-
-  mongo:
-    image: mongo:7
+      - ./:/app
+      - /app/node_modules
+      - /app/.next
+    command: sh -c "npm install && npm run build && npm start"
     restart: unless-stopped
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-changeme}
-      - MONGO_INITDB_DATABASE=ezia
-    volumes:
-      - mongo-data:/data/db
-    networks:
-      - ezia-network
-    ports:
-      - "27017:27017"
-
-networks:
-  ezia-network:
-    driver: bridge
-
-volumes:
-  mongo-data:
