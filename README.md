@@ -40,7 +40,7 @@ Ezia est votre chef de projet IA qui coordonne une équipe d'agents spécialisé
 
 1. **Cloner le repository**
 ```bash
-git clone https://github.com/eziom-corp/ezia-ai.git
+git clone https://github.com/hmorales-pro/ezia-ai.git
 cd ezia-ai
 ```
 
@@ -196,8 +196,8 @@ MIT License - voir [LICENSE](LICENSE)
 ## 🆘 Support
 
 - **Documentation**: [docs/](docs/)
-- **Issues**: [GitHub Issues](https://github.com/eziom-corp/ezia-ai/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/eziom-corp/ezia-ai/discussions)
+- **Issues**: [GitHub Issues](https://github.com/hmorales-pro/ezia-ai/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/hmorales-pro/ezia-ai/discussions)
 
 ## 🙏 Remerciements
 
