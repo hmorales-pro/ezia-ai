@@ -1,34 +1,11 @@
-# Docker Compose optimisé pour Dokploy
-# Dokploy construit l'image séparément puis utilise cette config
-
 services:
-  web:
-    image: ${DOCKER_IMAGE:-ezia-ai:latest}  # Dokploy injecte l'image construite
-    restart: unless-stopped
+  ezia:
+    build:
+      context: .
+      dockerfile: Dockerfile.dokploy
     ports:
-      - "${PORT:-3000}:3000"
+      - "3000:3000"
     environment:
-      # Configuration de base
       - NODE_ENV=production
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://ezia.ai}
-      
-      # MongoDB - Utiliser MongoDB Atlas ou externe
-      - MONGODB_URI=${MONGODB_URI}
-      
-      # Tokens
-      - HF_TOKEN=${HF_TOKEN}
-      - DEFAULT_HF_TOKEN=${DEFAULT_HF_TOKEN}
-      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      - JWT_SECRET=${JWT_SECRET}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      
-      # URLs des services HF
-      - DEEPSITE_HF_URL=${DEEPSITE_HF_URL:-https://huggingface.co/spaces}
-      - DEEPSITE_SPACE_ID=${DEEPSITE_SPACE_ID:-hmorales/deepsite-v2}
-      
-      # Configuration Next.js
-      - NEXT_APP_API_URL=${NEXT_APP_API_URL:-https://ezia.ai}
-    
-    # Pas de volumes pour .env.production car Dokploy gère les env vars
-    volumes:
-      - ./uploads:/app/uploads
+      - PORT=3000
+    restart: unless-stopped
