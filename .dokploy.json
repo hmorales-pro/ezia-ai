@@ -1,0 +1,15 @@
+{
+  "name": "ezia-ai",
+  "type": "compose",
+  "compose": {
+    "file": "docker-compose.dokploy.yml",
+    "build": {
+      "context": ".",
+      "dockerfile": "Dockerfile"
+    }
+  },
+  "env": {
+    "PORT": "3000",
+    "NODE_ENV": "production"
+  }
+}
