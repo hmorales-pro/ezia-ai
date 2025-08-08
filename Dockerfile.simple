@@ -1,0 +1,20 @@
+# Dockerfile sans build pour tester rapidement
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy pre-built files
+COPY package*.json ./
+COPY .next ./.next
+COPY public ./public
+COPY next.config.ts ./
+
+# Install only production dependencies
+RUN npm install --production
+
+EXPOSE 3000
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+CMD ["npm", "start"]
