@@ -10,7 +10,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies
-RUN npm ci
+RUN npm install --frozen-lockfile || npm install
 
 # Copy source code
 COPY . .
@@ -32,7 +32,7 @@ RUN addgroup -g 1001 -S nodejs && \
 
 # Install only production dependencies
 COPY package*.json ./
-RUN npm ci --only=production && \
+RUN npm install --production && \
     npm cache clean --force
 
 # Copy built application
