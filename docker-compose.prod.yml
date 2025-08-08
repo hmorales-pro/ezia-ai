@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  ezia:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - HF_TOKEN=${HF_TOKEN}
+      - DEFAULT_HF_TOKEN=${DEFAULT_HF_TOKEN}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - DEEPSITE_HF_URL=${DEEPSITE_HF_URL:-https://huggingface.co/spaces}
+      - DEEPSITE_SPACE_ID=${DEEPSITE_SPACE_ID:-hmorales/deepsite-v2}
+      - NEXT_APP_API_URL=${NEXT_APP_API_URL}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
