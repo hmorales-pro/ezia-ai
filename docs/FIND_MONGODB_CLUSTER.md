@@ -14,8 +14,8 @@ To find your MongoDB cluster name for the connection string:
    ```
 
    Your credentials:
-   - Username: `dbEzia`
-   - Password: `rZ1F0nmypcXvczLn`
+   - Username: `your-username`
+   - Password: `your-password`
    - Cluster name: **You need to find this in MongoDB Atlas**
 
 5. **Common cluster names**:
@@ -35,7 +35,7 @@ To find your MongoDB cluster name for the connection string:
 Once you have the correct cluster name, update your `.env.local`:
 
 ```bash
-MONGODB_URI=mongodb+srv://dbEzia:rZ1F0nmypcXvczLn@<YOUR-CLUSTER-NAME>.mongodb.net/ezia?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://your-username:your-password@<YOUR-CLUSTER-NAME>.mongodb.net/your-database?retryWrites=true&w=majority
 ```
 
 Then test the connection:

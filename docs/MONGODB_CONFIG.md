@@ -7,19 +7,19 @@ Aller sur : https://huggingface.co/spaces/hmorales/ezia/settings
 Dans "Variables and secrets", ajouter :
 
 ```
-MONGODB_URI=mongodb+srv://dbEzia:rZ1F0nmypcXvczLn@cluster0.mongodb.net/ezia?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/your-database?retryWrites=true&w=majority
 ```
 
 Note : Si l'URL ci-dessus ne fonctionne pas, essayez ces variantes :
 
 1. Sans options :
 ```
-MONGODB_URI=mongodb+srv://dbEzia:rZ1F0nmypcXvczLn@cluster0.mongodb.net/ezia
+MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/your-database
 ```
 
-2. Avec un cluster différent (remplacez cluster0 par votre nom de cluster) :
+2. Avec un cluster différent (remplacez your-cluster par votre nom de cluster) :
 ```
-MONGODB_URI=mongodb+srv://dbEzia:rZ1F0nmypcXvczLn@[VOTRE-CLUSTER].mongodb.net/ezia
+MONGODB_URI=mongodb+srv://your-username:your-password@[VOTRE-CLUSTER].mongodb.net/your-database
 ```
 
 ## Test de connexion

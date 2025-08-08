@@ -24,7 +24,7 @@ NEXT_PUBLIC_APP_URL=https://ezia.ai
 PORT=3000
 
 # MongoDB (utilisez MongoDB Atlas)
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/ezia?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/your-database?retryWrites=true&w=majority
 
 # Tokens API
 HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxx

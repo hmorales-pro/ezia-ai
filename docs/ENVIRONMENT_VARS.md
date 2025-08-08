@@ -16,7 +16,7 @@ OAUTH_CLIENT_SECRET=your_huggingface_oauth_client_secret
 
 ### Database Configuration
 ```env
-MONGODB_URI=mongodb+srv://dbEzia:rZ1F0nmypcXvczLn@cluster0.qfdtka1.mongodb.net/ezia
+MONGODB_URI=mongodb+srv://example-user:example-password@example-cluster.mongodb.net/example-db
 ```
 
 ### API Configuration

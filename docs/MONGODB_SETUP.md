@@ -63,7 +63,7 @@ Pour utiliser MongoDB en local:
 
 ```env
 # Production (HuggingFace Spaces)
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/ezia
+MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/your-database
 
 # Local avec MongoDB
 MONGODB_URI=mongodb://localhost:27017/ezia
