@@ -72,7 +72,7 @@ async function getMe() {
   
   try {
     // Utiliser isAuthenticated pour obtenir l'utilisateur depuis HuggingFace directement
-    const { isAuthenticated } = await import("@/lib/auth");
+    const { isAuthenticated } = await import("@/lib/auth-simple");
     const user = await isAuthenticated();
     
     if (user && !(user instanceof Response)) {

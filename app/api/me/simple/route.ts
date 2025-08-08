@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from 'jsonwebtoken';
-import { connectToDatabase } from '@/lib/db';
-import { User } from '@/models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -18,28 +16,18 @@ export async function GET() {
     // Verify JWT token
     const decoded = jwt.verify(token.value, JWT_SECRET) as any;
     
-    await connectToDatabase();
-    
-    // Get fresh user data from database
-    const user = await User.findById(decoded.userId).select('-password');
-    
-    if (!user) {
-      return NextResponse.json({ user: null, errCode: 401 }, { status: 401 });
-    }
-
-    // Format user data to match expected structure
+    // Return user data from token
     const userData = {
-      id: user._id,
-      name: user.username,
-      fullname: user.fullName,
-      email: user.email,
-      avatarUrl: user.avatarUrl,
-      isPro: user.role === 'pro' || user.role === 'admin',
-      subscription: user.subscription,
-      // Additional fields for compatibility
+      id: decoded.userId,
+      name: decoded.username,
+      fullname: 'Test User',
+      email: decoded.email,
+      avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${decoded.username}`,
+      isPro: false,
+      subscription: { plan: 'free' },
       type: 'user',
       canPay: true,
-      periodEnd: user.subscription?.validUntil || null,
+      periodEnd: null,
     };
 
     return NextResponse.json({ user: userData, errCode: null }, { status: 200 });

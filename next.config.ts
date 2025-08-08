@@ -14,10 +14,8 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   // Optimize build for Docker
-  swcMinify: true,
   compress: false,
   productionBrowserSourceMaps: false,
-  optimizeFonts: false,
   poweredByHeader: false,
   // Turbopack configuration (Turbopack is now stable in Next.js 15)
   turbopack: {

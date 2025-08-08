@@ -48,7 +48,7 @@ function useUser(initialData?: {
 
   const openLoginWindow = async () => {
     setCurrentRoute(window.location.pathname);
-    return router.push("/auth");
+    return router.push("/auth/ezia");
   };
 
   const loginFromCode = async (code: string) => {
@@ -87,14 +87,20 @@ function useUser(initialData?: {
   };
 
   const logout = async () => {
-    removeCookie();
-    router.push("/");
-    toast.success("Logout successful");
-    client.setQueryData(["user.me"], {
-      user: null,
-      errCode: null,
-    });
-    window.location.reload();
+    try {
+      await api.post("/api/auth/logout");
+      removeCookie();
+      router.push("/");
+      toast.success("Déconnexion réussie");
+      client.setQueryData(["user.me"], {
+        user: null,
+        errCode: null,
+      });
+      window.location.reload();
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Erreur lors de la déconnexion");
+    }
   };
 
   return {
