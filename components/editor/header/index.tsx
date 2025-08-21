@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Eye, MessageCircleCode } from "lucide-react";
 
-import Logo from "@/assets/logo.svg";
+// Logo import removed - using direct path in Image component
 
 import { Button } from "@/components/ui/button";
 import classNames from "classnames";
@@ -34,9 +34,11 @@ export function Header({
       <div className="flex items-center justify-start gap-3">
         <h1 className="text-neutral-900 dark:text-white text-lg lg:text-xl font-bold flex items-center justify-start">
           <Image
-            src={Logo}
+            src="/logo.png"
             alt="Ezia Logo"
-            className="size-6 lg:size-8 mr-2 invert-100 dark:invert-0"
+            width={32}
+            height={32}
+            className="w-6 h-6 lg:w-8 lg:h-8 mr-2"
           />
           <p className="max-md:hidden flex items-center justify-start">
             Ezia

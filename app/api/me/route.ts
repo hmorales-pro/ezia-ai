@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from 'jsonwebtoken';
-import { connectToDatabase } from '@/lib/db';
+import dbConnect from '@/lib/db';
 import { User } from '@/models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -9,7 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 export async function GET() {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token');
+    const token = cookieStore.get('ezia-auth-token');
     
     if (!token) {
       return NextResponse.json({ user: null, errCode: 401 }, { status: 401 });
@@ -18,7 +18,7 @@ export async function GET() {
     // Verify JWT token
     const decoded = jwt.verify(token.value, JWT_SECRET) as any;
     
-    await connectToDatabase();
+    await dbConnect();
     
     // Get fresh user data from database
     const user = await User.findById(decoded.userId).select('-password');

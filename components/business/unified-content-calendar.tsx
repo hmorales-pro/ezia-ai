@@ -1,0 +1,1662 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isToday, isSameMonth, addDays } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { 
+  Calendar, ChevronLeft, ChevronRight, Plus, FileText, Video, Image, Hash, 
+  Loader2, Edit, Trash2, Clock, CheckCircle, AlertCircle, Sparkles, TrendingUp, 
+  Target, Users, Linkedin, Facebook, Instagram, Twitter, Youtube, Globe, Zap, 
+  BarChart3, MessageSquare, Lightbulb, PenTool, Camera, Megaphone, Eye, Send,
+  ImageIcon, Wand2, RefreshCw, MoreVertical, Settings
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
+
+interface ContentItem {
+  id: string;
+  date: string;
+  title: string;
+  type: "article" | "video" | "image" | "social" | "email" | "ad";
+  status: "draft" | "scheduled" | "published" | "suggested" | "approved" | "generating" | "generated";
+  platform?: string[];
+  description?: string;
+  time?: string;
+  tags?: string[];
+  ai_generated?: boolean;
+  content?: string;
+  imageUrl?: string;
+  agent?: string;
+  agent_emoji?: string;
+  aiCapabilities?: string[];
+  keywords?: string[];
+  targetAudience?: string;
+  tone?: string;
+  marketingObjective?: string;
+  objectiveDescription?: string;
+  performance?: {
+    views?: number;
+    engagement?: number;
+    clicks?: number;
+    estimatedReach?: number;
+    estimatedEngagement?: number;
+  };
+}
+
+interface UnifiedContentCalendarProps {
+  businessId: string;
+  businessName: string;
+  businessIndustry: string;
+  businessDescription: string;
+  marketAnalysis?: any;
+  marketingStrategy?: any;
+  competitorAnalysis?: any;
+}
+
+const contentTypeConfig = {
+  article: { icon: FileText, color: "bg-blue-100 text-blue-800", label: "Article" },
+  video: { icon: Video, color: "bg-purple-100 text-purple-800", label: "Vidéo" },
+  image: { icon: Image, color: "bg-green-100 text-green-800", label: "Visuel" },
+  social: { icon: Hash, color: "bg-orange-100 text-orange-800", label: "Post social" },
+  email: { icon: MessageSquare, color: "bg-pink-100 text-pink-800", label: "Email" },
+  ad: { icon: Megaphone, color: "bg-red-100 text-red-800", label: "Publicité" }
+};
+
+const platformIcons = {
+  website: Globe,
+  linkedin: Linkedin,
+  facebook: Facebook,
+  instagram: Instagram,
+  twitter: Twitter,
+  youtube: Youtube,
+  email: MessageSquare
+};
+
+const platformOptions = [
+  { value: "website", label: "Site web" },
+  { value: "facebook", label: "Facebook" },
+  { value: "instagram", label: "Instagram" },
+  { value: "linkedin", label: "LinkedIn" },
+  { value: "twitter", label: "Twitter" },
+  { value: "youtube", label: "YouTube" },
+];
+
+// Agents et leurs capacités
+const CONTENT_AGENTS = {
+  kiko: {
+    name: "Kiko",
+    emoji: "💻",
+    role: "Développeur Full-Stack",
+    capabilities: [
+      { type: "article", label: "Articles techniques et tutoriels" },
+      { type: "article", label: "Documentation produit" },
+      { type: "social", label: "Tips techniques sur LinkedIn/Twitter" }
+    ]
+  },
+  vera: {
+    name: "Vera",
+    emoji: "✍️",
+    role: "Rédactrice de contenu",
+    capabilities: [
+      { type: "article", label: "Articles de blog SEO" },
+      { type: "email", label: "Newsletters engageantes" },
+      { type: "social", label: "Posts réseaux sociaux" },
+      { type: "ad", label: "Copies publicitaires" }
+    ]
+  },
+  milo: {
+    name: "Milo",
+    emoji: "🎨",
+    role: "Designer UI/UX",
+    capabilities: [
+      { type: "image", label: "Visuels pour réseaux sociaux" },
+      { type: "image", label: "Infographies" },
+      { type: "image", label: "Bannières publicitaires" }
+    ]
+  },
+  leo: {
+    name: "Leo",
+    emoji: "🎥",
+    role: "Créateur vidéo",
+    capabilities: [
+      { type: "video", label: "Vidéos courtes (Reels/TikTok)" },
+      { type: "video", label: "Vidéos explicatives" },
+      { type: "video", label: "Témoignages clients" }
+    ]
+  },
+  sophie: {
+    name: "Sophie",
+    emoji: "📊",
+    role: "Analyste marketing",
+    capabilities: [
+      { type: "article", label: "Rapports d'analyse de marché" },
+      { type: "image", label: "Graphiques de performance" },
+      { type: "email", label: "Rapports mensuels clients" }
+    ]
+  }
+};
+
+// Stockage en mémoire
+declare global {
+  var unifiedContentItems: Record<string, ContentItem[]>;
+}
+
+if (!global.unifiedContentItems) {
+  global.unifiedContentItems = {};
+}
+
+export function UnifiedContentCalendar({ 
+  businessId, 
+  businessName, 
+  businessIndustry, 
+  businessDescription,
+  marketAnalysis,
+  marketingStrategy,
+  competitorAnalysis
+}: UnifiedContentCalendarProps) {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [contentItems, setContentItems] = useState<ContentItem[]>([]);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const [showBulkGenerateDialog, setShowBulkGenerateDialog] = useState(false);
+  const [editingItem, setEditingItem] = useState<ContentItem | null>(null);
+  const [previewItem, setPreviewItem] = useState<ContentItem | null>(null);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [generatingAI, setGeneratingAI] = useState(false);
+  const [generatingCalendar, setGeneratingCalendar] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [viewMode, setViewMode] = useState<"calendar" | "list" | "pipeline">("calendar");
+  const [activeTab, setActiveTab] = useState("overview");
+  const [hasAICalendar, setHasAICalendar] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    title: "",
+    type: "article" as ContentItem["type"],
+    description: "",
+    time: "09:00",
+    platform: [] as string[],
+    tags: [] as string[],
+    content: "",
+    imagePrompt: "",
+  });
+
+  useEffect(() => {
+    // Charger le calendrier sauvegardé depuis l'API
+    loadSavedCalendar();
+  }, [businessId]);
+
+  const loadSavedCalendar = async () => {
+    try {
+      const response = await api.get(`/api/me/business/${businessId}/calendar`);
+      if (response.data.calendar?.items) {
+        setContentItems(response.data.calendar.items);
+        // Vérifier si c'est un calendrier généré par IA
+        const hasAISuggestions = response.data.calendar.items.some((item: ContentItem) => item.ai_generated);
+        setHasAICalendar(hasAISuggestions);
+      } else {
+        // Fallback sur le stockage local si pas de calendrier sauvegardé
+        setContentItems(global.unifiedContentItems[businessId] || []);
+      }
+    } catch (error) {
+      console.error("Error loading calendar:", error);
+      // Fallback sur le stockage local
+      setContentItems(global.unifiedContentItems[businessId] || []);
+    }
+  };
+
+  const saveContentItems = async (items: ContentItem[]) => {
+    // Sauvegarder localement
+    global.unifiedContentItems[businessId] = items;
+    setContentItems(items);
+    
+    // Sauvegarder sur le serveur
+    try {
+      await api.post(`/api/me/business/${businessId}/calendar`, {
+        calendar: items
+      });
+    } catch (error) {
+      console.error("Error saving calendar to server:", error);
+      toast.error("Erreur lors de la sauvegarde du calendrier");
+    }
+  };
+
+  const monthStart = startOfMonth(currentDate);
+  const monthEnd = endOfMonth(currentDate);
+  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const startDayOfWeek = getDay(monthStart);
+  const emptyCells = Array.from({ length: startDayOfWeek }, (_, i) => i);
+
+  const getContentForDate = (date: Date) => {
+    const dateStr = format(date, "yyyy-MM-dd");
+    return contentItems.filter(item => item.date === dateStr);
+  };
+
+  const generateAISuggestions = async (regenerate = false) => {
+    // Si régénération, demander confirmation
+    if (regenerate && hasAICalendar) {
+      const confirmRegenerate = window.confirm(
+        "Voulez-vous vraiment régénérer le calendrier AI ? Les suggestions précédentes seront remplacées."
+      );
+      if (!confirmRegenerate) return;
+    }
+    
+    setGeneratingCalendar(true);
+    
+    // Afficher un message indiquant que l'IA travaille
+    const loadingToast = toast.loading(
+      "L'IA Ezia analyse votre business et génère un calendrier personnalisé...",
+      { 
+        description: "Cela peut prendre 10-20 secondes"
+      }
+    );
+    
+    try {
+      // Si régénération, supprimer les suggestions AI existantes
+      if (regenerate) {
+        const nonAIItems = contentItems.filter(item => !item.ai_generated || item.status !== "suggested");
+        await saveContentItems(nonAIItems);
+      }
+      
+      // Vérifier si des analyses sont disponibles
+      const hasAnalyses = marketAnalysis || marketingStrategy || competitorAnalysis;
+      
+      if (!hasAnalyses) {
+        toast.warning("Les analyses de marché ne sont pas encore disponibles. Les suggestions seront plus génériques.");
+      }
+      
+      // Appeler l'API pour générer les suggestions avec l'IA
+      console.log("Calling regenerate-calendar API...");
+      console.log("Business data:", {
+        name: businessName,
+        description: businessDescription,
+        industry: businessIndustry,
+        hasMarketAnalysis: !!marketAnalysis,
+        hasMarketingStrategy: !!marketingStrategy
+      });
+      
+      // Garantir un délai minimum pour que l'utilisateur perçoive le travail de l'IA
+      const startTime = Date.now();
+      
+      const response = await api.post(`/api/me/business/${businessId}/regenerate-calendar`, {
+        businessInfo: {
+          name: businessName,
+          description: businessDescription,
+          industry: businessIndustry,
+          marketAnalysis,
+          marketingStrategy,
+          competitorAnalysis
+        },
+        existingItems: contentItems,
+        keepExisting: !regenerate
+      });
+      
+      // Attendre au moins 3 secondes au total
+      const elapsedTime = Date.now() - startTime;
+      if (elapsedTime < 3000) {
+        await new Promise(resolve => setTimeout(resolve, 3000 - elapsedTime));
+      }
+      
+      console.log("API Response:", response.data);
+      
+      if (!response.data.success) {
+        throw new Error("Failed to generate calendar");
+      }
+      
+      const suggestions: ContentItem[] = response.data.suggestions || [];
+      console.log("Suggestions received:", suggestions.length);
+      
+      // Sauvegarder les suggestions avec les items existants
+      const currentItems = regenerate ? 
+        contentItems.filter(item => !item.ai_generated || item.status !== "suggested") :
+        contentItems;
+      
+      await saveContentItems([...currentItems, ...suggestions]);
+      setHasAICalendar(true);
+      
+      // Fermer le toast de chargement et afficher le succès
+      toast.dismiss(loadingToast);
+      
+      if (response.data.aiGenerated) {
+        toast.success(
+          `🤖 ${suggestions.length} suggestions personnalisées générées par l'IA !`,
+          {
+            description: "Basées sur votre analyse de marché et stratégie marketing"
+          }
+        );
+      } else {
+        toast.success(
+          `✨ ${suggestions.length} suggestions de contenu générées !`,
+          {
+            description: "Suggestions de base adaptées à votre industrie"
+          }
+        );
+      }
+      
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error("Erreur lors de la génération des suggestions");
+      console.error(error);
+    } finally {
+      setGeneratingCalendar(false);
+    }
+  };
+
+  // Les fonctions de génération locale ont été supprimées - maintenant géré par l'API
+  const handleAddContent = () => {
+    if (!formData.title || !selectedDate) {
+      toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+
+    const newItem: ContentItem = {
+      id: `content-${Date.now()}`,
+      date: format(selectedDate, "yyyy-MM-dd"),
+      title: formData.title,
+      type: formData.type,
+      description: formData.description,
+      status: "scheduled",
+      time: formData.time,
+      platform: formData.platform,
+      tags: formData.tags,
+      ai_generated: false,
+      content: formData.content,
+    };
+
+    saveContentItems([...contentItems, newItem]);
+    setShowAddDialog(false);
+    resetForm();
+    toast.success("Contenu ajouté au calendrier");
+  };
+
+  const handleUpdateContent = () => {
+    if (!editingItem || !formData.title) return;
+
+    const updatedItems = contentItems.map(item => 
+      item.id === editingItem.id 
+        ? {
+            ...item,
+            title: formData.title,
+            type: formData.type,
+            description: formData.description,
+            time: formData.time,
+            platform: formData.platform,
+            tags: formData.tags,
+            content: formData.content,
+          }
+        : item
+    );
+
+    saveContentItems(updatedItems);
+    setShowEditDialog(false);
+    setEditingItem(null);
+    resetForm();
+    toast.success("Contenu mis à jour");
+  };
+
+  const handleDeleteContent = (id: string) => {
+    const updatedItems = contentItems.filter(item => item.id !== id);
+    saveContentItems(updatedItems);
+    toast.success("Contenu supprimé");
+  };
+
+  const handleGenerateSingleContent = async (item: ContentItem) => {
+    setLoading(true);
+    const updated = contentItems.map(c => 
+      c.id === item.id ? { ...c, status: "generating" as const } : c
+    );
+    await saveContentItems(updated);
+    
+    try {
+      // Appel à l'API pour générer le contenu réel
+      const response = await api.post(`/api/me/business/${businessId}/generate-content`, {
+        contentItem: item,
+        businessInfo: {
+          name: businessName,
+          description: businessDescription,
+          industry: businessIndustry,
+          marketAnalysis,
+          marketingStrategy
+        }
+      });
+      
+      if (response.data.success) {
+        const generatedContent = response.data.content;
+        // Mettre à jour avec le contenu généré
+        const finalUpdated = contentItems.map(c => 
+          c.id === item.id 
+            ? { 
+                ...c, 
+                status: "generated" as const,
+                content: generatedContent
+              } 
+            : c
+        );
+        await saveContentItems(finalUpdated);
+        toast.success(`Contenu généré avec succès !`);
+      } else {
+        throw new Error("Failed to generate content");
+      }
+    } catch (error) {
+      console.error("Error generating content:", error);
+      // Réinitialiser le statut en cas d'erreur
+      const errorUpdated = contentItems.map(c => 
+        c.id === item.id ? { ...c, status: "suggested" as const } : c
+      );
+      await saveContentItems(errorUpdated);
+      toast.error("Erreur lors de la génération du contenu");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateBulkContent = async () => {
+    if (selectedItems.length === 0) {
+      toast.error("Veuillez sélectionner au moins un contenu");
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      // Mettre à jour le statut de tous les éléments sélectionnés
+      const updated = contentItems.map(item => 
+        selectedItems.includes(item.id) 
+          ? { ...item, status: "generating" as const } 
+          : item
+      );
+      await saveContentItems(updated);
+      
+      // Générer le contenu pour chaque élément sélectionné
+      for (const itemId of selectedItems) {
+        const item = contentItems.find(c => c.id === itemId);
+        if (item) {
+          // Utiliser la même fonction de génération que pour un seul contenu
+          await handleGenerateSingleContent(item);
+        }
+      }
+      
+      toast.success(`${selectedItems.length} contenus générés avec succès !`);
+      setSelectedItems([]);
+      setShowBulkGenerateDialog(false);
+      
+    } catch (error) {
+      toast.error("Erreur lors de la génération en masse");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleRegenerateAllContent = async (keepExisting = false) => {
+    const confirmMessage = keepExisting 
+      ? "Régénérer tout le calendrier AI tout en gardant vos contenus existants ?"
+      : "Régénérer tout le calendrier AI ? Cela remplacera tous les contenus suggérés existants.";
+    
+    if (!window.confirm(confirmMessage)) return;
+    
+    setGeneratingCalendar(true);
+    
+    try {
+      if (!keepExisting) {
+        // Supprimer tous les contenus AI suggérés
+        const nonAIItems = contentItems.filter(item => 
+          !item.ai_generated || item.status !== "suggested"
+        );
+        await saveContentItems(nonAIItems);
+      }
+      
+      // Régénérer le calendrier AI
+      await generateAISuggestions(true);
+      
+    } catch (error) {
+      console.error("Error regenerating calendar:", error);
+      toast.error("Erreur lors de la régénération du calendrier");
+    } finally {
+      setGeneratingCalendar(false);
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    if (!formData.imagePrompt) {
+      toast.error("Veuillez décrire l'image à générer");
+      return;
+    }
+    
+    setGeneratingImage(true);
+    
+    try {
+      // Appeler l'API pour générer l'image avec Mistral AI
+      const response = await api.post("/api/generate-image", {
+        prompt: formData.imagePrompt,
+        size: "1024x1024"
+      });
+      
+      if (response.data.success && response.data.data.images.length > 0) {
+        const imageUrl = response.data.data.images[0].url;
+        
+        // Mettre à jour le contenu avec l'image générée
+        if (editingItem) {
+          const updated = contentItems.map(item => 
+            item.id === editingItem.id 
+              ? { ...item, imageUrl } 
+              : item
+          );
+          saveContentItems(updated);
+        } else {
+          setFormData({ ...formData, content: `${formData.content}\n\n![Image générée](${imageUrl})` });
+        }
+        
+        toast.success("Image générée avec succès !");
+      } else {
+        toast.error("Aucune image générée");
+      }
+      
+    } catch (error) {
+      console.error("Erreur génération image:", error);
+      toast.error("Erreur lors de la génération de l'image");
+    } finally {
+      setGeneratingImage(false);
+    }
+  };
+
+  const handlePreviewContent = (item: ContentItem) => {
+    setPreviewItem(item);
+    setShowPreviewDialog(true);
+  };
+
+  const handlePublishContent = async (item: ContentItem) => {
+    const updated = contentItems.map(c => 
+      c.id === item.id ? { ...c, status: "published" as const } : c
+    );
+    saveContentItems(updated);
+    toast.success("Contenu publié avec succès !");
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      type: "article",
+      description: "",
+      time: "09:00",
+      platform: [],
+      tags: [],
+      content: "",
+      imagePrompt: "",
+    });
+  };
+
+  const openEditDialog = (item: ContentItem) => {
+    setEditingItem(item);
+    setFormData({
+      title: item.title,
+      type: item.type,
+      description: item.description || "",
+      time: item.time || "09:00",
+      platform: item.platform || [],
+      tags: item.tags || [],
+      content: item.content || "",
+      imagePrompt: "",
+    });
+    setShowEditDialog(true);
+  };
+
+  // Statistiques
+  const stats = {
+    total: contentItems.length,
+    published: contentItems.filter(i => i.status === "published").length,
+    scheduled: contentItems.filter(i => i.status === "scheduled").length,
+    draft: contentItems.filter(i => i.status === "draft").length,
+    suggested: contentItems.filter(i => i.status === "suggested").length,
+    generated: contentItems.filter(i => i.status === "generated").length,
+    byAgent: Object.entries(CONTENT_AGENTS).map(([key, agent]) => ({
+      name: agent.name,
+      emoji: agent.emoji,
+      count: contentItems.filter(i => i.agent === agent.name).length
+    }))
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-[#6D3FC8]" />
+              Calendrier de contenu unifié
+            </CardTitle>
+            <CardDescription>
+              Planifiez, générez et publiez vos contenus avec l'aide de l'IA
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            {hasAICalendar ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => generateAISuggestions(true)}
+                  disabled={generatingCalendar}
+                >
+                  {generatingCalendar ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                  )}
+                  Régénérer IA
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Options de régénération</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => handleRegenerateAllContent(false)}>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Régénérer tout (remplacer)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRegenerateAllContent(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Régénérer tout (garder existant)
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => {
+                      const suggestedItems = contentItems.filter(item => item.status === "suggested");
+                      setSelectedItems(suggestedItems.map(item => item.id));
+                      setShowBulkGenerateDialog(true);
+                    }}>
+                      <Zap className="w-4 h-4 mr-2" />
+                      Générer tous les suggérés
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => generateAISuggestions(false)}
+                disabled={generatingCalendar}
+              >
+                {generatingCalendar ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                Suggestions IA
+              </Button>
+            )}
+            <Button
+              size="sm"
+              onClick={() => {
+                setSelectedDate(new Date());
+                setShowAddDialog(true);
+              }}
+              className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nouveau contenu
+            </Button>
+          </div>
+        </div>
+        
+        {/* Indicateur de personnalisation */}
+        {hasAICalendar && (
+          <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white rounded-full shadow-sm">
+                  <Sparkles className="w-5 h-5 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-purple-900">
+                    Calendrier IA actif et sauvegardé
+                  </p>
+                  <p className="text-xs text-purple-700 mt-0.5">
+                    {stats.suggested} suggestions personnalisées basées sur vos analyses
+                  </p>
+                </div>
+              </div>
+              <Badge variant="outline" className="bg-white">
+                <CheckCircle className="w-3 h-3 mr-1 text-green-600" />
+                Sauvegardé
+              </Badge>
+            </div>
+          </div>
+        )}
+        
+        {/* Alerte si pas d'analyses disponibles */}
+        {!marketAnalysis && !hasAICalendar && (
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-600" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-yellow-900">
+                Analyses de marché non disponibles
+              </p>
+              <p className="text-xs text-yellow-700 mt-0.5">
+                Générez d'abord vos analyses pour des suggestions personnalisées
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {/* Stats rapides */}
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mt-4">
+          <div className="text-center p-2 bg-gray-50 rounded-lg">
+            <div className="text-xl font-bold text-[#1E1E1E]">{stats.total}</div>
+            <div className="text-xs text-[#666666]">Total</div>
+          </div>
+          <div className="text-center p-2 bg-green-50 rounded-lg">
+            <div className="text-xl font-bold text-green-600">{stats.published}</div>
+            <div className="text-xs text-green-600">Publiés</div>
+          </div>
+          <div className="text-center p-2 bg-yellow-50 rounded-lg">
+            <div className="text-xl font-bold text-yellow-600">{stats.scheduled}</div>
+            <div className="text-xs text-yellow-600">Planifiés</div>
+          </div>
+          <div className="text-center p-2 bg-purple-50 rounded-lg">
+            <div className="text-xl font-bold text-purple-600">{stats.suggested}</div>
+            <div className="text-xs text-purple-600">Suggérés</div>
+          </div>
+          <div className="text-center p-2 bg-blue-50 rounded-lg">
+            <div className="text-xl font-bold text-blue-600">{stats.generated}</div>
+            <div className="text-xs text-blue-600">Générés</div>
+          </div>
+          <div className="text-center p-2 bg-gray-50 rounded-lg">
+            <div className="text-xl font-bold text-gray-600">{stats.draft}</div>
+            <div className="text-xs text-gray-600">Brouillons</div>
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent>
+        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="calendar">Calendrier</TabsTrigger>
+            <TabsTrigger value="list">Liste</TabsTrigger>
+            <TabsTrigger value="pipeline">Pipeline IA</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="calendar" className="space-y-4">
+            {/* Navigation du mois */}
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <div className="text-center">
+                <h3 className="text-xl font-semibold text-[#1E1E1E]">
+                  {format(currentDate, "MMMM yyyy", { locale: fr })}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentDate(new Date())}
+                >
+                  Aujourd'hui
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Grille du calendrier */}
+            <div className="border rounded-lg overflow-hidden">
+              <div className="grid grid-cols-7 bg-gray-50 border-b">
+                {["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"].map((day) => (
+                  <div key={day} className="p-2 text-center text-sm font-medium text-gray-700">
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-7">
+                {emptyCells.map((_, index) => (
+                  <div key={`empty-${index}`} className="min-h-[120px] border-r border-b bg-gray-50" />
+                ))}
+                
+                {days.map((day) => {
+                  const dayContent = getContentForDate(day);
+                  const isTodayDate = isToday(day);
+                  
+                  return (
+                    <div
+                      key={day.toISOString()}
+                      className={cn(
+                        "min-h-[120px] border-r border-b p-2 cursor-pointer hover:bg-gray-50 transition-colors",
+                        isTodayDate && "bg-blue-50"
+                      )}
+                      onClick={() => {
+                        setSelectedDate(day);
+                        setShowAddDialog(true);
+                      }}
+                    >
+                      <div className="flex justify-between items-start mb-1">
+                        <span className={cn(
+                          "text-sm font-medium",
+                          isTodayDate && "text-blue-600 font-bold"
+                        )}>
+                          {format(day, "d")}
+                        </span>
+                        {dayContent.length > 0 && (
+                          <Badge variant="secondary" className="text-xs px-1 py-0">
+                            {dayContent.length}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-1">
+                        {dayContent.slice(0, 3).map((item) => {
+                          const config = contentTypeConfig[item.type] || contentTypeConfig.article;
+                          const Icon = config.icon;
+                          
+                          return (
+                            <div
+                              key={item.id}
+                              className={cn(
+                                "text-xs p-1 rounded flex items-center gap-1 truncate cursor-pointer",
+                                config.color
+                              )}
+                              title={item.title}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePreviewContent(item);
+                              }}
+                            >
+                              {item.agent_emoji && <span className="text-xs">{item.agent_emoji}</span>}
+                              <Icon className="w-3 h-3 flex-shrink-0" />
+                              <span className="truncate">{item.title}</span>
+                              {item.ai_generated && <Sparkles className="w-3 h-3 ml-auto" />}
+                              {item.status === "generated" && <CheckCircle className="w-3 h-3 text-green-600" />}
+                            </div>
+                          );
+                        })}
+                        {dayContent.length > 3 && (
+                          <div className="text-xs text-gray-500">
+                            +{dayContent.length - 3} autres
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="list" className="space-y-4">
+            {/* Actions en masse */}
+            {selectedItems.length > 0 && (
+              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                <span className="text-sm font-medium">
+                  {selectedItems.length} éléments sélectionnés
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedItems([])}
+                  >
+                    Désélectionner tout
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => setShowBulkGenerateDialog(true)}
+                    className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white"
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    Générer en masse
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              {contentItems
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .map((item) => {
+                  const config = contentTypeConfig[item.type] || contentTypeConfig.article;
+                  const Icon = config.icon;
+                  const isSelected = selectedItems.includes(item.id);
+                  
+                  return (
+                    <div 
+                      key={item.id} 
+                      className={cn(
+                        "flex items-center gap-3 p-4 bg-white rounded-lg border hover:shadow-md transition-all",
+                        isSelected && "ring-2 ring-[#6D3FC8] bg-purple-50"
+                      )}
+                    >
+                      {item.status === "suggested" && (
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedItems([...selectedItems, item.id]);
+                            } else {
+                              setSelectedItems(selectedItems.filter(id => id !== item.id));
+                            }
+                          }}
+                        />
+                      )}
+                      
+                      {item.agent_emoji && <span className="text-xl">{item.agent_emoji}</span>}
+                      <div className={cn("p-2 rounded", config.color)}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium">{item.title}</h4>
+                          {item.ai_generated && (
+                            <Badge variant="secondary" className="text-xs">
+                              <Sparkles className="w-3 h-3 mr-1" />
+                              IA
+                            </Badge>
+                          )}
+                        </div>
+                        {item.description && (
+                          <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                        )}
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {format(new Date(item.date), "d MMM yyyy", { locale: fr })}
+                          </span>
+                          {item.time && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {item.time}
+                            </span>
+                          )}
+                          <Badge className={cn("text-xs", getStatusColor(item.status))}>
+                            {getStatusLabel(item.status)}
+                          </Badge>
+                          {item.platform?.map((platform) => {
+                            const PlatformIcon = platformIcons[platform as keyof typeof platformIcons];
+                            return PlatformIcon ? <PlatformIcon key={platform} className="w-3 h-3" /> : null;
+                          })}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handlePreviewContent(item)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        
+                        {item.status === "suggested" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleGenerateSingleContent(item)}
+                          >
+                            Générer
+                          </Button>
+                        )}
+                        
+                        {item.status === "generated" && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleGenerateSingleContent(item)}
+                              title="Régénérer le contenu"
+                            >
+                              <RefreshCw className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handlePublishContent(item)}
+                            >
+                              <Send className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
+                        
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => openEditDialog(item)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeleteContent(item.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="pipeline" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Performance globale</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Taux de suggestion → génération</span>
+                        <span className="font-semibold">
+                          {stats.suggested > 0 ? Math.round((stats.generated / stats.suggested) * 100) : 0}%
+                        </span>
+                      </div>
+                      <Progress value={stats.suggested > 0 ? (stats.generated / stats.suggested) * 100 : 0} className="h-2" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Taux de publication</span>
+                        <span className="font-semibold">
+                          {stats.total > 0 ? Math.round((stats.published / stats.total) * 100) : 0}%
+                        </span>
+                      </div>
+                      <Progress value={stats.total > 0 ? (stats.published / stats.total) * 100 : 0} className="h-2" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Contribution des agents</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {stats.byAgent.map((agent) => (
+                      <div key={agent.name} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{agent.emoji}</span>
+                          <span className="text-sm font-medium">{agent.name}</span>
+                        </div>
+                        <Badge variant="secondary">{agent.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* Pipeline par statut */}
+            <div className="space-y-4">
+              {["suggested", "approved", "generating", "generated", "published"].map((status) => {
+                const items = contentItems.filter(item => item.status === status);
+                if (items.length === 0) return null;
+                
+                return (
+                  <div key={status}>
+                    <h4 className="font-medium text-sm text-gray-600 mb-2 flex items-center gap-2">
+                      {getStatusLabel(status)}
+                      <Badge variant="secondary">{items.length}</Badge>
+                    </h4>
+                    <div className="space-y-2">
+                      {items.slice(0, 5).map((item) => {
+                        const config = contentTypeConfig[item.type] || contentTypeConfig.article;
+                        const Icon = config.icon;
+                        
+                        return (
+                          <div
+                            key={item.id}
+                            className="flex items-center gap-3 p-3 bg-white rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
+                            onClick={() => handlePreviewContent(item)}
+                          >
+                            {item.agent_emoji && <span className="text-lg">{item.agent_emoji}</span>}
+                            <div className={cn("p-1.5 rounded", config.color)}>
+                              <Icon className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1">
+                              <h5 className="font-medium text-sm">{item.title}</h5>
+                              <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                                <span>{format(new Date(item.date), "d MMM", { locale: fr })}</span>
+                                {item.agent && <span>{item.agent}</span>}
+                                {item.marketingObjective && (
+                                  <Badge variant="outline" className="text-xs scale-90">
+                                    {item.marketingObjective}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {status === "suggested" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleGenerateSingleContent(item);
+                                }}
+                              >
+                                Générer
+                              </Button>
+                            )}
+                            
+                            {status === "generated" && (
+                              <Button
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePublishContent(item);
+                                }}
+                              >
+                                Publier
+                              </Button>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {items.length > 5 && (
+                        <p className="text-xs text-gray-500 text-center py-2">
+                          +{items.length - 5} autres contenus
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+
+      {/* Dialog Ajouter/Éditer contenu */}
+      <Dialog open={showAddDialog || showEditDialog} onOpenChange={(open) => {
+        if (!open) {
+          setShowAddDialog(false);
+          setShowEditDialog(false);
+          setEditingItem(null);
+          resetForm();
+        }
+      }}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingItem ? "Modifier le contenu" : "Ajouter du contenu"}
+            </DialogTitle>
+            <DialogDescription>
+              {editingItem 
+                ? "Modifiez les détails de votre contenu"
+                : `Planifiez un nouveau contenu pour le ${selectedDate && format(selectedDate, "d MMMM yyyy", { locale: fr })}`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  // Générer une suggestion IA pour le formulaire
+                  const suggestion = generatePersonalizedTitle("article", "innovation", businessName, businessIndustry);
+                  setFormData({
+                    ...formData,
+                    title: suggestion,
+                    description: "Article généré par l'IA sur les dernières tendances",
+                    type: "article",
+                    platform: ["website", "linkedin"],
+                  });
+                }}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Suggestion IA
+              </Button>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="title">Titre</Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="Ex: Article sur les tendances 2024"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="type">Type de contenu</Label>
+              <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value as ContentItem["type"] })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="article">Article</SelectItem>
+                  <SelectItem value="video">Vidéo</SelectItem>
+                  <SelectItem value="image">Image</SelectItem>
+                  <SelectItem value="social">Post social</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="ad">Publicité</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Décrivez le contenu..."
+                rows={3}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="time">Heure de publication</Label>
+                <Input
+                  id="time"
+                  type="time"
+                  value={formData.time}
+                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label>Plateformes</Label>
+                <Select 
+                  value={formData.platform[0] || ""} 
+                  onValueChange={(value) => {
+                    if (!formData.platform.includes(value)) {
+                      setFormData({ ...formData, platform: [...formData.platform, value] });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {platformOptions.map((platform) => (
+                      <SelectItem key={platform.value} value={platform.value}>
+                        {platform.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {formData.platform.map((p) => (
+                    <Badge 
+                      key={p} 
+                      variant="secondary" 
+                      className="text-xs cursor-pointer"
+                      onClick={() => setFormData({ 
+                        ...formData, 
+                        platform: formData.platform.filter(pl => pl !== p) 
+                      })}
+                    >
+                      {platformOptions.find(opt => opt.value === p)?.label} ×
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="content">Contenu</Label>
+              <Textarea
+                id="content"
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                placeholder="Rédigez votre contenu ici..."
+                rows={6}
+              />
+            </div>
+            
+            {(formData.type === "image" || formData.type === "social") && (
+              <div className="grid gap-2 p-4 border rounded-lg bg-purple-50">
+                <Label htmlFor="imagePrompt" className="flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4" />
+                  Générer une image avec Mistral AI
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="imagePrompt"
+                    value={formData.imagePrompt}
+                    onChange={(e) => setFormData({ ...formData, imagePrompt: e.target.value })}
+                    placeholder="Décrivez l'image à générer..."
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleGenerateImage}
+                    disabled={generatingImage}
+                  >
+                    {generatingImage ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Wand2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowAddDialog(false);
+              setShowEditDialog(false);
+              setEditingItem(null);
+              resetForm();
+            }}>
+              Annuler
+            </Button>
+            <Button onClick={editingItem ? handleUpdateContent : handleAddContent} disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {editingItem ? "Mettre à jour" : "Ajouter au calendrier"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Aperçu du contenu */}
+      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {previewItem?.agent_emoji && <span className="text-2xl">{previewItem.agent_emoji}</span>}
+              {previewItem?.title}
+            </DialogTitle>
+            <DialogDescription>
+              {previewItem && format(new Date(previewItem.date), "d MMMM yyyy", { locale: fr })} • 
+              {previewItem?.agent && ` Créé par ${previewItem.agent}`}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {previewItem && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">Type de contenu:</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    {(() => {
+                      const config = contentTypeConfig[previewItem.type] || contentTypeConfig.article;
+                      const Icon = config.icon;
+                      return (
+                        <>
+                          <div className={cn("p-1 rounded", config.color)}>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <span className="font-medium">{config.label}</span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-gray-600">Statut:</span>
+                  <div className="mt-1">
+                    <Badge className={getStatusColor(previewItem.status)}>
+                      {getStatusLabel(previewItem.status)}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              
+              {previewItem.platform && previewItem.platform.length > 0 && (
+                <div>
+                  <span className="text-sm text-gray-600">Plateformes:</span>
+                  <div className="flex gap-2 mt-1">
+                    {previewItem.platform.map(platform => {
+                      const Icon = platformIcons[platform as keyof typeof platformIcons];
+                      return Icon ? (
+                        <div key={platform} className="p-2 bg-gray-100 rounded">
+                          <Icon className="w-4 h-4" />
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )}
+              
+              {previewItem.description && (
+                <div>
+                  <span className="text-sm text-gray-600">Description:</span>
+                  <p className="mt-1 text-sm">{previewItem.description}</p>
+                </div>
+              )}
+              
+              {previewItem.content && (
+                <div className="overflow-hidden">
+                  <span className="text-sm text-gray-600">Contenu:</span>
+                  <div className="mt-2 p-4 bg-gray-50 rounded-lg overflow-y-auto max-h-96">
+                    <div className="markdown-content max-w-full">
+                      <ReactMarkdown
+                        components={{
+                          h1: ({children}) => <h1 className="text-2xl font-bold mb-4 mt-6 break-words">{children}</h1>,
+                          h2: ({children}) => <h2 className="text-xl font-bold mb-3 mt-5 break-words">{children}</h2>,
+                          h3: ({children}) => <h3 className="text-lg font-semibold mb-2 mt-4 break-words">{children}</h3>,
+                          p: ({children}) => <p className="mb-3 text-gray-700 break-words">{children}</p>,
+                          ul: ({children}) => <ul className="list-disc list-inside mb-3 space-y-1 ml-4">{children}</ul>,
+                          ol: ({children}) => <ol className="list-decimal list-inside mb-3 space-y-1 ml-4">{children}</ol>,
+                          li: ({children}) => <li className="text-gray-700 break-words">{children}</li>,
+                          strong: ({children}) => <strong className="font-semibold">{children}</strong>,
+                          em: ({children}) => <em className="italic">{children}</em>,
+                          blockquote: ({children}) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-3 break-words">{children}</blockquote>,
+                          code: ({inline, children}) => 
+                            inline 
+                              ? <code className="bg-gray-200 px-1 rounded text-sm break-all">{children}</code>
+                              : <pre className="bg-gray-200 p-3 rounded overflow-x-auto my-3 text-sm"><code className="break-all">{children}</code></pre>,
+                          hr: () => <hr className="my-4 border-gray-300" />,
+                          a: ({children, href}) => <a href={href} className="text-blue-600 hover:underline break-all" target="_blank" rel="noopener noreferrer">{children}</a>,
+                        }}
+                      >
+                        {previewItem.content}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {previewItem.imageUrl && (
+                <div>
+                  <span className="text-sm text-gray-600">Image:</span>
+                  <img 
+                    src={previewItem.imageUrl} 
+                    alt="Aperçu" 
+                    className="mt-2 rounded-lg max-w-full"
+                  />
+                </div>
+              )}
+              
+              {previewItem.performance && (
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <p className="text-sm font-medium mb-2">Performance estimée</p>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Portée:</span>
+                      <p className="font-semibold">{previewItem.performance.estimatedReach?.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Engagement:</span>
+                      <p className="font-semibold">{previewItem.performance.estimatedEngagement}%</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPreviewDialog(false)}>
+              Fermer
+            </Button>
+            {previewItem?.status === "suggested" && (
+              <Button 
+                onClick={() => {
+                  handleGenerateSingleContent(previewItem);
+                  setShowPreviewDialog(false);
+                }}
+                className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Générer le contenu
+              </Button>
+            )}
+            {previewItem?.status === "generated" && (
+              <>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    handleGenerateSingleContent(previewItem);
+                    setShowPreviewDialog(false);
+                  }}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Régénérer
+                </Button>
+                <Button 
+                  onClick={() => {
+                    handlePublishContent(previewItem);
+                    setShowPreviewDialog(false);
+                  }}
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Publier maintenant
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Génération en masse */}
+      <Dialog open={showBulkGenerateDialog} onOpenChange={setShowBulkGenerateDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Génération en masse</DialogTitle>
+            <DialogDescription>
+              Générer {selectedItems.length} contenus automatiquement
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Les contenus suivants seront générés par l'IA en fonction de vos analyses de marché et de votre stratégie marketing :
+            </p>
+            
+            <ScrollArea className="h-[200px] w-full rounded-md border p-4">
+              <div className="space-y-2">
+                {selectedItems.map(itemId => {
+                  const item = contentItems.find(c => c.id === itemId);
+                  if (!item) return null;
+                  
+                  return (
+                    <div key={itemId} className="flex items-center gap-2 text-sm">
+                      {item.agent_emoji && <span>{item.agent_emoji}</span>}
+                      <span className="truncate">{item.title}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+            
+            <div className="p-3 bg-orange-50 rounded-lg">
+              <p className="text-sm text-orange-800">
+                <AlertCircle className="w-4 h-4 inline mr-1" />
+                La génération peut prendre quelques minutes selon le nombre de contenus.
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBulkGenerateDialog(false)}>
+              Annuler
+            </Button>
+            <Button 
+              onClick={handleGenerateBulkContent}
+              disabled={loading}
+              className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Génération en cours...
+                </>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4 mr-2" />
+                  Lancer la génération
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
+
+// Fonctions utilitaires
+function getStatusColor(status: string): string {
+  switch (status) {
+    case "published": return "bg-green-100 text-green-800";
+    case "scheduled": return "bg-yellow-100 text-yellow-800";
+    case "draft": return "bg-gray-100 text-gray-800";
+    case "suggested": return "bg-purple-100 text-purple-800";
+    case "approved": return "bg-blue-100 text-blue-800";
+    case "generating": return "bg-orange-100 text-orange-800";
+    case "generated": return "bg-teal-100 text-teal-800";
+    default: return "bg-gray-100 text-gray-800";
+  }
+}
+
+function getStatusLabel(status: string): string {
+  switch (status) {
+    case "published": return "Publié";
+    case "scheduled": return "Planifié";
+    case "draft": return "Brouillon";
+    case "suggested": return "Suggéré par l'IA";
+    case "approved": return "Approuvé";
+    case "generating": return "En génération";
+    case "generated": return "Généré";
+    default: return status;
+  }
+}

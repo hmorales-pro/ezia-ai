@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/db';
+import dbConnect from '@/lib/db';
 import { User } from '@/models/User';
 
 export async function GET() {
   try {
-    await connectToDatabase();
+    await dbConnect();
     
     // Test if we can find the test user
     const user = await User.findOne({ email: 'test@ezia.ai' }).select('+password');

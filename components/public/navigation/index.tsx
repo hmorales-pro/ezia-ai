@@ -7,7 +7,7 @@ import { useMount, useUnmount } from "react-use";
 import classNames from "classnames";
 
 import { Button } from "@/components/ui/button";
-import Logo from "@/assets/logo.svg";
+// Logo import removed - using direct path in Image component
 import { useUser } from "@/hooks";
 import { UserMenu } from "@/components/user-menu";
 
@@ -88,7 +88,7 @@ export default function Navigation() {
       <nav className="grid grid-cols-2 p-4 container mx-auto">
         <Link href="/" className="flex items-center gap-1">
           <Image
-            src={Logo}
+            src="/logo.png"
             className="w-9 mr-1"
             alt="Ezia Logo"
             width={64}

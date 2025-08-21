@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-import { connectToDatabase } from '@/lib/db';
+import dbConnect from '@/lib/db';
 import { User } from '@/models/User';
 import bcrypt from 'bcryptjs';
 
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     steps.push({ step: 3, action: 'Connecting to database' });
-    await connectToDatabase();
+    await dbConnect();
     steps.push({ step: 4, action: 'Database connected' });
 
     steps.push({ step: 5, action: 'Finding user by email' });
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     steps.push({ step: 11, action: 'Setting cookie' });
     const cookieStore = await cookies();
-    cookieStore.set('auth-token', token, {
+    cookieStore.set('ezia-auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

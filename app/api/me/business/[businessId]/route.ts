@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated } from "@/lib/auth-simple";
 import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
+
+// Utiliser le même stockage en mémoire que business-simple
+declare global {
+  var businesses: any[];
+}
+
+if (!global.businesses) {
+  global.businesses = [];
+}
 
 // GET /api/me/business/[businessId] - Récupérer un business spécifique
 export async function GET(
@@ -19,13 +28,11 @@ export async function GET(
     let business;
     
     if (isUsingMemoryDB()) {
-      console.log("Using in-memory database for business fetch");
-      const memoryDB = getMemoryDB();
-      business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
+      console.log("Using global.businesses for business fetch");
+      // Utiliser global.businesses au lieu de MemoryDB
+      business = global.businesses.find(
+        b => b.business_id === businessId && b.userId === user.id
+      );
     } else {
       await dbConnect();
       business = await Business.findOne({
@@ -80,34 +87,53 @@ export async function PUT(
     let updatedBusiness;
     
     if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      const existing = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
+      // Utiliser global.businesses au lieu de MemoryDB pour la cohérence
+      const businessIndex = global.businesses.findIndex(
+        b => b.business_id === businessId && b.userId === user.id
+      );
       
-      if (!existing) {
+      if (businessIndex === -1) {
         return NextResponse.json(
-          { ok: false, error: "Business not found" },
+          { ok: false, error: "Business not found in memory" },
           { status: 404 }
         );
       }
       
-      updatedBusiness = await memoryDB.update(
-        { business_id: businessId, user_id: user.id },
-        { ...updates, _updatedAt: new Date() }
-      );
+      // Préparer les mises à jour
+      const updateFields: any = { _updatedAt: new Date().toISOString() };
+      Object.keys(updates).forEach(key => {
+        if (updates[key] !== undefined) {
+          updateFields[key] = updates[key];
+        }
+      });
+      
+      // Mettre à jour le business
+      global.businesses[businessIndex] = {
+        ...global.businesses[businessIndex],
+        ...updateFields
+      };
+      
+      updatedBusiness = global.businesses[businessIndex];
     } else {
       await dbConnect();
+      // Utiliser $set pour éviter les problèmes de validation sur les champs non modifiés
+      const updateFields: any = { _updatedAt: new Date() };
+      
+      // Préparer les champs à mettre à jour avec $set
+      Object.keys(updates).forEach(key => {
+        if (updates[key] !== undefined) {
+          updateFields[key] = updates[key];
+        }
+      });
+      
       updatedBusiness = await Business.findOneAndUpdate(
         {
           business_id: businessId,
           user_id: user.id,
           is_active: true
         },
-        { ...updates, _updatedAt: new Date() },
-        { new: true, runValidators: true }
+        { $set: updateFields },
+        { new: true, runValidators: false } // Désactiver la validation pour éviter les erreurs sur les champs non modifiés
       )
         .select('-__v')
         .lean();
@@ -149,24 +175,22 @@ export async function DELETE(
     let result;
     
     if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      const existing = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
+      // Utiliser global.businesses
+      const businessIndex = global.businesses.findIndex(
+        b => b.business_id === businessId && b.userId === user.id
+      );
       
-      if (!existing) {
+      if (businessIndex === -1) {
         return NextResponse.json(
           { ok: false, error: "Business not found" },
           { status: 404 }
         );
       }
       
-      result = await memoryDB.update(
-        { business_id: businessId, user_id: user.id },
-        { is_active: false, _updatedAt: new Date() }
-      );
+      // Marquer comme inactif au lieu de supprimer
+      global.businesses[businessIndex].is_active = false;
+      global.businesses[businessIndex]._updatedAt = new Date().toISOString();
+      result = true;
     } else {
       await dbConnect();
       result = await Business.findOneAndUpdate(

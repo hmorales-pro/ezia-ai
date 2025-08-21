@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated } from "@/lib/auth-simple";
 import dbConnect from "@/lib/mongodb";
 import { Subscription, EZIA_PLANS } from "@/models/Subscription";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
@@ -7,8 +7,14 @@ import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 // GET - Récupérer l'abonnement de l'utilisateur
 export async function GET(request: NextRequest) {
   const user = await isAuthenticated();
+  
+  // Si pas d'utilisateur connecté, retourner les plans par défaut
   if (user instanceof NextResponse || !user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({
+      subscription: null,
+      plans: EZIA_PLANS,
+      can_upgrade: true
+    });
   }
 
   try {

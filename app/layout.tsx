@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Metadata, Viewport } from "next";
-import { Inter, PT_Sans } from "next/font/google";
+import { Poppins, PT_Sans } from "next/font/google";
 import { cookies } from "next/headers";
 
 import TanstackProvider from "@/components/providers/tanstack-query-provider";
@@ -9,10 +9,14 @@ import { Toaster } from "@/components/ui/sonner";
 import MY_TOKEN_KEY from "@/lib/get-cookie-name";
 import AppContext from "@/components/contexts/app-context";
 import Script from "next/script";
+import StorageInitializer from "@/components/providers/storage-initializer";
+import AutoSync from "@/components/providers/auto-sync";
 
-const inter = Inter({
-  variable: "--font-inter-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  display: "swap",
 });
 
 const ptSans = PT_Sans({
@@ -25,15 +29,25 @@ export const metadata: Metadata = {
   title: "Ezia | Votre Partenaire Business IA",
   description:
     "Ezia est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
   openGraph: {
     title: "Ezia | Votre Partenaire Business IA",
     description:
       "Ezia est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
-    url: "https://ezia.agency",
+    url: "https://ezia.ai",
     siteName: "Ezia",
     images: [
       {
-        url: "https://ezia.agency/banner.png",
+        url: "https://ezia.ai/banner.png",
         width: 1200,
         height: 630,
         alt: "Ezia Open Graph Image",
@@ -45,24 +59,19 @@ export const metadata: Metadata = {
     title: "Ezia | Votre Partenaire Business IA",
     description:
       "Ezia est votre partenaire business propulsé par l'IA. Création de sites web, stratégie marketing, analyse de marché - Développez votre présence en ligne avec notre expertise.",
-    images: ["https://ezia.agency/banner.png"],
+    images: ["https://ezia.ai/banner.png"],
   },
   appleWebApp: {
     capable: true,
     title: "Ezia",
     statusBarStyle: "black-translucent",
   },
-  icons: {
-    icon: "/logo.svg",
-    shortcut: "/logo.svg",
-    apple: "/logo.svg",
-  },
 };
 
 export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#FAF9F5",
+  themeColor: "#ebe7e1",
 };
 
 async function getMe() {
@@ -99,11 +108,16 @@ export default async function RootLayout({
         src="https://plausible.io/js/script.js"
       ></Script>
       <body
-        className={`${inter.variable} ${ptSans.variable} antialiased bg-[#FAF9F5] min-h-[100dvh]`}
+        className={`${poppins.variable} ${ptSans.variable} antialiased bg-[#ebe7e1] min-h-[100dvh] font-poppins`}
+        suppressHydrationWarning
       >
         <Toaster richColors position="bottom-center" />
         <TanstackProvider>
-          <AppContext me={data}>{children}</AppContext>
+          <AppContext me={data}>
+            <StorageInitializer />
+            <AutoSync />
+            {children}
+          </AppContext>
         </TanstackProvider>
       </body>
     </html>

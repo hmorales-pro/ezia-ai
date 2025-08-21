@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated } from "@/lib/auth-simple";
 import dbConnect from "@/lib/mongodb";
 import { AgentSession } from "@/models/AgentSession";
 
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .select('-__v')
       .lean();
 
-    if (!session) {
+    if (user instanceof NextResponse || !user) {
       return NextResponse.json(
         { ok: false, error: "Session not found" },
         { status: 404 }
@@ -71,7 +71,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       user_id: user.id
     });
 
-    if (!session) {
+    if (user instanceof NextResponse || !user) {
       return NextResponse.json(
         { ok: false, error: "Session not found" },
         { status: 404 }

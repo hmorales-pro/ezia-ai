@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   const userToken = request.cookies.get(MY_TOKEN_KEY())?.value;
 
   const body = await request.json();
-  const { prompt, provider, model, redesignMarkdown, html } = body;
+  const { prompt, provider, model, redesignMarkdown, html, businessId } = body;
 
   if (!model || (!prompt && !redesignMarkdown)) {
     return NextResponse.json(
@@ -138,7 +138,9 @@ export async function POST(request: NextRequest) {
             messages: [
               {
                 role: "system",
-                content: INITIAL_SYSTEM_PROMPT,
+                content: businessId ? 
+                  `${INITIAL_SYSTEM_PROMPT}\n\nIMPORTANT: Tu dois créer un site web professionnel en français.\nUtilise des couleurs et un design adaptés à l'industrie mentionnée.\nLe site doit inclure: header avec navigation, hero section, services, à propos, contact, footer.\nLe contenu doit être pertinent et personnalisé selon les informations du business fournies.` :
+                  INITIAL_SYSTEM_PROMPT,
               },
               {
                 role: "user",
@@ -146,6 +148,8 @@ export async function POST(request: NextRequest) {
                   ? `Here is my current design as a markdown:\n\n${redesignMarkdown}\n\nNow, please create a new design based on this markdown.`
                   : html
                   ? `Here is my current HTML code:\n\n\`\`\`html\n${html}\n\`\`\`\n\nNow, please create a new design based on this HTML.`
+                  : businessId
+                  ? `Génère un site web professionnel en français basé sur ces informations:\n\n${prompt}\n\nCrée un site moderne et responsive qui correspond parfaitement au business décrit.`
                   : prompt,
               },
             ],
@@ -250,7 +254,12 @@ export async function POST(request: NextRequest) {
           );
         }
       } finally {
-        await writer?.close();
+        try {
+          await writer?.close();
+        } catch (e) {
+          // Ignorer si déjà fermé
+          console.log('Stream already closed');
+        }
       }
     })();
 
@@ -273,7 +282,7 @@ export async function PUT(request: NextRequest) {
   const userToken = request.cookies.get(MY_TOKEN_KEY())?.value;
 
   const body = await request.json();
-  const { prompt, html, previousPrompt, provider, selectedElementHtml, model } =
+  const { prompt, html, previousPrompt, provider, selectedElementHtml, model, businessId } =
     body;
 
   if (!prompt || !html) {
@@ -358,7 +367,9 @@ export async function PUT(request: NextRequest) {
         messages: [
           {
             role: "system",
-            content: FOLLOW_UP_SYSTEM_PROMPT,
+            content: businessId ? 
+              `${FOLLOW_UP_SYSTEM_PROMPT}\n\nIMPORTANT: Les modifications doivent être en français et garder la cohérence avec le site existant.` :
+              FOLLOW_UP_SYSTEM_PROMPT,
           },
           {
             role: "user",

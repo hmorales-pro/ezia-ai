@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Sparkles, Info, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { AppEditor } from "./index";
+import { EnhancedEditor } from "./enhanced-editor";
 import { Badge } from "@/components/ui/badge";
 import { AI_AGENTS } from "@/lib/ai-agents";
 
@@ -139,9 +139,10 @@ export function EziaEditorWrapper({ initialPrompt, businessId }: EziaEditorWrapp
       {/* Editor Container avec style amélioré */}
       <div className="flex-1 bg-[#FAF9F5]">
         <div className="h-[calc(100vh-13rem)]">
-          <AppEditor 
+          <EnhancedEditor 
             initialPrompt={initialPrompt} 
             businessId={businessId}
+            businessName={businessId ? "Business" : undefined}
           />
         </div>
       </div>

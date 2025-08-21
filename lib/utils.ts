@@ -16,5 +16,5 @@ export const COLORS = [
 ];
 
 export const getPTag = (repoId: string) => {
-  return `<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://ezia.hf.space/logo.svg" alt="Ezia Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://ezia.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >Ezia</a> - 🧬 <a href="https://ezia.hf.space?remix=${repoId}" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p>`;
+  return `<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://ezia.hf.space/logo.png" alt="Ezia Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://ezia.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >Ezia</a> - 🧬 <a href="https://ezia.hf.space?remix=${repoId}" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p>`;
 };

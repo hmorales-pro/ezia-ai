@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated } from "@/lib/auth-simple";
 import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
+import UserProject from "@/models/UserProject";
 import { nanoid } from "nanoid";
 
 export async function POST(request: NextRequest) {
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { businessId, businessName, html, css } = await request.json();
+    const { businessId, businessName, html, css, prompt } = await request.json();
 
     // Vérifier que le business appartient à l'utilisateur
     let business;
@@ -59,6 +60,66 @@ ${html || getDefaultHTML(businessName, business.description)}
     console.log(`[DEMO] URL: ${websiteUrl}`);
     console.log(`[DEMO] Contenu HTML: ${fullHtml.length} caractères`);
 
+    // Sauvegarder le site web dans MongoDB
+    await dbConnect();
+    
+    // Vérifier s'il existe déjà un site pour ce business
+    const existingWebsite = await UserProject.findOne({
+      userId: user.id,
+      businessId: businessId,
+      status: { $ne: 'archived' }
+    });
+    
+    let savedWebsite;
+    
+    if (existingWebsite) {
+      // Mettre à jour le site existant
+      existingWebsite.html = fullHtml;
+      existingWebsite.css = css || getDefaultCSS();
+      existingWebsite.js = "";
+      existingWebsite.prompt = prompt || `Site web pour ${businessName}`;
+      
+      // Ajouter une nouvelle version
+      await existingWebsite.addVersion({
+        html: fullHtml,
+        css: css || getDefaultCSS(),
+        js: "",
+        prompt: prompt || `Site web pour ${businessName}`,
+        createdBy: 'Ezia AI'
+      });
+      
+      savedWebsite = await existingWebsite.save();
+    } else {
+      // Créer un nouveau site
+      savedWebsite = await UserProject.create({
+        userId: user.id,
+        businessId: businessId,
+        businessName: businessName,
+        name: `Site Web ${businessName}`,
+        description: `Site web généré automatiquement pour ${businessName}`,
+        html: fullHtml,
+        css: css || getDefaultCSS(),
+        js: "",
+        prompt: prompt || `Site web pour ${businessName}`,
+        version: 1,
+        versions: [{
+          version: 1,
+          html: fullHtml,
+          css: css || getDefaultCSS(),
+          js: "",
+          prompt: prompt || `Site web pour ${businessName}`,
+          createdAt: new Date(),
+          createdBy: 'Ezia AI'
+        }],
+        status: 'published',
+        metadata: {
+          generatedBy: 'ezia-ai',
+          siteId: siteId,
+          websiteUrl: websiteUrl
+        }
+      });
+    }
+
     // Mettre à jour le business avec l'URL du site
     if (isUsingMemoryDB()) {
       const memoryDB = getMemoryDB();
@@ -66,7 +127,8 @@ ${html || getDefaultHTML(businessName, business.description)}
         { business_id: businessId },
         { 
           website_url: websiteUrl,
-          space_id: siteId
+          space_id: siteId,
+          websiteGeneratedAt: new Date().toISOString()
         }
       );
     } else {
@@ -74,7 +136,8 @@ ${html || getDefaultHTML(businessName, business.description)}
         { business_id: businessId },
         { 
           website_url: websiteUrl,
-          space_id: siteId
+          space_id: siteId,
+          websiteGeneratedAt: new Date()
         }
       );
     }
@@ -82,10 +145,12 @@ ${html || getDefaultHTML(businessName, business.description)}
     return NextResponse.json({
       success: true,
       project: {
+        id: savedWebsite._id,
         space_id: siteId,
         name: `Site Web ${businessName}`,
         url: websiteUrl,
-        html: fullHtml
+        html: fullHtml,
+        publicUrl: `/sites/public/${savedWebsite._id}`
       },
       message: "Site web créé avec succès (mode démo)"
     });

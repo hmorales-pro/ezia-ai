@@ -57,12 +57,20 @@ export function AskAI({
   const audio = useRef<HTMLAudioElement | null>(null);
 
   const [open, setOpen] = useState(false);
-  const [prompt, setPrompt] = useState(initialPrompt ? decodeURIComponent(initialPrompt) : "");
+  const [prompt, setPrompt] = useState(() => {
+    if (!initialPrompt) return "";
+    try {
+      return decodeURIComponent(initialPrompt);
+    } catch (e) {
+      console.warn("Failed to decode initialPrompt:", e);
+      return initialPrompt; // Return the raw value if decoding fails
+    }
+  });
   const [hasAsked, setHasAsked] = useState(false);
   const [previousPrompt, setPreviousPrompt] = useState("");
-  // Si nous sommes dans Ezia, utiliser un modèle/provider différent par défaut
-  const defaultProvider = businessId ? "fireworks-ai" : "novita";
-  const defaultModel = businessId ? "Qwen/Qwen2.5-Coder-32B-Instruct" : MODELS[0].value;
+  // Pour Ezia, toujours utiliser l'API DeepSite avec les meilleurs modèles
+  const defaultProvider = "novita"; // Provider par défaut de DeepSite
+  const defaultModel = MODELS[0].value; // DeepSeek V3 - le meilleur modèle
   const [provider, setProvider] = useLocalStorage("provider", defaultProvider);
   const [model, setModel] = useLocalStorage("model", defaultModel);
   const [openProvider, setOpenProvider] = useState(false);
@@ -89,6 +97,24 @@ export function AskAI({
     }
   }, [initialPrompt, hasAsked]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Écouter l'événement personnalisé pour déclencher la génération
+  useEffect(() => {
+    const handleAiGenerate = (event: CustomEvent) => {
+      if (event.detail?.prompt) {
+        setPrompt(event.detail.prompt);
+        callAi();
+      }
+    };
+
+    const aiComponent = document.querySelector('[data-ai-component]');
+    if (aiComponent) {
+      aiComponent.addEventListener('ai-generate', handleAiGenerate as EventListener);
+      return () => {
+        aiComponent.removeEventListener('ai-generate', handleAiGenerate as EventListener);
+      };
+    }
+  }, [isAiWorking]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const callAi = async (redesignMarkdown?: string) => {
     if (isAiWorking) return;
     if (!redesignMarkdown && !prompt.trim()) return;
@@ -110,7 +136,8 @@ export function AskAI({
         const selectedElementHtml = selectedElement
           ? selectedElement.outerHTML
           : "";
-        const request = await fetch(businessId ? "/api/ezia-ask-ai" : "/api/ask-ai", {
+        // Toujours utiliser l'API DeepSite pour la génération optimisée
+        const request = await fetch("/api/ask-ai", {
           method: "PUT",
           body: JSON.stringify({
             prompt,
@@ -152,7 +179,8 @@ export function AskAI({
           if (audio.current) audio.current.play();
         }
       } else {
-        const request = await fetch(businessId ? "/api/ezia-ask-ai" : "/api/ask-ai", {
+        // Toujours utiliser l'API DeepSite pour la génération optimisée
+        const request = await fetch("/api/ask-ai", {
           method: "POST",
           body: JSON.stringify({
             prompt,

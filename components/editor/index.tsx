@@ -2,7 +2,19 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { editor } from "monaco-editor";
-import Editor from "@monaco-editor/react";
+import dynamic from "next/dynamic";
+
+const Editor = dynamic(() => import("@monaco-editor/react"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-full">
+      <div className="text-center">
+        <div className="w-8 h-8 border-3 border-[#6D3FC8] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+        <p className="text-sm text-gray-600">Chargement de l'éditeur...</p>
+      </div>
+    </div>
+  ),
+});
 import { CopyIcon } from "lucide-react";
 import {
   useCopyToClipboard,
@@ -134,7 +146,7 @@ export const AppEditor = ({
           },
         },
       });
-      router.replace(`/projects/${project?.space_id}`);
+      router.replace(`/sites/${project?.space_id}/edit`);
     }
     if (htmlStorage) {
       removeHtmlStorage();
@@ -188,7 +200,7 @@ export const AppEditor = ({
       <Header tab={currentTab} onNewTab={setCurrentTab}>
         <LoadProject
           onSuccess={(project: Project) => {
-            router.push(`/projects/${project.space_id}`);
+            router.push(`/sites/${project.space_id}/edit`);
           }}
         />
         {project?._id ? (

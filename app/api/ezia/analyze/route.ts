@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated } from "@/lib/auth-simple";
 import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
@@ -100,11 +100,17 @@ ${business.website_url ? `Site web: ${business.website_url}` : ''}
 
 ${userPrompt ? `Demande spécifique: ${userPrompt}` : 'Fournis une analyse complète.'}`;
 
+    // Logs pour debug
+    console.log("[Ezia Analyze] Génération de contenu pour:", actionType);
+    console.log("[Ezia Analyze] Business context:", businessContext.substring(0, 100) + "...");
+    
     // Générer la réponse avec Mistral API ou réponses par défaut
     const response = await generateWithMistralAPI(
       businessContext,
       systemContext
     );
+    
+    console.log("[Ezia Analyze] Réponse reçue:", response.success ? "Succès" : "Erreur");
 
     if (!response.success) {
       return NextResponse.json(

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRepo, RepoDesignation, uploadFiles } from "@huggingface/hub";
 
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated } from "@/lib/auth-simple";
 import Project from "@/models/Project";
 import dbConnect from "@/lib/mongodb";
 import { COLORS, getPTag } from "@/lib/utils";

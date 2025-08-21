@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-import { connectToDatabase } from '@/lib/db';
+import dbConnect from '@/lib/db';
 import { User } from '@/models/User';
+import { isEmailWhitelisted } from '@/lib/waitlist-storage';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -17,6 +18,18 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    
+    // Vérifier si l'email est whitelisé
+    if (!isEmailWhitelisted(email)) {
+      return NextResponse.json(
+        { 
+          error: 'Les inscriptions sont temporairement fermées. Rejoignez notre liste d\'attente !',
+          waitlist: true,
+          redirectTo: '/waitlist'
+        },
+        { status: 403 }
+      );
+    }
 
     if (password.length < 6) {
       return NextResponse.json(
@@ -25,7 +38,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await connectToDatabase();
+    await dbConnect();
 
     // Check if user already exists
     const existingUser = await User.findOne({
@@ -74,7 +87,7 @@ export async function POST(req: NextRequest) {
 
     // Set cookie
     const cookieStore = await cookies();
-    cookieStore.set('auth-token', token, {
+    cookieStore.set('ezia-auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

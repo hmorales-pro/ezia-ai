@@ -68,7 +68,7 @@ export default function PreviewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF9F5] flex items-center justify-center">
+      <div className="min-h-screen bg-[#ebe7e1] flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[#6D3FC8] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[#666666]">Chargement du projet...</p>
@@ -78,7 +78,7 @@ export default function PreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5]">
+    <div className="min-h-screen bg-[#ebe7e1]">
       {/* Header */}
       <div className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

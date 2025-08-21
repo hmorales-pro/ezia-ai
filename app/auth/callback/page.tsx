@@ -26,7 +26,7 @@ export default function AuthCallback({
   );
 
   return (
-    <div className="h-screen flex flex-col justify-center items-center bg-[#FAF9F5]">
+    <div className="h-screen flex flex-col justify-center items-center bg-[#ebe7e1]">
       <div className="!rounded-2xl !p-0 !bg-white !border-[#E0E0E0] min-w-xs text-center overflow-hidden ring-[8px] ring-white/20 shadow-xl">
         <header className="bg-gray-50 p-6 border-b border-[#E0E0E0]">
           <div className="flex items-center justify-center -space-x-4 mb-3">

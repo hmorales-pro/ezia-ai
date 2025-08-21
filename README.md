@@ -1,7 +1,7 @@
 # Ezia AI - Votre Chef de Projet IA
 
 <div align="center">
-  <img src="public/logo.svg" alt="Ezia AI Logo" width="120"/>
+  <img src="public/logo.png" alt="Ezia AI Logo" width="120"/>
   
   [![Next.js](https://img.shields.io/badge/Next.js-15.3-black)](https://nextjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)

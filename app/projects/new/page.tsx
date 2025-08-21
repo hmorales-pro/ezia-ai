@@ -1,28 +1,23 @@
 "use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-import { EziaEditorWrapper } from "@/components/editor/ezia-wrapper";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-
-function ProjectsNewContent() {
-  const searchParams = useSearchParams();
-  const prompt = searchParams.get("prompt");
-  const businessId = searchParams.get("businessId");
+export default function ProjectsNewRedirect() {
+  const router = useRouter();
   
-  return <EziaEditorWrapper initialPrompt={prompt} businessId={businessId} />;
-}
-
-export default function ProjectsNewPage() {
+  useEffect(() => {
+    // Rediriger vers la nouvelle route
+    const url = new URL(window.location.href);
+    const newUrl = url.href.replace('/projects/new', '/workspace/new');
+    router.replace(newUrl);
+  }, [router]);
+  
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#FAF9F5] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#6D3FC8] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[#666666]">Préparation de l'éditeur...</p>
-        </div>
+    <div className="min-h-screen bg-[#ebe7e1] flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-[#6D3FC8] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-[#666666]">Redirection...</p>
       </div>
-    }>
-      <ProjectsNewContent />
-    </Suspense>
+    </div>
   );
 }

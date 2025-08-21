@@ -5,9 +5,9 @@ import bcrypt from 'bcryptjs';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Utilisateur test en mémoire
+// Utilisateur test en mémoire avec un ID stable
 const testUser = {
-  _id: '123456789',
+  _id: 'test_user_ezia_001', // ID stable pour l'utilisateur test
   email: 'test@ezia.ai',
   username: 'testuser',
   password: '$2a$10$YourHashedPasswordHere', // Will be set below
@@ -67,8 +67,8 @@ export async function POST(req: NextRequest) {
 
     // Set cookie
     const cookieStore = await cookies();
-    cookieStore.set('auth-token', token, {
-      httpOnly: true,
+    cookieStore.set('ezia-auth-token', token, {
+      httpOnly: false, // Permettre l'accès depuis JavaScript
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,

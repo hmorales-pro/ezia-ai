@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useUser } from "@/hooks";
+import Image from "next/image";
+import { useAuthUser } from "@/hooks/useAuthUser";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -13,16 +14,10 @@ import {
   TrendingUp, 
   Globe,
   Sparkles,
-  ArrowRight,
   Loader2,
   Target,
   Calendar,
-  BarChart3,
-  Users,
-  FileText,
-  Zap,
-  ChevronRight,
-  Activity
+  Zap
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { LoginModal } from "@/components/login-modal";
@@ -30,8 +25,9 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { QuickActionCard } from "@/components/dashboard/quick-action-card";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { ProgressChart } from "@/components/dashboard/progress-chart";
-import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
+import { UserMenu } from "@/components/user-menu";
+import { MemoizedBusinessCard } from "@/components/dashboard/memoized-business-card";
+import { toast } from "sonner";
 
 interface Business {
   _id: string;
@@ -55,13 +51,26 @@ interface Business {
     monthly_growth?: number;
     task_completion?: number;
   };
+  agents_status?: {
+    market_analysis: 'pending' | 'in_progress' | 'completed' | 'failed';
+    competitor_analysis: 'pending' | 'in_progress' | 'completed' | 'failed';
+    marketing_strategy: 'pending' | 'in_progress' | 'completed' | 'failed';
+    website_prompt: 'pending' | 'in_progress' | 'completed' | 'failed';
+  };
+  website_prompt?: {
+    prompt: string;
+    key_features: string[];
+    design_style: string;
+    target_impression: string;
+  };
 }
 
 export default function DashboardPage() {
-  const { user, loading: userLoading } = useUser();
+  const { user, loading: userLoading } = useAuthUser();
   const router = useRouter();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState("Chargement de vos données...");
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 
@@ -69,24 +78,32 @@ export default function DashboardPage() {
     if (!userLoading && user) {
       fetchBusinesses();
     } else if (!userLoading && !user) {
-      setLoading(false);
+      // Rediriger vers /home si l'utilisateur n'est pas connecté
+      router.push('/home');
     }
-  }, [user, userLoading]);
+  }, [user, userLoading, router]);
 
   const fetchBusinesses = async () => {
     try {
-      const response = await api.get("/api/me/business");
+      setLoadingMessage("Récupération de vos business...");
+      const response = await api.get("/api/me/business-simple");
       if (response.data.ok) {
         setBusinesses(response.data.businesses);
         // Sélectionner automatiquement le premier business
         if (response.data.businesses.length > 0) {
           setSelectedBusiness(response.data.businesses[0]);
+          setLoadingMessage("Préparation du tableau de bord...");
         }
       }
     } catch (error) {
       console.error("Error fetching businesses:", error);
+      toast.error("Erreur lors du chargement des données");
     } finally {
-      setLoading(false);
+      // Petit délai pour afficher le dernier message
+      setTimeout(() => {
+        setLoading(false);
+        setLoadingMessage("");
+      }, 300);
     }
   };
 
@@ -123,25 +140,38 @@ export default function DashboardPage() {
     }))
   ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+  // Redirection immédiate si pas d'utilisateur
+  if (!userLoading && !user) {
+    return null; // Ne rien afficher pendant la redirection
+  }
+
   if (userLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#FAF9F5] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#6D3FC8]" />
+      <div className="min-h-screen bg-[#ebe7e1] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-[#6D3FC8] mx-auto mb-4" />
+          {loadingMessage && (
+            <p className="text-[#666666] text-sm animate-pulse">{loadingMessage}</p>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-[#1E1E1E] overflow-y-auto">
+    <div className="min-h-screen bg-[#ebe7e1] text-[#1E1E1E] overflow-y-auto">
       {/* Header amélioré */}
       <header className="border-b border-[#E0E0E0] backdrop-blur-xl bg-white/90 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#6D3FC8] to-[#5A35A5] rounded-xl flex items-center justify-center shadow-md">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="Ezia Logo"
+                  width={40}
+                  height={40}
+                />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
               </div>
               <div>
@@ -168,12 +198,13 @@ export default function DashboardPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => router.push("/projects")}
+                    onClick={() => router.push("/sites")}
                     className="text-[#666666] hover:text-[#1E1E1E] border-[#E0E0E0] hover:bg-gray-50"
                   >
                     <Globe className="w-4 h-4 mr-2" />
                     Projets Web
                   </Button>
+                  <UserMenu />
                 </>
               ) : (
                 <Button 
@@ -243,37 +274,48 @@ export default function DashboardPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <QuickActionCard
-                  title="Créer un site web"
-                  description="Lancez votre présence en ligne"
+                  title="Développer ma présence"
+                  description="Site web, réseaux sociaux et plus"
                   icon={Globe}
                   onClick={() => {
                     if (selectedBusiness) {
-                      const prompt = encodeURIComponent(`Crée un site web moderne pour ${selectedBusiness.name}. ${selectedBusiness.description}`);
-                      router.push(`/projects/new?prompt=${prompt}&businessId=${selectedBusiness.business_id}`);
+                      router.push(`/workspace/new?businessId=${selectedBusiness.business_id}`);
                     }
                   }}
                   iconColor="text-purple-500"
-                  badge="DeepSite"
+                  badge="Nouveau"
                 />
                 <QuickActionCard
                   title="Analyse de marché"
                   description="Comprenez votre environnement"
                   icon={Target}
-                  onClick={() => selectedBusiness && router.push(`/business/${selectedBusiness.business_id}?action=market_analysis`)}
+                  onClick={() => {
+                    if (selectedBusiness) {
+                      router.push(`/business/${selectedBusiness.business_id}?action=market_analysis`);
+                    }
+                  }}
                   iconColor="text-blue-500"
                 />
                 <QuickActionCard
                   title="Stratégie marketing"
                   description="Développez votre croissance"
                   icon={TrendingUp}
-                  onClick={() => selectedBusiness && router.push(`/business/${selectedBusiness.business_id}?action=marketing_strategy`)}
+                  onClick={() => {
+                    if (selectedBusiness) {
+                      router.push(`/business/${selectedBusiness.business_id}?action=marketing_strategy`);
+                    }
+                  }}
                   iconColor="text-green-500"
                 />
                 <QuickActionCard
                   title="Calendrier contenu"
                   description="Planifiez vos publications"
                   icon={Calendar}
-                  onClick={() => selectedBusiness && router.push(`/business/${selectedBusiness.business_id}?action=content_calendar`)}
+                  onClick={() => {
+                    if (selectedBusiness) {
+                      router.push(`/business/${selectedBusiness.business_id}?action=content_calendar`);
+                    }
+                  }}
                   iconColor="text-orange-500"
                 />
               </div>
@@ -316,91 +358,19 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-4">
                   {businesses.map((business) => (
-                    <Card
+                    <MemoizedBusinessCard
                       key={business.business_id}
-                      className="bg-white backdrop-blur-sm border border-[#E0E0E0] hover:shadow-lg cursor-pointer transition-all group shadow-md"
-                      onClick={() => handleBusinessClick(business.business_id)}
-                    >
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <Building2 className="w-6 h-6 text-[#6D3FC8]" />
-                              <h3 className="text-lg font-semibold group-hover:text-[#6D3FC8] transition-colors">
-                                {business.name}
-                              </h3>
-                              <span className={cn(
-                                "text-xs px-2 py-1 rounded-full",
-                                business.stage === 'idea' ? 'bg-blue-500/20 text-blue-400' :
-                                business.stage === 'startup' ? 'bg-green-500/20 text-green-400' :
-                                business.stage === 'growth' ? 'bg-orange-500/20 text-orange-400' :
-                                'bg-purple-500/20 text-purple-400'
-                              )}>
-                                {business.stage}
-                              </span>
-                            </div>
-                            <p className="text-sm text-[#666666] mb-3 line-clamp-2">
-                              {business.description}
-                            </p>
-                            <div className="flex items-center gap-4 text-xs text-[#666666]">
-                              <span className="flex items-center gap-1">
-                                <BarChart3 className="w-3 h-3" />
-                                {business.industry}
-                              </span>
-                              {business.website_url && (
-                                <span className="flex items-center gap-1">
-                                  <Globe className="w-3 h-3" />
-                                  Site actif
-                                </span>
-                              )}
-                              <span className="flex items-center gap-1">
-                                <Activity className="w-3 h-3" />
-                                {business.ezia_interactions?.length || 0} interactions
-                              </span>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-[#6D3FC8]">
-                              {business.completion_score || 0}%
-                            </div>
-                            <p className="text-xs text-[#666666]">Complété</p>
-                          </div>
-                        </div>
-                        
-                        {/* Barre de progression */}
-                        <div className="mt-4">
-                          <Progress value={business.completion_score || 0} className="h-1" />
-                        </div>
-
-                        {/* Actions rapides */}
-                        <div className="flex items-center gap-2 mt-4">
-                          <Button
-                            size="xs"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const prompt = encodeURIComponent(`Crée un site web moderne pour ${business.name}. ${business.description}`);
-                              router.push(`/projects/new?prompt=${prompt}&businessId=${business.business_id}`);
-                            }}
-                          >
-                            <Globe className="w-3 h-3 mr-1" />
-                            Site web
-                          </Button>
-                          <Button
-                            size="xs"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/business/${business.business_id}?action=market_analysis`);
-                            }}
-                          >
-                            <Target className="w-3 h-3 mr-1" />
-                            Analyse
-                          </Button>
-                          <ChevronRight className="w-4 h-4 ml-auto text-[#666666] group-hover:text-[#6D3FC8] transition-colors" />
-                        </div>
-                      </CardContent>
-                    </Card>
+                      business={business}
+                      isSelected={selectedBusiness?._id === business._id}
+                      onSelect={() => setSelectedBusiness(business)}
+                      onNavigate={handleBusinessClick}
+                      onCreateWebsite={(business) => {
+                        router.push(`/workspace/new?businessId=${business.business_id}&focus=website`);
+                      }}
+                      onAnalyze={(business) => {
+                        router.push(`/business/${business.business_id}?action=market_analysis`);
+                      }}
+                    />
                   ))}
                 </div>
               )}
@@ -437,21 +407,24 @@ export default function DashboardPage() {
                     <button
                       className="w-full text-left p-3 rounded-lg bg-gray-50 hover:bg-gray-100 border border-[#E0E0E0] transition-all group hover:shadow-md"
                       onClick={() => {
-                        const prompt = encodeURIComponent(`Crée un site web moderne pour ${selectedBusiness.name}. ${selectedBusiness.description}`);
-                        router.push(`/projects/new?prompt=${prompt}&businessId=${selectedBusiness.business_id}`);
+                        router.push(`/workspace/new?businessId=${selectedBusiness.business_id}&focus=website`);
                       }}
                     >
                       <p className="text-sm font-medium group-hover:text-[#6D3FC8] transition-colors">
-                        Créer votre site web
+                        Développer votre présence en ligne
                       </p>
                       <p className="text-xs text-[#666666] mt-1">
-                        Établissez votre présence en ligne
+                        Site web, réseaux sociaux et outils digitaux
                       </p>
                     </button>
                   )}
                   <button
                     className="w-full text-left p-3 rounded-lg bg-gray-50 hover:bg-gray-100 border border-[#E0E0E0] transition-all group hover:shadow-md"
-                    onClick={() => selectedBusiness && router.push(`/business/${selectedBusiness.business_id}?action=competitor_analysis`)}
+                    onClick={() => {
+                      if (selectedBusiness) {
+                        router.push(`/business/${selectedBusiness.business_id}?action=competitor_analysis`);
+                      }
+                    }}
                   >
                     <p className="text-sm font-medium group-hover:text-[#6D3FC8] transition-colors">
                       Analyser la concurrence

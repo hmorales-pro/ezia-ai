@@ -16,9 +16,27 @@ export async function generateWithMistralAPI(
   // Utiliser la clé API fournie ou celle dans les variables d'environnement
   const mistralApiKey = apiKey || process.env.MISTRAL_API_KEY;
   
+  console.log("[Mistral] Vérification de la clé API...");
+  console.log("[Mistral] Clé présente:", !!mistralApiKey);
+  console.log("[Mistral] Format de clé:", mistralApiKey ? `${mistralApiKey.substring(0, 4)}...` : 'Aucune');
+  console.log("[Mistral] Longueur de la clé:", mistralApiKey?.length || 0);
+  
+  // Vérifier si c'est une demande de génération de site web
+  const isWebsiteGeneration = systemContext.toLowerCase().includes("html") || 
+                             systemContext.toLowerCase().includes("site web") ||
+                             prompt.toLowerCase().includes("site web");
+  
   if (!mistralApiKey) {
-    console.log("[Mistral] Pas de clé API, utilisation des réponses par défaut");
+    console.log("[Mistral] ⚠️ Mode développement activé - Pas de clé API Mistral");
+    console.log("[Mistral] Pour activer le mode production avec l'IA réelle :");
+    console.log("[Mistral] 1. Créez un compte sur https://console.mistral.ai/");
+    console.log("[Mistral] 2. Générez une clé API");
+    console.log("[Mistral] 3. Ajoutez MISTRAL_API_KEY=votre-clé dans votre fichier .env.local");
+    
     // Si pas de clé Mistral, utiliser une réponse par défaut
+    if (isWebsiteGeneration) {
+      return generateDefaultWebsite(prompt);
+    }
     return generateDefaultBusinessResponse(prompt, systemContext);
   }
   
@@ -38,7 +56,7 @@ export async function generateWithMistralAPI(
           { role: "user", content: prompt }
         ],
         temperature: 0.7,
-        max_tokens: 2000,
+        max_tokens: isWebsiteGeneration ? 4000 : 2000, // Plus de tokens pour HTML
         stream: false
       })
     });
@@ -46,6 +64,9 @@ export async function generateWithMistralAPI(
     if (!response.ok) {
       const error = await response.json();
       console.error("Mistral API error:", error);
+      if (isWebsiteGeneration) {
+        return generateDefaultWebsite(prompt);
+      }
       return generateDefaultBusinessResponse(prompt, systemContext);
     }
 
@@ -57,8 +78,151 @@ export async function generateWithMistralAPI(
     };
   } catch (error: any) {
     console.error("Mistral API error:", error);
+    if (isWebsiteGeneration) {
+      return generateDefaultWebsite(prompt);
+    }
     return generateDefaultBusinessResponse(prompt, systemContext);
   }
+}
+
+// Fonction pour générer un site web par défaut
+function generateDefaultWebsite(prompt: string): MistralResponse {
+  // Extraire les informations du prompt
+  let businessName = "Mon Business";
+  let industry = "general";
+  let description = "Notre entreprise innovante";
+  
+  const businessMatch = prompt.match(/pour ([^.]+)\./);
+  if (businessMatch) {
+    businessName = businessMatch[1].trim();
+  }
+  
+  const descMatch = prompt.match(/Description[^:]*:\s*([^\n]+)/i);
+  if (descMatch) {
+    description = descMatch[1].trim();
+  }
+  
+  const industryMatch = prompt.match(/Industrie[^:]*:\s*([^\n]+)/i);
+  if (industryMatch) {
+    industry = industryMatch[1].trim().toLowerCase();
+  }
+
+  // Générer un site HTML personnalisé
+  const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${businessName} - Solutions innovantes</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header { background: #6D3FC8; color: white; padding: 1rem 0; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        nav { display: flex; justify-content: space-between; align-items: center; }
+        nav ul { display: flex; list-style: none; gap: 2rem; }
+        nav a { color: white; text-decoration: none; transition: opacity 0.3s; }
+        nav a:hover { opacity: 0.8; }
+        .hero { background: linear-gradient(135deg, #6D3FC8 0%, #5A35A5 100%); color: white; padding: 120px 0 80px; text-align: center; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; animation: fadeInUp 0.8s ease-out; }
+        .hero p { font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.9; animation: fadeInUp 0.8s ease-out 0.2s both; }
+        .btn { display: inline-block; padding: 12px 30px; background: white; color: #6D3FC8; text-decoration: none; border-radius: 5px; font-weight: bold; transition: transform 0.3s; animation: fadeInUp 0.8s ease-out 0.4s both; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        section { padding: 80px 0; }
+        h2 { font-size: 2.5rem; margin-bottom: 2rem; text-align: center; color: #333; }
+        .services { background: #f8f9fa; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem; }
+        .service-card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; transition: transform 0.3s; }
+        .service-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.15); }
+        .service-icon { font-size: 3rem; margin-bottom: 1rem; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) { .hero h1 { font-size: 2rem; } nav ul { gap: 1rem; } }
+        .contact-form { max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        input, textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; }
+        textarea { resize: vertical; min-height: 120px; }
+        footer { background: #333; color: white; text-align: center; padding: 2rem 0; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <h3>${businessName}</h3>
+            <ul>
+                <li><a href="#accueil">Accueil</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#apropos">À propos</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="accueil" class="hero">
+        <div class="container">
+            <h1>${businessName}</h1>
+            <p>${description}</p>
+            <p class="tagline">Innovation et excellence au service de votre réussite</p>
+            <a href="#contact" class="btn">Découvrez nos solutions</a>
+        </div>
+    </section>
+
+    <section id="services" class="services">
+        <div class="container">
+            <h2>Nos Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🚀</div>
+                    <h3>Innovation</h3>
+                    <p>Solutions créatives et modernes adaptées à vos besoins spécifiques</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💡</div>
+                    <h3>Expertise</h3>
+                    <p>Une équipe d'experts passionnés à votre service</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🛡️</div>
+                    <h3>Fiabilité</h3>
+                    <p>Un partenaire de confiance pour accompagner votre croissance</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2>Contactez-nous</h2>
+            <form class="contact-form">
+                <div class="form-group">
+                    <label for="name">Nom</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" required></textarea>
+                </div>
+                <button type="submit" class="btn">Envoyer</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; ${new Date().getFullYear()} ${businessName}. Tous droits réservés. | Créé avec Ezia</p>
+        </div>
+    </footer>
+</body>
+</html>`;
+
+  return {
+    success: true,
+    content: html
+  };
 }
 
 // Fonction pour générer des réponses par défaut professionnelles

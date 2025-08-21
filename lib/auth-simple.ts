@@ -6,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 export async function isAuthenticated() {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token');
+    const token = cookieStore.get('ezia-auth-token');
     
     if (!token) {
       return null;

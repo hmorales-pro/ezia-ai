@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated } from "@/lib/auth-simple";
 import { agentSpeak, multiAgentConversation, selectAgentForTask } from "@/lib/ai-agents";
 
 export async function POST(request: NextRequest) {

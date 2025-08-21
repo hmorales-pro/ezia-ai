@@ -12,6 +12,10 @@ interface MemoryBusiness {
   _updatedAt?: Date;
   completion_score?: number;
   website_url?: string;
+  hasWebsite?: 'yes' | 'no';
+  wantsWebsite?: 'yes' | 'no' | 'later';
+  existingWebsiteUrl?: string;
+  websiteGeneratedAt?: string;
   space_id?: string;
   social_media?: Record<string, unknown>;
   market_analysis?: {

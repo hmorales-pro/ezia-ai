@@ -16,7 +16,7 @@ export function ProjectCard({ project }: { project: Project }) {
   return (
     <div className="text-[#1E1E1E] space-y-4 group cursor-pointer">
       <Link
-        href={`/projects/${project.space_id}`}
+        href={`/sites/${project.space_id}/edit`}
         className="relative bg-white rounded-2xl overflow-hidden h-44 w-full flex items-center justify-end flex-col px-3 border border-[#E0E0E0] shadow-md hover:shadow-lg transition-all"
       >
         <iframe

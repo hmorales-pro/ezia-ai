@@ -47,12 +47,12 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
           </p>
         ) : (
           <div className="space-y-4">
-            {activities.slice(0, 5).map((activity) => {
+            {activities.slice(0, 5).map((activity, index) => {
               const Icon = activityIcons[activity.type as keyof typeof activityIcons] || MessageSquare;
               const color = activityColors[activity.type as keyof typeof activityColors] || "text-zinc-500";
               
               return (
-                <div key={activity.id} className="flex gap-3">
+                <div key={`${activity.id}-${index}`} className="flex gap-3">
                   <div className={`mt-1 ${color}`}>
                     <Icon className="w-4 h-4" />
                   </div>

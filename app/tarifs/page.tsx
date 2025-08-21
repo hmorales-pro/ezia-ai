@@ -9,6 +9,7 @@ import { CheckCircle, X, ArrowLeft, Sparkles, Bot, Globe, MessageSquare, Code2, 
 import { api } from "@/lib/api";
 import { useUser } from "@/hooks";
 import { toast } from "sonner";
+import { Footer } from "@/components/ui/footer";
 
 interface Plan {
   name: string;
@@ -124,7 +125,7 @@ function TarifsPageContent() {
 
   const handleUpgrade = async (planKey: string) => {
     if (!user) {
-      router.push('/auth');
+      router.push('/auth/ezia');
       return;
     }
 
@@ -159,7 +160,7 @@ function TarifsPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF9F5] flex items-center justify-center">
+      <div className="min-h-screen bg-[#ebe7e1] flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[#6D3FC8] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[#666666]">Chargement des plans...</p>
@@ -171,7 +172,7 @@ function TarifsPageContent() {
   const planOrder = ['free', 'starter', 'pro', 'enterprise'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAF9F5] via-[#FAF9F5] to-purple-50/20">
+    <div className="min-h-screen bg-gradient-to-br from-[#ebe7e1] via-[#ebe7e1] to-purple-50/20">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-[#E0E0E0]/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -180,7 +181,7 @@ function TarifsPageContent() {
               <Button
                 variant="ghost"
                 onClick={() => router.push('/dashboard')}
-                className="mr-4 hover:bg-purple-50"
+                className="mr-4 text-[#666666] hover:text-[#6D3FC8] hover:bg-purple-50 font-medium transition-all"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Retour
@@ -224,7 +225,7 @@ function TarifsPageContent() {
           </h2>
           <p className="text-xl text-[#666666] max-w-3xl mx-auto leading-relaxed">
             Ezia est votre chef de projet IA qui coordonne une équipe d'agents spécialisés. 
-            Créez des sites web, landing pages et projets digitaux simplement en discutant.
+            Développez votre business avec une équipe d'agents IA dédiée à votre succès.
           </p>
           
           {/* Key Features */}
@@ -319,7 +320,7 @@ function TarifsPageContent() {
                     <li className="flex items-start">
                       <CheckCircle className="w-5 h-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-[#666666]">
-                        <strong className="text-[#1E1E1E]">{formatFeatureValue(plan.features.max_websites)}</strong> projets web
+                        <strong className="text-[#1E1E1E]">{formatFeatureValue(plan.features.max_websites)}</strong> projets digitaux
                       </span>
                     </li>
                     
@@ -510,6 +511,9 @@ function TarifsPageContent() {
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
@@ -517,7 +521,7 @@ function TarifsPageContent() {
 export default function TarifsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#FAF9F5] flex items-center justify-center">
+      <div className="min-h-screen bg-[#ebe7e1] flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[#6D3FC8] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[#666666]">Chargement des plans...</p>

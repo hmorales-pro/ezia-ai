@@ -6,7 +6,7 @@ export async function POST() {
     const cookieStore = await cookies();
     
     // Remove auth token
-    cookieStore.delete('auth-token');
+    cookieStore.delete('ezia-auth-token');
     
     return NextResponse.json({ 
       message: 'Déconnexion réussie' 

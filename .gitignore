@@ -54,3 +54,7 @@ next-env.d.ts
 *.webp
 Capture*
 Screenshot*
+
+# Local data storage
+.data/
+*.json.backup

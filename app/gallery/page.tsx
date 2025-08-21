@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Globe, Sparkles } from "lucide-react";
+import { ArrowLeft, Globe } from "lucide-react";
+import { Footer } from "@/components/ui/footer";
 
 export default function GalleryPage() {
   const router = useRouter();
@@ -48,7 +50,7 @@ export default function GalleryPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5]">
+    <div className="min-h-screen bg-[#ebe7e1]">
       <header className="border-b border-[#E0E0E0] bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -63,9 +65,15 @@ export default function GalleryPage() {
                 Retour
               </Button>
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#6D3FC8]" />
+                <Image
+                  src="/logo.png"
+                  alt="Ezia Logo"
+                  width={40}
+                  height={40}
+                  className=""
+                />
                 <h1 className="text-xl font-semibold text-[#1E1E1E]">
-                  Galerie Ezia
+                  Galerie
                 </h1>
               </div>
             </div>
@@ -88,7 +96,7 @@ export default function GalleryPage() {
           {examples.map((example, index) => (
             <Card key={index} className="bg-white border-[#E0E0E0] hover:shadow-lg transition-shadow cursor-pointer group">
               <CardHeader>
-                <div className="h-32 bg-gradient-to-br from-[#FAF9F5] to-[#E0E0E0] rounded-lg flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition-transform">
+                <div className="h-32 bg-gradient-to-br from-[#ebe7e1] to-[#E0E0E0] rounded-lg flex items-center justify-center text-5xl mb-4 group-hover:scale-105 transition-transform">
                   {example.preview}
                 </div>
                 <CardTitle className="text-lg text-[#1E1E1E]">{example.title}</CardTitle>
@@ -129,6 +137,9 @@ export default function GalleryPage() {
           </Button>
         </div>
       </main>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-import { connectToDatabase } from '@/lib/db';
+import dbConnect from '@/lib/db';
 import { User } from '@/models/User';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+import { AUTH_COOKIE_NAME, getAuthCookieOptions, JWT_SECRET } from '@/lib/auth-utils';
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await connectToDatabase();
+    await dbConnect();
 
     // Find user by email
     const user = await User.findOne({ email }).select('+password');
@@ -57,13 +56,7 @@ export async function POST(req: NextRequest) {
 
     // Set cookie
     const cookieStore = await cookies();
-    cookieStore.set('auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: '/',
-    });
+    cookieStore.set(AUTH_COOKIE_NAME, token, getAuthCookieOptions());
 
     // Return user data (without password)
     return NextResponse.json({

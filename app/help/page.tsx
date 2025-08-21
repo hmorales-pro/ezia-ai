@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, HelpCircle, MessageCircle, Book, Zap } from "lucide-react";
+import { Footer } from "@/components/ui/footer";
 
 export default function HelpPage() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function HelpPage() {
     },
     {
       question: "Quelles sont les limites du plan gratuit ?",
-      answer: "Le plan gratuit vous permet de créer jusqu'à 3 sites web et d'avoir 10 conversations par mois avec Ezia. Pour plus de fonctionnalités, consultez nos plans premium."
+      answer: "Le plan gratuit vous permet de gérer 1 business et d'avoir 5 analyses par mois avec Ezia. Pour développer davantage votre activité, consultez nos plans premium."
     },
     {
       question: "Comment fonctionne l'intelligence artificielle d'Ezia ?",
@@ -53,7 +54,7 @@ export default function HelpPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5]">
+    <div className="min-h-screen bg-[#ebe7e1]">
       <header className="border-b border-[#E0E0E0] bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -144,6 +145,9 @@ export default function HelpPage() {
           </Button>
         </div>
       </main>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
