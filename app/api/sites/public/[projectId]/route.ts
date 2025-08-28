@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import UserProject from "@/models/UserProject";
 
+// Déclarer le stockage global
+declare global {
+  var websites: any[];
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
@@ -9,16 +14,32 @@ export async function GET(
   try {
     const { projectId } = await params;
     
-    // Connexion à MongoDB
-    await dbConnect();
+    // Vérifier d'abord dans le stockage en mémoire
+    const memoryWebsite = global.websites?.find(
+      w => (w._id === projectId || w.projectId === projectId)
+    );
     
-    // Récupérer le site web public (sans authentification)
-    const website = await UserProject.findOne({
-      _id: projectId,
-      status: 'published' // Seulement les sites publiés
-    })
-    .select('name description html css js businessName createdAt updatedAt')
-    .lean();
+    let website = memoryWebsite;
+    
+    if (!website) {
+      // Si pas trouvé en mémoire, chercher dans MongoDB
+      try {
+        await dbConnect();
+        
+        // Chercher par projectId d'abord, puis par _id
+        website = await UserProject.findOne({
+          $or: [
+            { projectId: projectId },
+            { _id: projectId }
+          ]
+          // Suppression de la restriction status: 'published' pour permettre l'accès aux drafts
+        })
+        .select('name description html css js businessName createdAt updatedAt')
+        .lean();
+      } catch (dbError) {
+        console.log("[Public Site] MongoDB not available, website not found");
+      }
+    }
     
     if (!website) {
       return NextResponse.json({

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { AUTH_COOKIE_NAME } from "./lib/auth-utils";
+import { extractSubdomain } from "./lib/subdomain-utils";
 
 // Routes that require authentication
 const protectedRoutes = [
@@ -27,6 +28,25 @@ export function middleware(request: NextRequest) {
   
   const pathname = request.nextUrl.pathname;
   const authToken = request.cookies.get(AUTH_COOKIE_NAME);
+  const hostname = request.headers.get('host') || '';
+  const subdomain = extractSubdomain(hostname);
+  
+  // Gérer les sous-domaines personnalisés
+  if (subdomain && subdomain !== 'www' && subdomain !== 'app') {
+    // Si c'est un sous-domaine personnalisé, rediriger vers la route de site
+    if (pathname === '/') {
+      return NextResponse.rewrite(
+        new URL(`/${subdomain}`, request.url),
+        { headers }
+      );
+    }
+    
+    // Pour les autres pages du site
+    return NextResponse.rewrite(
+      new URL(`/${subdomain}${pathname}`, request.url),
+      { headers }
+    );
+  }
   
   // Check if the route is protected
   const isProtectedRoute = protectedRoutes.some(route => {

@@ -1,0 +1,939 @@
+
+> ezia-vbeta@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.3.3
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.158:3000
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 1330ms
+ ○ Compiling /api/sync-storage ...
+ ✓ Compiled /api/sync-storage in 1019ms (413 modules)
+Skipping projects save - no data in memory
+Skipping businesses save - no data in memory
+ GET /api/sync-storage 200 in 1156ms
+ ✓ Compiled /api/health in 319ms (418 modules)
+MongoDB connected successfully
+ GET /api/health 200 in 1214ms
+ ○ Compiling /api/generate-website-v2 ...
+ ✓ Compiled /api/generate-website-v2 in 533ms (507 modules)
+Generating enhanced website for: Rest'Free
+ ✓ Compiled /api/ask-ai in 143ms (653 modules)
+AI Request - Provider: novita Model: deepseek-ai/DeepSeek-V3-0324
+Token available: true BillTo: null
+Skipping projects save - no data in memory
+Skipping businesses save - no data in memory
+ GET /api/sync-storage 200 in 17ms
+ POST /api/generate-website-v2 200 in 30004ms
+Skipping projects save - no data in memory
+Skipping businesses save - no data in memory
+ GET /api/sync-storage 200 in 19ms
+ ○ Compiling /[subdomain]/[slug] ...
+ ✓ Compiled /[subdomain]/[slug] in 1449ms (1247 modules)
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 759ms (1568 modules)
+ GET /api/sync-storage 500 in 2599ms
+ ✓ Compiled /api/generate-website-v2 in 102ms (876 modules)
+Generating enhanced website for: Rest'Free
+ ✓ Compiled /api/ask-ai in 107ms (1021 modules)
+AI Request - Provider: novita Model: deepseek-ai/DeepSeek-V3-0324
+Token available: true BillTo: null
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 273ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 256ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 247ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 252ms
+ POST /api/generate-website-v2 200 in 119999ms
+Generating enhanced website for: Test Restaurant
+AI Request - Provider: novita Model: deepseek-ai/DeepSeek-V3-0324
+Token available: true BillTo: null
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 244ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 267ms
+ POST /api/generate-website-v2 200 in 60025ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 243ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 263ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 254ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 257ms
+ POST /api/ask-ai 200 in 441033ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 253ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 261ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 243ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 256ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 255ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 257ms
+ POST /api/ask-ai 200 in 424504ms
+ POST /api/ask-ai 200 in 553941ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 256ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 254ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 260ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 262ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 253ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 253ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 260ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 256ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 260ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 264ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 236ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 257ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 263ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 263ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 266ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 263ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 257ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 256ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 264ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 250ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 262ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 251ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 261ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 251ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 255ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 257ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 268ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 263ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 263ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 256ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 251ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 267ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 260ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 257ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 264ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 262ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 253ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 256ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 263ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 260ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 251ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 254ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 260ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 260ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 255ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 256ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 261ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 258ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 253ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 265ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 265ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 255ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 269ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 263ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 273ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 259ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 246ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 255ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 256ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 257ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 261ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 246ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 241ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 261ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 261ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 264ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ GET /api/sync-storage 500 in 249ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/api/sync-storage/route.js',
+  page: '/api/sync-storage'
+}
+ ✓ Compiled /middleware in 154ms (155 modules)
+ POST /api/sync-storage 500 in 348ms
+ ○ Compiling /sites/new ...
+ ✓ Compiled /sites/new in 3.7s (3695 modules)
+ GET /sites/new?businessId=bus_1755845674151&businessName=Rest%27Free&prompt=Cr%C3%A9ez%20un%20site%20web%20professionnel%20pour%20Rest%27Free.%0A%0ADescription%20du%20business%20%3A%20un%20restaurant%20gastronomique%20%C3%A9ph%C3%A9m%C3%A8re%20sur%20Paris.%20Le%20concept%20%3A%20%0AChaque%20mois%2C%20le%20restaurant%20change%20le%20menu%2C%20l%27ambiance%2C%20et%20le%20chef%2C%20pour%20se%20concentrer%20sur%20une%20cuisine%20du%20monde%20diff%C3%A9rente.%20%0A%0AExemple%20%3A%20premier%20mois%20c%27est%20japonais%2C%20second%20mois%20c%27est%20Fran%C3%A7ais%2C%20troisi%C3%A8me%20c%27est%20Am%C3%A9ricain%2C%20etc.%20%0A%0ALes%20chefs%20sont%20des%20experts%20de%20la%20cuisine%20de%20leur%20pays.%20%0AIndustrie%20%3A%20Restauration%0A%C3%89tape%20%3A%20idea%0A%0APublic%20cible%20%3A%20Professionnels%20du%20secteur%20Restauration%0AProposition%20de%20valeur%20%3A%20Se%20diff%C3%A9rencier%20par%20Service%20personnalis%C3%A9%2C%20Innovation%20continue%2C%20Excellence%20op%C3%A9rationnelle%0A%0ALe%20site%20doit%20avoir%20un%20design%20professionnel%20et%20moderne%20et%20communiquer%20notre%20excellence.%0A%0AIncluez%20les%20sections%20suivantes%20%3A%0A-%20Hero%20section%20avec%20le%20message%20principal%20%3A%20%22Rest%27Free%20-%20Excellence%20et%20Innovation%22%0A-%20Services%20adapt%C3%A9s%20%C3%A0%20l%27industrie%20Restauration%0A-%20Section%20%22%C3%80%20propos%22%20mettant%20en%20avant%20nos%20avantages%20comp%C3%A9titifs%0A-%20T%C3%A9moignages%20clients%0A-%20Call-to-action%20clair%20pour%20b%C3%A9n%C3%A9ficier%20de%20notre%20expertise 200 in 4004ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 556ms (3696 modules)
+ GET /_next/static/chunks/main-app.js?v=1756232215312 404 in 685ms
+ GET /sites/new?businessId=bus_1755845674151&businessName=Rest%27Free&prompt=Cr%C3%A9ez%20un%20site%20web%20professionnel%20pour%20Rest%27Free.%0A%0ADescription%20du%20business%20%3A%20un%20restaurant%20gastronomique%20%C3%A9ph%C3%A9m%C3%A8re%20sur%20Paris.%20Le%20concept%20%3A%20%0AChaque%20mois%2C%20le%20restaurant%20change%20le%20menu%2C%20l%27ambiance%2C%20et%20le%20chef%2C%20pour%20se%20concentrer%20sur%20une%20cuisine%20du%20monde%20diff%C3%A9rente.%20%0A%0AExemple%20%3A%20premier%20mois%20c%27est%20japonais%2C%20second%20mois%20c%27est%20Fran%C3%A7ais%2C%20troisi%C3%A8me%20c%27est%20Am%C3%A9ricain%2C%20etc.%20%0A%0ALes%20chefs%20sont%20des%20experts%20de%20la%20cuisine%20de%20leur%20pays.%20%0AIndustrie%20%3A%20Restauration%0A%C3%89tape%20%3A%20idea%0A%0APublic%20cible%20%3A%20Professionnels%20du%20secteur%20Restauration%0AProposition%20de%20valeur%20%3A%20Se%20diff%C3%A9rencier%20par%20Service%20personnalis%C3%A9%2C%20Innovation%20continue%2C%20Excellence%20op%C3%A9rationnelle%0A%0ALe%20site%20doit%20avoir%20un%20design%20professionnel%20et%20moderne%20et%20communiquer%20notre%20excellence.%0A%0AIncluez%20les%20sections%20suivantes%20%3A%0A-%20Hero%20section%20avec%20le%20message%20principal%20%3A%20%22Rest%27Free%20-%20Excellence%20et%20Innovation%22%0A-%20Services%20adapt%C3%A9s%20%C3%A0%20l%27industrie%20Restauration%0A-%20Section%20%22%C3%80%20propos%22%20mettant%20en%20avant%20nos%20avantages%20comp%C3%A9titifs%0A-%20T%C3%A9moignages%20clients%0A-%20Call-to-action%20clair%20pour%20b%C3%A9n%C3%A9ficier%20de%20notre%20expertise 200 in 97ms
+ GET /_next/static/chunks/main-app.js?v=1756232678669 404 in 46ms
+   Reload env: .env.local
+ ✓ Compiled in 447ms (1974 modules)
+ ✓ Compiled / in 479ms (2575 modules)
+ GET / 307 in 644ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 660ms (3294 modules)
+ GET /dashboard 200 in 865ms
+ ✓ Compiled /_not-found in 125ms (1517 modules)
+ GET /_next/static/chunks/main-app.js?v=1756233051121 404 in 243ms
+ GET / 307 in 50ms
+ GET /dashboard 200 in 68ms
+ GET /_next/static/chunks/main-app.js?v=1756233082377 404 in 41ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app-paths-manifest.json',
+  page: '/dashboard'
+}
+ ✓ Compiled /_error in 377ms (3338 modules)
+ ⨯ SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+ GET /dashboard 500 in 1667ms
+ ✓ Compiled /[subdomain] in 408ms (3343 modules)
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/app/dashboard/page.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/app/dashboard/page.js',
+  page: '/dashboard'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/hugomorales/ezia36/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/hugomorales/ezia36/.next/server/pages/_document.js'
+}
+ GET /dashboard 500 in 458ms
+ ✓ Compiled in 1196ms (1793 modules)
+ ✓ Compiled in 258ms (1793 modules)
+[?25h

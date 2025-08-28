@@ -67,7 +67,7 @@ export default function WorkspacePage() {
       if (projectsResponse.ok) {
         projectsResponse.projects.forEach((project: any) => {
           workspaceItems.push({
-            id: project._id || project.id,
+            id: project.projectId || project._id || project.id, // Utiliser projectId en priorité
             type: 'website',
             businessId: project.businessId || '',
             businessName: project.businessName || 'Projet indépendant',
@@ -76,10 +76,14 @@ export default function WorkspacePage() {
             status: project.status === 'published' ? 'active' : project.status,
             createdAt: project.createdAt,
             updatedAt: project.updatedAt,
-            metadata: project.metadata
+            metadata: {
+              ...project.metadata,
+              subdomain: project.subdomain // Ajouter le subdomain si disponible
+            }
           });
         });
       }
+
 
       // Add business analyses as workspace items
       businessResponse.data.businesses.forEach((business: any) => {
@@ -333,9 +337,17 @@ export default function WorkspacePage() {
                         <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                           <TypeIcon className="w-5 h-5 text-[#6D3FC8]" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <CardTitle className="text-lg">{item.title}</CardTitle>
                           <p className="text-sm text-[#666666]">{item.businessName}</p>
+                          {item.type === 'website' && item.metadata?.subdomain && (
+                            <div className="flex items-center gap-2 mt-1">
+                              <Globe className="w-3 h-3 text-[#6D3FC8]" />
+                              <span className="text-xs text-[#6D3FC8] font-medium">
+                                {item.metadata.subdomain}.ezia.ai
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <Badge className={getStatusColor(item.status)}>

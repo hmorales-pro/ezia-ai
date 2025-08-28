@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth-simple';
 import dbConnect from '@/lib/mongodb-config';
 import UserProject from '@/models/UserProject';
+import { generateSmartSubdomain } from '@/lib/subdomain-generator';
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,6 +30,7 @@ export async function GET(request: NextRequest) {
         businessName: project.businessName,
         name: project.name,
         description: project.description,
+        subdomain: project.subdomain,
         html: project.html,
         css: project.css,
         js: project.js,
@@ -70,6 +72,9 @@ export async function POST(request: NextRequest) {
     
     const projectId = body.projectId || `project-${Date.now()}`;
     
+    // Générer un sous-domaine intelligent
+    const subdomain = await generateSmartSubdomain(body.businessName || body.name || 'site');
+    
     const newProject = new UserProject({
       projectId,
       userId: user.id,
@@ -77,6 +82,7 @@ export async function POST(request: NextRequest) {
       businessName: body.businessName,
       name: body.name || `Site web de ${body.businessName}`,
       description: body.description || 'Site web généré par Ezia',
+      subdomain: subdomain,
       html: body.html,
       css: body.css || '',
       js: body.js || '',
@@ -117,6 +123,7 @@ export async function POST(request: NextRequest) {
         businessName: savedProject.businessName,
         name: savedProject.name,
         description: savedProject.description,
+        subdomain: savedProject.subdomain,
         html: savedProject.html,
         css: savedProject.css,
         js: savedProject.js,

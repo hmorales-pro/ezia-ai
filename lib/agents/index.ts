@@ -754,9 +754,9 @@ export async function runMarketingStrategyAgent(business: any, marketAnalysis: a
   if (mistralKey && mistralKey.length > 10) {
     console.log("[Agent Marché] Clé Mistral détectée, activation du mode IA réel");
     try {
-      // Utiliser l'agent IA réel
-      const { runRealMarketingStrategyAgent } = await import('./marketing-strategy-agent');
-      return await runRealMarketingStrategyAgent(business, marketAnalysis);
+      // Utiliser la version simplifiée pour éviter les troncatures
+      const { runMarketingStrategyAgentV2 } = await import('./marketing-strategy-agent-v2');
+      return await runMarketingStrategyAgentV2(business, marketAnalysis);
     } catch (error) {
       console.error("[Agent Marketing] Erreur avec l'IA, fallback sur données simulées:", error);
     }

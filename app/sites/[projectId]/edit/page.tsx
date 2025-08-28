@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { EziaSimpleEditor } from "@/components/editor/ezia-simple-editor";
+import { UnifiedEditor } from "@/components/editor/unified-editor";
 import { useRouter } from "next/navigation";
 
 export default function EditProjectPage({ 
@@ -18,7 +18,7 @@ export default function EditProjectPage({
   };
 
   return (
-    <EziaSimpleEditor 
+    <UnifiedEditor 
       projectId={projectId}
       onProjectSaved={handleProjectSaved}
     />

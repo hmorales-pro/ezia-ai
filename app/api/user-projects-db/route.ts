@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth-simple';
 import dbConnect from '@/lib/mongodb';
 import UserProject from '@/models/UserProject';
+import { generateSmartSubdomain } from '@/lib/subdomain-generator';
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,9 +24,16 @@ export async function GET(request: NextRequest) {
     .sort({ createdAt: -1 })
     .lean();
     
+    // S'assurer que projectId est inclus dans la réponse
+    const formattedProjects = projects.map(project => ({
+      ...project,
+      id: project.projectId || project._id,
+      projectId: project.projectId || project._id
+    }));
+    
     return NextResponse.json({
       ok: true,
-      projects: projects || []
+      projects: formattedProjects || []
     });
   } catch (error) {
     console.error('Error fetching projects:', error);
@@ -51,13 +59,21 @@ export async function POST(request: NextRequest) {
     // Connexion à MongoDB
     await dbConnect();
     
+    // Générer un projectId unique
+    const projectId = `project-${Date.now()}`;
+    
+    // Générer un sous-domaine intelligent
+    const subdomain = await generateSmartSubdomain(body.businessName || body.name || 'site');
+    
     // Créer le nouveau projet
     const newProject = await UserProject.create({
+      projectId: projectId,
       userId: user.id,
       businessId: body.businessId,
       businessName: body.businessName,
       name: body.name || `Site web de ${body.businessName}`,
       description: body.description || 'Site web généré par Ezia',
+      subdomain: subdomain,
       html: body.html,
       css: body.css || '',
       js: body.js || '',

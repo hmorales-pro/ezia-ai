@@ -5,7 +5,7 @@ import { isAuthenticated } from '@/lib/auth-simple';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, name, company, message, source } = body;
+    const { email, name, company, message, profile, needs, urgency, source } = body;
     
     // Validation
     if (!email || !name) {
@@ -33,12 +33,15 @@ export async function POST(request: NextRequest) {
       }, { status: 409 });
     }
     
-    // Ajouter à la liste d'attente
+    // Ajouter à la liste d'attente avec les nouvelles données
     const entry = await addToWaitlist({
       email: email.toLowerCase(),
       name,
       company,
       message,
+      profile: profile || 'Non spécifié',
+      needs: needs || 'Non spécifié',
+      urgency: urgency || 'Non spécifié',
       source: source || 'website',
       metadata: {
         userAgent: request.headers.get('user-agent'),

@@ -8,7 +8,7 @@ import { nanoid } from "nanoid";
 // GET /api/me/business/[businessId]/goals - Liste tous les objectifs
 export async function GET(
   request: NextRequest,
-  { params }: { params: { businessId: string } }
+  { params }: { params: Promise<{ businessId: string }> }
 ) {
   const user = await isAuthenticated();
   if (user instanceof NextResponse || !user) {
@@ -16,19 +16,20 @@ export async function GET(
   }
 
   try {
+    const { businessId } = await params;
     let business;
     
     if (isUsingMemoryDB()) {
       const memoryDB = getMemoryDB();
       business = await memoryDB.findOne({
-        business_id: params.businessId,
+        business_id: businessId,
         user_id: user.id,
         is_active: true
       });
     } else {
       await dbConnect();
       business = await Business.findOne({
-        business_id: params.businessId,
+        business_id: businessId,
         user_id: user.id,
         is_active: true
       }).lean();
@@ -54,7 +55,7 @@ export async function GET(
 // POST /api/me/business/[businessId]/goals - Créer un nouvel objectif
 export async function POST(
   request: NextRequest,
-  { params }: { params: { businessId: string } }
+  { params }: { params: Promise<{ businessId: string }> }
 ) {
   const user = await isAuthenticated();
   if (user instanceof NextResponse || !user) {
@@ -62,6 +63,7 @@ export async function POST(
   }
 
   try {
+    const { businessId } = await params;
     const body = await request.json();
     const { title, description, target_date, category, metrics } = body;
 
@@ -103,7 +105,7 @@ export async function POST(
     if (isUsingMemoryDB()) {
       const memoryDB = getMemoryDB();
       const business = await memoryDB.findOne({
-        business_id: params.businessId,
+        business_id: businessId,
         user_id: user.id
       });
       
@@ -113,7 +115,7 @@ export async function POST(
 
       business.goals = business.goals || [];
       business.goals.push(newGoal);
-      await memoryDB.updateBusiness(params.businessId, { goals: business.goals });
+      await memoryDB.updateBusiness(businessId, { goals: business.goals });
 
       // Ajouter une interaction Ezia
       const interaction = {
@@ -127,11 +129,11 @@ export async function POST(
           "Ajustez vos actions pour atteindre cet objectif"
         ]
       };
-      await memoryDB.updateBusinessInteraction(params.businessId, interaction);
+      await memoryDB.updateBusinessInteraction(businessId, interaction);
     } else {
       await dbConnect();
       const result = await Business.findOneAndUpdate(
-        { business_id: params.businessId, user_id: user.id },
+        { business_id: businessId, user_id: user.id },
         { 
           $push: { 
             goals: newGoal,
@@ -174,7 +176,7 @@ export async function POST(
 // PATCH /api/me/business/[businessId]/goals - Mettre à jour un objectif
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { businessId: string } }
+  { params }: { params: Promise<{ businessId: string }> }
 ) {
   const user = await isAuthenticated();
   if (user instanceof NextResponse || !user) {
@@ -182,6 +184,7 @@ export async function PATCH(
   }
 
   try {
+    const { businessId } = await params;
     const body = await request.json();
     const { goal_id, progress, status, note, milestone } = body;
 
@@ -217,7 +220,7 @@ export async function PATCH(
     if (isUsingMemoryDB()) {
       const memoryDB = getMemoryDB();
       const business = await memoryDB.findOne({
-        business_id: params.businessId,
+        business_id: businessId,
         user_id: user.id
       });
       
@@ -254,7 +257,7 @@ export async function PATCH(
         });
       }
 
-      await memoryDB.updateBusiness(params.businessId, { goals: business.goals });
+      await memoryDB.updateBusiness(businessId, { goals: business.goals });
     } else {
       await dbConnect();
       
@@ -280,7 +283,7 @@ export async function PATCH(
       }
 
       const result = await Business.findOneAndUpdate(
-        { business_id: params.businessId, user_id: user.id },
+        { business_id: businessId, user_id: user.id },
         updateQuery,
         { 
           arrayFilters: [{ "goal.goal_id": goal_id }],

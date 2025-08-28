@@ -6,7 +6,7 @@ interface MistralResponse {
 
 // Configuration Mistral AI
 const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
-const MISTRAL_MODEL = "mistral-small-latest"; // ou "mistral-medium-latest" pour de meilleures performances
+const MISTRAL_MODEL = "mistral-medium-latest"; // Modèle plus performant pour les contenus complexes
 
 export async function generateWithMistralAPI(
   prompt: string,
@@ -26,6 +26,13 @@ export async function generateWithMistralAPI(
                              systemContext.toLowerCase().includes("site web") ||
                              prompt.toLowerCase().includes("site web");
   
+  // Vérifier si c'est une demande de stratégie complexe nécessitant plus de tokens
+  const isComplexStrategy = systemContext.toLowerCase().includes("marketing") ||
+                           systemContext.toLowerCase().includes("stratégie") ||
+                           systemContext.toLowerCase().includes("analyse de marché") ||
+                           prompt.toLowerCase().includes("json") ||
+                           prompt.toLowerCase().includes("structure complète");
+  
   if (!mistralApiKey) {
     console.log("[Mistral] ⚠️ Mode développement activé - Pas de clé API Mistral");
     console.log("[Mistral] Pour activer le mode production avec l'IA réelle :");
@@ -41,6 +48,8 @@ export async function generateWithMistralAPI(
   }
   
   console.log("[Mistral] Clé API détectée, appel à l'API Mistral");
+  console.log(`[Mistral] Type de génération - Website: ${isWebsiteGeneration}, Stratégie complexe: ${isComplexStrategy}`);
+  console.log(`[Mistral] Max tokens: ${isWebsiteGeneration ? 4000 : (isComplexStrategy ? 4000 : 2000)}`);
 
   try {
     const response = await fetch(MISTRAL_API_URL, {
@@ -56,7 +65,7 @@ export async function generateWithMistralAPI(
           { role: "user", content: prompt }
         ],
         temperature: 0.7,
-        max_tokens: isWebsiteGeneration ? 4000 : 2000, // Plus de tokens pour HTML
+        max_tokens: isWebsiteGeneration ? 4000 : (isComplexStrategy ? 8000 : 2000), // Beaucoup plus de tokens pour les stratégies complexes
         stream: false
       })
     });

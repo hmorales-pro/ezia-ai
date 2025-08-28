@@ -17,6 +17,9 @@ interface WaitlistEntry {
   name: string;
   company?: string;
   message?: string;
+  profile?: string;
+  needs?: string;
+  urgency?: string;
   source?: string;
   createdAt: string;
   metadata?: Record<string, any>;

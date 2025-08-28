@@ -51,6 +51,10 @@ const UserProjectSchema = new mongoose.Schema({
     required: true
   },
   description: String,
+  subdomain: {
+    type: String,
+    sparse: true // Permet d'avoir des valeurs null mais uniques quand définies
+  },
   html: {
     type: String,
     required: true
@@ -105,6 +109,7 @@ const UserProjectSchema = new mongoose.Schema({
 UserProjectSchema.index({ userId: 1, createdAt: -1 });
 UserProjectSchema.index({ businessId: 1 });
 UserProjectSchema.index({ status: 1, userId: 1 });
+UserProjectSchema.index({ subdomain: 1 }, { unique: true, sparse: true });
 // projectId a déjà unique: true dans le schéma, pas besoin d'un autre index
 
 // Méthode pour ajouter une nouvelle version

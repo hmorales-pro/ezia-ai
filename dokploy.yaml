@@ -1,11 +1,69 @@
-# Configuration Dokploy pour mode Application
-name: ezia-ai
-type: application
-build:
-  type: dockerfile
+# Configuration Dokploy pour Ezia
+name: ezia-platform
+type: docker
+
+# Configuration Docker
+docker:
   dockerfile: ./Dockerfile
   context: .
-port: 3000
+  
+# Variables d'environnement
 env:
+  # Base de données MongoDB
+  MONGODB_URI: ${MONGODB_URI}
+  
+  # URL de l'application
+  NEXTAUTH_URL: ${NEXTAUTH_URL}
+  NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+  
+  # Tokens et clés
+  HF_TOKEN: ${HF_TOKEN}
+  DEFAULT_HF_TOKEN: ${DEFAULT_HF_TOKEN}
+  
+  # Configuration Next.js
   NODE_ENV: production
-  PORT: 3000
+  
+# Domaines et sous-domaines
+domains:
+  - domain: ${PRIMARY_DOMAIN}
+    port: 3000
+    https: true
+    wildcardSSL: true
+  - domain: "*.${PRIMARY_DOMAIN}"
+    port: 3000
+    https: true
+
+# Configuration des ressources
+resources:
+  limits:
+    memory: 2Gi
+    cpu: 1000m
+  requests:
+    memory: 1Gi
+    cpu: 500m
+
+# Healthcheck
+healthcheck:
+  path: /api/health
+  interval: 30s
+  timeout: 10s
+  retries: 3
+
+# Volumes persistants
+volumes:
+  - name: uploads
+    path: /app/uploads
+    size: 10Gi
+
+# Commandes
+commands:
+  build: npm run build
+  start: npm start
+  
+# Auto-scaling
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPU: 70
+  targetMemory: 80

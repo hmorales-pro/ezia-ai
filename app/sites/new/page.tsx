@@ -1,6 +1,6 @@
 "use client";
 
-import { EziaSimpleEditor } from "@/components/editor/ezia-simple-editor";
+import { UnifiedEditor } from "@/components/editor/unified-editor";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
@@ -13,7 +13,7 @@ function ProjectsNewContent() {
   const businessName = searchParams.get("businessName") || "Mon Business";
   
   return (
-    <EziaSimpleEditor 
+    <UnifiedEditor 
       initialPrompt={prompt} 
       businessId={businessId}
       businessName={businessName}

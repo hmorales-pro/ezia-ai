@@ -36,19 +36,6 @@ const nextConfig: NextConfig = {
   
   // Optimize specific packages
   experimental: {
-    optimizePackageImports: [
-      "lucide-react",
-      "@radix-ui/react-dropdown-menu",
-      "@radix-ui/react-dialog",
-      "@radix-ui/react-tabs",
-      "@radix-ui/react-scroll-area",
-      "@radix-ui/react-avatar",
-      "@radix-ui/react-badge",
-      "date-fns",
-      "@tanstack/react-query",
-      "react-markdown",
-      "sonner",
-    ],
     serverActions: {
       bodySizeLimit: '2mb',
     },
@@ -62,58 +49,6 @@ const nextConfig: NextConfig = {
   },
   webpack(config, options) {
     const { isServer } = options;
-    
-    // Optimize bundle splitting for better performance
-    if (!isServer) {
-      config.optimization = {
-        ...config.optimization,
-        runtimeChunk: 'single',
-        splitChunks: {
-          chunks: 'all',
-          maxAsyncRequests: 30,
-          maxInitialRequests: 30,
-          cacheGroups: {
-            default: false,
-            vendors: false,
-            // Vendor chunk
-            vendor: {
-              name: 'vendor',
-              chunks: 'all',
-              test: /node_modules/,
-              priority: 20,
-            },
-            // Common components chunk
-            common: {
-              name: 'common',
-              minChunks: 2,
-              chunks: 'async',
-              priority: 10,
-              reuseExistingChunk: true,
-              enforce: true,
-            },
-            // Separate heavy libraries
-            lucide: {
-              test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
-              name: 'lucide-icons',
-              priority: 30,
-              chunks: 'all',
-            },
-            radixui: {
-              test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
-              name: 'radix-ui',
-              priority: 30,
-              chunks: 'all',
-            },
-            monaco: {
-              test: /[\\/]node_modules[\\/]@monaco-editor[\\/]/,
-              name: 'monaco-editor',
-              priority: 40,
-              chunks: 'all',
-            },
-          },
-        },
-      };
-    }
     
     config.module.rules.push({
       test: /\.(ogg|mp3|wav|mpe?g)$/i,

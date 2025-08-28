@@ -5,6 +5,7 @@ import { Business } from "@/models/Business";
 import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 import UserProject from "@/models/UserProject";
 import { nanoid } from "nanoid";
+import { generateSmartSubdomain } from "@/lib/subdomain-generator";
 
 export async function POST(request: NextRequest) {
   const user = await isAuthenticated();
@@ -40,6 +41,9 @@ export async function POST(request: NextRequest) {
     // Générer un ID unique pour le site
     const siteId = `site-${businessName.toLowerCase().replace(/\s+/g, '-')}-${nanoid(6)}`;
     const websiteUrl = `https://ezia-demo-${siteId}.vercel.app`;
+    
+    // Générer un sous-domaine intelligent
+    const subdomain = await generateSmartSubdomain(businessName);
 
     // Créer le contenu HTML complet
     const fullHtml = `<!DOCTYPE html>
@@ -60,43 +64,108 @@ ${html || getDefaultHTML(businessName, business.description)}
     console.log(`[DEMO] URL: ${websiteUrl}`);
     console.log(`[DEMO] Contenu HTML: ${fullHtml.length} caractères`);
 
-    // Sauvegarder le site web dans MongoDB
-    await dbConnect();
+    // Déclarer le stockage global des sites web
+    declare global {
+      var websites: any[];
+    }
     
-    // Vérifier s'il existe déjà un site pour ce business
-    const existingWebsite = await UserProject.findOne({
-      userId: user.id,
-      businessId: businessId,
-      status: { $ne: 'archived' }
-    });
+    if (!global.websites) {
+      global.websites = [];
+    }
     
-    let savedWebsite;
+    let savedWebsite: any;
     
-    if (existingWebsite) {
-      // Mettre à jour le site existant
-      existingWebsite.html = fullHtml;
-      existingWebsite.css = css || getDefaultCSS();
-      existingWebsite.js = "";
-      existingWebsite.prompt = prompt || `Site web pour ${businessName}`;
+    // Essayer de sauvegarder dans MongoDB d'abord
+    try {
+      await dbConnect();
       
-      // Ajouter une nouvelle version
-      await existingWebsite.addVersion({
-        html: fullHtml,
-        css: css || getDefaultCSS(),
-        js: "",
-        prompt: prompt || `Site web pour ${businessName}`,
-        createdBy: 'Ezia AI'
+      // Vérifier s'il existe déjà un site pour ce business
+      const existingWebsite = await UserProject.findOne({
+        userId: user.id,
+        businessId: businessId,
+        status: { $ne: 'archived' }
       });
       
-      savedWebsite = await existingWebsite.save();
-    } else {
-      // Créer un nouveau site
-      savedWebsite = await UserProject.create({
+      if (existingWebsite) {
+        // Mettre à jour le site existant
+        existingWebsite.html = fullHtml;
+        existingWebsite.css = css || getDefaultCSS();
+        existingWebsite.js = "";
+        existingWebsite.prompt = prompt || `Site web pour ${businessName}`;
+        
+        // Ajouter une nouvelle version
+        await existingWebsite.addVersion({
+          html: fullHtml,
+          css: css || getDefaultCSS(),
+          js: "",
+          prompt: prompt || `Site web pour ${businessName}`,
+          createdBy: 'Ezia AI'
+        });
+        
+        savedWebsite = await existingWebsite.save();
+      } else {
+        // Créer un nouveau site
+        savedWebsite = await UserProject.create({
+          projectId: siteId,
+          userId: user.id,
+          businessId: businessId,
+          businessName: businessName,
+          name: `Site Web ${businessName}`,
+          description: `Site web généré automatiquement pour ${businessName}`,
+          subdomain: subdomain,
+          html: fullHtml,
+          css: css || getDefaultCSS(),
+          js: "",
+          prompt: prompt || `Site web pour ${businessName}`,
+          version: 1,
+          versions: [{
+            version: 1,
+            html: fullHtml,
+            css: css || getDefaultCSS(),
+            js: "",
+            prompt: prompt || `Site web pour ${businessName}`,
+            createdAt: new Date(),
+            createdBy: 'Ezia AI'
+          }],
+          status: 'published',
+          metadata: {
+            generatedBy: 'ezia-ai',
+            siteId: siteId,
+            websiteUrl: websiteUrl
+          }
+        });
+      }
+      
+      // Ajouter aussi au stockage en mémoire
+      const memoryWebsite = {
+        _id: savedWebsite._id.toString(),
+        ...savedWebsite.toObject()
+      };
+      
+      // Remplacer ou ajouter dans le stockage mémoire
+      const existingIndex = global.websites.findIndex(
+        w => w.businessId === businessId && w.userId === user.id
+      );
+      
+      if (existingIndex >= 0) {
+        global.websites[existingIndex] = memoryWebsite;
+      } else {
+        global.websites.push(memoryWebsite);
+      }
+      
+    } catch (dbError) {
+      console.log("[Create Website] MongoDB not available, using memory storage only");
+      
+      // Créer uniquement en mémoire
+      const memoryWebsite = {
+        _id: siteId,
+        projectId: siteId,
         userId: user.id,
         businessId: businessId,
         businessName: businessName,
         name: `Site Web ${businessName}`,
         description: `Site web généré automatiquement pour ${businessName}`,
+        subdomain: subdomain,
         html: fullHtml,
         css: css || getDefaultCSS(),
         js: "",
@@ -116,8 +185,23 @@ ${html || getDefaultHTML(businessName, business.description)}
           generatedBy: 'ezia-ai',
           siteId: siteId,
           websiteUrl: websiteUrl
-        }
-      });
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      // Remplacer ou ajouter dans le stockage mémoire
+      const existingIndex = global.websites.findIndex(
+        w => w.businessId === businessId && w.userId === user.id
+      );
+      
+      if (existingIndex >= 0) {
+        global.websites[existingIndex] = memoryWebsite;
+      } else {
+        global.websites.push(memoryWebsite);
+      }
+      
+      savedWebsite = memoryWebsite;
     }
 
     // Mettre à jour le business avec l'URL du site
@@ -149,6 +233,7 @@ ${html || getDefaultHTML(businessName, business.description)}
         space_id: siteId,
         name: `Site Web ${businessName}`,
         url: websiteUrl,
+        subdomain: subdomain,
         html: fullHtml,
         publicUrl: `/sites/public/${savedWebsite._id}`
       },

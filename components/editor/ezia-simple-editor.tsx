@@ -23,7 +23,6 @@ import Link from "next/link";
 import { defaultHTML } from "@/lib/consts";
 import { ResponsivePreview } from "@/components/editor/responsive-preview";
 import { useEditor } from "@/hooks/useEditor";
-import { AskAI } from "@/components/editor/ask-ai";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,26 +64,20 @@ export const EziaSimpleEditor = ({
   const monacoRef = useRef<any>(null);
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStep, setGenerationStep] = useState(0);
   const [showCode, setShowCode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [project, setProject] = useState<any>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [modificationPrompt, setModificationPrompt] = useState("");
   const [hasGenerated, setHasGenerated] = useState(false);
+  const [modificationHistory, setModificationHistory] = useState<string[]>([]);
+  const [useEnhancedGeneration, setUseEnhancedGeneration] = useState(false); // Désactivé pour le moment
   
   const [saveData, setSaveData] = useState({
     name: businessName ? `Site web de ${businessName}` : "Mon site web",
     description: "Site web généré avec Ezia",
   });
 
-  // Steps de génération
-  const generationSteps = [
-    { label: "Analyse du brief", icon: MessageSquare },
-    { label: "Création de la structure", icon: Code },
-    { label: "Design et mise en page", icon: Wand2 },
-    { label: "Optimisation finale", icon: CheckCircle }
-  ];
 
   // Charger le projet si projectId est fourni
   useEffect(() => {
@@ -102,7 +95,10 @@ export const EziaSimpleEditor = ({
 
   const loadProject = async (id: string) => {
     try {
+      console.log("Loading project with ID:", id);
       const response = await api.get(`/api/user-projects/${id}`);
+      console.log("Project response:", response.data);
+      
       if (response.data.ok) {
         const loadedProject = response.data.project;
         setProject(loadedProject);
@@ -113,10 +109,17 @@ export const EziaSimpleEditor = ({
         });
         setHasGenerated(true);
         toast.success("Projet chargé avec succès");
+      } else {
+        console.error("Project not found:", response.data);
+        toast.error("Projet non trouvé");
+        // Si le projet n'existe pas, permettre de voir quand même l'éditeur
+        setHasGenerated(true);
       }
     } catch (error) {
       console.error("Error loading project:", error);
       toast.error("Erreur lors du chargement du projet");
+      // En cas d'erreur, permettre de voir quand même l'éditeur
+      setHasGenerated(true);
     }
   };
 
@@ -124,43 +127,91 @@ export const EziaSimpleEditor = ({
     if (!initialPrompt && !modificationPrompt) return;
     
     setIsGenerating(true);
-    setGenerationStep(0);
+    toast.info("Génération en cours...");
     
-    // Démarrer l'animation des étapes
-    const stepAnimation = async () => {
-      for (let i = 0; i < generationSteps.length; i++) {
-        setGenerationStep(i);
-        await new Promise(resolve => setTimeout(resolve, 2000)); // 2s par étape
-      }
-    };
-    
-    // Lancer l'animation et la génération en parallèle
-    const animationPromise = stepAnimation();
-    
-    // Déclencher la génération réelle via AskAI
-    const aiComponent = document.querySelector('[data-ai-component]');
-    if (aiComponent) {
-      const promptToUse = modificationPrompt || initialPrompt;
-      // Définir le prompt directement dans le composant AskAI
-      const promptInput = aiComponent.querySelector('textarea');
-      if (promptInput) {
-        (promptInput as HTMLTextAreaElement).value = promptToUse || '';
+    try {
+      const promptToUse = modificationPrompt || initialPrompt || "";
+      console.log("Generating with prompt:", promptToUse);
+      
+      let response;
+      
+      if (!hasGenerated && useEnhancedGeneration) {
+        // Première génération avec Mixtral pour une meilleure qualité
+        console.log("Using enhanced generation with Mixtral");
+        response = await api.post("/api/generate-website-v2", {
+          businessInfo: {
+            name: businessName || "Mon entreprise",
+            description: promptToUse,
+            industry: businessId ? "Services professionnels" : undefined
+          }
+        });
+        
+        if (response.data.ok && response.data.html) {
+          const newHtml = response.data.html;
+          setHtml(newHtml);
+          setHasGenerated(true);
+          toast.success("Site généré avec succès !");
+          
+          // Mettre à jour l'historique
+          const currentHistory = [...htmlHistory];
+          currentHistory.unshift({
+            html: newHtml,
+            createdAt: new Date(),
+            prompt: promptToUse,
+          });
+          setHtmlHistory(currentHistory);
+          setPrompts((prev) => [...prev, promptToUse]);
+        } else {
+          throw new Error("Erreur dans la génération améliorée");
+        }
+      } else {
+        // Modifications avec l'API standard
+        response = await api.put("/api/ask-ai", {
+          prompt: promptToUse,
+          provider: "novita",
+          model: "deepseek-ai/DeepSeek-V3-0324",
+          html: html,
+          businessId: businessId,
+          isFollowUp: true
+        });
+        
+        if (response.data.html || response.data.finalHtml) {
+          const newHtml = response.data.html || response.data.finalHtml;
+          setHtml(newHtml);
+          setHasGenerated(true);
+          toast.success("Modification appliquée avec succès !");
+          
+          // Mettre à jour l'historique
+          const currentHistory = [...htmlHistory];
+          currentHistory.unshift({
+            html: newHtml,
+            createdAt: new Date(),
+            prompt: promptToUse,
+          });
+          setHtmlHistory(currentHistory);
+          setPrompts((prev) => [...prev, promptToUse]);
+          
+          if (modificationPrompt) {
+            setModificationHistory(prev => [...prev, modificationPrompt]);
+          }
+        } else {
+          console.error("No HTML in response:", response.data);
+          toast.error("Erreur lors de la génération");
+        }
       }
       
-      // Déclencher la soumission du formulaire
-      const form = aiComponent.querySelector('form');
-      if (form) {
-        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-        form.dispatchEvent(submitEvent);
+      // Mettre à jour l'iframe immédiatement
+      if (iframeRef.current && html) {
+        iframeRef.current.srcdoc = html;
       }
+    } catch (error) {
+      console.error("Error generating website:", error);
+      toast.error("Erreur lors de la génération du site");
+    } finally {
+      setIsGenerating(false);
+      setHasGenerated(true);
+      setModificationPrompt("");
     }
-    
-    // Attendre que l'animation soit terminée avant de masquer le loader
-    await animationPromise;
-    
-    // Note: setIsGenerating(false) sera appelé par le callback dans AskAI
-    setHasGenerated(true);
-    setModificationPrompt("");
   };
 
   const saveProject = async () => {
@@ -395,6 +446,26 @@ export const EziaSimpleEditor = ({
                   </div>
                 </div>
 
+                {/* Option de génération améliorée - Désactivée pour le moment */}
+                {/* <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-purple-600" />
+                    <div>
+                      <p className="font-medium text-purple-900">Génération améliorée</p>
+                      <p className="text-sm text-purple-700">Utilise Mixtral pour une meilleure qualité</p>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useEnhancedGeneration}
+                      onChange={(e) => setUseEnhancedGeneration(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                  </label>
+                </div> */}
+
                 {/* Bouton de génération */}
                 <Button
                   size="lg"
@@ -405,73 +476,19 @@ export const EziaSimpleEditor = ({
                   <Wand2 className="w-5 h-5 mr-2" />
                   Créer mon site
                 </Button>
-              </CardContent>
-            </Card>
-          </div>
-        ) : isGenerating ? (
-          /* État de génération */
-          <div className="max-w-3xl mx-auto">
-            <Card className="shadow-lg">
-              <CardContent className="py-12">
-                <div className="text-center space-y-6">
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-purple-100 rounded-full animate-pulse">
-                    <Sparkles className="w-10 h-10 text-[#6D3FC8]" />
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-2xl font-semibold mb-2">
-                      Création en cours...
-                    </h3>
-                    <p className="text-gray-600">
-                      Notre équipe d'agents travaille sur votre site
-                    </p>
-                  </div>
-
-                  {/* Étapes de génération */}
-                  <div className="space-y-4 max-w-md mx-auto">
-                    {generationSteps.map((step, index) => {
-                      const Icon = step.icon;
-                      const isActive = index === generationStep;
-                      const isCompleted = index < generationStep;
-                      
-                      return (
-                        <div
-                          key={index}
-                          className={cn(
-                            "flex items-center gap-3 p-3 rounded-lg transition-all",
-                            isActive && "bg-purple-50 border border-purple-200",
-                            isCompleted && "opacity-60"
-                          )}
-                        >
-                          <div className={cn(
-                            "w-10 h-10 rounded-full flex items-center justify-center",
-                            isActive && "bg-[#6D3FC8] text-white",
-                            isCompleted && "bg-green-500 text-white",
-                            !isActive && !isCompleted && "bg-gray-200 text-gray-500"
-                          )}>
-                            {isCompleted ? (
-                              <CheckCircle className="w-5 h-5" />
-                            ) : (
-                              <Icon className="w-5 h-5" />
-                            )}
-                          </div>
-                          <span className={cn(
-                            "font-medium",
-                            isActive && "text-[#6D3FC8]",
-                            !isActive && !isCompleted && "text-gray-500"
-                          )}>
-                            {step.label}
-                          </span>
-                          {isActive && (
-                            <Loader2 className="w-4 h-4 animate-spin ml-auto text-[#6D3FC8]" />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <Progress value={(generationStep + 1) * 25} className="max-w-md mx-auto" />
-                </div>
+                
+                {/* Bouton pour passer à l'éditeur si un projet existe */}
+                {projectId && (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full mt-2"
+                    onClick={() => setHasGenerated(true)}
+                  >
+                    <Eye className="w-5 h-5 mr-2" />
+                    Voir le site existant
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -483,12 +500,15 @@ export const EziaSimpleEditor = ({
               <CardContent className="py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-6">
-                    <h2 className="text-lg font-semibold">Votre site est prêt !</h2>
+                    <h2 className="text-lg font-semibold">
+                      {isGenerating ? "Modification en cours..." : "Votre site est prêt !"}
+                    </h2>
                     <div className="flex items-center gap-2">
                       <Button
                         variant={showCode ? "default" : "outline"}
                         size="sm"
                         onClick={() => setShowCode(!showCode)}
+                        disabled={isGenerating}
                       >
                         <Code className="w-4 h-4 mr-2" />
                         {showCode ? "Masquer" : "Voir"} le code
@@ -497,26 +517,91 @@ export const EziaSimpleEditor = ({
                   </div>
                   
                   {/* Zone de modification simplifiée */}
-                  <div className="flex items-center gap-2">
-                    <Input
-                      placeholder="Modifier quelque chose..."
-                      value={modificationPrompt}
-                      onChange={(e) => setModificationPrompt(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && modificationPrompt) {
-                          generateWebsite();
-                        }
-                      }}
-                      className="w-80"
-                    />
-                    <Button
-                      size="sm"
-                      onClick={generateWebsite}
-                      disabled={!modificationPrompt}
-                    >
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Modifier
-                    </Button>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1 max-w-md">
+                        <Input
+                          placeholder="Ex: Changer la couleur en bleu, ajouter une section contact..."
+                          value={modificationPrompt}
+                          onChange={(e) => setModificationPrompt(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && modificationPrompt && !isGenerating) {
+                              generateWebsite();
+                            }
+                          }}
+                          disabled={isGenerating}
+                          className="pr-10"
+                        />
+                        {modificationPrompt && (
+                          <button
+                            onClick={() => setModificationPrompt("")}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={generateWebsite}
+                        disabled={!modificationPrompt || isGenerating}
+                        className={cn(
+                          "min-w-[120px]",
+                          isGenerating && "animate-pulse"
+                        )}
+                      >
+                        {isGenerating ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            En cours...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Modifier
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    {/* Suggestions de modifications */}
+                    {!modificationPrompt && !isGenerating && (
+                      <div className="flex flex-wrap gap-1">
+                        <span className="text-xs text-gray-500">Essayez:</span>
+                        {[
+                          "Changer les couleurs",
+                          "Ajouter des animations",
+                          "Modifier le texte",
+                          "Ajouter une section"
+                        ].map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            onClick={() => setModificationPrompt(suggestion)}
+                            className="text-xs text-[#6D3FC8] hover:text-[#5A35A5] hover:underline"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {/* Historique des modifications */}
+                    {modificationHistory.length > 0 && !isGenerating && (
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Clock className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">Modifications récentes:</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {modificationHistory.slice(-3).map((mod, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+                            >
+                              {mod}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -529,7 +614,7 @@ export const EziaSimpleEditor = ({
             )}>
               {/* Aperçu avec contrôles responsive */}
               <Card className={cn(
-                "shadow-lg overflow-hidden",
+                "shadow-lg overflow-hidden relative",
                 !showCode && "col-span-full"
               )} style={{ minHeight: "700px" }}>
                 <CardHeader>
@@ -540,6 +625,26 @@ export const EziaSimpleEditor = ({
                     html={html}
                     iframeRef={iframeRef}
                   />
+                  {/* Overlay de chargement pendant la génération */}
+                  {isGenerating && (
+                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+                      <div className="text-center space-y-4">
+                        <Loader2 className="w-12 h-12 animate-spin text-[#6D3FC8] mx-auto" />
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">
+                            Application des modifications...
+                          </h3>
+                          <p className="text-gray-600 max-w-sm">
+                            Notre équipe d'agents travaille sur vos demandes
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <Info className="w-4 h-4" />
+                          <span>Cela peut prendre quelques secondes</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -589,33 +694,6 @@ export const EziaSimpleEditor = ({
         )}
       </div>
 
-      {/* Chat AI caché pour la génération */}
-      <div data-ai-component className="hidden">
-        <AskAI
-          html={html}
-          setHtml={(newHtml: string) => {
-            setHtml(newHtml);
-            setIsGenerating(false);
-          }}
-          htmlHistory={htmlHistory}
-          initialPrompt={initialPrompt}
-          businessId={businessId}
-          onSuccess={(finalHtml, p) => {
-            const currentHistory = [...htmlHistory];
-            currentHistory.unshift({
-              html: finalHtml,
-              createdAt: new Date(),
-              prompt: p,
-            });
-            setHtmlHistory(currentHistory);
-            setPrompts((prev) => [...prev, p]);
-          }}
-          isAiWorking={isGenerating}
-          setisAiWorking={setIsGenerating}
-          onNewPrompt={(prompt) => setPrompts((prev) => [...prev, prompt])}
-          onScrollToBottom={() => {}}
-        />
-      </div>
 
       {/* Dialog de sauvegarde */}
       <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>

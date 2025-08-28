@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "SKIP_ENV_VALIDATION=1 next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:db": "node scripts/test-db-connection.js"
   },
   "dependencies": {
     "@huggingface/hub": "^2.2.0",
@@ -39,6 +40,7 @@
     "@tanstack/react-query-devtools": "^5.80.6",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "autoprefixer": "^10.4.21",
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",

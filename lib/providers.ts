@@ -34,9 +34,34 @@ export const PROVIDERS = {
     max_tokens: 16_384,
     id: "groq",
   },
+  huggingface: {
+    name: "Hugging Face",
+    max_tokens: 32_768,
+    id: "huggingface",
+  },
 };
 
 export const MODELS = [
+  {
+    value: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+    label: "Mixtral 8x7B Instruct",
+    providers: ["huggingface", "together", "fireworks-ai", "groq"],
+    autoProvider: "huggingface",
+    isRecommended: true,
+  },
+  {
+    value: "Qwen/Qwen2.5-Coder-32B-Instruct",
+    label: "Qwen 2.5 Coder 32B",
+    providers: ["huggingface", "together"],
+    autoProvider: "huggingface",
+    isNew: true,
+  },
+  {
+    value: "codellama/CodeLlama-34b-Instruct-hf",
+    label: "CodeLlama 34B Instruct",
+    providers: ["huggingface", "together"],
+    autoProvider: "huggingface",
+  },
   {
     value: "deepseek-ai/DeepSeek-V3-0324",
     label: "DeepSeek V3 O324",
@@ -62,7 +87,6 @@ export const MODELS = [
     label: "Qwen3 Coder 480B A35B Instruct",
     providers: ["novita", "hyperbolic"],
     autoProvider: "novita",
-    isNew: true,
   },
   {
     value: "moonshotai/Kimi-K2-Instruct",

@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   const userToken = request.cookies.get(MY_TOKEN_KEY())?.value;
 
   const body = await request.json();
-  const { prompt, provider, model, redesignMarkdown, html, businessId } = body;
+  const { prompt, provider, model, redesignMarkdown, html, businessId, stream = true } = body;
 
   if (!model || (!prompt && !redesignMarkdown)) {
     return NextResponse.json(
@@ -112,6 +112,100 @@ export async function POST(request: NextRequest) {
     // Log pour debug
     console.log("AI Request - Provider:", selectedProvider.id, "Model:", selectedModel.value);
     console.log("Token available:", !!token, "BillTo:", billTo);
+    
+        // Handle non-streaming mode for website generation
+    if (!stream) {
+      console.log("AI Request - Non-streaming mode");
+      
+      try {
+        const client = new InferenceClient(token);
+        const chatCompletion = await client.chatCompletion(
+          {
+            model: selectedModel.value,
+            provider: selectedProvider.id as any,
+            messages: [
+              {
+                role: "system",
+                content: businessId ? 
+                  `${INITIAL_SYSTEM_PROMPT}\n\nIMPORTANT: Tu dois créer un site web professionnel en français.\nUtilise des couleurs et un design adaptés à l'industrie mentionnée.\nLe site doit inclure: header avec navigation, hero section, services, à propos, contact, footer.\nLe contenu doit être pertinent et personnalisé selon les informations du business fournies.` :
+                  INITIAL_SYSTEM_PROMPT,
+              },
+              {
+                role: "user",
+                content: businessId
+                  ? `Génère un site web professionnel en français basé sur ces informations:\n\n${prompt}\n\nCrée un site moderne et responsive qui correspond parfaitement au business décrit.`
+                  : prompt,
+              },
+            ],
+            max_tokens: selectedProvider.max_tokens,
+          },
+          billTo ? { billTo } : {}
+        );
+        
+        const responseContent = chatCompletion.choices[0]?.message?.content;
+        
+        if (!responseContent) {
+          return NextResponse.json(
+            { ok: false, message: "No content returned from the model" },
+            { status: 400 }
+          );
+        }
+        
+        console.log("AI Response length:", responseContent.length);
+        
+        return NextResponse.json({
+          ok: true,
+          content: responseContent,
+          model: selectedModel.value,
+          provider: selectedProvider.id
+        });
+        
+      } catch (error: any) {
+        console.error("AI non-streaming error:", error);
+        
+        if (error.message?.includes("exceeded your monthly included credits")) {
+          return NextResponse.json(
+            {
+              ok: false,
+              openProModal: true,
+              message: error.message,
+            },
+            { status: 402 }
+          );
+        }
+        
+        // Try fallback for non-streaming mode
+        if (error.message?.includes("Failed to perform inference") || error.message?.includes("HTTP error")) {
+          console.log("Trying fallback in non-streaming mode");
+          try {
+            const fallbackResponse = await generateWithFallback(
+              token,
+              businessId
+                ? `Génère un site web professionnel en français basé sur ces informations:\n\n${prompt}\n\nCrée un site moderne et responsive qui correspond parfaitement au business décrit.`
+                : prompt,
+              INITIAL_SYSTEM_PROMPT
+            );
+            
+            return NextResponse.json({
+              ok: true,
+              content: fallbackResponse,
+              model: "fallback",
+              provider: "huggingface"
+            });
+          } catch (fallbackError) {
+            console.error("Fallback also failed:", fallbackError);
+          }
+        }
+        
+        return NextResponse.json(
+          {
+            ok: false,
+            message: error.message || "An error occurred while processing your request.",
+          },
+          { status: 500 }
+        );
+      }
+    }
     
     // Create a stream response
     const encoder = new TextEncoder();

@@ -22,23 +22,42 @@ interface WebsiteSectionProps {
 export function WebsiteSection({ business, onRefresh }: WebsiteSectionProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [website, setWebsite] = useState<any>(null);
+  const [websites, setWebsites] = useState<any[]>([]);
+  const [selectedWebsite, setSelectedWebsite] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   
   useEffect(() => {
-    if (business.websiteGeneratedAt || business.hasWebsite === 'yes') {
-      fetchWebsite();
-    }
+    fetchWebsites();
   }, [business.business_id]);
   
-  const fetchWebsite = async () => {
+  const fetchWebsites = async () => {
     try {
-      const response = await api.get(`/api/business/${business.business_id}/website`);
-      if (response.data.ok) {
-        setWebsite(response.data.website);
+      const allWebsites = [];
+      
+      // Récupérer les projets simples
+      try {
+        const response = await api.get('/api/user-projects-db');
+        if (response.data.ok) {
+          const businessWebsites = response.data.projects.filter(
+            (project: any) => project.businessId === business.business_id
+          );
+          allWebsites.push(...businessWebsites);
+        }
+      } catch (error) {
+        console.log("Error fetching simple projects:", error);
+      }
+      
+      
+      // Trier par date de mise à jour
+      allWebsites.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      
+      setWebsites(allWebsites);
+      // Sélectionner le plus récent par défaut
+      if (allWebsites.length > 0) {
+        setSelectedWebsite(allWebsites[0]);
       }
     } catch (error) {
-      console.error("Error fetching website:", error);
+      console.error("Error fetching websites:", error);
     }
   };
   
@@ -47,10 +66,13 @@ export function WebsiteSection({ business, onRefresh }: WebsiteSectionProps) {
       setLoading(true);
       const response = await api.post(`/api/business/${business.business_id}/generate-website`);
       
-      if (response.data.success) {
+      if (response.data.ok || response.data.success) {
         toast.success("Site web généré avec succès !");
         onRefresh();
-        fetchWebsite();
+        // Attendre un peu avant de récupérer le site web pour s'assurer qu'il est bien enregistré
+        setTimeout(() => {
+          fetchWebsites();
+        }, 1000);
       } else {
         throw new Error(response.data.error || "Erreur lors de la génération");
       }
@@ -63,8 +85,10 @@ export function WebsiteSection({ business, onRefresh }: WebsiteSectionProps) {
   };
   
   const copyPublicLink = () => {
-    if (website) {
-      const publicUrl = `${window.location.origin}/sites/public/${website._id}`;
+    if (selectedWebsite) {
+      const publicUrl = selectedWebsite.subdomain && selectedWebsite.status === 'published'
+        ? `https://${selectedWebsite.subdomain}.ezia.ai`
+        : `${window.location.origin}/sites/view/${selectedWebsite.projectId}`;
       navigator.clipboard.writeText(publicUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -73,14 +97,18 @@ export function WebsiteSection({ business, onRefresh }: WebsiteSectionProps) {
   };
   
   const openEditor = () => {
-    if (website) {
-      router.push(`/sites/${website._id}/edit`);
+    if (selectedWebsite) {
+      router.push(`/sites/${selectedWebsite.projectId}/edit`);
     }
   };
   
   const openPublicSite = () => {
-    if (website) {
-      window.open(`/sites/public/${website._id}`, '_blank');
+    if (selectedWebsite) {
+      if (selectedWebsite.subdomain && selectedWebsite.status === 'published') {
+        window.open(`https://${selectedWebsite.subdomain}.ezia.ai`, '_blank');
+      } else {
+        window.open(`/sites/view/${selectedWebsite.projectId}`, '_blank');
+      }
     }
   };
   
@@ -97,16 +125,16 @@ export function WebsiteSection({ business, onRefresh }: WebsiteSectionProps) {
               Votre présence en ligne professionnelle
             </CardDescription>
           </div>
-          {website && (
+          {websites.length > 0 && (
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
               <Check className="w-3 h-3 mr-1" />
-              Publié
+              {websites.length} site{websites.length > 1 ? 's' : ''} publié{websites.length > 1 ? 's' : ''}
             </Badge>
           )}
         </div>
       </CardHeader>
       <CardContent>
-        {!website && !business.websiteGeneratedAt ? (
+        {websites.length === 0 && !business.websiteGeneratedAt ? (
           // Pas encore de site web
           <div className="text-center py-8">
             <Globe className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -138,42 +166,72 @@ export function WebsiteSection({ business, onRefresh }: WebsiteSectionProps) {
               </Button>
             )}
           </div>
-        ) : website ? (
+        ) : selectedWebsite ? (
           // Site web existant
           <div className="space-y-4">
+            {/* Sélecteur de sites si plusieurs */}
+            {websites.length > 1 && (
+              <div className="mb-4">
+                <label className="text-sm font-medium text-gray-600">Sites disponibles</label>
+                <select 
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6D3FC8]"
+                  value={selectedWebsite.projectId}
+                  onChange={(e) => {
+                    const site = websites.find(w => w.projectId === e.target.value);
+                    setSelectedWebsite(site);
+                  }}
+                >
+                  {websites.map((site) => (
+                    <option key={site.projectId} value={site.projectId}>
+                      {site.name} - {format(new Date(site.createdAt), "d MMM yyyy", { locale: fr })}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            
             <div className="bg-gray-50 rounded-lg p-4 space-y-3">
               <div>
                 <h4 className="font-medium text-sm text-gray-600">Nom du site</h4>
-                <p className="text-gray-900">{website.name}</p>
+                <p className="text-gray-900">{selectedWebsite.name}</p>
               </div>
               
-              {website.description && (
+              {selectedWebsite.subdomain && (
+                <div>
+                  <h4 className="font-medium text-sm text-gray-600">Adresse du site</h4>
+                  <p className="text-[#6D3FC8] font-medium">
+                    {selectedWebsite.subdomain}.ezia.ai
+                  </p>
+                </div>
+              )}
+              
+              {selectedWebsite.description && (
                 <div>
                   <h4 className="font-medium text-sm text-gray-600">Description</h4>
-                  <p className="text-gray-900">{website.description}</p>
+                  <p className="text-gray-900">{selectedWebsite.description}</p>
                 </div>
               )}
               
               <div>
                 <h4 className="font-medium text-sm text-gray-600">Créé le</h4>
                 <p className="text-gray-900">
-                  {format(new Date(website.createdAt), "d MMMM yyyy à HH:mm", { locale: fr })}
+                  {format(new Date(selectedWebsite.createdAt), "d MMMM yyyy à HH:mm", { locale: fr })}
                 </p>
               </div>
               
-              {website.updatedAt && website.updatedAt !== website.createdAt && (
+              {selectedWebsite.updatedAt && selectedWebsite.updatedAt !== selectedWebsite.createdAt && (
                 <div>
                   <h4 className="font-medium text-sm text-gray-600">Dernière modification</h4>
                   <p className="text-gray-900">
-                    {format(new Date(website.updatedAt), "d MMMM yyyy à HH:mm", { locale: fr })}
+                    {format(new Date(selectedWebsite.updatedAt), "d MMMM yyyy à HH:mm", { locale: fr })}
                   </p>
                 </div>
               )}
               
-              {website.version > 1 && (
+              {selectedWebsite.version > 1 && (
                 <div>
                   <h4 className="font-medium text-sm text-gray-600">Version</h4>
-                  <p className="text-gray-900">v{website.version}</p>
+                  <p className="text-gray-900">v{selectedWebsite.version}</p>
                 </div>
               )}
             </div>
@@ -230,16 +288,16 @@ export function WebsiteSection({ business, onRefresh }: WebsiteSectionProps) {
               </Button>
             </div>
             
-            {website.metadata?.websiteUrl && (
+            {selectedWebsite.metadata?.websiteUrl && (
               <div className="text-center pt-2">
                 <a 
-                  href={website.metadata.websiteUrl}
+                  href={selectedWebsite.metadata.websiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-[#6D3FC8] hover:text-[#5A35A5] hover:underline inline-flex items-center gap-1"
                 >
                   <ExternalLink className="w-3 h-3" />
-                  {website.metadata.websiteUrl}
+                  {selectedWebsite.metadata.websiteUrl}
                 </a>
               </div>
             )}

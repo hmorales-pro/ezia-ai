@@ -1,29 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useState, use } from "react";
 import { Loader2 } from "lucide-react";
 
-export default function PublicSitePage() {
-  const { projectId } = useParams();
+export default function PublicSitePage({ 
+  params 
+}: { 
+  params: Promise<{ projectId: string }> 
+}) {
+  const { projectId } = use(params);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [htmlContent, setHtmlContent] = useState("");
 
   useEffect(() => {
-    fetchSite();
+    if (projectId) {
+      fetchSite();
+    }
   }, [projectId]);
 
   const fetchSite = async () => {
     try {
+      console.log('Fetching site with projectId:', projectId);
       const response = await fetch(`/api/sites/public/${projectId}`);
       
       if (!response.ok) {
+        console.error('Response not ok:', response.status);
         setError(true);
         return;
       }
       
       const html = await response.text();
+      console.log('HTML received, length:', html.length);
       setHtmlContent(html);
     } catch (err) {
       console.error("Error loading site:", err);

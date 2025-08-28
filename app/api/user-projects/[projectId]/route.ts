@@ -50,6 +50,7 @@ export async function GET(
         businessName: project.businessName,
         name: project.name,
         description: project.description,
+        subdomain: project.subdomain,
         html: project.html,
         css: project.css,
         js: project.js,
@@ -125,6 +126,7 @@ export async function PUT(
     
     if (updates.name) updateFields.name = updates.name;
     if (updates.description) updateFields.description = updates.description;
+    if (updates.subdomain) updateFields.subdomain = updates.subdomain;
     if (updates.status) updateFields.status = updates.status;
     if (updates.metadata) updateFields.metadata = { ...project.metadata, ...updates.metadata };
     
@@ -144,6 +146,7 @@ export async function PUT(
         businessName: updatedProject.businessName,
         name: updatedProject.name,
         description: updatedProject.description,
+        subdomain: updatedProject.subdomain,
         html: updatedProject.html,
         css: updatedProject.css,
         js: updatedProject.js,

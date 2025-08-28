@@ -51,16 +51,18 @@ const OAUTH_CONFIGS = {
 // GET - Initier le flux OAuth
 export async function GET(
   request: NextRequest,
-  { params }: { params: { platform: string } }
+  { params }: { params: Promise<{ platform: string }> }
 ) {
   try {
+    const { platform } = await params;
+    
     const user = await isAuthenticated();
     if (user instanceof NextResponse || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const platform = params.platform as keyof typeof OAUTH_CONFIGS;
-    const config = OAUTH_CONFIGS[platform];
+    const platformKey = platform as keyof typeof OAUTH_CONFIGS;
+    const config = OAUTH_CONFIGS[platformKey];
 
     if (!config) {
       return NextResponse.json({ error: "Invalid platform" }, { status: 400 });
@@ -78,7 +80,7 @@ export async function GET(
     // Générer un state unique pour la sécurité CSRF
     const state = Buffer.from(JSON.stringify({
       userId: user.id,
-      platform,
+      platform: platformKey,
       timestamp: Date.now()
     })).toString('base64');
 
@@ -104,7 +106,8 @@ export async function GET(
     return NextResponse.redirect(authUrl);
 
   } catch (error) {
-    console.error(`Error initiating OAuth for ${params.platform}:`, error);
+    const { platform } = await params;
+    console.error(`Error initiating OAuth for ${platform}:`, error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

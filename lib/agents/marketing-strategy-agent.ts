@@ -200,6 +200,70 @@ Réponds UNIQUEMENT avec un objet JSON valide:
           .replace(/,\s*,/g, ',') // Enlever les virgules doubles
           .replace(/\n\s*\n/g, '\n'); // Enlever les lignes vides multiples
         
+        // Vérifier si le JSON est tronqué et essayer de le réparer
+        if (jsonContent) {
+          console.log(`[Agent Marketing IA] Taille du JSON reçu: ${jsonContent.length} caractères`);
+          
+          if (!jsonContent.trim().endsWith('}')) {
+            console.warn("[Agent Marketing IA] JSON tronqué détecté, tentative de réparation...");
+            
+            // Trouver la dernière position valide avant la troncature
+            let lastValidPos = jsonContent.length;
+            let inString = false;
+            let escaped = false;
+            
+            for (let i = 0; i < jsonContent.length; i++) {
+              const char = jsonContent[i];
+              
+              if (escaped) {
+                escaped = false;
+                continue;
+              }
+              
+              if (char === '\\') {
+                escaped = true;
+                continue;
+              }
+              
+              if (char === '"') {
+                inString = !inString;
+              }
+            }
+            
+            // Si on est dans une chaîne, la fermer
+            let repaired = jsonContent;
+            if (inString) {
+              repaired += '"';
+            }
+            
+            // Compter les accolades et crochets ouverts
+            const openBraces = (repaired.match(/{/g) || []).length;
+            const closeBraces = (repaired.match(/}/g) || []).length;
+            const openBrackets = (repaired.match(/\[/g) || []).length;
+            const closeBrackets = (repaired.match(/]/g) || []).length;
+            
+            // Ajouter une virgule si nécessaire
+            const lastChar = repaired.trim().slice(-1);
+            if (lastChar !== ',' && lastChar !== '{' && lastChar !== '[' && 
+                (openBrackets > closeBrackets || openBraces > closeBraces)) {
+              repaired += ',';
+            }
+            
+            // Fermer les tableaux
+            for (let i = 0; i < openBrackets - closeBrackets; i++) {
+              repaired += ']';
+            }
+            
+            // Fermer les objets
+            for (let i = 0; i < openBraces - closeBraces; i++) {
+              repaired += '}';
+            }
+            
+            jsonContent = repaired;
+            console.log("[Agent Marketing IA] JSON réparé, nouvelle taille:", jsonContent.length);
+          }
+        }
+        
         const strategy = JSON.parse(jsonContent);
         
         // Enrichir avec des éléments visuels
@@ -213,6 +277,21 @@ Réponds UNIQUEMENT avec un objet JSON valide:
       } catch (parseError: any) {
         console.error("[Agent Marketing IA] Erreur parsing:", parseError);
         console.error("[Agent Marketing IA] JSON problématique:", response.content?.substring(0, 500));
+        
+        // Si le JSON contient au moins quelques données, essayer de les extraire
+        try {
+          const partialMatch = response.content?.match(/\{[\s\S]*?"executive_summary"[\s\S]*?}/);
+          if (partialMatch) {
+            const partialStrategy = JSON.parse(partialMatch[0] + '}');
+            return {
+              ...generateMarketingFallback(business),
+              ...partialStrategy
+            };
+          }
+        } catch (e) {
+          // Ignorer l'erreur et utiliser le fallback
+        }
+        
         return generateMarketingFallback(business);
       }
     }

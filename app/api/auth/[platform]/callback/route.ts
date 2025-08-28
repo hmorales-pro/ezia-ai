@@ -39,9 +39,11 @@ const OAUTH_CONFIGS = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { platform: string } }
+  { params }: { params: Promise<{ platform: string }> }
 ) {
   try {
+    const { platform } = await params;
+    
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
     const state = searchParams.get("state");
@@ -50,7 +52,7 @@ export async function GET(
 
     // Gérer les erreurs OAuth
     if (error) {
-      console.error(`OAuth error for ${params.platform}:`, error);
+      console.error(`OAuth error for ${platform}:`, error);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/business?oauth_error=${error}`
       );
@@ -66,13 +68,13 @@ export async function GET(
     if (simulated === "true") {
       // Simuler la sauvegarde de la connexion
       const user = await isAuthenticated();
-      if (session) {
+      if (user) {
         // Ici vous pourriez sauvegarder la connexion simulée en base de données
-        console.log(`Simulated OAuth connection for ${params.platform}`);
+        console.log(`Simulated OAuth connection for ${platform}`);
       }
       
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_APP_URL}/business?oauth_success=${params.platform}`
+        `${process.env.NEXT_PUBLIC_APP_URL}/business?oauth_success=${platform}`
       );
     }
 
@@ -86,8 +88,8 @@ export async function GET(
       );
     }
 
-    const platform = params.platform as keyof typeof OAUTH_CONFIGS;
-    const config = OAUTH_CONFIGS[platform];
+    const platformKey = platform as keyof typeof OAUTH_CONFIGS;
+    const config = OAUTH_CONFIGS[platformKey];
 
     if (!config) {
       return NextResponse.redirect(
@@ -113,8 +115,8 @@ export async function GET(
     });
 
     if (!tokenResponse.ok) {
-      const error = await tokenResponse.text();
-      console.error(`Token exchange error for ${platform}:`, error);
+      const errorText = await tokenResponse.text();
+      console.error(`Token exchange error for ${platform}:`, errorText);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/business?oauth_error=token_exchange_failed`
       );
@@ -167,7 +169,8 @@ export async function GET(
     );
 
   } catch (error) {
-    console.error(`Error in OAuth callback for ${params.platform}:`, error);
+    const { platform } = await params;
+    console.error(`Error in OAuth callback for ${platform}:`, error);
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL}/business?oauth_error=callback_error`
     );
