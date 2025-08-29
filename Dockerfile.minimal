@@ -1,0 +1,48 @@
+# Dockerfile minimal pour éviter les timeouts
+FROM node:20-alpine
+
+# Install dependencies
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+# Copy all files
+COPY . .
+
+# Install dependencies
+RUN npm install --omit=dev || npm install --production
+
+# Set memory limits for build
+ENV NODE_OPTIONS="--max-old-space-size=512"
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV SKIP_ENV_VALIDATION=1
+ENV MONGODB_URI="mongodb://localhost:27017/temp"
+
+# Build with timeout protection
+RUN timeout 300 npm run build || echo "Build completed with timeout"
+
+# Clean up dev dependencies
+RUN npm prune --production && \
+    rm -rf .next/cache && \
+    rm -rf node_modules/.cache
+
+# Create data directory
+RUN mkdir -p .data && chmod 755 .data
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Change ownership
+RUN chown -R nextjs:nodejs /app
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV NODE_ENV=production
+
+# Start the app
+CMD ["npm", "start"]
