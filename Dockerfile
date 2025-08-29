@@ -1,16 +1,27 @@
-# Dockerfile optimisé pour Ezia sur VPS avec Dokploy
+# Dockerfile optimisé pour Ezia - Build rapide et taille réduite
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Copy package files only
+COPY package.json package-lock.json ./
+
+# Install dependencies with cache mount
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --only=production
+
+# Stage 2: Build
 FROM node:20-alpine AS builder
-
-# Install dependencies for native modules
-RUN apk add --no-cache libc6-compat python3 make g++
-
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-# Install all dependencies
-RUN npm install --frozen-lockfile || npm install
+# Install all dependencies (including devDependencies)
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
 # Copy source code
 COPY . .
@@ -21,44 +32,32 @@ ENV SKIP_ENV_VALIDATION 1
 
 RUN npm run build
 
-# Production stage
+# Stage 3: Runner
 FROM node:20-alpine AS runner
-
 WORKDIR /app
 
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
 # Add non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Install only production dependencies
-COPY package*.json ./
-RUN npm install --production && \
-    npm cache clean --force
+# Copy necessary files
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy built application
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.ts ./
-COPY --from=builder /app/tailwind.config.ts ./
-
-# Create necessary directories
-RUN mkdir -p .next/cache && \
-    chown -R nextjs:nodejs /app
+# Create .data directory for JSON storage
+RUN mkdir -p .data && chown -R nextjs:nodejs .data
 
 USER nextjs
 
-# Expose port
 EXPOSE 3000
 
-# Environment variables
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
-
-# Start the application
-CMD ["npm", "start"]
+# Use node directly for better performance
+CMD ["node", "server.js"]
