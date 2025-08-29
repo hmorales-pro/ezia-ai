@@ -49,10 +49,10 @@ export default function EziaAuthPage() {
   }, [searchParams]);
 
   const features = [
-    { icon: Globe, text: "Créez votre site web en minutes" },
+    { icon: Globe, text: "Créez votre site web facilement" },
     { icon: TrendingUp, text: "Stratégie marketing personnalisée" },
-    { icon: Users, text: "Équipe d'experts IA dédiée" },
-    { icon: Zap, text: "Résultats immédiats garantis" }
+    { icon: Users, text: "Équipe d'agents IA spécialisés" },
+    { icon: Zap, text: "Interface simple et intuitive" }
   ];
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -391,7 +391,7 @@ export default function EziaAuthPage() {
             Votre partenaire business IA est prêt à vous aider
           </h2>
           <p className="text-xl text-white/90 mb-8">
-            Rejoignez des milliers d'entrepreneurs qui font grandir leur business avec Ezia
+            Découvrez comment Ezia peut transformer votre business
           </p>
           
           <div className="space-y-4">
@@ -406,17 +406,11 @@ export default function EziaAuthPage() {
           </div>
 
           <div className="mt-12 p-6 bg-white/10 backdrop-blur-sm rounded-xl">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex -space-x-2">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="w-10 h-10 rounded-full bg-white/20 border-2 border-white flex items-center justify-center text-white font-semibold">
-                    {i + 1}K
-                  </div>
-                ))}
-              </div>
+            <div className="flex items-center gap-4">
+              <CheckCircle2 className="w-12 h-12 text-white/80" />
               <div className="text-white">
-                <p className="font-semibold">+4000 entrepreneurs</p>
-                <p className="text-sm text-white/80">nous font déjà confiance</p>
+                <p className="font-semibold">Solution 100% française</p>
+                <p className="text-sm text-white/80">Conçue pour les entrepreneurs d'ici</p>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { 
   Sparkles, 
   ArrowRight, 
@@ -44,7 +45,7 @@ export default function HomePage() {
   const benefits = [
     {
       icon: Clock,
-      title: "Partenaire business 24/7",
+      title: "Assistant IA disponible",
       description: "Ezia analyse votre marché, définit votre stratégie et gère votre présence digitale. Tout en conversant naturellement."
     },
     {
@@ -91,19 +92,19 @@ export default function HomePage() {
     {
       name: "Marie L.",
       role: "Fondatrice d'une startup",
-      content: "Ezia m'a aidée à valider mon idée, analyser mon marché et lancer ma stratégie. J'ai gagné 6 mois de développement !",
+      content: "Ezia m'a aidée à structurer mon idée et comprendre mon marché. L'équipe d'agents IA est vraiment utile pour avancer pas à pas.",
       rating: 5
     },
     {
       name: "Thomas B.",
       role: "Consultant indépendant",
-      content: "Ezia gère ma présence en ligne, mes réseaux sociaux et ma stratégie de contenu. J'ai triplé mon chiffre d'affaires !",
+      content: "La création de mon site web avec Ezia a été simple et rapide. Je peux me concentrer sur mon métier plutôt que sur la technique.",
       rating: 5
     },
     {
       name: "Sophie M.",
       role: "Restaurant local",
-      content: "L'analyse de la concurrence et la stratégie marketing d'Ezia ont transformé mon business. +200% de réservations !",
+      content: "L'analyse de marché d'Ezia m'a donné des insights précieux sur ma clientèle et mes concurrents. Un vrai gain de temps !",
       rating: 5
     }
   ];
@@ -144,16 +145,13 @@ export default function HomePage() {
                 stratégie, marketing, développement commercial, présence digitale et bien plus.
               </p>
 
-              <div className="flex items-center gap-6 mb-8">
-                <div className="flex -space-x-2">
-                  {[...Array(4)].map((_, i) => (
-                    <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 border-2 border-white flex items-center justify-center text-white font-semibold">
-                      {i + 1}K
-                    </div>
-                  ))}
-                </div>
+              <div className="flex items-center gap-4 mb-8">
+                <Badge className="bg-purple-100 text-purple-700 border-purple-200">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  Nouveau
+                </Badge>
                 <p className="text-sm text-[#333333]">
-                  <span className="font-semibold text-[#1E1E1E]">+4000 entrepreneurs</span> font confiance à Ezia
+                  Découvrez Ezia en avant-première
                 </p>
               </div>
               
@@ -168,7 +166,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span>Résultats en minutes</span>
+                  <span>Accompagnement sur-mesure</span>
                 </div>
               </div>
             </div>
@@ -415,8 +413,8 @@ export default function HomePage() {
                 Combien de temps pour lancer mon business avec Ezia ?
               </AccordionTrigger>
               <AccordionContent className="text-[#666666]">
-                Ezia vous aide à structurer votre business dès le premier jour. En quelques conversations, vous aurez une 
-                analyse de marché, une stratégie claire, et si besoin, un site web professionnel en moins de 30 minutes.
+                Ezia vous aide à structurer votre business dès le premier jour. Au fil de vos conversations, elle vous guide 
+                dans l'analyse de votre marché, la définition de votre stratégie et la création de votre présence en ligne.
               </AccordionContent>
             </AccordionItem>
             
@@ -457,8 +455,8 @@ export default function HomePage() {
                 Quel support est disponible ?
               </AccordionTrigger>
               <AccordionContent className="text-[#666666]">
-                Ezia elle-même est votre première ligne de support ! Elle est disponible 24/7 pour répondre à vos questions. 
-                Pour les plans payants, vous avez accès à un support humain prioritaire par email et chat en direct.
+                Ezia, votre assistant IA, est toujours disponible pour répondre à vos questions et vous guider. 
+                Pour les besoins plus complexes, notre équipe humaine est là pour vous accompagner.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -472,7 +470,7 @@ export default function HomePage() {
             Prêt à transformer votre business ?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Rejoignez des milliers d'entrepreneurs qui grandissent avec Ezia
+            Lancez votre business avec l'aide d'Ezia
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -480,11 +478,6 @@ export default function HomePage() {
               <Button size="lg" className="bg-white text-[#6D3FC8] hover:bg-gray-100 shadow-lg">
                 Commencer gratuitement
                 <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-            <Link href="/tarifs">
-              <Button size="lg" className="bg-white text-[#6D3FC8] hover:bg-gray-100 shadow-lg">
-                Voir les tarifs
               </Button>
             </Link>
           </div>

@@ -272,7 +272,7 @@ export default function SettingsPage() {
                     </div>
                     <Button 
                       variant="outline"
-                      onClick={() => router.push("/tarifs")}
+                      onClick={() => {/* Tarifs disabled */}}
                     >
                       Changer de plan
                     </Button>

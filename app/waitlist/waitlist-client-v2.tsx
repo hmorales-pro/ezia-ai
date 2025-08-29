@@ -497,8 +497,8 @@ export default function WaitlistPageV2() {
         <div className="mt-12 text-center">
           <div className="flex items-center justify-center gap-8 mb-6">
             <div className="text-center">
-              <p className="text-3xl font-bold text-[#6D3FC8]">100+</p>
-              <p className="text-sm text-[#666666]">Inscrits VIP</p>
+              <p className="text-3xl font-bold text-[#6D3FC8]">🚀</p>
+              <p className="text-sm text-[#666666]">Accès prioritaire</p>
             </div>
             <div className="w-px h-12 bg-[#E0E0E0]" />
             <div className="text-center">

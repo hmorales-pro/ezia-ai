@@ -98,7 +98,7 @@ function TarifsPageContent() {
             api_access: true 
           }, 
           description: 'Pour développer votre activité',
-          tagline: 'Conversations illimitées'
+          tagline: 'Pour les professionnels actifs'
         },
         enterprise: {
           name: 'Agence',
@@ -115,7 +115,7 @@ function TarifsPageContent() {
             api_access: true
           },
           description: 'Pour les équipes et agences',
-          tagline: 'Tout illimité + agents personnalisés'
+          tagline: 'Pour les équipes professionnelles'
         }
       });
     } finally {

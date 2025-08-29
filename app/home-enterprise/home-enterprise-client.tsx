@@ -1,31 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  ChartBar,
-  Database,
-  TrendingUp,
-  Building2,
-  BarChart3,
-  ArrowRight,
-  Zap,
-  Shield,
-  Activity,
-  Users,
-  FileText,
-  CheckCircle2,
   Sparkles,
-  ChevronRight,
-  LineChart,
-  PieChart,
-  Globe,
-  Layers,
-  Target,
-  Brain
+  ArrowRight,
+  MessageSquare,
+  ChartBar,
+  Building2,
+  Users,
+  CheckCircle2,
+  TrendingUp,
+  Shield,
+  Clock,
+  HeartHandshake,
+  Puzzle,
+  Brain,
+  Activity
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -40,280 +34,251 @@ import {
 
 export default function HomeEnterpriseClient() {
   const router = useRouter();
-  const [activeDemo, setActiveDemo] = useState(0);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   const benefits = [
     {
-      icon: Database,
-      title: "Unification des données",
-      description: "Connectez tous vos outils (Stripe, Asana, Zendesk, HubSpot...) en un seul tableau de bord intelligent."
+      icon: Puzzle,
+      title: "Vos données enfin réunies",
+      description: "Ezia connecte vos outils préférés (Stripe, Asana, Zendesk...) pour vous raconter l'histoire complète de votre entreprise."
     },
     {
       icon: Brain,
-      title: "IA prédictive",
-      description: "Anticipez les tendances, identifiez les opportunités et prévenez les risques grâce à notre IA avancée."
+      title: "Des insights qui comptent",
+      description: "Plus besoin de jongler entre 10 tableaux de bord. Ezia analyse tout et vous dit ce qui est vraiment important."
     },
     {
-      icon: LineChart,
-      title: "Insights actionnables",
-      description: "Transformez vos données brutes en recommandations concrètes pour accélérer votre croissance."
+      icon: MessageSquare,
+      title: "Simple comme une conversation",
+      description: "Posez vos questions en français, obtenez des réponses claires. Pas de graphiques compliqués, juste ce dont vous avez besoin."
     },
     {
       icon: Shield,
-      title: "100% sécurisé",
-      description: "Vos données restent confidentielles. Conformité RGPD et hébergement français haute sécurité."
+      title: "Vos données restent vôtres",
+      description: "100% sécurisé, 100% français. Vos données ne quittent jamais nos serveurs et vous gardez le contrôle total."
     }
   ];
 
-  const integrations = [
-    { name: "Stripe", icon: "💳", category: "Paiements" },
-    { name: "Asana", icon: "✅", category: "Gestion de projet" },
-    { name: "Zendesk", icon: "🎧", category: "Support client" },
-    { name: "Salesforce", icon: "☁️", category: "CRM" },
-    { name: "HubSpot", icon: "🧲", category: "Marketing" },
-    { name: "Slack", icon: "💬", category: "Communication" },
-    { name: "Google Analytics", icon: "📊", category: "Analytics" },
-    { name: "Notion", icon: "📝", category: "Documentation" },
-    { name: "Shopify", icon: "🛍️", category: "E-commerce" },
-    { name: "LinkedIn", icon: "💼", category: "Social" },
-    { name: "Mailchimp", icon: "📧", category: "Email" },
-    { name: "QuickBooks", icon: "💰", category: "Comptabilité" }
-  ];
-
-  const useCases = [
+  const testimonials = [
     {
-      title: "Direction générale",
-      icon: Building2,
-      points: [
-        "Vue 360° de l'entreprise en temps réel",
-        "KPIs consolidés et alertes intelligentes",
-        "Rapports automatisés pour le board"
-      ]
+      name: "Julie M.",
+      role: "Directrice d'une agence digitale",
+      content: "L'idée de centraliser tous nos outils dans une seule interface est exactement ce dont nous avons besoin. J'ai hâte de tester Ezia !",
+      metrics: "Gain de temps attendu"
     },
     {
-      title: "Marketing & Sales",
-      icon: Target,
-      points: [
-        "ROI par canal d'acquisition",
-        "Parcours client unifié",
-        "Prédiction du churn"
-      ]
+      name: "Marc L.",
+      role: "Fondateur SaaS B2B",
+      content: "Pouvoir poser des questions en français sur nos données business, c'est le rêve. Fini les tableaux de bord compliqués !",
+      metrics: "Simplicité prometteuse"
     },
     {
-      title: "Finance & Ops",
-      icon: BarChart3,
-      points: [
-        "Cash flow prédictif",
-        "Analyse de rentabilité par segment",
-        "Optimisation des coûts"
-      ]
-    },
-    {
-      title: "Support & Success",
-      icon: Users,
-      points: [
-        "Satisfaction client en temps réel",
-        "Identification des clients à risque",
-        "Automatisation des insights"
-      ]
+      name: "Camille D.",
+      role: "CEO E-commerce",
+      content: "Une solution française qui comprend nos enjeux locaux, c'est rare et précieux. Vivement le lancement d'Ezia Analytics !",
+      metrics: "Solution adaptée"
     }
   ];
 
-  const demoScenarios = [
-    {
-      title: "Analyser le parcours client",
-      description: "De la première visite à la fidélisation",
-      metrics: ["Taux de conversion: +34%", "Panier moyen: +22%", "LTV: +45%"]
-    },
-    {
-      title: "Optimiser les opérations",
-      description: "Identifier les goulots d'étranglement",
-      metrics: ["Temps de traitement: -40%", "Coûts opérationnels: -25%", "Satisfaction équipe: +30%"]
-    },
-    {
-      title: "Prédire la croissance",
-      description: "Anticiper les tendances du marché",
-      metrics: ["Précision: 92%", "Horizon: 6 mois", "Opportunités identifiées: +60%"]
-    }
-  ];
 
   const faqs = [
     {
-      question: "Comment Ezia Analytics protège-t-il mes données ?",
-      answer: "Vos données sont chiffrées de bout en bout et hébergées en France. Nous sommes conformes RGPD et SOC 2. Vous gardez le contrôle total : connexions révocables à tout moment, données jamais partagées, audit trail complet."
+      question: "Comment Ezia se connecte à mes outils ?",
+      answer: "Vous autorisez Ezia à accéder à vos outils (Stripe, Asana, etc.) via une connexion sécurisée. C'est aussi simple que de se connecter à un site avec Google. Tout est sécurisé et vous pouvez révoquer l'accès à tout moment."
     },
     {
-      question: "Quels outils puis-je connecter ?",
-      answer: "Ezia s'intègre avec plus de 50 outils : CRM (Salesforce, HubSpot), paiements (Stripe, PayPal), gestion (Asana, Notion), support (Zendesk, Intercom), marketing (Mailchimp, Google Ads), et bien plus. Nouvelles intégrations ajoutées chaque mois."
+      question: "Est-ce que mes données sont en sécurité ?",
+      answer: "Absolument ! Vos données sont chiffrées et stockées en France. Nous ne les partageons avec personne, nous ne les vendons pas, et vous pouvez tout supprimer quand vous voulez. C'est votre business, vos données, vos règles."
     },
     {
-      question: "Combien de temps faut-il pour voir des résultats ?",
-      answer: "La connexion prend 5 minutes par outil. Les premiers insights apparaissent en 24h. Après 1 semaine, l'IA commence à identifier des patterns. Après 1 mois, vous avez des prédictions fiables et des recommandations personnalisées."
+      question: "Combien de temps avant de voir des résultats ?",
+      answer: "Une fois vos outils connectés, Ezia commence immédiatement à collecter et analyser vos données. La profondeur des analyses s'enrichit au fil du temps : plus Ezia apprend de vos données, plus ses recommandations deviennent pertinentes."
     },
     {
-      question: "Quelle est la différence avec un outil de BI classique ?",
-      answer: "Contrairement aux outils BI qui nécessitent des compétences techniques, Ezia parle votre langue. Posez des questions en français, obtenez des réponses claires. L'IA identifie automatiquement les insights importants sans configuration complexe."
+      question: "C'est différent de Google Analytics ou Tableau ?",
+      answer: "Complètement ! Pas de courbes compliquées ou de tableaux à configurer. Vous posez des questions simples comme 'Pourquoi mes ventes baissent ?' et Ezia vous répond en analysant TOUS vos outils, pas juste votre site web."
     },
     {
-      question: "Puis-je essayer avant de m'engager ?",
-      answer: "Oui ! Demandez une démo personnalisée où nous analyserons vos défis spécifiques. Nous offrons aussi un POC (Proof of Concept) de 30 jours pour valider la valeur sur vos vraies données."
+      question: "Et si je n'ai pas tous ces outils ?",
+      answer: "Pas de problème ! Ezia s'adapte à ce que vous avez. Même avec juste Stripe et un Google Sheet, elle peut déjà vous donner des insights précieux. Plus vous connectez d'outils, plus elle devient intelligente."
     }
   ];
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-[#ebe7e1]">
       {/* Navbar */}
       <LandingNavbar />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center">
-          <Badge variant="secondary" className="gap-2 mb-6">
-            <Sparkles className="w-4 h-4" />
-            L'IA française qui unifie vos données business
-          </Badge>
-          
-          <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-            Transformez vos données en
-            <span className="text-blue-600 block mt-2">histoires de succès</span>
-          </h1>
-          
-          <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
-            Ezia Analytics connecte tous vos outils business (Stripe, Asana, Zendesk...) 
-            pour révéler les insights cachés qui feront croître votre entreprise.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button
-              size="lg"
-              onClick={() => router.push("/waitlist-enterprise")}
-              className="bg-slate-900 hover:bg-slate-800 text-white gap-2"
-            >
-              Demander une démo
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-              className="gap-2"
-            >
-              <Activity className="w-4 h-4" />
-              Voir en action
-            </Button>
-          </div>
-          
-          <p className="text-sm text-slate-500">
-            🔒 Vos données restent confidentielles • 🇫🇷 Hébergé en France
-          </p>
-        </div>
-      </section>
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#ebe7e1] via-white to-purple-50/30">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 via-transparent to-pink-100/20"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <Sparkles className="w-4 h-4" />
+              <span>L'IA qui comprend vraiment votre business</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight max-w-4xl mx-auto">
+              Vos données racontent une histoire.
+              <span className="bg-gradient-to-r from-[#6D3FC8] to-[#8B5CF6] bg-clip-text text-transparent block mt-2">
+                Ezia vous la révèle.
+              </span>
+            </h1>
+            
+            <p className="text-xl text-[#333333] mb-8 max-w-3xl mx-auto">
+              Connectez vos outils business (Stripe, Asana, Zendesk...) et laissez Ezia transformer 
+              vos données éparpillées en décisions éclairées. Simple comme une conversation.
+            </p>
 
-      {/* Stats Section */}
-      <section className="py-12 bg-slate-100/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <p className="text-4xl font-bold text-blue-600 mb-2">50+</p>
-              <p className="text-sm text-slate-600">Intégrations disponibles</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Button
+                size="lg"
+                onClick={() => router.push("/waitlist-enterprise")}
+                className="bg-gradient-to-r from-[#6D3FC8] to-[#8B5CF6] hover:from-[#5A35A5] hover:to-[#764BA2] text-white shadow-lg"
+              >
+                Découvrir votre histoire
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => document.getElementById('comment')?.scrollIntoView({ behavior: 'smooth' })}
+                className="border-[#6D3FC8] text-[#6D3FC8] hover:bg-purple-50"
+              >
+                Voir comment ça marche
+              </Button>
             </div>
-            <div className="text-center">
-              <p className="text-4xl font-bold text-blue-600 mb-2">24h</p>
-              <p className="text-sm text-slate-600">Pour vos premiers insights</p>
-            </div>
-            <div className="text-center">
-              <p className="text-4xl font-bold text-blue-600 mb-2">92%</p>
-              <p className="text-sm text-slate-600">Précision des prédictions</p>
-            </div>
-            <div className="text-center">
-              <p className="text-4xl font-bold text-blue-600 mb-2">100%</p>
-              <p className="text-sm text-slate-600">Conforme RGPD</p>
+            
+            <div className="flex items-center gap-6 justify-center text-sm text-[#333333]">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <span>Connexion simple à vos outils</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <span>Analyses détaillées</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <span>100% français</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Problem Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            Vos données racontent une histoire
-          </h2>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-            Mais elle est éparpillée entre des dizaines d'outils
-          </p>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
-          <Card className="border-red-200 bg-red-50/50">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-8 h-8 text-red-600" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Données fragmentées</h3>
-              <p className="text-sm text-slate-600">
-                Chaque outil a ses propres métriques, impossible d'avoir une vue globale
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-orange-200 bg-orange-50/50">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Activity className="w-8 h-8 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Insights manqués</h3>
-              <p className="text-sm text-slate-600">
-                Les corrélations importantes restent invisibles entre les silos
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-amber-200 bg-amber-50/50">
-            <CardContent className="p-6 text-center">
-              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-amber-600" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Décisions lentes</h3>
-              <p className="text-sm text-slate-600">
-                Trop de temps perdu en reporting manuel au lieu d'agir
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="text-center">
-          <p className="text-lg font-medium text-slate-900 mb-2">
-            Résultat : Vous passez à côté d'opportunités de croissance
-          </p>
-          <p className="text-slate-600">
-            Pendant ce temps, vos concurrents data-driven prennent de l'avance
-          </p>
-        </div>
-      </section>
-
-      {/* Solution Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-white">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <Badge variant="secondary" className="mb-4">La solution</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Ezia Analytics unifie et analyse tout
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Ces galères vous parlent ?
             </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Une IA qui comprend votre business et vous guide vers la croissance
+            <p className="text-xl text-[#666666] max-w-3xl mx-auto">
+              Si oui, vous n'êtes pas seul(e). C'est le quotidien de nombreuses entreprises.
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="space-y-8">
+            {/* Situation 1 */}
+            <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-8 border border-red-100">
+              <div className="flex flex-col md:flex-row items-start gap-6">
+                <div className="text-5xl flex-shrink-0">📊</div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-3 text-red-600">
+                    "Je perds 3h par semaine à faire des copier-coller"
+                  </h3>
+                  <p className="text-[#666666] mb-4">
+                    Vos données sont éparpillées : Stripe pour les paiements, Asana pour les projets, 
+                    Zendesk pour le support... Résultat ? Vous passez des heures à compiler des rapports 
+                    au lieu de développer votre business.
+                  </p>
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="font-medium text-[#1E1E1E]">
+                      💡 Avec Ezia : Toutes vos données au même endroit, analysées automatiquement
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Situation 2 */}
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-2xl p-8 border border-amber-100">
+              <div className="flex flex-col md:flex-row items-start gap-6">
+                <div className="text-5xl flex-shrink-0">🤯</div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-3 text-amber-600">
+                    "J'ai plein de data mais aucune idée de ce qui marche vraiment"
+                  </h3>
+                  <p className="text-[#666666] mb-4">
+                    Vous avez des tableaux de bord partout, mais impossible de voir les connections. 
+                    Pourquoi ce client est parti ? D'où viennent les meilleurs ? Quels projets sont rentables ? 
+                    Les réponses sont là, mais invisibles.
+                  </p>
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="font-medium text-[#1E1E1E]">
+                      💡 Avec Ezia : Posez vos questions en français, obtenez des réponses claires
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Situation 3 */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-100">
+              <div className="flex flex-col md:flex-row items-start gap-6">
+                <div className="text-5xl flex-shrink-0">⏰</div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-3 text-blue-600">
+                    "Je découvre les problèmes quand c'est trop tard"
+                  </h3>
+                  <p className="text-[#666666] mb-4">
+                    Un client mécontent qui part, un projet qui dérape, des ventes qui chutent... 
+                    Vous le voyez dans vos chiffres 3 semaines après. Trop tard pour réagir. 
+                    Si seulement vous aviez été prévenu avant...
+                  </p>
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="font-medium text-[#1E1E1E]">
+                      💡 Avec Ezia : Des alertes intelligentes pour agir avant qu'il soit trop tard
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-20 bg-gradient-to-b from-white to-purple-50/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Ezia transforme vos données en conversations
+            </h2>
+            <p className="text-xl text-[#333333] max-w-3xl mx-auto">
+              Plus besoin d'être data scientist pour comprendre votre business
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {benefits.map((benefit, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
+              <Card key={index} className="border-[#E0E0E0] hover:shadow-lg transition-shadow bg-white">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <benefit.icon className="w-6 h-6 text-blue-600" />
+                  <div className="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mb-4">
+                    <benefit.icon className="w-7 h-7 text-[#6D3FC8]" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">{benefit.title}</h3>
-                  <p className="text-sm text-slate-600">{benefit.description}</p>
+                  <p className="text-[#666666] text-sm">{benefit.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -321,197 +286,161 @@ export default function HomeEnterpriseClient() {
         </div>
       </section>
 
-      {/* Integrations Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            Connectez tous vos outils favoris
-          </h2>
-          <p className="text-xl text-slate-600">
-            Plus de 50 intégrations disponibles, nouvelles ajoutées chaque mois
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-          {integrations.map((tool, index) => (
-            <div 
-              key={index}
-              className="bg-white border border-slate-200 rounded-lg p-4 text-center hover:border-blue-500 hover:shadow-md transition-all cursor-pointer"
-            >
-              <div className="text-3xl mb-2">{tool.icon}</div>
-              <p className="text-sm font-medium text-slate-900">{tool.name}</p>
-              <p className="text-xs text-slate-500">{tool.category}</p>
-            </div>
-          ))}
-        </div>
-        
-        <div className="text-center mt-8">
-          <p className="text-sm text-slate-600 mb-4">
-            Votre outil n'est pas dans la liste ?
-          </p>
-          <Button variant="outline" onClick={() => router.push("/waitlist-enterprise")}>
-            Demander une intégration
-          </Button>
-        </div>
-      </section>
-
-      {/* Use Cases Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50">
-        <div className="max-w-7xl mx-auto">
+      {/* How it works */}
+      <section id="comment" className="py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Une solution pour chaque équipe
-            </h2>
-            <p className="text-xl text-slate-600">
-              Ezia s'adapte aux besoins spécifiques de chaque département
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Comment ça marche ?</h2>
+            <p className="text-xl text-[#333333]">Aussi simple que de discuter avec un collègue</p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {useCases.map((useCase, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <useCase.icon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-4">{useCase.title}</h3>
-                  <ul className="space-y-2">
-                    {useCase.points.map((point, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-slate-600">{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+          <div className="space-y-8">
+            {[
+              {
+                step: "1",
+                title: "Connectez vos outils",
+                description: "Stripe pour les paiements, Asana pour les projets, Zendesk pour le support... Connectez les outils que vous utilisez déjà au quotidien.",
+                emoji: "🔌"
+              },
+              {
+                step: "2",
+                title: "Posez vos questions",
+                description: "'Comment vont mes ventes ?', 'Qui sont mes meilleurs clients ?', 'Où perdons-nous du temps ?'... Demandez ce qui vous intéresse vraiment.",
+                emoji: "💬"
+              },
+              {
+                step: "3",
+                title: "Agissez sur les insights",
+                description: "Ezia analyse tout et vous dit exactement quoi faire. Pas de graphiques complexes, juste des recommandations claires et actionnables.",
+                emoji: "🚀"
+              }
+            ].map((item, index) => (
+              <div key={index} className="flex items-center gap-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6">
+                <div className="text-5xl flex-shrink-0">{item.emoji}</div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
+                    <span className="text-[#6D3FC8]">Étape {item.step}:</span> {item.title}
+                  </h3>
+                  <p className="text-[#666666]">{item.description}</p>
+                </div>
+              </div>
             ))}
+          </div>
+          
+          <div className="mt-12 text-center">
+            <p className="text-lg text-[#333333] mb-6">
+              Plus de 50 intégrations disponibles
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 text-3xl">
+              {["💳", "✅", "🎧", "📧", "📊", "💬", "📝", "🛍️", "💼", "☁️"].map((emoji, index) => (
+                <div key={index} className="w-16 h-16 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg transition-shadow">
+                  {emoji}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Demo Section */}
-      <section id="demo" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <Badge variant="secondary" className="mb-4">Démo live</Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            Découvrez Ezia en action
-          </h2>
-          <p className="text-xl text-slate-600">
-            Quelques exemples de ce que vous pourrez accomplir
-          </p>
-        </div>
-        
-        <div className="bg-slate-100 rounded-2xl p-8">
-          <div className="grid md:grid-cols-3 gap-4 mb-8">
-            {demoScenarios.map((scenario, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveDemo(index)}
-                className={`p-4 rounded-lg text-left transition-all ${
-                  activeDemo === index 
-                    ? 'bg-white shadow-lg border-2 border-blue-500' 
-                    : 'bg-white/50 border border-slate-200 hover:bg-white'
-                }`}
-              >
-                <h3 className="font-semibold mb-1">{scenario.title}</h3>
-                <p className="text-sm text-slate-600">{scenario.description}</p>
-              </button>
-            ))}
+      {/* Testimonials */}
+      <section className="py-20 bg-gradient-to-b from-white to-purple-50/50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Ils ont découvert leur histoire avec Ezia
+            </h2>
           </div>
           
-          <div className="bg-white rounded-lg p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold">
-                {demoScenarios[activeDemo].title}
-              </h3>
-              <Badge>Live</Badge>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="h-64 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <BarChart3 className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-                  <p className="text-slate-600">Visualisation interactive des données</p>
+          <Card className="border-[#E0E0E0] bg-white">
+            <CardContent className="p-8">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="text-5xl">💬</div>
+                <div className="flex-1">
+                  <p className="text-lg mb-4 text-[#333333] italic">
+                    "{testimonials[activeTestimonial].content}"
+                  </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-[#1E1E1E]">
+                        {testimonials[activeTestimonial].name}
+                      </p>
+                      <p className="text-sm text-[#666666]">
+                        {testimonials[activeTestimonial].role}
+                      </p>
+                    </div>
+                    <Badge className="bg-green-100 text-green-700">
+                      {testimonials[activeTestimonial].metrics}
+                    </Badge>
+                  </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-3 gap-4">
-                {demoScenarios[activeDemo].metrics.map((metric, idx) => (
-                  <div key={idx} className="bg-blue-50 rounded-lg p-4 text-center">
-                    <p className="text-sm font-semibold text-blue-900">{metric}</p>
-                  </div>
+              <div className="flex justify-center gap-2">
+                {testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveTestimonial(index)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      index === activeTestimonial 
+                        ? 'bg-[#6D3FC8] w-8' 
+                        : 'bg-gray-300'
+                    }`}
+                  />
                 ))}
               </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="text-center mt-8">
-          <Button 
-            size="lg" 
-            onClick={() => router.push("/waitlist-enterprise")}
-            className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
-          >
-            Voir avec vos vraies données
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            Questions fréquentes
-          </h2>
-          <p className="text-xl text-slate-600">
-            Tout ce que vous devez savoir sur Ezia Analytics
-          </p>
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              On répond à vos questions
+            </h2>
+          </div>
+          
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger className="text-left">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-[#666666]">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
-        
-        <Accordion type="single" collapsible className="w-full">
-          {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-left">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-600">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto bg-gradient-to-r from-blue-600 to-blue-700 rounded-3xl p-12 text-center text-white">
+      <section className="py-20 bg-gradient-to-br from-[#6D3FC8] to-[#8B5CF6] text-white">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Prêt à transformer vos données en croissance ?
+            Prêt à découvrir l'histoire que racontent vos données ?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Rejoignez les entreprises qui prennent des décisions éclairées avec Ezia
+            Rejoignez les entreprises qui comprennent enfin leur business
           </p>
+          
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
               onClick={() => router.push("/waitlist-enterprise")}
-              className="bg-white text-blue-600 hover:bg-gray-100"
+              className="bg-white text-[#6D3FC8] hover:bg-gray-100 shadow-lg"
             >
-              Demander une démo personnalisée
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white/10"
-              onClick={() => window.open('https://calendly.com/ezia-analytics/demo', '_blank')}
-            >
-              Planifier un appel
+              Demander un accès prioritaire
+              <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </div>
-          <p className="text-sm mt-6 opacity-75">
-            ✓ Sans engagement • ✓ Démo avec vos cas d'usage • ✓ POC possible
+          
+          <p className="mt-6 text-sm opacity-80">
+            ✓ Accès prioritaire • ✓ Updates exclusives • ✓ 100% français
           </p>
         </div>
       </section>

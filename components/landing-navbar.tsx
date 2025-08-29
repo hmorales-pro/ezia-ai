@@ -122,10 +122,6 @@ export default function LandingNavbar() {
             <Link href="/equipe" className="text-[#666666] hover:text-[#6D3FC8] font-medium px-3 py-2 rounded-lg hover:bg-purple-50 transition-all">
               L'équipe
             </Link>
-            
-            <Link href="/tarifs" className="text-[#666666] hover:text-[#6D3FC8] font-medium px-3 py-2 rounded-lg hover:bg-purple-50 transition-all">
-              Tarifs
-            </Link>
           </div>
 
           {/* CTA Buttons */}
@@ -203,13 +199,6 @@ export default function LandingNavbar() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 L'équipe
-              </Link>
-              <Link
-                href="/tarifs"
-                className="block px-3 py-2 text-[#666666] hover:text-[#6D3FC8] transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Tarifs
               </Link>
             </div>
 

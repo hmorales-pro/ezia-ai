@@ -106,7 +106,7 @@ export default function UsagePage() {
               </div>
               <Button 
                 variant="outline"
-                onClick={() => router.push("/tarifs")}
+                onClick={() => {/* Tarifs disabled */}}
                 className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] text-white hover:from-[#5A35A5] hover:to-[#4A2B87]"
               >
                 <Zap className="w-4 h-4 mr-2" />

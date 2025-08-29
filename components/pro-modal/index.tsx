@@ -18,7 +18,7 @@ export const ProModal = ({
     if (!isTheSameHtml(html)) {
       setStorage(html);
     }
-    window.open("/tarifs", "_blank");
+    // Tarifs page is temporarily disabled
     onClose(false);
   };
   return (
