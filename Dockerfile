@@ -9,7 +9,7 @@ COPY package.json package-lock.json ./
 
 # Install dependencies with cache mount
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --only=production
+    npm install --omit=dev
 
 # Stage 2: Build
 FROM node:20-alpine AS builder
@@ -21,7 +21,7 @@ COPY package.json package-lock.json ./
 
 # Install all dependencies (including devDependencies)
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci
+    npm install
 
 # Copy source code
 COPY . .

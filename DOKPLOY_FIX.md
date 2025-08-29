@@ -1,5 +1,28 @@
 # Fix pour les erreurs de déploiement Dokploy
 
+## MISE À JOUR : Erreur npm ci
+
+Si vous avez l'erreur `npm ci can only install packages when your package.json and package-lock.json are in sync`, utilisez une de ces solutions :
+
+### Solution 1 : Utiliser le Dockerfile corrigé (recommandé)
+Le Dockerfile principal a été mis à jour pour utiliser `npm install` au lieu de `npm ci`.
+
+### Solution 2 : Utiliser le Dockerfile simple
+Si le build échoue encore, changez dans docker-compose.yml :
+```yaml
+dockerfile: Dockerfile.simple-optimized
+```
+
+### Solution 3 : Régénérer le package-lock.json
+En local, exécutez :
+```bash
+rm package-lock.json
+npm install
+git add package-lock.json
+git commit -m "Regenerate package-lock.json"
+git push
+```
+
 ## Problèmes identifiés et corrigés
 
 ### 1. Mauvais Dockerfile utilisé
