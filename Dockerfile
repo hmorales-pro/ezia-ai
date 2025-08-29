@@ -29,6 +29,8 @@ COPY . .
 # Build the application
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV SKIP_ENV_VALIDATION 1
+# Provide dummy env vars for build time
+ENV MONGODB_URI="mongodb://localhost:27017/temp"
 
 RUN npm run build
 
