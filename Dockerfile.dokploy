@@ -67,6 +67,9 @@ COPY --from=builder /app/tailwind.config.js ./tailwind.config.js
 COPY --from=builder /app/app ./app
 COPY --from=builder /app/assets ./assets
 
+# Copier le script de démarrage
+COPY start-production.sh ./
+
 # Créer les dossiers avec permissions ouvertes (pour Dokploy)
 RUN mkdir -p .data .next/cache && \
     chmod -R 777 .data .next/cache
@@ -76,4 +79,8 @@ RUN mkdir -p .data .next/cache && \
 
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+# Forcer le mode production
+ENV NODE_ENV=production
+
+# Utiliser le script pour forcer le mode production
+CMD ["./start-production.sh"]
