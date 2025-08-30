@@ -25,6 +25,10 @@ RUN mv middleware.ts middleware.ts.disabled || true
 # Désactiver standalone output temporairement pour éviter les erreurs
 RUN sed -i "s/output: 'standalone',/\/\/ output: 'standalone',/g" next.config.ts || true
 
+# Compiler Tailwind CSS pour la production
+RUN pnpm exec tailwindcss -i ./app/global.css -o ./app/global.compiled.css --minify && \
+    mv app/global.compiled.css app/global.css
+
 # Variables d'environnement pour le build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV SKIP_ENV_VALIDATION=1

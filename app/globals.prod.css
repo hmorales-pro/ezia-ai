@@ -1,0 +1,15 @@
+/* Tailwind CSS imports for production */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom Ezia styles */
+:root {
+  --font-poppins: 'Poppins', system-ui, sans-serif;
+}
+
+/* Override Tailwind base if needed */
+body {
+  background-color: #ebe7e1;
+  color: #1E1E1E;
+}
