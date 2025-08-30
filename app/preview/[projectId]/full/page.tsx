@@ -42,22 +42,9 @@ export default function FullPreviewPage() {
         backgroundColor: '#FAF9F5'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '64px',
-            height: '64px',
-            border: '4px solid #6D3FC8',
-            borderTopColor: 'transparent',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }}></div>
+          <div className="w-16 h-16 border-4 border-[#6D3FC8] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p style={{ color: '#666666' }}>Chargement du projet...</p>
         </div>
-        <style jsx>{`
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     );
   }
