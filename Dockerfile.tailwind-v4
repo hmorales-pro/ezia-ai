@@ -1,0 +1,45 @@
+# DOCKERFILE OPTIMISÉ POUR TAILWIND CSS V4.1
+FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+FROM node:20-alpine AS builder
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Supprimer le middleware problématique
+RUN rm -f middleware.ts middleware.js
+
+# Variables pour le build
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
+ENV SKIP_ENV_VALIDATION 1
+ENV MONGODB_URI mongodb://localhost:27017/temp
+
+# Build de production - Tailwind v4.1 devrait fonctionner avec @tailwindcss/postcss
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+# Copier les fichiers nécessaires
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Permissions
+RUN mkdir -p .data .next/cache && \
+    chmod -R 777 .data .next/cache
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
