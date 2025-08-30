@@ -1,0 +1,38 @@
+# Dockerfile avec fix CSS automatique
+FROM node:20-alpine
+
+RUN apk add --no-cache libc6-compat
+# Installer pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+# Copier les fichiers de package
+COPY package.json pnpm-lock.yaml ./
+
+# Installer toutes les dépendances avec pnpm
+RUN pnpm install
+
+# Copier tout le code source
+COPY . .
+
+# FIX CSS: Remplacer @import "tailwindcss" par la syntaxe v3
+RUN sed -i '1,3d' assets/globals.css && \
+    sed -i '1i/* Tailwind CSS v3 directives */\n@tailwind base;\n@tailwind components;\n@tailwind utilities;' assets/globals.css
+
+# Temporairement désactiver le middleware pour Docker
+RUN mv middleware.ts middleware.ts.disabled || true
+
+# Variables d'environnement
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Créer les dossiers nécessaires
+RUN mkdir -p .data .next/cache && \
+    chmod -R 755 .data .next/cache
+
+EXPOSE 3000
+
+# Utiliser le mode dev qui fonctionne
+CMD ["pnpm", "run", "dev"]

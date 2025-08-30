@@ -1,5 +1,5 @@
-/* Import Tailwind CSS */
-@import "./tailwind.css";
+/* Tailwind CSS v4 - Direct import */
+@import "tailwindcss";
 
 /* Ezia Theme Variables */
 :root {
