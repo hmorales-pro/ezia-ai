@@ -19,8 +19,8 @@ RUN mv middleware.ts middleware.ts.disabled || true
 # Utiliser la configuration de production
 RUN cp next.config.production.ts next.config.ts || true
 
-# IMPORTANT: Remplacer l'import Tailwind v4 par une version compatible
-RUN sed -i 's/@import "tailwindcss";/@tailwind base;\n@tailwind components;\n@tailwind utilities;/' assets/globals.css
+# IMPORTANT: Utiliser le CSS corrigé pour la production
+RUN cp assets/globals.fixed.css assets/globals.css
 
 # Variables d'environnement pour le build
 ENV NEXT_TELEMETRY_DISABLED=1

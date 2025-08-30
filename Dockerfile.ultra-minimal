@@ -11,6 +11,9 @@ RUN npm ci --only=production || npm install --production
 # Copier le reste des fichiers
 COPY . .
 
+# IMPORTANT: Utiliser le CSS corrigé pour la production
+RUN cp assets/globals.fixed.css assets/globals.css
+
 # Configuration pour un build minimal
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
