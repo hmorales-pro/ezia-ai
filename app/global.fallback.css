@@ -1,0 +1,94 @@
+/* CSS de fallback pour Dokploy - Sans directives Tailwind */
+
+/* Reset de base */
+*, ::before, ::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+}
+
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  line-height: inherit;
+  background-color: #ebe7e1;
+  color: #1E1E1E;
+}
+
+/* Classes utilitaires essentielles */
+.container {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+.mx-auto { margin-left: auto; margin-right: auto; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.text-center { text-align: center; }
+.hidden { display: none; }
+.block { display: block; }
+.inline-block { display: inline-block; }
+.grid { display: grid; }
+.min-h-screen { min-height: 100vh; }
+.w-full { width: 100%; }
+.max-w-7xl { max-width: 80rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-20 { padding-top: 5rem; padding-bottom: 5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mt-8 { margin-top: 2rem; }
+.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+.font-bold { font-weight: 700; }
+.bg-white { background-color: #ffffff; }
+.text-white { color: #ffffff; }
+.rounded-lg { border-radius: 0.5rem; }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Couleurs personnalisées */
+.bg-primary { background-color: #6D3FC8; }
+.text-primary { color: #6D3FC8; }
+.bg-background { background-color: #ebe7e1; }
+.text-foreground { color: #1E1E1E; }

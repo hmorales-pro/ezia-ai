@@ -42,6 +42,9 @@ RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
 # Stage de production
 FROM node:20-alpine AS runner
 
+# Installer bash pour le terminal Dokploy
+RUN apk add --no-cache bash
+
 # Installer pnpm dans le runner aussi
 RUN corepack enable && corepack prepare pnpm@latest --activate
 

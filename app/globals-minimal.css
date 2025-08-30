@@ -1,0 +1,64 @@
+/* CSS minimal pour Ezia - Sans directives Tailwind */
+
+/* Variables CSS personnalisées */
+:root {
+  --color-background: #ebe7e1;
+  --color-foreground: #1E1E1E;
+  --color-primary: #6D3FC8;
+}
+
+/* Reset de base */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* Classes personnalisées essentielles */
+.bg-background {
+  background-color: var(--color-background);
+}
+
+.text-foreground {
+  color: var(--color-foreground);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+/* Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Utilitaires essentiels */
+.min-h-\[100dvh\] {
+  min-height: 100dvh;
+}
+
+.font-poppins {
+  font-family: var(--font-poppins);
+}
+
+.font-ptSans-mono {
+  font-family: var(--font-ptSans-mono);
+}

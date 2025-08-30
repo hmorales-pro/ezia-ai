@@ -4,7 +4,7 @@ import { Poppins, PT_Sans } from "next/font/google";
 import { cookies } from "next/headers";
 
 import TanstackProvider from "@/components/providers/tanstack-query-provider";
-import "./global.css";
+import "./globals-minimal.css";
 import { Toaster } from "@/components/ui/sonner";
 import MY_TOKEN_KEY from "@/lib/get-cookie-name";
 import AppContext from "@/components/contexts/app-context";
@@ -107,6 +107,7 @@ export default async function RootLayout({
         data-domain="ezia.agency"
         src="https://plausible.io/js/script.js"
       ></Script>
+      <Script src="https://cdn.tailwindcss.com" strategy="beforeInteractive" />
       <body
         className={`${poppins.variable} ${ptSans.variable} antialiased bg-[#ebe7e1] min-h-[100dvh] font-poppins`}
         suppressHydrationWarning

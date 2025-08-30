@@ -1,0 +1,52 @@
+/* Tailwind CSS CDN Import - Compatible avec tous les environnements */
+@import url("https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css");
+
+/* Classes personnalisées Ezia */
+.bg-background {
+  background-color: #ebe7e1;
+}
+
+.text-foreground {
+  color: #1E1E1E;
+}
+
+.bg-primary {
+  background-color: #6D3FC8;
+}
+
+.text-primary {
+  color: #6D3FC8;
+}
+
+/* Animation spin */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Ajustements spécifiques */
+body {
+  background-color: #ebe7e1;
+  color: #1E1E1E;
+}
+
+.min-h-\[100dvh\] {
+  min-height: 100dvh;
+}
+
+/* Variables de police */
+.font-poppins {
+  font-family: var(--font-poppins);
+}
+
+.font-ptSans-mono {
+  font-family: var(--font-ptSans-mono);
+}
