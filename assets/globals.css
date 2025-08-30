@@ -1,116 +1,55 @@
-/* Tailwind CSS v4 - Direct import */
-@import "tailwindcss";
-
-/* Ezia Theme Variables */
-:root {
-  --background: #ebe7e1;
-  --foreground: #1E1E1E;
-  --primary: #6D3FC8;
-  --primary-foreground: #ffffff;
-  --secondary: #F5F5F5;
-  --secondary-foreground: #1E1E1E;
-  --muted: #F5F5F5;
-  --muted-foreground: #6B7280;
-  --accent: #F3F4F6;
-  --accent-foreground: #1E1E1E;
-  --destructive: #EF4444;
-  --destructive-foreground: #ffffff;
-  --border: #E5E5E5;
-  --input: #E5E5E5;
-  --ring: #6D3FC8;
-  --radius: 0.5rem;
-  
-  /* Font variables */
-  --font-sans: 'Poppins', system-ui, sans-serif;
-  --font-mono: 'PT Sans', monospace;
-  --font-poppins: 'Poppins', system-ui, sans-serif;
-  
-  /* Sidebar colors */
-  --sidebar: #F5F5F5;
-  --sidebar-foreground: #1E1E1E;
-  --sidebar-primary: #6D3FC8;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #F3F4F6;
-  --sidebar-accent-foreground: #1E1E1E;
-  --sidebar-border: #E5E5E5;
-  --sidebar-ring: #6D3FC8;
-  
-  /* Chart colors */
-  --chart-1: #6D3FC8;
-  --chart-2: #8B5CF6;
-  --chart-3: #A78BFA;
-  --chart-4: #C4B5FD;
-  --chart-5: #DDD6FE;
-}
-
-/* Base styles */
+/* Base styles for Ezia */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-poppins), system-ui, sans-serif;
+  background: #ebe7e1;
+  color: #1E1E1E;
+  font-family: 'Poppins', system-ui, sans-serif;
   margin: 0;
   padding: 0;
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
-  border-color: var(--border);
+  box-sizing: border-box;
 }
 
-/* Ensure background is applied */
-body::before {
-  content: "";
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: -1;
-  background: var(--background);
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+a {
+  color: #6D3FC8;
+  text-decoration: none;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--secondary);
+a:hover {
+  text-decoration: underline;
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
-  border-radius: 6px;
+button {
+  cursor: pointer;
+  font-family: inherit;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
+input, textarea, select {
+  font-family: inherit;
+  border: 1px solid #E5E5E5;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
 }
 
-/* Focus styles */
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
-/* Selection */
-::selection {
-  background: var(--primary);
-  color: var(--primary-foreground);
-}
-
-/* Utility classes */
-.text-primary {
-  color: var(--primary);
-}
-
-.bg-primary {
-  background-color: var(--primary);
-}
-
-.border-primary {
-  border-color: var(--primary);
-}
+.text-center { text-align: center; }
+.text-primary { color: #6D3FC8; }
+.bg-primary { background-color: #6D3FC8; color: white; }
+.p-4 { padding: 1rem; }
+.m-4 { margin: 1rem; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.rounded { border-radius: 0.5rem; }
