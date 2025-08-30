@@ -1,4 +1,4 @@
-# Dockerfile optimisé pour Dokploy
+# Dockerfile optimisé pour Dokploy - Version 2 avec fix CSS
 FROM node:20-alpine AS builder
 
 RUN apk add --no-cache libc6-compat
@@ -7,7 +7,7 @@ WORKDIR /app
 # Copier les fichiers de package
 COPY package.json package-lock.json ./
 
-# Installer TOUTES les dépendances (dev + prod)
+# Installer TOUTES les dépendances
 RUN npm ci || npm install
 
 # Copier le code source
@@ -16,14 +16,11 @@ COPY . .
 # Désactiver temporairement le middleware problématique
 RUN mv middleware.ts middleware.ts.disabled || true
 
-# Utiliser la configuration de production pour HTTPS
+# Utiliser la configuration de production
 RUN cp next.config.production.ts next.config.ts || true
 
-# Utiliser le CSS de production compatible
-RUN cp assets/globals.production.css assets/globals.css || true
-
-# Utiliser la configuration PostCSS de production
-RUN cp postcss.config.production.mjs postcss.config.mjs || true
+# IMPORTANT: Remplacer l'import Tailwind v4 par une version compatible
+RUN sed -i 's/@import "tailwindcss";/@tailwind base;\n@tailwind components;\n@tailwind utilities;/' assets/globals.css
 
 # Variables d'environnement pour le build
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -49,12 +46,9 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/package.json ./package.json
 
-# Créer les dossiers avec permissions ouvertes (pour Dokploy)
+# Créer les dossiers avec permissions ouvertes
 RUN mkdir -p .data .next/cache && \
     chmod -R 777 .data .next/cache
-
-# Ne pas utiliser d'utilisateur non-root pour Dokploy
-# USER nextjs
 
 EXPOSE 3000
 

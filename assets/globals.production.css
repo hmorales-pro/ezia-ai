@@ -1,0 +1,116 @@
+/* Version production du CSS - Compatible avec Next.js production build */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variables CSS copiées depuis le thème inline */
+:root {
+  --background: #ffffff;
+  --foreground: #1E1E1E;
+  --card: #ffffff;
+  --card-foreground: #1E1E1E;
+  --popover: #ffffff;
+  --popover-foreground: #1E1E1E;
+  --primary: #6D3FC8;
+  --primary-foreground: #ffffff;
+  --secondary: #F5F5F5;
+  --secondary-foreground: #1E1E1E;
+  --muted: #F5F5F5;
+  --muted-foreground: #666666;
+  --accent: #F5F5F5;
+  --accent-foreground: #1E1E1E;
+  --destructive: #FF3B30;
+  --destructive-foreground: #ffffff;
+  --border: #E5E5E5;
+  --input: #E5E5E5;
+  --ring: #6D3FC8;
+  --radius: 0.5rem;
+  
+  /* Sidebar variables */
+  --sidebar: #f9fafb;
+  --sidebar-foreground: #1f2937;
+  --sidebar-primary: #6D3FC8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f3f4f6;
+  --sidebar-accent-foreground: #1f2937;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #6D3FC8;
+  
+  /* Chart colors */
+  --chart-1: #6D3FC8;
+  --chart-2: #9333ea;
+  --chart-3: #ec4899;
+  --chart-4: #10b981;
+  --chart-5: #f59e0b;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+/* Animations */
+@keyframes enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(
+        var(--tw-enter-translate-x, 0),
+        var(--tw-enter-translate-y, 0),
+        0
+      )
+      scale3d(
+        var(--tw-enter-scale, 1),
+        var(--tw-enter-scale, 1),
+        var(--tw-enter-scale, 1)
+      )
+      rotate(var(--tw-enter-rotate, 0));
+  }
+}
+
+@keyframes exit {
+  to {
+    opacity: var(--tw-exit-opacity, 1);
+    transform: translate3d(
+        var(--tw-exit-translate-x, 0),
+        var(--tw-exit-translate-y, 0),
+        0
+      )
+      scale3d(
+        var(--tw-exit-scale, 1),
+        var(--tw-exit-scale, 1),
+        var(--tw-exit-scale, 1)
+      )
+      rotate(var(--tw-exit-rotate, 0));
+  }
+}
+
+/* Custom styles */
+.bg-purple-900\/10 {
+  background-color: rgb(109 63 200 / 0.1);
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Utilities */
+@layer utilities {
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  
+  .h-screen {
+    height: 100vh;
+    height: 100dvh;
+  }
+}
