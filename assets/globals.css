@@ -1,55 +1,13 @@
-/* Base styles for Ezia */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Ezia styles */
+:root {
+  --font-poppins: 'Poppins', system-ui, sans-serif;
+}
+
+/* Override Tailwind base if needed */
 body {
-  background: #ebe7e1;
-  color: #1E1E1E;
-  font-family: 'Poppins', system-ui, sans-serif;
-  margin: 0;
-  padding: 0;
-  line-height: 1.5;
+  @apply bg-background text-foreground;
 }
-
-* {
-  box-sizing: border-box;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-a {
-  color: #6D3FC8;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-button {
-  cursor: pointer;
-  font-family: inherit;
-}
-
-input, textarea, select {
-  font-family: inherit;
-  border: 1px solid #E5E5E5;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.text-center { text-align: center; }
-.text-primary { color: #6D3FC8; }
-.bg-primary { background-color: #6D3FC8; color: white; }
-.p-4 { padding: 1rem; }
-.m-4 { margin: 1rem; }
-.flex { display: flex; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.rounded { border-radius: 0.5rem; }
