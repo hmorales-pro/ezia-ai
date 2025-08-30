@@ -1,4 +1,4 @@
-/* Import Tailwind from separate file */
+/* Import Tailwind CSS */
 @import "./tailwind.css";
 
 /* Ezia Theme Variables */
@@ -44,21 +44,19 @@
 }
 
 /* Base styles */
-@layer base {
-  body {
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-poppins), system-ui, sans-serif;
-    margin: 0;
-    padding: 0;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-poppins), system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  * {
-    border-color: var(--border);
-  }
+* {
+  border-color: var(--border);
 }
 
 /* Ensure background is applied */
@@ -105,16 +103,14 @@ body::before {
 }
 
 /* Utility classes */
-@layer utilities {
-  .text-primary {
-    color: var(--primary);
-  }
+.text-primary {
+  color: var(--primary);
+}
 
-  .bg-primary {
-    background-color: var(--primary);
-  }
+.bg-primary {
+  background-color: var(--primary);
+}
 
-  .border-primary {
-    border-color: var(--primary);
-  }
+.border-primary {
+  border-color: var(--primary);
 }
