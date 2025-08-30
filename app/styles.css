@@ -1,0 +1,25 @@
+/* Basic styles without Tailwind directives */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ebe7e1;
+  color: #1E1E1E;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Tailwind-like utility classes */
+.bg-background { background-color: #ebe7e1; }
+.text-foreground { color: #1E1E1E; }
+.bg-primary { background-color: #6D3FC8; }
+.text-primary { color: #6D3FC8; }
+.text-white { color: white; }
+.p-4 { padding: 1rem; }
+.m-4 { margin: 1rem; }
+.rounded { border-radius: 0.5rem; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.text-center { text-align: center; }

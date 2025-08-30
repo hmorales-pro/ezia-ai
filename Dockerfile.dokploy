@@ -1,4 +1,4 @@
-# Dockerfile optimisé pour Dokploy
+# Dockerfile optimisé pour Dokploy avec Tailwind CSS v3
 FROM node:20-alpine AS builder
 
 RUN apk add --no-cache libc6-compat
@@ -16,26 +16,33 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
 # Copier le code source
 COPY . .
 
+# Nettoyer les caches possibles
+RUN rm -rf .next node_modules/.cache
+
 # Désactiver temporairement le middleware problématique
 RUN mv middleware.ts middleware.ts.disabled || true
 
-# Utiliser la configuration de production pour HTTPS
-RUN cp next.config.production.ts next.config.ts || true
-
-# IMPORTANT: Utiliser le CSS corrigé pour la production
-RUN cp assets/globals.fixed.css assets/globals.css
+# Désactiver standalone output temporairement pour éviter les erreurs
+RUN sed -i "s/output: 'standalone',/\/\/ output: 'standalone',/g" next.config.ts || true
 
 # Variables d'environnement pour le build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV SKIP_ENV_VALIDATION=1
 ENV NODE_ENV=production
 ENV MONGODB_URI="mongodb://localhost:27017/temp"
+ENV HF_TOKEN="placeholder"
+ENV DEFAULT_HF_TOKEN="placeholder"
+ENV MISTRAL_API_KEY="placeholder"
 
 # Build avec plus de mémoire
 RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
 
 # Stage de production
 FROM node:20-alpine AS runner
+
+# Installer pnpm dans le runner aussi
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -43,11 +50,18 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Copier les fichiers nécessaires
+# Copier tous les fichiers nécessaires (pas en mode standalone)
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/next.config.ts ./next.config.ts
+COPY --from=builder /app/postcss.config.js ./postcss.config.js
+COPY --from=builder /app/tailwind.config.js ./tailwind.config.js
+
+# Copier les fichiers CSS
+COPY --from=builder /app/app ./app
+COPY --from=builder /app/assets ./assets
 
 # Créer les dossiers avec permissions ouvertes (pour Dokploy)
 RUN mkdir -p .data .next/cache && \
@@ -58,4 +72,4 @@ RUN mkdir -p .data .next/cache && \
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["pnpm", "start"]

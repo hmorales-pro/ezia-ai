@@ -17,10 +17,11 @@
 ### 2. Configuration du repository
 
 Dans les paramètres de l'application :
-- Repository URL: `https://github.com/hmorales-pro/ezia-ai.git`
+- Repository URL: Votre URL Git
 - Branch: `main`
-- Docker Compose Path: `docker-compose.dokploy-https.yml` (pour HTTPS)
-- Ou `docker-compose.dokploy.yml` (pour HTTP simple)
+- **Dockerfile Path**: `Dockerfile.dokploy`
+- **Build Context**: `.`
+- **Port**: `3000`
 
 ### 3. Variables d'environnement
 

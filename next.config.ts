@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  output: 'standalone',
+  // output: 'standalone', // Désactivé pour compatibilité
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
