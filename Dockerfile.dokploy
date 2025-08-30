@@ -25,8 +25,7 @@ RUN mv middleware.ts middleware.ts.disabled || true
 # Désactiver standalone output temporairement pour éviter les erreurs
 RUN sed -i "s/output: 'standalone',/\/\/ output: 'standalone',/g" next.config.ts || true
 
-# Compiler Tailwind CSS pour la production
-RUN pnpm exec tailwindcss -i ./app/global.css -o ./app/global.static.css --minify
+# CSS déjà compilé dans le repository, pas besoin de le recompiler
 
 # Variables d'environnement pour le build
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -66,12 +65,7 @@ COPY --from=builder /app/tailwind.config.js ./tailwind.config.js
 COPY --from=builder /app/app ./app
 COPY --from=builder /app/assets ./assets
 
-# Copier les scripts depuis le contexte local
-COPY --from=builder /app/start-production.sh ./start-production.sh
-COPY --from=builder /app/app/global.static.css ./app/global.static.css
-
-# Copier l'entrypoint depuis le contexte build
-COPY dokploy-entrypoint.sh ./
+# Les scripts ne sont plus nécessaires car le CSS est déjà compilé
 
 # Créer les dossiers avec permissions ouvertes (pour Dokploy)
 RUN mkdir -p .data .next/cache && \
@@ -85,8 +79,5 @@ EXPOSE 3000
 # Forcer le mode production
 ENV NODE_ENV=production
 
-# Utiliser l'entrypoint pour gérer Dokploy
-ENTRYPOINT ["./dokploy-entrypoint.sh"]
-
-# Commande par défaut (peut être override par Dokploy)
+# Commande simple - Dokploy peut l'override avec npm run dev si nécessaire
 CMD ["pnpm", "start"]

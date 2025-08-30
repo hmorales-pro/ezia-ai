@@ -10,7 +10,9 @@
     "start": "next start",
     "start:standalone": "node .next/standalone/server.js",
     "lint": "next lint",
-    "test:db": "node scripts/test-db-connection.js"
+    "test:db": "node scripts/test-db-connection.js",
+    "css:build": "tailwindcss -i ./app/global.original.css -o ./app/global.css --minify",
+    "css:watch": "tailwindcss -i ./app/global.original.css -o ./app/global.css --watch"
   },
   "dependencies": {
     "@huggingface/hub": "^2.2.0",
