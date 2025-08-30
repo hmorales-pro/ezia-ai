@@ -1,5 +1,7 @@
-/* Tailwind CSS v4.1 */
-@import "tailwindcss";
+/* Tailwind CSS directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Ezia Theme Variables */
 :root {
@@ -44,19 +46,21 @@
 }
 
 /* Base styles */
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-poppins), system-ui, sans-serif;
-  margin: 0;
-  padding: 0;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@layer base {
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-poppins), system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-* {
-  border-color: var(--border);
+  * {
+    border-color: var(--border);
+  }
 }
 
 /* Ensure background is applied */
@@ -103,14 +107,16 @@ body::before {
 }
 
 /* Utility classes */
-.text-primary {
-  color: var(--primary);
-}
+@layer utilities {
+  .text-primary {
+    color: var(--primary);
+  }
 
-.bg-primary {
-  background-color: var(--primary);
-}
+  .bg-primary {
+    background-color: var(--primary);
+  }
 
-.border-primary {
-  border-color: var(--primary);
+  .border-primary {
+    border-color: var(--primary);
+  }
 }
