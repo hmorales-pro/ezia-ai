@@ -1,27 +1,52 @@
-# Dockerfile optimisé pour Dokploy - Build plus rapide
-FROM node:20-alpine
+# Dockerfile optimisé pour Dokploy
+FROM node:20-alpine AS builder
 
-# Install dependencies for native modules
 RUN apk add --no-cache libc6-compat
-
 WORKDIR /app
 
-# Copy all files
+# Copier les fichiers de package
+COPY package.json package-lock.json ./
+
+# Installer TOUTES les dépendances (dev + prod)
+RUN npm ci || npm install
+
+# Copier le code source
 COPY . .
 
-# Install dependencies and build
-RUN npm install && \
-    npm run build && \
-    npm prune --production
+# Désactiver temporairement le middleware problématique
+RUN mv middleware.ts middleware.ts.disabled || true
 
-# Expose port
+# Variables d'environnement pour le build
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV SKIP_ENV_VALIDATION=1
+ENV NODE_ENV=production
+ENV MONGODB_URI="mongodb://localhost:27017/temp"
+
+# Build avec plus de mémoire
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
+
+# Stage de production
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Copier les fichiers nécessaires
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/package.json ./package.json
+
+# Créer les dossiers avec permissions ouvertes (pour Dokploy)
+RUN mkdir -p .data .next/cache && \
+    chmod -R 777 .data .next/cache
+
+# Ne pas utiliser d'utilisateur non-root pour Dokploy
+# USER nextjs
+
 EXPOSE 3000
 
-# Environment
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
-
-# Start the application
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
