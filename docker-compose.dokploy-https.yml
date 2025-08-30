@@ -1,0 +1,35 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dokploy
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=${MONGODB_URI:-mongodb://localhost:27017/ezia}
+      - HF_TOKEN=${HF_TOKEN}
+      - DEFAULT_HF_TOKEN=${DEFAULT_HF_TOKEN}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-here}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-your-nextauth-secret}
+      # IMPORTANT: Utiliser HTTPS pour les URLs publiques
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://ezia.ai}
+      - NEXT_APP_API_URL=${NEXT_APP_API_URL:-https://ezia.ai}
+      # Forcer HTTPS pour les assets
+      - NEXT_PUBLIC_ASSET_PREFIX=${NEXT_PUBLIC_ASSET_PREFIX:-https://ezia.ai}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      # Configuration pour reverse proxy (Nginx/Traefik)
+      - "traefik.enable=true"
+      - "traefik.http.routers.ezia.rule=Host(`ezia.ai`)"
+      - "traefik.http.routers.ezia.tls=true"
+      - "traefik.http.routers.ezia.tls.certresolver=letsencrypt"
+      - "traefik.http.services.ezia.loadbalancer.server.port=3000"

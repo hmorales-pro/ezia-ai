@@ -1,0 +1,33 @@
+# Solution finale pour Docker avec Ezia
+FROM node:20-alpine
+
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Copier les fichiers de package
+COPY package.json package-lock.json ./
+
+# Installer toutes les dépendances
+RUN npm install
+
+# Copier tout le code source
+COPY . .
+
+# Désactiver le middleware problématique
+RUN mv middleware.ts middleware.ts.disabled || true
+
+# Variables d'environnement
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+# Forcer NODE_ENV à development pour éviter les problèmes
+ENV NODE_ENV=development
+
+# Créer les dossiers nécessaires
+RUN mkdir -p .data .next/cache && \
+    chmod -R 755 .data .next/cache
+
+EXPOSE 3000
+
+# Utiliser le mode dev qui fonctionne localement
+CMD ["npm", "run", "dev"]

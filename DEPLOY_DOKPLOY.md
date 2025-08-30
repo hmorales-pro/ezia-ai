@@ -19,7 +19,8 @@
 Dans les paramètres de l'application :
 - Repository URL: `https://github.com/hmorales-pro/ezia-ai.git`
 - Branch: `main`
-- Docker Compose Path: `docker-compose.dokploy.yml`
+- Docker Compose Path: `docker-compose.dokploy-https.yml` (pour HTTPS)
+- Ou `docker-compose.dokploy.yml` (pour HTTP simple)
 
 ### 3. Variables d'environnement
 
@@ -48,7 +49,15 @@ Dans "Domains" :
 2. Attendez que le build se termine (5-10 minutes)
 3. Vérifiez les logs pour les erreurs
 
+### 6. Configuration Nginx (si nécessaire)
+
+Si vous utilisez Nginx comme reverse proxy, copiez `nginx.dokploy.conf` dans votre configuration Nginx.
+
 ## Résolution des problèmes courants
+
+### Erreur "Cross origin request"
+- Utilisez `docker-compose.dokploy-https.yml` 
+- Assurez-vous que NEXT_PUBLIC_APP_URL est en HTTPS
 
 ### Erreur de mémoire pendant le build
 - Augmentez la RAM du serveur (minimum 4GB recommandé)

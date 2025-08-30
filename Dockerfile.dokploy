@@ -16,6 +16,9 @@ COPY . .
 # Désactiver temporairement le middleware problématique
 RUN mv middleware.ts middleware.ts.disabled || true
 
+# Utiliser la configuration de production pour HTTPS
+RUN cp next.config.production.ts next.config.ts || true
+
 # Variables d'environnement pour le build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV SKIP_ENV_VALIDATION=1
