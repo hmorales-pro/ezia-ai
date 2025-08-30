@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "SKIP_ENV_VALIDATION=1 next build",
+    "build:docker": "node scripts/fix-tailwind.js && SKIP_ENV_VALIDATION=1 next build",
     "start": "next start",
     "lint": "next lint",
     "test:db": "node scripts/test-db-connection.js"
