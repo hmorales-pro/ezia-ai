@@ -1,0 +1,54 @@
+# DOCKERFILE QUI FORCE ABSOLUMENT LA PRODUCTION
+FROM node:20-alpine AS builder
+
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Installer les dépendances
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Copier le code
+COPY . .
+
+# FORCER le remplacement du CSS AVANT le build
+RUN echo '@tailwind base;' > assets/globals.css && \
+    echo '@tailwind components;' >> assets/globals.css && \
+    echo '@tailwind utilities;' >> assets/globals.css && \
+    echo '/* Production CSS */' >> assets/globals.css && \
+    echo 'body { background: #ebe7e1; }' >> assets/globals.css
+
+# Supprimer le middleware
+RUN rm -f middleware.ts
+
+# Build de production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV MONGODB_URI=mongodb://temp:27017/temp
+
+RUN npm run build
+
+# Image de production
+FROM node:20-alpine
+WORKDIR /app
+
+# Copier seulement ce qui est nécessaire
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/entrypoint.sh ./
+
+# Permissions
+RUN chmod +x entrypoint.sh && \
+    mkdir -p .data .next/cache && \
+    chmod -R 777 .data .next/cache
+
+# Variables d'environnement
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+EXPOSE 3000
+
+# Utiliser l'entrypoint qui force le fix
+ENTRYPOINT ["/app/entrypoint.sh"]
