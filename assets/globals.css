@@ -1,7 +1,4 @@
-/* Tailwind CSS v3 syntax for compatibility */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Ezia Theme Variables */
 :root {
