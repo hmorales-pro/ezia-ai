@@ -1,14 +1,17 @@
-# Dockerfile pour mode développement - fonctionne comme npm run dev
+# Dockerfile pour mode développement - fonctionne comme pnpm dev
 FROM node:20-alpine
 
 RUN apk add --no-cache libc6-compat
+# Installer pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 WORKDIR /app
 
 # Copier les fichiers de package
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml ./
 
-# Installer toutes les dépendances
-RUN npm install
+# Installer toutes les dépendances avec pnpm
+RUN pnpm install
 
 # Copier tout le code source
 COPY . .
@@ -28,4 +31,4 @@ RUN mkdir -p .data .next/cache && \
 EXPOSE 3000
 
 # Utiliser le mode dev qui fonctionne
-CMD ["npm", "run", "dev"]
+CMD ["pnpm", "run", "dev"]

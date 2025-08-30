@@ -1,12 +1,17 @@
 # DOCKERFILE PRODUCTION QUI FONCTIONNE
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 
 FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -39,7 +44,7 @@ RUN echo "import type { NextConfig } from 'next';" > next.config.ts && \
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
 ENV MONGODB_URI mongodb://localhost:27017/temp
-RUN npm run build:docker
+RUN pnpm run build:docker
 
 FROM node:20-alpine AS runner
 WORKDIR /app

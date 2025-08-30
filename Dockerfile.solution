@@ -2,13 +2,16 @@
 FROM node:20-alpine
 
 RUN apk add --no-cache libc6-compat
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copier les fichiers de package
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Installer toutes les dépendances
-RUN npm install
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install
 
 # Copier tout le code source
 COPY . .
@@ -30,4 +33,4 @@ RUN mkdir -p .data .next/cache && \
 EXPOSE 3000
 
 # Utiliser le mode dev qui fonctionne localement
-CMD ["npm", "run", "dev"]
+CMD ["pnpm", "run", "dev"]

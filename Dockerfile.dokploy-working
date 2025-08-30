@@ -2,11 +2,14 @@
 FROM node:20-alpine AS builder
 
 RUN apk add --no-cache libc6-compat
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copier package files
-COPY package.json package-lock.json ./
-RUN npm ci || npm install
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile || pnpm install
 
 # Copier tous les fichiers
 COPY . .
@@ -27,7 +30,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV MONGODB_URI="mongodb://temp:27017/temp"
 
-RUN npm run build
+RUN pnpm run build
 
 # Production stage
 FROM node:20-alpine

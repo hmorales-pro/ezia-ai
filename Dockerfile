@@ -2,26 +2,30 @@
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
+# Installer pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copy package files only
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies with cache mount
-RUN --mount=type=cache,target=/root/.npm \
-    npm install --omit=dev
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --prod --frozen-lockfile
 
 # Stage 2: Build
 FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat
+# Installer pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install all dependencies (including devDependencies)
-RUN --mount=type=cache,target=/root/.npm \
-    npm install
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
@@ -32,7 +36,7 @@ ENV SKIP_ENV_VALIDATION 1
 # Provide dummy env vars for build time
 ENV MONGODB_URI="mongodb://localhost:27017/temp"
 
-RUN npm run build
+RUN pnpm run build
 
 # Stage 3: Runner
 FROM node:20-alpine AS runner

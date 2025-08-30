@@ -3,6 +3,8 @@ FROM node:20-alpine
 
 # Install dependencies
 RUN apk add --no-cache libc6-compat
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
@@ -10,7 +12,8 @@ WORKDIR /app
 COPY . .
 
 # Install dependencies
-RUN npm install --omit=dev || npm install --production
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --prod --frozen-lockfile || pnpm install --prod
 
 # Set memory limits for build
 ENV NODE_OPTIONS="--max-old-space-size=512"
@@ -19,10 +22,10 @@ ENV SKIP_ENV_VALIDATION=1
 ENV MONGODB_URI="mongodb://localhost:27017/temp"
 
 # Build with timeout protection
-RUN timeout 300 npm run build || echo "Build completed with timeout"
+RUN timeout 300 pnpm run build || echo "Build completed with timeout"
 
 # Clean up dev dependencies
-RUN npm prune --production && \
+RUN pnpm prune --prod && \
     rm -rf .next/cache && \
     rm -rf node_modules/.cache
 
@@ -45,4 +48,4 @@ ENV HOSTNAME="0.0.0.0"
 ENV NODE_ENV=production
 
 # Start the app
-CMD ["npm", "start"]
+CMD ["pnpm", "start"]

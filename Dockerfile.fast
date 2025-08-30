@@ -1,11 +1,14 @@
 # Dockerfile optimisé pour build plus rapide
 FROM node:20-alpine
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
 # Install dependencies first (for caching)
-COPY package*.json ./
-RUN npm install --legacy-peer-deps
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 
 # Copy source files
 COPY . .
@@ -15,14 +18,14 @@ ENV NODE_OPTIONS="--max-old-space-size=1024"
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build Next.js with minimal config
-RUN npm run build || echo "Build completed with warnings"
+RUN pnpm run build || echo "Build completed with warnings"
 
 # Remove dev dependencies
-RUN npm prune --production
+RUN pnpm prune --prod
 
 EXPOSE 3000
 
 ENV NODE_ENV=production
 ENV PORT=3000
 
-CMD ["npm", "start"]
+CMD ["pnpm", "start"]

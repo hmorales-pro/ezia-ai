@@ -2,11 +2,14 @@
 FROM node:20-alpine AS builder
 
 RUN apk add --no-cache libc6-compat
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copier uniquement les fichiers nécessaires pour les dépendances
-COPY package.json package-lock.json ./
-RUN npm ci --only=production || npm install --production
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --prod --frozen-lockfile || pnpm install --prod
 
 # Copier le reste des fichiers
 COPY . .
@@ -20,7 +23,7 @@ ENV NODE_ENV=production
 
 # Build sans optimisations coûteuses
 RUN echo "module.exports = { output: 'standalone', swcMinify: false, images: { unoptimized: true } }" > next.config.js && \
-    npm run build || echo "Build terminé"
+    pnpm run build || echo "Build terminé"
 
 # Image finale ultra-légère
 FROM node:20-alpine AS runner

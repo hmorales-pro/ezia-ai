@@ -1,20 +1,23 @@
 # Dockerfile sans build pour tester rapidement
 FROM node:20-alpine
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
 # Copy pre-built files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 COPY .next ./.next
 COPY public ./public
 COPY next.config.ts ./
 
 # Install only production dependencies
-RUN npm install --production
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --prod --frozen-lockfile
 
 EXPOSE 3000
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-CMD ["npm", "start"]
+CMD ["pnpm", "start"]
