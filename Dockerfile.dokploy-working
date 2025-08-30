@@ -1,0 +1,47 @@
+# Dockerfile qui FONCTIONNE pour Dokploy
+FROM node:20-alpine AS builder
+
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Copier package files
+COPY package.json package-lock.json ./
+RUN npm ci || npm install
+
+# Copier tous les fichiers
+COPY . .
+
+# CRITICAL FIX: Forcer l'utilisation du CSS compatible
+# Option 1: Remplacer directement l'import
+RUN echo '@tailwind base;' > assets/globals.css && \
+    echo '@tailwind components;' >> assets/globals.css && \
+    echo '@tailwind utilities;' >> assets/globals.css && \
+    echo '' >> assets/globals.css && \
+    cat assets/globals.fixed.css >> assets/globals.css
+
+# Supprimer le middleware
+RUN rm -f middleware.ts
+
+# Build
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV MONGODB_URI="mongodb://temp:27017/temp"
+
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+RUN mkdir -p .data .next/cache && chmod -R 777 .data .next/cache
+
+EXPOSE 3000
+CMD ["node", "server.js"]

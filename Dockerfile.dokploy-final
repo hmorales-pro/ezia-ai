@@ -13,8 +13,9 @@ RUN npm ci || npm install
 # Copier le code source
 COPY . .
 
-# FIX CRITIQUE: Remplacer le CSS Tailwind v4 par le CSS compatible
-RUN cp assets/globals.fixed.css assets/globals.css
+# FIX CRITIQUE: Remplacer le CSS ET le layout pour la production
+RUN cp assets/globals.fixed.css assets/globals.css && \
+    cp app/layout.production.tsx app/layout.tsx
 
 # Désactiver le middleware problématique
 RUN rm -f middleware.ts middleware.js

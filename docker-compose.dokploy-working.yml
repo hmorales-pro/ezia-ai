@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dokploy-working
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=${MONGODB_URI:-mongodb://localhost:27017/ezia}
+      - HF_TOKEN=${HF_TOKEN}
+      - DEFAULT_HF_TOKEN=${DEFAULT_HF_TOKEN}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-your-nextauth-secret}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://ezia.ai}
+    restart: unless-stopped
