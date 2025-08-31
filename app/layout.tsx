@@ -115,6 +115,16 @@ export default async function RootLayout({
           body { background-color: #ebe7e1; min-height: 100vh; }
           .hidden { display: none; }
           * { margin: 0; padding: 0; box-sizing: border-box; }
+          
+          /* Variables CSS pour les composants UI */
+          :root {
+            --popover: 0 0% 100%;
+            --popover-foreground: 222.2 47.4% 11.2%;
+          }
+          
+          /* Classes manquantes pour les dropdowns */
+          .bg-popover { background-color: hsl(var(--popover)); }
+          .text-popover-foreground { color: hsl(var(--popover-foreground)); }
         ` }} />
       </head>
       <body
