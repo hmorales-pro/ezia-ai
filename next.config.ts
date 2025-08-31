@@ -89,9 +89,7 @@ const nextConfig: NextConfig = {
   
   // Désactiver l'indicateur de développement
   devIndicators: {
-    appIsrStatus: false,
-    buildActivity: false,
-    buildActivityPosition: 'bottom-right',
+    position: 'bottom-right',
   },
   images: {
     domains: ["localhost", "ezia.ai"],
