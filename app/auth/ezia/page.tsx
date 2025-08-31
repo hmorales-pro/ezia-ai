@@ -163,15 +163,6 @@ export default function EziaAuthPage() {
               </Alert>
             )}
 
-            {/* Demo credentials */}
-            {isLogin && (
-              <div className="bg-gradient-to-r from-[#6D3FC8]/10 to-[#8B5CF6]/10 rounded-lg p-4 mb-6">
-                <p className="text-sm text-[#6D3FC8] font-medium flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  Mode démo : test@ezia.ai / test123
-                </p>
-              </div>
-            )}
 
             {/* Login Form */}
             {isLogin ? (
