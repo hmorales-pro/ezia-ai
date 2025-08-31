@@ -110,9 +110,6 @@ export default async function RootLayout({
       <Script 
         src="https://cdn.tailwindcss.com" 
         strategy="beforeInteractive"
-        onLoad={() => {
-          console.log('Tailwind CSS loaded');
-        }}
       />
       <body
         className={`${poppins.variable} ${ptSans.variable} antialiased bg-[#ebe7e1] min-h-[100dvh] font-poppins`}
