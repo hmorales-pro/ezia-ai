@@ -102,15 +102,14 @@ export default async function RootLayout({
   const data = await getMe();
   return (
     <html lang="en">
-      <Script
-        defer
-        data-domain="ezia.agency"
-        src="https://plausible.io/js/script.js"
-      ></Script>
-      <Script 
-        src="https://cdn.tailwindcss.com" 
-        strategy="beforeInteractive"
-      />
+      <head>
+        <Script
+          defer
+          data-domain="ezia.agency"
+          src="https://plausible.io/js/script.js"
+        />
+        <script src="https://cdn.tailwindcss.com" async></script>
+      </head>
       <body
         className={`${poppins.variable} ${ptSans.variable} antialiased bg-[#ebe7e1] min-h-[100dvh] font-poppins`}
         suppressHydrationWarning
