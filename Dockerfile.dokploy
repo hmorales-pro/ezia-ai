@@ -16,6 +16,8 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
 # Copier le code source
 COPY . .
 
+# Script déjà copié avec COPY . .
+
 # Nettoyer les caches possibles
 RUN rm -rf .next node_modules/.cache
 
@@ -68,9 +70,6 @@ COPY --from=builder /app/app ./app
 COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/public ./public
 
-# Copier le script de démarrage
-COPY --from=builder /app/start.sh ./start.sh
-
 # Les scripts ne sont plus nécessaires car le CSS est déjà compilé
 
 # Créer les dossiers avec permissions ouvertes (pour Dokploy)
@@ -87,7 +86,5 @@ EXPOSE 3000
 # Forcer le mode production
 ENV NODE_ENV=production
 
-# Override la commande de Dokploy
-ENTRYPOINT ["/app/start.sh"]
-# La commande sera ignorée mais nécessaire pour Dokploy
-CMD [""]
+# Commande simple pour démarrer
+CMD ["pnpm", "start"]
