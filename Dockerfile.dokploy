@@ -68,6 +68,9 @@ COPY --from=builder /app/tailwind.config.js ./tailwind.config.js
 COPY --from=builder /app/app ./app
 COPY --from=builder /app/assets ./assets
 
+# Copier le script de démarrage
+COPY --from=builder /app/start.sh ./start.sh
+
 # Les scripts ne sont plus nécessaires car le CSS est déjà compilé
 
 # Créer les dossiers avec permissions ouvertes (pour Dokploy)
@@ -82,5 +85,7 @@ EXPOSE 3000
 # Forcer le mode production
 ENV NODE_ENV=production
 
-# Commande simple - Dokploy peut l'override avec npm run dev si nécessaire
-CMD ["pnpm", "start"]
+# Override la commande de Dokploy
+ENTRYPOINT ["/app/start.sh"]
+# La commande sera ignorée mais nécessaire pour Dokploy
+CMD [""]

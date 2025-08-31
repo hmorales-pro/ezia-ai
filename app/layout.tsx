@@ -4,7 +4,7 @@ import { Poppins, PT_Sans } from "next/font/google";
 import { cookies } from "next/headers";
 
 import TanstackProvider from "@/components/providers/tanstack-query-provider";
-import "./basic.css";
+// import "./basic.css"; // Désactivé pour Dokploy
 import { Toaster } from "@/components/ui/sonner";
 import MY_TOKEN_KEY from "@/lib/get-cookie-name";
 import AppContext from "@/components/contexts/app-context";
