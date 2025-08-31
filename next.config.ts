@@ -27,6 +27,35 @@ const nextConfig: NextConfig = {
     ];
   },
   
+  // Rewrites pour servir les images via l'API en production
+  async rewrites() {
+    if (process.env.NODE_ENV === 'production') {
+      return [
+        {
+          source: '/img/:path*',
+          destination: '/api/images/img/:path*',
+        },
+        {
+          source: '/logo.png',
+          destination: '/api/images/logo.png',
+        },
+        {
+          source: '/favicon.ico',
+          destination: '/api/images/favicon.ico',
+        },
+        {
+          source: '/favicon-16x16.png',
+          destination: '/api/images/favicon-16x16.png',
+        },
+        {
+          source: '/favicon-32x32.png',
+          destination: '/api/images/favicon-32x32.png',
+        },
+      ];
+    }
+    return [];
+  },
+  
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
