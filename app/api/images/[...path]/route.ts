@@ -52,6 +52,23 @@ export async function GET(
       console.error('File not found in any path');
       console.log('Directory listing of /app:', fs.readdirSync('/app').join(', '));
       
+      // Vérifier le contenu du dossier public
+      try {
+        console.log('Content of /app/public:', fs.readdirSync('/app/public').join(', '));
+        
+        // Vérifier si le dossier img existe
+        if (fs.existsSync('/app/public/img')) {
+          console.log('Content of /app/public/img:', fs.readdirSync('/app/public/img').join(', '));
+          
+          // Vérifier si le dossier mascottes existe
+          if (fs.existsSync('/app/public/img/mascottes')) {
+            console.log('Content of /app/public/img/mascottes:', fs.readdirSync('/app/public/img/mascottes').join(', '));
+          }
+        }
+      } catch (e) {
+        console.error('Error reading public directory:', e);
+      }
+      
       // Essayer sans le slash initial
       const altPath = path.join(process.cwd(), 'public', imagePath.replace(/^\//, ''));
       if (fs.existsSync(altPath)) {

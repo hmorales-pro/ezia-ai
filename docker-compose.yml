@@ -4,7 +4,7 @@ services:
   ezia:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.dokploy
     ports:
       - "3001:3000"
     environment:
