@@ -185,8 +185,8 @@ export default function WaitlistPageV2() {
             
             <div className="bg-purple-50 rounded-lg p-4 mb-6">
               <p className="text-sm text-[#6D3FC8] font-medium">
-                👉 Prochaine étape : Un email de confirmation vient de vous être envoyé. 
-                N'oubliez pas de vérifier vos spams !
+                👉 Vous serez prévenu par email dès que nous annoncerons la mise en ligne d'Ezia.
+                Merci de votre confiance !
               </p>
             </div>
             
