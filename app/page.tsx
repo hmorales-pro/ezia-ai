@@ -1,14 +1,14 @@
-'use client';
+import { Metadata } from 'next';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+export const metadata: Metadata = {
+  title: 'Redirection...',
+};
 
 export default function Page() {
-  const router = useRouter();
-  
-  useEffect(() => {
-    router.replace('/home');
-  }, [router]);
-  
-  return null;
+  return (
+    <>
+      <meta httpEquiv="refresh" content="0; url=/home" />
+      <script dangerouslySetInnerHTML={{ __html: 'window.location.href = "/home";' }} />
+    </>
+  );
 }
