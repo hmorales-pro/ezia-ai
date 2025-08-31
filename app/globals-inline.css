@@ -1,0 +1,38 @@
+/* CSS inline pour chargement immédiat */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ebe7e1;
+  color: #1E1E1E;
+  font-family: var(--font-poppins), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Classes essentielles pré-chargées */
+.bg-\[\#ebe7e1\] {
+  background-color: #ebe7e1;
+}
+
+.min-h-\[100dvh\] {
+  min-height: 100dvh;
+}
+
+.antialiased {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Éviter le flash de contenu non stylé */
+.opacity-0 {
+  opacity: 0;
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
