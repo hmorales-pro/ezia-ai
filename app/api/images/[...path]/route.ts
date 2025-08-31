@@ -18,16 +18,39 @@ function getContentType(ext: string): string {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const imagePath = params.path.join('/');
+    const { path: pathSegments } = await params;
+    const imagePath = pathSegments.join('/');
     console.log('Image API called for:', imagePath);
-    const fullPath = path.join(process.cwd(), 'public', imagePath);
+    console.log('Current working directory:', process.cwd());
+    
+    // Essayer plusieurs chemins possibles
+    const possiblePaths = [
+      path.join(process.cwd(), 'public', imagePath),
+      path.join(process.cwd(), './public', imagePath),
+      path.join('/app/public', imagePath),
+      path.join('./public', imagePath),
+    ];
+    
+    let fullPath = '';
+    let found = false;
+    
+    for (const testPath of possiblePaths) {
+      console.log('Testing path:', testPath);
+      if (fs.existsSync(testPath)) {
+        fullPath = testPath;
+        found = true;
+        console.log('Found at:', testPath);
+        break;
+      }
+    }
     
     // Vérifier si le fichier existe
-    if (!fs.existsSync(fullPath)) {
-      console.error('File not found:', fullPath);
+    if (!found) {
+      console.error('File not found in any path');
+      console.log('Directory listing of /app:', fs.readdirSync('/app').join(', '));
       
       // Essayer sans le slash initial
       const altPath = path.join(process.cwd(), 'public', imagePath.replace(/^\//, ''));

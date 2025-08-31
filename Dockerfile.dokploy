@@ -74,9 +74,10 @@ COPY --from=builder /app/start.sh ./start.sh
 # Les scripts ne sont plus nécessaires car le CSS est déjà compilé
 
 # Créer les dossiers avec permissions ouvertes (pour Dokploy)
-RUN mkdir -p .data .next/cache && \
+RUN mkdir -p .data .next/cache public && \
     chmod -R 777 .data .next/cache && \
-    chmod -R 755 public
+    chmod -R 755 public && \
+    ls -la /app/public/img/mascottes/ || echo "Images directory not found"
 
 # Ne pas utiliser d'utilisateur non-root pour Dokploy
 # USER nextjs
