@@ -75,6 +75,13 @@ const nextConfig: NextConfig = {
   
   // Performance optimizations
   reactStrictMode: true,
+  
+  // Désactiver l'indicateur de développement
+  devIndicators: {
+    appIsrStatus: false,
+    buildActivity: false,
+    buildActivityPosition: 'bottom-right',
+  },
   images: {
     domains: ["localhost", "ezia.ai"],
     formats: ["image/avif", "image/webp"],

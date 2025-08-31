@@ -108,7 +108,14 @@ export default async function RootLayout({
           data-domain="ezia.agency"
           src="https://plausible.io/js/script.js"
         />
-        <script src="https://cdn.tailwindcss.com" async></script>
+        <link rel="preload" href="https://cdn.tailwindcss.com" as="script" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style dangerouslySetInnerHTML={{ __html: `
+          /* Critical CSS pour éviter FOUC */
+          body { background-color: #ebe7e1; min-height: 100vh; }
+          .hidden { display: none; }
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+        ` }} />
       </head>
       <body
         className={`${poppins.variable} ${ptSans.variable} antialiased bg-[#ebe7e1] min-h-[100dvh] font-poppins`}
