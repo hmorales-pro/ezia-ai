@@ -56,7 +56,6 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Copier tous les fichiers nécessaires (pas en mode standalone)
-COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
@@ -76,7 +75,8 @@ COPY --from=builder /app/start.sh ./start.sh
 
 # Créer les dossiers avec permissions ouvertes (pour Dokploy)
 RUN mkdir -p .data .next/cache && \
-    chmod -R 777 .data .next/cache
+    chmod -R 777 .data .next/cache && \
+    chmod -R 755 public
 
 # Ne pas utiliser d'utilisateur non-root pour Dokploy
 # USER nextjs
