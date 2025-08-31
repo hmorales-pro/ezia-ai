@@ -22,6 +22,14 @@ const nextConfig: NextConfig = {
             key: 'Access-Control-Allow-Headers',
             value: 'X-Requested-With, Content-Type, Authorization',
           },
+          {
+            key: 'X-Forwarded-Proto',
+            value: 'https',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
+          },
         ],
       },
     ];
