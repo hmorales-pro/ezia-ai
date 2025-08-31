@@ -27,6 +27,17 @@ const nextConfig: NextConfig = {
     ];
   },
   
+  // Redirects
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/home',
+        permanent: false,
+      },
+    ];
+  },
+  
   // Rewrites pour servir les images via l'API (toujours actif pour Dokploy)
   async rewrites() {
     return [
