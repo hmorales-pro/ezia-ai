@@ -85,7 +85,16 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error("Erreur Mistral API:", await response.text());
+      const errorText = await response.text();
+      console.error("Erreur Mistral API:", errorText);
+      console.error("Status:", response.status);
+      console.error("Headers:", response.headers);
+      
+      // Si c'est une erreur 401, la clé est invalide
+      if (response.status === 401) {
+        console.error("Clé API Mistral invalide ou expirée");
+      }
+      
       // Réponse de fallback en cas d'erreur
       return NextResponse.json({
         content: "Je suis désolée, j'ai un petit souci technique. 😅\n\nMais je peux quand même vous dire que je peux créer un site web professionnel en quelques minutes, développer une stratégie marketing personnalisée et bien plus avec mon équipe !\n\nCréez votre compte gratuit pour découvrir tout ce que nous pouvons faire ensemble. Qu'est-ce qui vous intéresse le plus ?",
