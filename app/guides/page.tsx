@@ -199,9 +199,9 @@ export default function GuidesPage() {
                 className="mx-auto mb-4"
               />
               <p className="text-[#666666] mb-4">
-                Nos guides détaillés sont exclusifs aux membres de la liste d'attente. 
-                Rejoignez-nous pour accéder à toutes nos ressources et être parmi les premiers 
-                à utiliser Ezia !
+                Ces guides seront disponibles prochainement. 
+                Rejoignez notre liste d'attente pour être informé en priorité 
+                dès leur publication !
               </p>
             </div>
             
