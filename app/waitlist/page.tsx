@@ -2,11 +2,11 @@ import { Metadata } from "next";
 import WaitlistClient from "./waitlist-client";
 
 export const metadata: Metadata = {
-  title: "Liste d'attente - Ezia",
-  description: "Inscrivez-vous sur la liste d'attente d'Ezia pour être parmi les premiers à accéder à notre plateforme révolutionnaire de création de business propulsée par l'IA.",
+  title: "Liste d'attente - Ezia pour Entrepreneurs",
+  description: "Vous avez une idée, un projet, une passion ? Ezia et son équipe d'IA vous accompagnent pour créer votre site, valider votre marché et lancer votre business.",
   openGraph: {
-    title: "Rejoignez la liste d'attente d'Ezia",
-    description: "Soyez parmi les premiers à transformer votre business avec l'IA. Accès limité disponible bientôt.",
+    title: "Ezia - Le partenaire IA des entrepreneurs qui se lancent",
+    description: "De l'idée au lancement : création de site, stratégie marketing, validation de marché. Tout pour bien démarrer, sans code et avec l'IA.",
     url: "https://ezia.ai/waitlist",
     siteName: "Ezia",
     images: [
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rejoignez la liste d'attente d'Ezia",
-    description: "Accès anticipé à la plateforme business IA la plus innovante",
+    title: "Ezia - Lancez votre business avec l'IA",
+    description: "Le compagnon IA pour entrepreneurs : site web, marketing, stratégie. Tout pour réussir votre lancement.",
     images: ["https://ezia.ai/twitter-waitlist.png"],
     creator: "@ezia_ai",
   },

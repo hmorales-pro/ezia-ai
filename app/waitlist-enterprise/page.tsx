@@ -2,11 +2,11 @@ import { Metadata } from "next";
 import WaitlistClient from "../waitlist/waitlist-client-v2";
 
 export const metadata: Metadata = {
-  title: "Liste d'attente Entreprises - Ezia Analytics",
-  description: "Transformez vos données en histoires. Ezia connecte vos outils (Stripe, Asana, Zendesk...) pour révéler les insights cachés de votre entreprise.",
+  title: "Liste d'attente - Ezia Analytics pour Entreprises",
+  description: "Vous avez des clients, des ventes, des outils... mais pas le temps d'analyser ? Ezia unifie vos données et révèle ce qui fait vraiment grandir votre business.",
   openGraph: {
-    title: "Ezia Analytics - Racontez l'histoire de vos données",
-    description: "La plateforme IA qui unifie vos données business pour des décisions éclairées",
+    title: "Ezia Analytics - Pour les entreprises qui ont des données partout",
+    description: "Connectez Stripe, votre CRM, vos analytics... Ezia comprend vos données et vous alerte sur ce qui compte vraiment.",
     url: "https://ezia.ai/waitlist-enterprise",
     siteName: "Ezia",
     images: [
