@@ -5,13 +5,8 @@ import Image from "next/image";
 import { 
   Sparkles, 
   Mail, 
-  Phone,
-  Github,
-  Twitter,
   Linkedin,
-  Facebook,
-  Instagram,
-  ExternalLink
+  Instagram
 } from "lucide-react";
 
 export function Footer() {
@@ -44,16 +39,7 @@ export function Footer() {
             {/* Social Links */}
             <div className="flex items-center gap-3">
               <a 
-                href="https://twitter.com/ezia_ai" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-[#F5F3EE] rounded-lg flex items-center justify-center hover:bg-[#6D3FC8] hover:text-white transition-all"
-                aria-label="Twitter"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://linkedin.com/company/ezia-ai" 
+                href="https://www.linkedin.com/company/entreprise-eziom" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-[#F5F3EE] rounded-lg flex items-center justify-center hover:bg-[#6D3FC8] hover:text-white transition-all"
@@ -62,16 +48,7 @@ export function Footer() {
                 <Linkedin className="w-5 h-5" />
               </a>
               <a 
-                href="https://github.com/ezia-ai" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-[#F5F3EE] rounded-lg flex items-center justify-center hover:bg-[#6D3FC8] hover:text-white transition-all"
-                aria-label="GitHub"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://instagram.com/ezia.ai" 
+                href="https://www.instagram.com/eziom.fr/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-[#F5F3EE] rounded-lg flex items-center justify-center hover:bg-[#6D3FC8] hover:text-white transition-all"
@@ -102,6 +79,7 @@ export function Footer() {
                   Notre équipe IA
                 </Link>
               </li>
+              {/* Temporairement désactivé
               <li>
                 <Link 
                   href="/gallery" 
@@ -110,11 +88,12 @@ export function Footer() {
                   Galerie de sites
                 </Link>
               </li>
+              */}
             </ul>
           </div>
 
-          {/* Resources */}
-          <div>
+          {/* Resources - Temporairement désactivé */}
+          {/* <div>
             <h4 className="font-semibold text-[#1E1E1E] mb-4">Ressources</h4>
             <ul className="space-y-2">
               <li>
@@ -153,7 +132,7 @@ export function Footer() {
                 </a>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Contact & Legal */}
           <div>
@@ -233,13 +212,6 @@ export function Footer() {
                 className="hover:text-[#6D3FC8] transition-colors"
               >
                 CGU
-              </Link>
-              <span>•</span>
-              <Link 
-                href="/help" 
-                className="hover:text-[#6D3FC8] transition-colors"
-              >
-                Aide
               </Link>
             </div>
           </div>

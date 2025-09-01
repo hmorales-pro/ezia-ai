@@ -7,20 +7,9 @@ import { Button } from "@/components/ui/button";
 import { 
   Menu, 
   X,
-  FileText,
-  Lightbulb,
-  HelpCircle,
   ArrowRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import { useUser } from "@/hooks";
 import { UserMenu } from "@/components/user-menu";
 
@@ -39,24 +28,25 @@ export default function LandingNavbar() {
   }, []);
 
   const resources = [
-    {
-      title: "Centre d'aide",
-      href: "/help",
-      description: "Trouvez des réponses à vos questions",
-      icon: HelpCircle
-    },
-    {
-      title: "Blog",
-      href: "/blog",
-      description: "Conseils et actualités pour votre business",
-      icon: FileText
-    },
-    {
-      title: "Guides",
-      href: "/guides",
-      description: "Tutoriels détaillés pour réussir en ligne",
-      icon: Lightbulb
-    }
+    // Pages temporairement désactivées
+    // {
+    //   title: "Centre d'aide",
+    //   href: "/help",
+    //   description: "Trouvez des réponses à vos questions",
+    //   icon: HelpCircle
+    // },
+    // {
+    //   title: "Blog",
+    //   href: "/blog",
+    //   description: "Conseils et actualités pour votre business",
+    //   icon: FileText
+    // },
+    // {
+    //   title: "Guides",
+    //   href: "/guides",
+    //   description: "Tutoriels détaillés pour réussir en ligne",
+    //   icon: Lightbulb
+    // }
   ];
 
   return (
@@ -81,44 +71,6 @@ export default function LandingNavbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="bg-transparent">
-                    Ressources
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[400px] gap-3 p-4">
-                      {resources.map((resource) => (
-                        <li key={resource.title}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              href={resource.href}
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-purple-50 focus:bg-purple-50 group"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                                  <resource.icon className="w-5 h-5 text-[#6D3FC8]" />
-                                </div>
-                                <div>
-                                  <div className="text-sm font-medium leading-none mb-1 text-[#1E1E1E] group-hover:text-[#6D3FC8] transition-colors">
-                                    {resource.title}
-                                  </div>
-                                  <p className="line-clamp-2 text-sm leading-snug text-[#666666] group-hover:text-[#1E1E1E] transition-colors">
-                                    {resource.description}
-                                  </p>
-                                </div>
-                              </div>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-
             <Link href="/equipe" className="text-[#666666] hover:text-[#6D3FC8] font-medium px-3 py-2 rounded-lg hover:bg-purple-50 transition-all">
               L'équipe
             </Link>
@@ -170,29 +122,7 @@ export default function LandingNavbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white border-t">
           <div className="px-4 py-6 space-y-4">
-            <div>
-              <p className="text-sm font-semibold text-[#666666] mb-2">Ressources</p>
-              <div className="space-y-2">
-                {resources.map((resource) => (
-                  <Link
-                    key={resource.title}
-                    href={resource.href}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-50 transition-colors group"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                      <resource.icon className="w-5 h-5 text-[#6D3FC8]" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm text-[#1E1E1E] group-hover:text-[#6D3FC8] transition-colors">{resource.title}</p>
-                      <p className="text-xs text-[#666666] group-hover:text-[#1E1E1E] transition-colors">{resource.description}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2 pt-4 border-t">
+            <div className="space-y-2">
               <Link
                 href="/equipe"
                 className="block px-3 py-2 text-[#666666] hover:text-[#6D3FC8] transition-colors"
