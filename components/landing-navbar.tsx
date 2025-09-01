@@ -3,12 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { 
   Menu, 
   X,
   ArrowRight,
-  Lightbulb
+  Lightbulb,
+  Building2,
+  Rocket
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +29,7 @@ export default function LandingNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user } = useUser();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,6 +39,9 @@ export default function LandingNavbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const isEnterprisePage = pathname === "/home-enterprise";
+  const isStartupPage = pathname === "/home";
 
   const resources = [
     {
@@ -111,6 +118,26 @@ export default function LandingNavbar() {
             <Link href="/equipe" className="text-[#666666] hover:text-[#6D3FC8] font-medium px-3 py-2 rounded-lg hover:bg-purple-50 transition-all">
               L'équipe
             </Link>
+
+            {/* Switch between startup and enterprise */}
+            {(isStartupPage || isEnterprisePage) && (
+              <Link 
+                href={isEnterprisePage ? "/home" : "/home-enterprise"} 
+                className="flex items-center gap-2 text-[#666666] hover:text-[#6D3FC8] font-medium px-3 py-2 rounded-lg hover:bg-purple-50 transition-all"
+              >
+                {isEnterprisePage ? (
+                  <>
+                    <Rocket className="w-4 h-4" />
+                    <span>Pour startups</span>
+                  </>
+                ) : (
+                  <>
+                    <Building2 className="w-4 h-4" />
+                    <span>Pour entreprises</span>
+                  </>
+                )}
+              </Link>
+            )}
           </div>
 
           {/* CTA Buttons */}
@@ -189,6 +216,27 @@ export default function LandingNavbar() {
               >
                 L'équipe
               </Link>
+
+              {/* Switch between startup and enterprise for mobile */}
+              {(isStartupPage || isEnterprisePage) && (
+                <Link
+                  href={isEnterprisePage ? "/home" : "/home-enterprise"}
+                  className="flex items-center gap-2 px-3 py-2 text-[#666666] hover:text-[#6D3FC8] transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {isEnterprisePage ? (
+                    <>
+                      <Rocket className="w-4 h-4" />
+                      <span>Pour startups</span>
+                    </>
+                  ) : (
+                    <>
+                      <Building2 className="w-4 h-4" />
+                      <span>Pour entreprises</span>
+                    </>
+                  )}
+                </Link>
+              )}
             </div>
 
             <div className="space-y-3 pt-4 border-t">
