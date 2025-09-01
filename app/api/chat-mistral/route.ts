@@ -49,8 +49,9 @@ export async function POST(req: NextRequest) {
     // Utiliser la clé API Mistral depuis les variables d'environnement
     const mistralApiKey = process.env.MISTRAL_API_KEY;
     
-    if (!mistralApiKey) {
-      // Réponse par défaut si pas de clé API
+    // Vérifier si la clé API est valide (pas vide et pas "placeholder")
+    if (!mistralApiKey || mistralApiKey === 'placeholder' || mistralApiKey.length < 10) {
+      // Réponse par défaut si pas de clé API valide
       return NextResponse.json({
         content: "Bonjour ! Je suis Ezia, votre partenaire business IA. 🌟\n\nJe suis ravie de vous accueillir ! Je dirige une équipe d'experts en IA et ensemble, nous pouvons créer votre site web, développer votre stratégie marketing et faire grandir votre entreprise.\n\nPour que je puisse mobiliser toutes mes capacités et celles de mon équipe, créez votre compte gratuit. C'est rapide et sans engagement !\n\nQu'est-ce qui vous amène aujourd'hui ? Un projet de site web ? Des questions sur le marketing digital ?",
         isDefault: true

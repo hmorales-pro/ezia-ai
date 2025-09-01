@@ -33,14 +33,14 @@ export async function generateWithMistralAPI(
                            prompt.toLowerCase().includes("json") ||
                            prompt.toLowerCase().includes("structure complète");
   
-  if (!mistralApiKey) {
-    console.log("[Mistral] ⚠️ Mode développement activé - Pas de clé API Mistral");
+  if (!mistralApiKey || mistralApiKey === 'placeholder' || mistralApiKey.length < 10) {
+    console.log("[Mistral] ⚠️ Mode développement activé - Pas de clé API Mistral valide");
     console.log("[Mistral] Pour activer le mode production avec l'IA réelle :");
     console.log("[Mistral] 1. Créez un compte sur https://console.mistral.ai/");
     console.log("[Mistral] 2. Générez une clé API");
     console.log("[Mistral] 3. Ajoutez MISTRAL_API_KEY=votre-clé dans votre fichier .env.local");
     
-    // Si pas de clé Mistral, utiliser une réponse par défaut
+    // Si pas de clé Mistral valide, utiliser une réponse par défaut
     if (isWebsiteGeneration) {
       return generateDefaultWebsite(prompt);
     }
