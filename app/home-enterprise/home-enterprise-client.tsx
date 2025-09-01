@@ -19,7 +19,8 @@ import {
   HeartHandshake,
   Puzzle,
   Brain,
-  Activity
+  Activity,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -35,6 +36,7 @@ import {
 export default function HomeEnterpriseClient() {
   const router = useRouter();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [selectedIntegration, setSelectedIntegration] = useState<number | null>(null);
 
   const benefits = [
     {
@@ -80,6 +82,59 @@ export default function HomeEnterpriseClient() {
     }
   ];
 
+
+  const integrations = [
+    {
+      emoji: "💳",
+      category: "Paiements",
+      tools: ["Stripe", "PayPal", "Mollie", "Square", "Adyen"]
+    },
+    {
+      emoji: "✅",
+      category: "Gestion de projets",
+      tools: ["Asana", "Trello", "Notion", "Monday.com", "ClickUp"]
+    },
+    {
+      emoji: "🎧",
+      category: "Support client",
+      tools: ["Zendesk", "Intercom", "Freshdesk", "HelpScout", "Crisp"]
+    },
+    {
+      emoji: "📧",
+      category: "Email marketing",
+      tools: ["Mailchimp", "SendinBlue", "ActiveCampaign", "ConvertKit", "Klaviyo"]
+    },
+    {
+      emoji: "📊",
+      category: "Analytics",
+      tools: ["Google Analytics", "Mixpanel", "Amplitude", "Segment", "Hotjar"]
+    },
+    {
+      emoji: "💬",
+      category: "Communication",
+      tools: ["Slack", "Microsoft Teams", "Discord", "Zoom", "Google Meet"]
+    },
+    {
+      emoji: "📝",
+      category: "CRM",
+      tools: ["HubSpot", "Salesforce", "Pipedrive", "Zoho CRM", "Copper"]
+    },
+    {
+      emoji: "🛍️",
+      category: "E-commerce",
+      tools: ["Shopify", "WooCommerce", "PrestaShop", "BigCommerce", "Magento"]
+    },
+    {
+      emoji: "💼",
+      category: "Comptabilité",
+      tools: ["QuickBooks", "Xero", "FreshBooks", "Wave", "Sage"]
+    },
+    {
+      emoji: "☁️",
+      category: "Stockage",
+      tools: ["Google Drive", "Dropbox", "OneDrive", "Box", "AWS S3"]
+    }
+  ];
 
   const faqs = [
     {
@@ -331,13 +386,92 @@ export default function HomeEnterpriseClient() {
             <p className="text-lg text-[#333333] mb-6">
               Plus de 50 intégrations disponibles
             </p>
-            <div className="flex flex-wrap justify-center gap-4 text-3xl">
-              {["💳", "✅", "🎧", "📧", "📊", "💬", "📝", "🛍️", "💼", "☁️"].map((emoji, index) => (
-                <div key={index} className="w-16 h-16 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg transition-shadow">
-                  {emoji}
+            <div className="flex flex-wrap justify-center gap-4">
+              {integrations.map((integration, index) => (
+                <div 
+                  key={index} 
+                  className="relative group"
+                >
+                  <button
+                    onClick={() => setSelectedIntegration(selectedIntegration === index ? null : index)}
+                    className="w-16 h-16 bg-white rounded-xl shadow-md flex items-center justify-center hover:shadow-lg transition-all hover:scale-110 cursor-pointer"
+                  >
+                    <span className="text-3xl">{integration.emoji}</span>
+                  </button>
+                  
+                  {/* Tooltip for desktop */}
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none hidden md:block z-10">
+                    <div className="bg-gray-900 text-white text-sm rounded-lg py-2 px-3 whitespace-nowrap">
+                      <p className="font-semibold mb-1">{integration.category}</p>
+                      <p className="text-xs text-gray-300">{integration.tools.slice(0, 3).join(", ")}...</p>
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                        <div className="border-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Click detail for mobile and desktop */}
+                  {selectedIntegration === index && (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-20 md:hidden">
+                      <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-3 min-w-[200px]">
+                        <p className="font-semibold text-[#1E1E1E] mb-2">{integration.category}</p>
+                        <div className="text-xs text-[#666666] space-y-1">
+                          {integration.tools.map((tool, toolIndex) => (
+                            <div key={toolIndex} className="flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-green-500" />
+                              <span>{tool}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                          <div className="border-8 border-transparent border-t-white"></div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
+            
+            {/* Full details panel for desktop when clicked */}
+            {selectedIntegration !== null && (
+              <div className="hidden md:block mt-8 max-w-2xl mx-auto">
+                <Card className="border-[#E0E0E0] bg-gradient-to-r from-purple-50 to-pink-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-4xl">{integrations[selectedIntegration].emoji}</span>
+                        <h3 className="text-xl font-semibold text-[#1E1E1E]">
+                          {integrations[selectedIntegration].category}
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() => setSelectedIntegration(null)}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {integrations[selectedIntegration].tools.map((tool, index) => (
+                        <div key={index} className="flex items-center gap-2 text-sm">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                          <span className="text-[#333333]">{tool}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-sm text-[#666666] mt-4">
+                      Et bien d'autres outils de la catégorie {integrations[selectedIntegration].category.toLowerCase()}...
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+            
+            <p className="text-sm text-[#666666] mt-6">
+              <span className="hidden md:inline">Survolez ou cliquez</span>
+              <span className="md:hidden">Touchez</span> sur une icône pour voir les outils disponibles
+            </p>
           </div>
         </div>
       </section>
