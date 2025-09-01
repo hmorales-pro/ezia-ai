@@ -197,7 +197,10 @@ export default function WaitlistPageV2() {
             
             <div className="space-y-4">
               <Button
-                onClick={() => router.push("/")}
+                onClick={() => {
+                  const isEnterprise = window.location.pathname.includes('/waitlist-enterprise');
+                  router.push(isEnterprise ? "/home-enterprise" : "/home");
+                }}
                 className="w-full bg-[#6D3FC8] hover:bg-[#5A35A5] text-white"
               >
                 Retour à l'accueil
