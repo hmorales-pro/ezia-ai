@@ -92,26 +92,10 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resources - Temporairement désactivé */}
-          {/* <div>
+          {/* Resources */}
+          <div>
             <h4 className="font-semibold text-[#1E1E1E] mb-4">Ressources</h4>
             <ul className="space-y-2">
-              <li>
-                <Link 
-                  href="/help" 
-                  className="text-sm text-[#666666] hover:text-[#6D3FC8] transition-colors"
-                >
-                  Centre d'aide
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  href="/blog" 
-                  className="text-sm text-[#666666] hover:text-[#6D3FC8] transition-colors"
-                >
-                  Blog
-                </Link>
-              </li>
               <li>
                 <Link 
                   href="/guides" 
@@ -120,19 +104,8 @@ export function Footer() {
                   Guides pratiques
                 </Link>
               </li>
-              <li>
-                <a 
-                  href="https://status.ezia.ai" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-[#666666] hover:text-[#6D3FC8] transition-colors flex items-center gap-1"
-                >
-                  Statut du service
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </li>
             </ul>
-          </div> */}
+          </div>
 
           {/* Contact */}
           <div>

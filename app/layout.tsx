@@ -128,7 +128,8 @@ export default async function RootLayout({
         ` }} />
       </head>
       <body
-        className={`${poppins.variable} ${ptSans.variable} antialiased bg-[#ebe7e1] min-h-[100dvh] font-poppins`}
+        className={`${poppins.variable} ${ptSans.variable} antialiased bg-[#ebe7e1] min-h-[100dvh]`}
+        style={{ fontFamily: 'var(--font-poppins)' }}
         suppressHydrationWarning
       >
         <Toaster richColors position="bottom-center" />
