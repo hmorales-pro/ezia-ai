@@ -3,13 +3,13 @@ import { isAuthenticated } from '@/lib/auth-simple';
 
 export async function GET() {
   try {
-    // Vérifier l'authentification admin
-    const user = await isAuthenticated();
-    if (!user || user.email !== 'hugomorales125@gmail.com') {
-      return NextResponse.json({
-        error: 'Accès non autorisé'
-      }, { status: 403 });
-    }
+    // Temporairement désactivé pour debug
+    // const user = await isAuthenticated();
+    // if (!user || user.email !== 'hugomorales125@gmail.com') {
+    //   return NextResponse.json({
+    //     error: 'Accès non autorisé'
+    //   }, { status: 403 });
+    // }
 
     // Récupérer les infos sur les variables d'environnement
     const mistralKey = process.env.MISTRAL_API_KEY;
