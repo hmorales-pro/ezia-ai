@@ -123,10 +123,6 @@ const nextConfig: NextConfig = {
   
   // Ensure proper module resolution
   transpilePackages: ['@mistralai/mistralai'],
-  // Expose environment variables to server-side code
-  env: {
-    MISTRAL_API_KEY: process.env.MISTRAL_API_KEY,
-  },
   webpack(config, options) {
     const { isServer } = options;
     
