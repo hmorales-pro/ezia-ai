@@ -129,13 +129,17 @@ export default function WaitlistPageV2() {
     setLoading(true);
     
     try {
+      // Détecter si c'est une association
+      const isAssociation = window.location.pathname.includes('/associations') || 
+                           formData.profile === "Association";
+      
       const submitData = {
         email: formData.email,
         name: formData.name,
         profile: formData.profile === "autre" ? formData.profileOther : formData.profile,
         needs: formData.needs.join(", "),
         urgency: formData.urgency,
-        source: "waitlist-v2-compact"
+        source: isAssociation ? "waitlist-associations" : "waitlist-v2-compact"
       };
 
       const response = await api.post("/api/waitlist", submitData);
