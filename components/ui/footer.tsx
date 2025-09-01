@@ -134,10 +134,10 @@ export function Footer() {
             </ul>
           </div> */}
 
-          {/* Contact & Legal */}
+          {/* Contact */}
           <div>
             <h4 className="font-semibold text-[#1E1E1E] mb-4">Contact</h4>
-            <ul className="space-y-2 mb-6">
+            <ul className="space-y-2">
               <li>
                 <a 
                   href="mailto:support@ezia.ai" 
@@ -151,7 +151,10 @@ export function Footer() {
                 Lun-Ven 9h-18h CET
               </li>
             </ul>
-            
+          </div>
+          
+          {/* Legal */}
+          <div>
             <h4 className="font-semibold text-[#1E1E1E] mb-4">Légal</h4>
             <ul className="space-y-2">
               <li>
