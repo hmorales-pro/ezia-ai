@@ -67,6 +67,9 @@ export default function LandingNavbar() {
               height={40}
               className="group-hover:scale-110 transition-transform"
             />
+            <span className="text-2xl font-semibold font-poppins text-[#1E1E1E] group-hover:text-[#6D3FC8] transition-colors">
+              Ezia
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
