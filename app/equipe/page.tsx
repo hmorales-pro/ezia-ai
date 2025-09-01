@@ -389,12 +389,14 @@ export default function TeamPage() {
                 </ul>
               </div>
               
-              <Link href="/auth">
+              <div className="mt-8">
+                <Link href="/home">
                 <Button size="lg" className="bg-[#6D3FC8] hover:bg-[#5A35A5] text-white shadow-lg">
                   Discuter avec Ezia
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-              </Link>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
