@@ -16,7 +16,7 @@ export function Footer() {
     <footer className="bg-white border-t border-[#E0E0E0]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Logo and Description */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
@@ -107,7 +107,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contact & Legal */}
           <div>
             <h4 className="font-semibold text-[#1E1E1E] mb-4">Contact</h4>
             <ul className="space-y-2">
@@ -124,11 +124,8 @@ export function Footer() {
                 Lun-Ven 9h-18h CET
               </li>
             </ul>
-          </div>
-          
-          {/* Legal */}
-          <div>
-            <h4 className="font-semibold text-[#1E1E1E] mb-4">Légal</h4>
+            
+            <h4 className="font-semibold text-[#1E1E1E] mb-4 mt-8">Légal</h4>
             <ul className="space-y-2">
               <li>
                 <Link 
