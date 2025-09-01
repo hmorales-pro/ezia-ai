@@ -191,6 +191,7 @@ export function Footer() {
                   Conditions d'utilisation
                 </Link>
               </li>
+              {/* Temporairement désactivé - page à créer
               <li>
                 <Link 
                   href="/legal" 
@@ -199,6 +200,7 @@ export function Footer() {
                   Mentions légales
                 </Link>
               </li>
+              */}
             </ul>
           </div>
         </div>
@@ -220,24 +222,24 @@ export function Footer() {
             
             <div className="flex items-center gap-4 text-sm text-[#666666]">
               <Link 
-                href="/sitemap" 
+                href="/privacy" 
                 className="hover:text-[#6D3FC8] transition-colors"
               >
-                Plan du site
+                Confidentialité
               </Link>
               <span>•</span>
               <Link 
-                href="/accessibility" 
+                href="/terms" 
                 className="hover:text-[#6D3FC8] transition-colors"
               >
-                Accessibilité
+                CGU
               </Link>
               <span>•</span>
               <Link 
-                href="/cookies" 
+                href="/help" 
                 className="hover:text-[#6D3FC8] transition-colors"
               >
-                Cookies
+                Aide
               </Link>
             </div>
           </div>
