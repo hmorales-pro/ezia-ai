@@ -129,9 +129,10 @@ export default function WaitlistPageV2() {
     setLoading(true);
     
     try {
-      // Détecter si c'est une association
-      const isAssociation = window.location.pathname.includes('/associations') || 
-                           formData.profile === "Association";
+      // Détecter si c'est une entreprise/association
+      const isEnterprise = window.location.pathname.includes('/waitlist-enterprise') || 
+                          formData.profile === "association" || 
+                          formData.profile === "tpe-pme";
       
       const submitData = {
         email: formData.email,
@@ -139,7 +140,7 @@ export default function WaitlistPageV2() {
         profile: formData.profile === "autre" ? formData.profileOther : formData.profile,
         needs: formData.needs.join(", "),
         urgency: formData.urgency,
-        source: isAssociation ? "waitlist-associations" : "waitlist-v2-compact"
+        source: isEnterprise ? "waitlist-enterprise" : "waitlist-v2-compact"
       };
 
       const response = await api.post("/api/waitlist", submitData);

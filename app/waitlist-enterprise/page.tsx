@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import WaitlistEnterpriseClient from "./waitlist-enterprise-client";
+import WaitlistClient from "../waitlist/waitlist-client-v2";
 
 export const metadata: Metadata = {
   title: "Liste d'attente Entreprises - Ezia Analytics",
@@ -23,5 +23,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <WaitlistEnterpriseClient />;
+  return <WaitlistClient />;
 }

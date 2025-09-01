@@ -405,8 +405,8 @@ export default function LandingChat() {
 
       {/* Input */}
       <div className="p-4 border-t space-y-3">
-        {/* Signup Prompt */}
-        {showSignupPrompt && (
+        {/* Signup Prompt - Désactivé car on utilise les waitlists */}
+        {/* {showSignupPrompt && (
           <div className="flex justify-center animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="bg-gradient-to-r from-[#6D3FC8]/10 to-[#8B5CF6]/10 rounded-full px-4 py-2 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#6D3FC8]" />
@@ -422,7 +422,7 @@ export default function LandingChat() {
               </Button>
             </div>
           </div>
-        )}
+        )} */}
         
         <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-2">
           <Input
