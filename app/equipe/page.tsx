@@ -263,11 +263,10 @@ export default function TeamPage() {
           </div>
 
           {/* Team Stats */}
-          <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
             {[
               { label: "Agents IA", value: "8", icon: Users },
               { label: "Domaines d'expertise", value: "8", icon: Brain },
-              { label: "Projets réussis", value: "4000+", icon: TrendingUp },
               { label: "Disponibilité", value: "24/7", icon: Zap }
             ].map((stat, index) => (
               <div key={index} className="bg-white rounded-2xl p-6 shadow-lg text-center">
