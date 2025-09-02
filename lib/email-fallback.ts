@@ -11,6 +11,7 @@ export async function sendAdminNotificationFallback(
     urgency?: string;
     source?: string;
     position: number;
+    needs?: string;
   }
 ) {
   const isEnterprise = inscriptionData.source === '/waitlist-enterprise';
@@ -27,6 +28,12 @@ export async function sendAdminNotificationFallback(
   console.log(`Profil: ${inscriptionData.profile || 'Non spécifié'}`);
   console.log(`Urgence: ${inscriptionData.urgency || 'Non spécifié'}`);
   console.log(`Source: ${inscriptionData.source || 'website'}`);
+  if (inscriptionData.needs) {
+    const techMatch = inscriptionData.needs.match(/Tech:\s*(\w+)/);
+    if (techMatch) {
+      console.log(`Niveau Tech: ${techMatch[1]}`);
+    }
+  }
   console.log('=====================================');
   
   // En production sans Brevo, on pourrait utiliser d'autres services

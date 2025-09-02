@@ -25,6 +25,7 @@ interface FormData {
   teamSize?: string;
   tools?: string[];
   priorities?: string[];
+  techLevel?: string;
 }
 
 export default function WaitlistEnterpriseClient() {
@@ -43,10 +44,11 @@ export default function WaitlistEnterpriseClient() {
     urgency: "",
     teamSize: "",
     tools: [],
-    priorities: []
+    priorities: [],
+    techLevel: ""
   });
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const teamSizes = [
     { value: "solo", label: "Solo (1 personne)" },
@@ -83,6 +85,13 @@ export default function WaitlistEnterpriseClient() {
     { value: "exploring", label: "J'explore les options", icon: "🔍" }
   ];
 
+  const techLevels = [
+    { value: "low", label: "Notre équipe a besoin d'accompagnement", icon: "👥", description: "L'IA et les analytics sont nouveaux pour nous" },
+    { value: "mixed", label: "Nous avons des profils variés", icon: "🌈", description: "Certains sont experts, d'autres débutants" },
+    { value: "high", label: "Nous sommes data-driven", icon: "📊", description: "Nous utilisons déjà des outils d'analyse avancés" },
+    { value: "expert", label: "Nous sommes des experts tech", icon: "🏆", description: "IA, data science, analytics... c'est notre quotidien" }
+  ];
+
   const handleNext = () => {
     if (currentStep === 1) {
       if (!formData.name || !formData.email || !formData.company) {
@@ -102,7 +111,7 @@ export default function WaitlistEnterpriseClient() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.urgency || formData.tools.length === 0 || formData.priorities?.length === 0) {
+    if (!formData.urgency || formData.tools.length === 0 || formData.priorities?.length === 0 || !formData.techLevel) {
       toast.error("Veuillez compléter tous les champs");
       return;
     }
@@ -115,7 +124,7 @@ export default function WaitlistEnterpriseClient() {
         name: formData.name,
         company: formData.company,
         profile: "established",
-        needs: `Taille: ${formData.teamSize}, Outils: ${formData.tools.join(", ")}, Priorités: ${formData.priorities?.join(", ")}`,
+        needs: `Taille: ${formData.teamSize}, Outils: ${formData.tools.join(", ")}, Priorités: ${formData.priorities?.join(", ")}, Tech: ${formData.techLevel}`,
         urgency: formData.urgency,
         source: "/waitlist-enterprise"
       });
@@ -328,6 +337,48 @@ export default function WaitlistEnterpriseClient() {
         );
 
       case 4:
+        return (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Votre maturité digitale 🚀</h3>
+              <p className="text-sm text-[#666666] mb-6">
+                Quel est le niveau de votre équipe avec la technologie et l'IA ?
+              </p>
+            </div>
+            
+            <RadioGroup
+              value={formData.techLevel}
+              onValueChange={(value) => setFormData({ ...formData, techLevel: value })}
+            >
+              <div className="space-y-3">
+                {techLevels.map((level) => (
+                  <div key={level.value} className="relative">
+                    <div className={`flex items-start space-x-3 p-4 rounded-lg border transition-colors cursor-pointer
+                      ${formData.techLevel === level.value 
+                        ? 'border-[#6D3FC8] bg-purple-50' 
+                        : 'border-[#E0E0E0] hover:border-[#6D3FC8]'}`}>
+                      <RadioGroupItem value={level.value} id={`tech-${level.value}`} className="sr-only" />
+                      <Label 
+                        htmlFor={`tech-${level.value}`} 
+                        className="flex-1 cursor-pointer"
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl">{level.icon}</span>
+                          <div>
+                            <p className="font-semibold">{level.label}</p>
+                            <p className="text-sm text-[#666666] mt-1">{level.description}</p>
+                          </div>
+                        </div>
+                      </Label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </RadioGroup>
+          </div>
+        );
+
+      case 5:
         return (
           <div className="space-y-4">
             <div>

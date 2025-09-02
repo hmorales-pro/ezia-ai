@@ -93,6 +93,7 @@ export class BrevoService {
       urgency?: string;
       source?: string;
       position: number;
+      needs?: string;
     }
   ) {
     const isEnterprise = inscriptionData.source === '/waitlist-enterprise';
@@ -111,6 +112,7 @@ export class BrevoService {
         <li><strong>Profil:</strong> ${inscriptionData.profile || 'Non spécifié'}</li>
         <li><strong>Urgence:</strong> ${inscriptionData.urgency || 'Non spécifié'}</li>
         <li><strong>Source:</strong> ${inscriptionData.source || 'website'}</li>
+        <li><strong>Niveau Tech:</strong> ${this.extractTechLevel(inscriptionData.needs) || 'Non spécifié'}</li>
       </ul>
       <hr>
       <p><small>Email automatique envoyé depuis ezia.ai</small></p>
@@ -133,6 +135,13 @@ export class BrevoService {
     return this.makeRequest(`/contacts/lists/${listId}/contacts/add`, 'POST', {
       emails: [email],
     });
+  }
+
+  // Helper pour extraire le niveau tech des besoins
+  private extractTechLevel(needs?: string): string | null {
+    if (!needs) return null;
+    const techMatch = needs.match(/Tech:\s*(\w+)/);
+    return techMatch ? techMatch[1] : null;
   }
 }
 

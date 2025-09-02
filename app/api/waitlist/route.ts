@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
           urgency,
           source,
           position,
+          needs,
         });
       } else {
         // Fallback si Brevo n'est pas configuré
@@ -106,6 +107,7 @@ export async function POST(request: NextRequest) {
           urgency,
           source,
           position,
+          needs,
         });
       }
     } catch (emailError) {

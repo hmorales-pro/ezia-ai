@@ -37,6 +37,7 @@ interface FormData {
   profileOther?: string;
   needs: string[];
   urgency: string;
+  techLevel?: string;
 }
 
 export default function WaitlistPageV2() {
@@ -52,7 +53,8 @@ export default function WaitlistPageV2() {
     profile: "",
     profileOther: "",
     needs: [],
-    urgency: ""
+    urgency: "",
+    techLevel: ""
   });
 
   const totalSteps = 2;
@@ -77,6 +79,13 @@ export default function WaitlistPageV2() {
     { value: "now", label: "Je cherche une solution maintenant", icon: "🔥" },
     { value: "soon", label: "Je m'informe pour bientôt", icon: "🙂" },
     { value: "curious", label: "Je suis juste curieux", icon: "👀" }
+  ];
+
+  const techLevels = [
+    { value: "beginner", label: "Je débute, j'ai besoin d'être guidé(e)", icon: "🌱", description: "L'IA et la tech, c'est nouveau pour moi" },
+    { value: "intermediate", label: "Je me débrouille avec les outils numériques", icon: "💪", description: "J'utilise déjà quelques outils digitaux" },
+    { value: "advanced", label: "Je suis très à l'aise avec la technologie", icon: "🚀", description: "J'adore tester les nouveautés tech et IA" },
+    { value: "expert", label: "Je suis un(e) pro de la tech", icon: "🧙", description: "Je maîtrise les outils numériques et l'IA" }
   ];
 
   const handleNext = () => {
@@ -125,6 +134,10 @@ export default function WaitlistPageV2() {
       toast.error("Dis-nous où tu en es !");
       return;
     }
+    if (!formData.techLevel) {
+      toast.error("Indique ton niveau avec la technologie");
+      return;
+    }
     
     setLoading(true);
     
@@ -138,7 +151,7 @@ export default function WaitlistPageV2() {
         email: formData.email,
         name: formData.name,
         profile: formData.profile === "autre" ? formData.profileOther : formData.profile,
-        needs: formData.needs.join(", "),
+        needs: formData.needs.join(", ") + ` | Tech: ${formData.techLevel}`,
         urgency: formData.urgency,
         source: isEnterprise ? "waitlist-enterprise" : "waitlist-v2-compact"
       };
@@ -365,6 +378,44 @@ export default function WaitlistPageV2() {
                         >
                           <span className="text-xl">{level.icon}</span>
                           <span className="font-medium">{level.label}</span>
+                        </Label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Section Niveau Tech */}
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-base font-semibold mb-1">D. Ton niveau avec la tech et l'IA ? 🤖</h3>
+                <p className="text-xs text-[#666666]">Pour qu'Ezia s'adapte parfaitement à tes besoins</p>
+              </div>
+              
+              <RadioGroup
+                value={formData.techLevel}
+                onValueChange={(value) => setFormData({ ...formData, techLevel: value })}
+              >
+                <div className="space-y-2">
+                  {techLevels.map((level) => (
+                    <div key={level.value} className="relative">
+                      <div className={`flex items-start space-x-3 p-3 rounded-lg border transition-all cursor-pointer
+                        ${formData.techLevel === level.value 
+                          ? 'border-[#6D3FC8] bg-purple-50' 
+                          : 'border-[#E0E0E0] hover:border-[#6D3FC8]'}`}>
+                        <RadioGroupItem value={level.value} id={`tech-${level.value}`} className="mt-1" />
+                        <Label 
+                          htmlFor={`tech-${level.value}`} 
+                          className="flex-1 cursor-pointer"
+                        >
+                          <div className="flex items-start gap-2">
+                            <span className="text-xl">{level.icon}</span>
+                            <div>
+                              <p className="font-medium text-sm">{level.label}</p>
+                              <p className="text-xs text-[#666666] mt-0.5">{level.description}</p>
+                            </div>
+                          </div>
                         </Label>
                       </div>
                     </div>
