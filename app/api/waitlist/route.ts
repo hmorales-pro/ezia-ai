@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { addToWaitlist, loadWaitlist, getWaitlistCount, isEmailInWaitlist } from '@/lib/waitlist-storage';
+import { 
+  addToWaitlist, 
+  loadWaitlist, 
+  getWaitlistCount, 
+  isEmailInWaitlist,
+  getWaitlistStats 
+} from '@/lib/waitlist-mongodb';
 import { isAuthenticated } from '@/lib/auth-simple';
 
 export async function POST(request: NextRequest) {
@@ -90,16 +96,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         count,
-        entries: waitlist.sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        ).map(entry => ({
-          email: entry.email,
-          name: entry.name,
-          company: entry.company,
-          profile: entry.profile,
-          needs: entry.needs,
-          urgency: entry.urgency,
-          source: entry.source,
+        entries: waitlist.map(entry => ({
+          ...entry,
           timestamp: entry.createdAt
         }))
       });
@@ -129,9 +127,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       count,
-      entries: waitlist.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )
+      entries: waitlist
     });
     
   } catch (error: any) {
