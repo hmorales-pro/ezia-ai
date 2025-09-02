@@ -24,6 +24,7 @@ interface FormData {
   urgency: string;
   teamSize?: string;
   tools?: string[];
+  priorities?: string[];
 }
 
 export default function WaitlistEnterpriseClient() {
@@ -41,10 +42,11 @@ export default function WaitlistEnterpriseClient() {
     needs: "",
     urgency: "",
     teamSize: "",
-    tools: []
+    tools: [],
+    priorities: []
   });
 
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   const teamSizes = [
     { value: "solo", label: "Solo (1 personne)" },
@@ -62,6 +64,17 @@ export default function WaitlistEnterpriseClient() {
     { value: "mailchimp", label: "Mailchimp / SendinBlue (Email)" },
     { value: "shopify", label: "Shopify / WooCommerce (E-commerce)" },
     { value: "quickbooks", label: "QuickBooks / Xero (Compta)" }
+  ];
+
+  const businessPriorities = [
+    { value: "revenue", label: "Comprendre pourquoi notre CA stagne ou diminue", icon: "📉" },
+    { value: "customer_journey", label: "Mieux comprendre le parcours de nos clients", icon: "🗺️" },
+    { value: "retention", label: "Améliorer notre taux de rétention client", icon: "🎯" },
+    { value: "acquisition", label: "Optimiser nos coûts d'acquisition", icon: "💰" },
+    { value: "performance", label: "Identifier nos produits/services les plus rentables", icon: "📊" },
+    { value: "automation", label: "Automatiser nos rapports et tableaux de bord", icon: "🤖" },
+    { value: "predictions", label: "Prédire les tendances et anticiper", icon: "🔮" },
+    { value: "competition", label: "Surveiller et analyser la concurrence", icon: "👀" }
   ];
 
   const urgencyOptions = [
@@ -89,7 +102,7 @@ export default function WaitlistEnterpriseClient() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.urgency || formData.tools.length === 0) {
+    if (!formData.urgency || formData.tools.length === 0 || formData.priorities?.length === 0) {
       toast.error("Veuillez compléter tous les champs");
       return;
     }
@@ -102,7 +115,7 @@ export default function WaitlistEnterpriseClient() {
         name: formData.name,
         company: formData.company,
         profile: "established",
-        needs: `Taille: ${formData.teamSize}, Outils: ${formData.tools.join(", ")}`,
+        needs: `Taille: ${formData.teamSize}, Outils: ${formData.tools.join(", ")}, Priorités: ${formData.priorities?.join(", ")}`,
         urgency: formData.urgency,
         source: "/waitlist-enterprise"
       });
@@ -270,6 +283,51 @@ export default function WaitlistEnterpriseClient() {
         );
 
       case 3:
+        return (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Vos priorités business 🎯</h3>
+              <p className="text-sm text-[#666666] mb-6">
+                Qu'est-ce que vous aimeriez faire en priorité avec Ezia Analytics ? (Sélectionnez jusqu'à 3 priorités)
+              </p>
+            </div>
+            
+            <div className="space-y-3">
+              {businessPriorities.map((priority) => (
+                <div key={priority.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={priority.value}
+                    checked={formData.priorities?.includes(priority.value)}
+                    onCheckedChange={(checked) => {
+                      const currentPriorities = formData.priorities || [];
+                      if (checked && currentPriorities.length < 3) {
+                        setFormData({ ...formData, priorities: [...currentPriorities, priority.value] });
+                      } else if (!checked) {
+                        setFormData({ ...formData, priorities: currentPriorities.filter(p => p !== priority.value) });
+                      } else if (checked && currentPriorities.length >= 3) {
+                        toast.error("Vous pouvez sélectionner jusqu'à 3 priorités maximum");
+                      }
+                    }}
+                  />
+                  <Label htmlFor={priority.value} className="flex-1 cursor-pointer flex items-center gap-2">
+                    <span className="text-lg">{priority.icon}</span>
+                    <span>{priority.label}</span>
+                  </Label>
+                </div>
+              ))}
+            </div>
+            
+            {formData.priorities && formData.priorities.length > 0 && (
+              <div className="mt-4 p-3 bg-purple-50 rounded-lg">
+                <p className="text-sm text-[#6D3FC8] font-medium">
+                  {formData.priorities.length}/3 priorité{formData.priorities.length > 1 ? 's' : ''} sélectionnée{formData.priorities.length > 1 ? 's' : ''}
+                </p>
+              </div>
+            )}
+          </div>
+        );
+
+      case 4:
         return (
           <div className="space-y-4">
             <div>
