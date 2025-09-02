@@ -121,7 +121,7 @@ export function Footer() {
                 </a>
               </li>
               <li className="text-sm text-[#666666]">
-                Lun-Ven 9h-18h CET
+                Lun-Ven 9h-18h (heure de Paris)
               </li>
             </ul>
             
