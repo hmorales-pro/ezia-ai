@@ -75,7 +75,37 @@ export async function POST(request: NextRequest) {
 // GET - Réservé aux admins pour voir la liste
 export async function GET(request: NextRequest) {
   try {
-    // Vérifier l'authentification admin
+    // Vérifier si c'est une requête avec mot de passe simple
+    const authHeader = request.headers.get('authorization');
+    const urlPassword = request.nextUrl.searchParams.get('password');
+    
+    // Mot de passe admin simple
+    const ADMIN_PASSWORD = 'ezia2025admin';
+    
+    if (authHeader === `Bearer ${ADMIN_PASSWORD}` || urlPassword === ADMIN_PASSWORD) {
+      // Accès avec mot de passe simple
+      const waitlist = await loadWaitlist();
+      const count = waitlist.length;
+      
+      return NextResponse.json({
+        success: true,
+        count,
+        entries: waitlist.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        ).map(entry => ({
+          email: entry.email,
+          name: entry.name,
+          company: entry.company,
+          profile: entry.profile,
+          needs: entry.needs,
+          urgency: entry.urgency,
+          source: entry.source,
+          timestamp: entry.createdAt
+        }))
+      });
+    }
+    
+    // Sinon, vérifier l'authentification normale
     const user = await isAuthenticated();
     if (user instanceof NextResponse || !user) {
       return NextResponse.json({
@@ -84,8 +114,8 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
     
-    // Vérifier si c'est un admin (vous pouvez ajouter une vérification plus sophistiquée)
-    const adminEmails = ['hugomorales125@gmail.com'];
+    // Vérifier si c'est un admin
+    const adminEmails = ['hugomorales125@gmail.com', 'hello@ezia.ai'];
     if (!adminEmails.includes(user.email)) {
       return NextResponse.json({
         success: false,
