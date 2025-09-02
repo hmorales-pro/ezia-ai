@@ -100,13 +100,17 @@ export default function SimpleAdminPage() {
   const getUrgencyBadge = (urgency: string | undefined) => {
     switch (urgency) {
       case "immediate":
+      case "now":
         return <Badge className="bg-red-100 text-red-700">🔥 Immédiat</Badge>;
       case "3_months":
         return <Badge className="bg-orange-100 text-orange-700">📅 3 mois</Badge>;
       case "exploring":
-        return <Badge className="bg-blue-100 text-blue-700">🔍 Exploration</Badge>;
+      case "curious":
+        return <Badge className="bg-blue-100 text-blue-700">🔍 Explorer</Badge>;
+      case "soon":
+        return <Badge className="bg-yellow-100 text-yellow-700">🙂 Bientôt</Badge>;
       default:
-        return <Badge variant="secondary">Non spécifié</Badge>;
+        return <Badge variant="secondary">{urgency || "Non spécifié"}</Badge>;
     }
   };
 
@@ -116,8 +120,16 @@ export default function SimpleAdminPage() {
         return <Badge className="bg-purple-100 text-purple-700">🚀 Startup</Badge>;
       case "established":
         return <Badge className="bg-green-100 text-green-700">🏢 Entreprise</Badge>;
+      case "entrepreneur":
+        return <Badge className="bg-blue-100 text-blue-700">💼 Entrepreneur</Badge>;
+      case "association":
+        return <Badge className="bg-cyan-100 text-cyan-700">🤝 Association</Badge>;
+      case "tpe-pme":
+        return <Badge className="bg-indigo-100 text-indigo-700">🏢 TPE/PME</Badge>;
+      case "etudiant":
+        return <Badge className="bg-pink-100 text-pink-700">🎓 Étudiant</Badge>;
       default:
-        return <Badge variant="secondary">Non spécifié</Badge>;
+        return <Badge variant="secondary">{profile || "Non spécifié"}</Badge>;
     }
   };
 
@@ -219,8 +231,12 @@ export default function SimpleAdminPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tous les profils</SelectItem>
-                    <SelectItem value="startup">🚀 Startup</SelectItem>
+                    <SelectItem value="entrepreneur">💼 Entrepreneur</SelectItem>
+                    <SelectItem value="association">🤝 Association</SelectItem>
+                    <SelectItem value="tpe-pme">🏢 TPE/PME</SelectItem>
+                    <SelectItem value="etudiant">🎓 Étudiant</SelectItem>
                     <SelectItem value="established">🏢 Entreprise établie</SelectItem>
+                    <SelectItem value="startup">🚀 Startup</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -233,8 +249,9 @@ export default function SimpleAdminPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Toutes les sources</SelectItem>
-                    <SelectItem value="/waitlist">Page Startup</SelectItem>
+                    <SelectItem value="waitlist-v2-compact">Page Startup</SelectItem>
                     <SelectItem value="/waitlist-enterprise">Page Enterprise</SelectItem>
+                    <SelectItem value="website">Autre source</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -262,7 +279,7 @@ export default function SimpleAdminPage() {
                 <div>
                   <p className="text-sm text-[#666666]">Urgents</p>
                   <p className="text-2xl font-bold text-red-600">
-                    {entries.filter(e => e.urgency === "immediate").length}
+                    {entries.filter(e => e.urgency === "immediate" || e.urgency === "now").length}
                   </p>
                 </div>
                 <Target className="w-8 h-8 text-red-600 opacity-50" />
@@ -274,9 +291,9 @@ export default function SimpleAdminPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#666666]">Startups</p>
+                  <p className="text-sm text-[#666666]">Entreprises</p>
                   <p className="text-2xl font-bold text-[#1E1E1E]">
-                    {entries.filter(e => e.profile === "startup").length}
+                    {entries.filter(e => e.profile === "established" || e.profile === "tpe-pme").length}
                   </p>
                 </div>
                 <Sparkles className="w-8 h-8 text-[#6D3FC8] opacity-50" />
@@ -322,6 +339,7 @@ export default function SimpleAdminPage() {
                     <th className="text-left p-4 text-sm font-medium text-[#666666]">Date</th>
                     <th className="text-left p-4 text-sm font-medium text-[#666666]">Nom</th>
                     <th className="text-left p-4 text-sm font-medium text-[#666666]">Email</th>
+                    <th className="text-left p-4 text-sm font-medium text-[#666666]">Entreprise</th>
                     <th className="text-left p-4 text-sm font-medium text-[#666666]">Profil</th>
                     <th className="text-left p-4 text-sm font-medium text-[#666666]">Besoins</th>
                     <th className="text-left p-4 text-sm font-medium text-[#666666]">Urgence</th>
@@ -335,15 +353,17 @@ export default function SimpleAdminPage() {
                         {new Date(entry.timestamp).toLocaleDateString("fr-FR")}
                       </td>
                       <td className="p-4">
-                        <div>
-                          <p className="font-medium text-[#1E1E1E]">{entry.name}</p>
-                          {entry.company && (
-                            <p className="text-xs text-[#666666]">{entry.company}</p>
-                          )}
-                        </div>
+                        <p className="font-medium text-[#1E1E1E]">{entry.name}</p>
                       </td>
                       <td className="p-4 text-sm text-[#666666]">
                         {entry.email}
+                      </td>
+                      <td className="p-4">
+                        {entry.company ? (
+                          <p className="text-sm text-[#1E1E1E]">{entry.company}</p>
+                        ) : (
+                          <span className="text-sm text-gray-400">-</span>
+                        )}
                       </td>
                       <td className="p-4">
                         {getProfileBadge(entry.profile)}
@@ -364,7 +384,9 @@ export default function SimpleAdminPage() {
                       </td>
                       <td className="p-4">
                         <Badge variant="outline" className="text-xs">
-                          {entry.source === "/waitlist" ? "Startup" : "Enterprise"}
+                          {entry.source === "waitlist-v2-compact" ? "Startup" : 
+                           entry.source === "/waitlist-enterprise" ? "Enterprise" : 
+                           entry.source || "Website"}
                         </Badge>
                       </td>
                     </tr>
