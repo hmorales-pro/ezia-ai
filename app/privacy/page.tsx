@@ -82,7 +82,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold mb-4">8. Contact</h2>
             <p className="mb-6">
               Pour toute question concernant cette politique de confidentialité ou vos données personnelles, 
-              contactez-nous à : <a href="mailto:privacy@ezia.ai" className="text-[#6D3FC8] hover:underline">privacy@ezia.ai</a>
+              contactez-nous à : <a href="mailto:hello@ezia.ai" className="text-[#6D3FC8] hover:underline">hello@ezia.ai</a>
             </p>
 
             <div className="mt-12 pt-8 border-t border-gray-200">

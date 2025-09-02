@@ -108,7 +108,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold mb-4">12. Contact</h2>
             <p className="mb-6">
               Pour toute question concernant ces conditions d'utilisation, contactez-nous à : 
-              <a href="mailto:legal@ezia.ai" className="text-[#6D3FC8] hover:underline ml-1">legal@ezia.ai</a>
+              <a href="mailto:hello@ezia.ai" className="text-[#6D3FC8] hover:underline ml-1">hello@ezia.ai</a>
             </p>
 
             <div className="mt-12 pt-8 border-t border-gray-200">

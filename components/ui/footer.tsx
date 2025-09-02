@@ -113,11 +113,11 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <a 
-                  href="mailto:support@ezia.ai" 
+                  href="mailto:hello@ezia.ai" 
                   className="text-sm text-[#666666] hover:text-[#6D3FC8] transition-colors flex items-center gap-2"
                 >
                   <Mail className="w-4 h-4" />
-                  support@ezia.ai
+                  hello@ezia.ai
                 </a>
               </li>
               <li className="text-sm text-[#666666]">
