@@ -372,7 +372,7 @@ export default function HomeEnterpriseClient() {
                           <span className="text-sm">Dernière facture impayée</span>
                         </div>
                       </div>
-                      <p className="mt-3 font-medium text-red-600">Mais personne n'a connecté les points...</p>
+                      <p className="mt-3 font-medium text-red-600">Mais personne n'a fait le lien...</p>
                     </div>
                     <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
                       <p className="font-medium text-[#1E1E1E] flex items-center gap-2">
