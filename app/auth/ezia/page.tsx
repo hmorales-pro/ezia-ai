@@ -30,6 +30,10 @@ export default function EziaAuthPage() {
   const [error, setError] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   
+  // Get origin parameter
+  const from = searchParams.get('from');
+  const waitlistUrl = from === 'enterprise' ? '/waitlist-enterprise' : '/waitlist';
+  
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -236,7 +240,7 @@ export default function EziaAuthPage() {
                     Ezia est actuellement en phase de développement avec un accès limité.
                     Rejoignez notre liste d'attente pour être parmi les premiers à accéder à la plateforme !
                   </p>
-                  <Link href="/waitlist">
+                  <Link href={waitlistUrl}>
                     <Button className="w-full h-12 bg-gradient-to-r from-[#6D3FC8] to-[#8B5CF6] hover:from-[#5A35A5] hover:to-[#7A4FD3] text-white font-semibold">
                       Rejoindre la liste d'attente
                       <ArrowRight className="ml-2 w-4 h-4" />
@@ -337,7 +341,7 @@ export default function EziaAuthPage() {
                 {isLogin ? "Pas encore de compte ?" : "Déjà un compte ?"}
                 {isLogin ? (
                   <Link
-                    href="/waitlist"
+                    href={waitlistUrl}
                     className="ml-2 text-[#6D3FC8] hover:underline font-medium"
                   >
                     Rejoindre la liste d'attente
