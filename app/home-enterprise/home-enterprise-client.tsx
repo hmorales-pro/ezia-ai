@@ -102,7 +102,7 @@ export default function HomeEnterpriseClient() {
     {
       emoji: "📧",
       category: "Email marketing",
-      tools: ["Mailchimp", "SendinBlue", "ActiveCampaign", "ConvertKit", "Klaviyo"]
+      tools: ["Mailchimp", "Brevo", "ActiveCampaign", "ConvertKit", "Klaviyo"]
     },
     {
       emoji: "📊",

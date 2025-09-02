@@ -11,6 +11,7 @@ import AppContext from "@/components/contexts/app-context";
 import Script from "next/script";
 import StorageInitializer from "@/components/providers/storage-initializer";
 import AutoSync from "@/components/providers/auto-sync";
+import GoogleAnalytics from "@/components/google-analytics";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -110,6 +111,9 @@ export default async function RootLayout({
         />
         <link rel="preload" href="https://cdn.tailwindcss.com" as="script" />
         <script src="https://cdn.tailwindcss.com"></script>
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+        )}
         <style dangerouslySetInnerHTML={{ __html: `
           /* Critical CSS pour éviter FOUC */
           body { background-color: #ebe7e1; min-height: 100vh; }

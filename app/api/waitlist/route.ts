@@ -7,6 +7,7 @@ import {
   getWaitlistStats 
 } from '@/lib/waitlist-mongodb';
 import { isAuthenticated } from '@/lib/auth-simple';
+import { getBrevoService } from '@/lib/brevo';
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,6 +58,35 @@ export async function POST(request: NextRequest) {
     
     // Obtenir la position dans la liste
     const position = await getWaitlistCount();
+    
+    // Envoyer l'email de confirmation avec Brevo
+    try {
+      const brevo = getBrevoService();
+      if (brevo) {
+        // Ajouter le contact à Brevo
+        await brevo.createOrUpdateContact({
+          email: email.toLowerCase(),
+          attributes: {
+            FIRSTNAME: name.split(' ')[0],
+            LASTNAME: name.split(' ').slice(1).join(' '),
+            COMPANY: company,
+            PROFILE: profile,
+            SOURCE: source,
+            URGENCY: urgency,
+            TOOLS: needs,
+          },
+          listIds: [parseInt(process.env.BREVO_LIST_ID || '1')],
+          updateEnabled: true,
+        });
+
+        // Envoyer l'email de confirmation
+        const isEnterprise = source === '/waitlist-enterprise';
+        await brevo.sendWaitlistConfirmation(email, name, position, isEnterprise);
+      }
+    } catch (emailError) {
+      console.error('Erreur envoi email Brevo:', emailError);
+      // On ne bloque pas l'inscription si l'email échoue
+    }
     
     return NextResponse.json({
       success: true,

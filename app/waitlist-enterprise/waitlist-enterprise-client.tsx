@@ -61,7 +61,7 @@ export default function WaitlistEnterpriseClient() {
     { value: "analytics", label: "Google Analytics / Mixpanel" },
     { value: "zendesk", label: "Zendesk / Intercom (Support)" },
     { value: "asana", label: "Asana / Trello (Projets)" },
-    { value: "mailchimp", label: "Mailchimp / SendinBlue (Email)" },
+    { value: "mailchimp", label: "Mailchimp / Brevo (Email)" },
     { value: "shopify", label: "Shopify / WooCommerce (E-commerce)" },
     { value: "quickbooks", label: "QuickBooks / Xero (Compta)" }
   ];
