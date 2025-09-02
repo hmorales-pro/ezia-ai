@@ -99,14 +99,29 @@ BREVO_API_KEY=xkeysib-xxxxxxxxxxxxx
 BREVO_LIST_ID=2
 BREVO_TEMPLATE_WAITLIST_STARTUP=1
 BREVO_TEMPLATE_WAITLIST_ENTERPRISE=2
+BREVO_SENDER_EMAIL=noreply@ezia.ai
+ADMIN_NOTIFICATION_EMAIL=hugo.morales.pro+waitlist@gmail.com
 ```
 
 ### 6. Fonctionnalités automatiques
 
 - **Ajout automatique à la liste** : Tous les inscrits sont ajoutés à Brevo
 - **Email de confirmation** : Envoyé automatiquement après inscription
+- **Notification admin** : Email envoyé à l'admin pour chaque nouvelle inscription
 - **Segmentation** : Les contacts sont tagués avec leur profil et source
 - **Double opt-in** : Géré automatiquement par Brevo si activé
+
+### 7. Email de notification admin
+
+À chaque nouvelle inscription, un email est envoyé à l'adresse configurée dans `ADMIN_NOTIFICATION_EMAIL` avec :
+- Type de waitlist (Startup/Enterprise)
+- Position dans la liste
+- Nom et email du contact
+- Entreprise (si fournie)
+- Profil et urgence
+- Source d'inscription
+
+L'email est envoyé depuis l'adresse configurée dans `BREVO_SENDER_EMAIL`.
 
 ## Vérification
 

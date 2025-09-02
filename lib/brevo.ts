@@ -82,6 +82,52 @@ export class BrevoService {
     });
   }
 
+  // Envoyer une notification admin pour nouvelle inscription
+  async sendAdminNotification(
+    adminEmail: string,
+    inscriptionData: {
+      name: string;
+      email: string;
+      company?: string;
+      profile?: string;
+      urgency?: string;
+      source?: string;
+      position: number;
+    }
+  ) {
+    const isEnterprise = inscriptionData.source === '/waitlist-enterprise';
+    const subject = `Nouvelle inscription waitlist ${isEnterprise ? 'Enterprise' : 'Startup'} - ${inscriptionData.name}`;
+    
+    const htmlContent = `
+      <h2>Nouvelle inscription sur la waitlist Ezia</h2>
+      <p><strong>Type:</strong> ${isEnterprise ? 'Enterprise' : 'Startup'}</p>
+      <p><strong>Position:</strong> #${inscriptionData.position}</p>
+      <hr>
+      <h3>Informations du contact:</h3>
+      <ul>
+        <li><strong>Nom:</strong> ${inscriptionData.name}</li>
+        <li><strong>Email:</strong> ${inscriptionData.email}</li>
+        ${inscriptionData.company ? `<li><strong>Entreprise:</strong> ${inscriptionData.company}</li>` : ''}
+        <li><strong>Profil:</strong> ${inscriptionData.profile || 'Non spécifié'}</li>
+        <li><strong>Urgence:</strong> ${inscriptionData.urgency || 'Non spécifié'}</li>
+        <li><strong>Source:</strong> ${inscriptionData.source || 'website'}</li>
+      </ul>
+      <hr>
+      <p><small>Email automatique envoyé depuis ezia.ai</small></p>
+    `;
+
+    // Envoi direct sans template
+    return this.makeRequest('/smtp/email', 'POST', {
+      sender: {
+        name: 'Ezia Waitlist',
+        email: process.env.BREVO_SENDER_EMAIL || 'noreply@ezia.ai'
+      },
+      to: [{ email: adminEmail }],
+      subject,
+      htmlContent,
+    });
+  }
+
   // Ajouter à une liste de contacts
   async addToList(email: string, listId: number) {
     return this.makeRequest(`/contacts/lists/${listId}/contacts/add`, 'POST', {

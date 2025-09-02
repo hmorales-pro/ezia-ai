@@ -8,6 +8,7 @@ import {
 } from '@/lib/waitlist-mongodb';
 import { isAuthenticated } from '@/lib/auth-simple';
 import { getBrevoService } from '@/lib/brevo';
+import { sendAdminNotificationFallback } from '@/lib/email-fallback';
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,6 +83,30 @@ export async function POST(request: NextRequest) {
         // Envoyer l'email de confirmation
         const isEnterprise = source === '/waitlist-enterprise';
         await brevo.sendWaitlistConfirmation(email, name, position, isEnterprise);
+        
+        // Envoyer la notification admin
+        const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'hugo.morales.pro+waitlist@gmail.com';
+        await brevo.sendAdminNotification(adminEmail, {
+          name,
+          email,
+          company,
+          profile,
+          urgency,
+          source,
+          position,
+        });
+      } else {
+        // Fallback si Brevo n'est pas configuré
+        const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'hugo.morales.pro+waitlist@gmail.com';
+        await sendAdminNotificationFallback(adminEmail, {
+          name,
+          email,
+          company,
+          profile,
+          urgency,
+          source,
+          position,
+        });
       }
     } catch (emailError) {
       console.error('Erreur envoi email Brevo:', emailError);
