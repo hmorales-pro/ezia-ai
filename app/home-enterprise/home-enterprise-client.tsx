@@ -232,83 +232,172 @@ export default function HomeEnterpriseClient() {
       </section>
 
       {/* Problem Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Ces galères vous parlent ?
+              Reconnaissez-vous votre quotidien ?
             </h2>
             <p className="text-xl text-[#666666] max-w-3xl mx-auto">
-              Si oui, vous n'êtes pas seul(e). C'est le quotidien de nombreuses entreprises.
+              3 scénarios que vivent 87% des dirigeants d'entreprise
             </p>
           </div>
           
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Situation 1 */}
-            <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-8 border border-red-100">
-              <div className="flex flex-col md:flex-row items-start gap-6">
-                <div className="text-5xl flex-shrink-0">📊</div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-3 text-red-600">
-                    "Je perds 3h par semaine à faire des copier-coller"
-                  </h3>
-                  <p className="text-[#666666] mb-4">
-                    Vos données sont éparpillées : Stripe pour les paiements, Asana pour les projets, 
-                    Zendesk pour le support... Résultat ? Vous passez des heures à compiler des rapports 
-                    au lieu de développer votre business.
-                  </p>
-                  <div className="bg-white rounded-lg p-4">
-                    <p className="font-medium text-[#1E1E1E]">
-                      💡 Avec Ezia : Toutes vos données au même endroit, analysées automatiquement
-                    </p>
+            <div className="group hover:scale-[1.02] transition-all duration-300">
+              <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl p-8 border-l-4 border-red-500">
+                <div className="flex flex-col md:flex-row items-start gap-6">
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-2xl">😫</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-sm font-semibold text-red-600 bg-red-100 px-3 py-1 rounded-full">
+                        Lundi matin, 9h
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-[#1E1E1E]">
+                      "Encore 2 heures pour faire mon reporting hebdo..."
+                    </h3>
+                    <div className="text-[#666666] mb-4 space-y-2">
+                      <p className="flex items-start gap-2">
+                        <span className="text-red-500 mt-1">→</span>
+                        <span>Ouvrir Stripe pour les revenus de la semaine</span>
+                      </p>
+                      <p className="flex items-start gap-2">
+                        <span className="text-red-500 mt-1">→</span>
+                        <span>Exporter les tâches depuis Asana</span>
+                      </p>
+                      <p className="flex items-start gap-2">
+                        <span className="text-red-500 mt-1">→</span>
+                        <span>Copier les tickets Zendesk un par un</span>
+                      </p>
+                      <p className="flex items-start gap-2">
+                        <span className="text-red-500 mt-1">→</span>
+                        <span>Tout compiler dans Excel... manuellement</span>
+                      </p>
+                    </div>
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+                      <p className="font-medium text-[#1E1E1E] flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        Avec Ezia : Votre rapport est déjà prêt dans votre boîte mail
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Situation 2 */}
-            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-2xl p-8 border border-amber-100">
-              <div className="flex flex-col md:flex-row items-start gap-6">
-                <div className="text-5xl flex-shrink-0">🤯</div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-3 text-amber-600">
-                    "J'ai plein de data mais aucune idée de ce qui marche vraiment"
-                  </h3>
-                  <p className="text-[#666666] mb-4">
-                    Vous avez des tableaux de bord partout, mais impossible de voir les connections. 
-                    Pourquoi ce client est parti ? D'où viennent les meilleurs ? Quels projets sont rentables ? 
-                    Les réponses sont là, mais invisibles.
-                  </p>
-                  <div className="bg-white rounded-lg p-4">
-                    <p className="font-medium text-[#1E1E1E]">
-                      💡 Avec Ezia : Posez vos questions en français, obtenez des réponses claires
-                    </p>
+            <div className="group hover:scale-[1.02] transition-all duration-300">
+              <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl p-8 border-l-4 border-amber-500">
+                <div className="flex flex-col md:flex-row items-start gap-6">
+                  <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-2xl">🤔</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-sm font-semibold text-amber-600 bg-amber-100 px-3 py-1 rounded-full">
+                        Réunion stratégie
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-[#1E1E1E]">
+                      "Pourquoi nos ventes ont chuté de 30% ce mois-ci ?"
+                    </h3>
+                    <div className="text-[#666666] mb-4">
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                          <p className="text-sm">
+                            <span className="font-medium">Analytics :</span> "Le trafic est stable"
+                          </p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                          <p className="text-sm">
+                            <span className="font-medium">Stripe :</span> "Les paiements ont baissé"
+                          </p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                          <p className="text-sm">
+                            <span className="font-medium">Support :</span> "Plus de plaintes"
+                          </p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                          <p className="text-sm">
+                            <span className="font-medium">Équipe :</span> "🤷 Aucune idée"
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+                      <p className="font-medium text-[#1E1E1E] flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        Avec Ezia : "Un bug sur le checkout mobile depuis 3 semaines"
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Situation 3 */}
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-100">
-              <div className="flex flex-col md:flex-row items-start gap-6">
-                <div className="text-5xl flex-shrink-0">⏰</div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-3 text-blue-600">
-                    "Je découvre les problèmes quand c'est trop tard"
-                  </h3>
-                  <p className="text-[#666666] mb-4">
-                    Un client mécontent qui part, un projet qui dérape, des ventes qui chutent... 
-                    Vous le voyez dans vos chiffres 3 semaines après. Trop tard pour réagir. 
-                    Si seulement vous aviez été prévenu avant...
-                  </p>
-                  <div className="bg-white rounded-lg p-4">
-                    <p className="font-medium text-[#1E1E1E]">
-                      💡 Avec Ezia : Des alertes intelligentes pour agir avant qu'il soit trop tard
-                    </p>
+            <div className="group hover:scale-[1.02] transition-all duration-300">
+              <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl p-8 border-l-4 border-blue-500">
+                <div className="flex flex-col md:flex-row items-start gap-6">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-2xl">😰</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+                        Email client
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-[#1E1E1E]">
+                      "Nous partons chez la concurrence"
+                    </h3>
+                    <div className="text-[#666666] mb-4">
+                      <p className="mb-3">Les signaux étaient là depuis 2 mois :</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                          <span className="text-sm">-70% d'utilisation de la plateforme</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                          <span className="text-sm">3 tickets support sans réponse</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                          <span className="text-sm">Dernière facture impayée</span>
+                        </div>
+                      </div>
+                      <p className="mt-3 font-medium text-red-600">Mais personne n'a connecté les points...</p>
+                    </div>
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+                      <p className="font-medium text-[#1E1E1E] flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        Avec Ezia : Alerte "Client à risque" envoyée il y a 6 semaines
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-lg text-[#666666] mb-4">
+              Ces situations vous coûtent en moyenne <span className="font-bold text-[#1E1E1E]">15 000€/an</span> en temps perdu et opportunités manquées
+            </p>
+            <Button
+              size="lg"
+              onClick={() => router.push("/waitlist-enterprise")}
+              className="bg-[#6D3FC8] hover:bg-[#5A35A5] text-white"
+            >
+              Arrêter de subir, commencer à anticiper
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
           </div>
         </div>
       </section>
