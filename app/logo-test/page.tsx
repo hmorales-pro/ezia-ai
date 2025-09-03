@@ -9,19 +9,19 @@ export default function LogoTest() {
             <h2 className="text-lg font-semibold mb-4">Logo hébergé localement :</h2>
             <div className="bg-gray-100 p-4 rounded text-center">
               <img 
-                src="/ezia-email-logo.png" 
+                src="/img/ezia-email-logo.png" 
                 alt="Ezia Logo" 
                 className="mx-auto"
                 style={{ width: '150px', height: '150px' }}
               />
-              <p className="mt-2 text-sm text-gray-600">/ezia-email-logo.png</p>
+              <p className="mt-2 text-sm text-gray-600">/img/ezia-email-logo.png</p>
             </div>
           </div>
 
           <div>
             <h2 className="text-lg font-semibold mb-4">URL complète pour les emails :</h2>
             <div className="bg-gray-100 p-4 rounded">
-              <code className="text-sm break-all">https://ezia.ai/ezia-email-logo.png</code>
+              <code className="text-sm break-all">https://ezia.ai/img/ezia-email-logo.png</code>
             </div>
           </div>
 
@@ -29,7 +29,7 @@ export default function LogoTest() {
             <h2 className="text-lg font-semibold mb-4">Prévisualisation dans email (style Startup) :</h2>
             <div style={{ background: 'linear-gradient(135deg, #6D3FC8 0%, #8B5FE7 100%)' }} className="p-8 rounded-t-lg text-center">
               <img 
-                src="/ezia-email-logo.png" 
+                src="/img/ezia-email-logo.png" 
                 alt="Ezia"
                 className="mx-auto"
                 style={{ 
@@ -49,7 +49,7 @@ export default function LogoTest() {
             <h2 className="text-lg font-semibold mb-4">Prévisualisation dans email (style Enterprise) :</h2>
             <div style={{ background: 'linear-gradient(135deg, #1E1E1E 0%, #3A3A3A 100%)' }} className="p-8 rounded-t-lg text-center">
               <img 
-                src="/ezia-email-logo.png" 
+                src="/img/ezia-email-logo.png" 
                 alt="Ezia Enterprise"
                 className="mx-auto"
                 style={{ 
