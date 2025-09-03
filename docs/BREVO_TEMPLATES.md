@@ -169,7 +169,7 @@
         <h3 style="margin-top: 0; border: none; padding: 0;">En attendant</h3>
         <p>Découvrez comment d'autres entreprises utilisent Ezia pour transformer leur activité :</p>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="https://ezia.ai/enterprise" class="cta-button">Découvrir Ezia Enterprise</a>
+          <a href="https://ezia.ai/home-enterprise" class="cta-button">Découvrir Ezia Enterprise</a>
         </div>
       </div>
       

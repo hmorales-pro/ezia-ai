@@ -130,6 +130,7 @@ export class BrevoService {
 <body>
   <div class="container">
     <div class="header">
+      <img src="https://ezia.ai/ezia-email-logo.png" alt="Ezia" style="width: 80px; height: 80px; margin-bottom: 15px; border-radius: 50%; background: white; padding: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
       <h1>Bienvenue chez Ezia ! 🎉</h1>
       <p>Ton partenaire business propulsé par l'IA</p>
     </div>
@@ -208,6 +209,7 @@ export class BrevoService {
 <body>
   <div class="container">
     <div class="header">
+      <img src="https://ezia.ai/ezia-email-logo.png" alt="Ezia Enterprise" style="width: 90px; height: 90px; margin-bottom: 20px; border-radius: 50%; background: white; padding: 12px; box-shadow: 0 3px 15px rgba(0,0,0,0.2);">
       <div class="logo">EZIA ENTERPRISE</div>
       <p style="margin: 0; opacity: 0.9;">Solution IA pour les entreprises ambitieuses</p>
     </div>
@@ -242,7 +244,7 @@ export class BrevoService {
         <h3 style="margin-top: 0; border: none; padding: 0;">En attendant</h3>
         <p>Découvrez comment d'autres entreprises utilisent Ezia pour transformer leur activité :</p>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="https://ezia.ai/enterprise" class="cta-button">Découvrir Ezia Enterprise</a>
+          <a href="https://ezia.ai/home-enterprise" class="cta-button">Découvrir Ezia Enterprise</a>
         </div>
       </div>
       
