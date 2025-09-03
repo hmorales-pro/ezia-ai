@@ -96,11 +96,11 @@
 </html>
 ```
 
-## Template 2 : Waitlist Enterprise
+## Template 2 : Waitlist Analytics
 
-**Nom** : `Ezia Waitlist Enterprise - Confirmation`
+**Nom** : `Ezia Waitlist Analytics - Confirmation`
 
-**Objet** : `{{params.name}}, votre demande d'accès Ezia Enterprise est confirmée - Position #{{params.position}}`
+**Objet** : `{{params.name}}, votre demande d'accès Ezia Analytics est confirmée - Position #{{params.position}}`
 
 **Variables à déclarer** :
 - `name` (text)
@@ -135,20 +135,20 @@
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">EZIA ENTERPRISE</div>
+      <div class="logo">EZIA ANALYTICS</div>
       <p style="margin: 0; opacity: 0.9;">Solution IA pour les entreprises ambitieuses</p>
     </div>
     
     <div class="content">
       <p>Bonjour {{params.name}},</p>
       
-      <p>Nous avons bien reçu votre demande d'accès à <strong>Ezia Enterprise</strong>.</p>
+      <p>Nous avons bien reçu votre demande d'accès à <strong>Ezia Analytics</strong>.</p>
       
       <div style="text-align: center;">
         <span class="position-badge">Position #{{params.position}}</span>
       </div>
       
-      <h3>Pourquoi Ezia Enterprise ?</h3>
+      <h3>Pourquoi Ezia Analytics ?</h3>
       <ul>
         <li>🔐 <strong>Sécurité renforcée</strong> et conformité RGPD</li>
         <li>👥 <strong>Gestion multi-équipes</strong> avec permissions granulaires</li>
@@ -169,14 +169,14 @@
         <h3 style="margin-top: 0; border: none; padding: 0;">En attendant</h3>
         <p>Découvrez comment d'autres entreprises utilisent Ezia pour transformer leur activité :</p>
         <div style="text-align: center; margin-top: 20px;">
-          <a href="https://ezia.ai/home-enterprise" class="cta-button">Découvrir Ezia Enterprise</a>
+          <a href="https://ezia.ai/home-enterprise" class="cta-button">Découvrir Ezia Analytics</a>
         </div>
       </div>
       
       <p>Des questions ? Répondez directement à cet email ou contactez-nous à <a href="mailto:enterprise@ezia.ai">enterprise@ezia.ai</a>.</p>
       
       <p>Cordialement,<br>
-      <strong>L'équipe Ezia Enterprise</strong></p>
+      <strong>L'équipe Ezia Analytics</strong></p>
     </div>
     
     <div class="footer">
