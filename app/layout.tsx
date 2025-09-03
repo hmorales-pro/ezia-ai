@@ -164,7 +164,6 @@ export default async function RootLayout({
             <AutoSync />
             {children}
             <CookieConsent />
-            <GoogleAnalyticsDebug />
           </AppContext>
         </TanstackProvider>
       </body>
