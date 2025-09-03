@@ -11,7 +11,6 @@ import AppContext from "@/components/contexts/app-context";
 import Script from "next/script";
 import StorageInitializer from "@/components/providers/storage-initializer";
 import AutoSync from "@/components/providers/auto-sync";
-import GoogleAnalytics from "@/components/google-analytics";
 import CookieConsent from "@/components/cookie-consent";
 
 const poppins = Poppins({
@@ -112,11 +111,30 @@ export default async function RootLayout({
         />
         <link rel="preload" href="https://cdn.tailwindcss.com" as="script" />
         <script src="https://cdn.tailwindcss.com"></script>
-        {/* Google Analytics - Balise de vérification */}
+        {/* Google tag (gtag.js) */}
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <>
-            <meta name="google-analytics-id" content={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
-            <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+            ></script>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  
+                  // Configuration par défaut (RGPD)
+                  gtag('consent', 'default', {
+                    'analytics_storage': 'denied',
+                    'ad_storage': 'denied'
+                  });
+
+                  gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
+                `
+              }}
+            />
           </>
         )}
         <style dangerouslySetInnerHTML={{ __html: `
