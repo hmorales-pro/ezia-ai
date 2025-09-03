@@ -20,10 +20,9 @@ export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps)
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             
-            // Pour le développement et la vérification, autoriser temporairement le tracking
-            // IMPORTANT: Remettre à 'denied' une fois la vérification terminée
+            // Configuration par défaut du consentement (RGPD)
             gtag('consent', 'default', {
-              'analytics_storage': 'granted',
+              'analytics_storage': 'denied',
               'ad_storage': 'denied',
               'functionality_storage': 'granted',
               'personalization_storage': 'denied',

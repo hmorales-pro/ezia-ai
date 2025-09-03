@@ -11,6 +11,8 @@
     "start:standalone": "node .next/standalone/server.js",
     "lint": "next lint",
     "test:db": "node scripts/test-db-connection.js",
+    "test:email": "tsx scripts/test-brevo-email.ts",
+    "test:waitlist": "tsx scripts/test-waitlist-api.ts",
     "css:build": "tailwindcss -i ./app/global.original.css -o ./app/global.css --minify",
     "css:watch": "tailwindcss -i ./app/global.original.css -o ./app/global.css --watch"
   },

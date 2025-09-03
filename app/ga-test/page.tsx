@@ -7,7 +7,7 @@ export default function GATestPage() {
         
         <div className="bg-gray-100 p-4 rounded-lg mb-4">
           <h2 className="text-xl font-semibold mb-2">GA Tag ID:</h2>
-          <code className="bg-gray-200 px-2 py-1 rounded">G-S99GRQZRJ1</code>
+          <code className="bg-gray-200 px-2 py-1 rounded">G-T9XL833P0F</code>
         </div>
         
         <div className="bg-blue-50 p-4 rounded-lg mb-4">
@@ -24,7 +24,7 @@ export default function GATestPage() {
           <ol className="list-decimal list-inside space-y-2">
             <li>Install Google Tag Assistant Chrome extension</li>
             <li>Visit this page with the extension enabled</li>
-            <li>Check if the tag G-S99GRQZRJ1 is detected</li>
+            <li>Check if the tag G-T9XL833P0F is detected</li>
             <li>Or use Google Analytics Debugger extension</li>
           </ol>
         </div>

@@ -47,9 +47,9 @@ export async function POST(request: NextRequest) {
       name,
       company,
       message,
-      profile: profile || 'Non spécifié',
+      profile: profile || 'other',
       needs: needs || 'Non spécifié',
-      urgency: urgency || 'Non spécifié',
+      urgency: urgency || 'exploring',
       source: source || 'website',
       metadata: {
         userAgent: request.headers.get('user-agent'),
