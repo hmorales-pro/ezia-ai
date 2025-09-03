@@ -58,14 +58,86 @@ export default function WaitlistEnterpriseClient() {
   ];
 
   const toolCategories = [
-    { value: "stripe", label: "Stripe / PayPal (Paiements)" },
-    { value: "hubspot", label: "HubSpot / Salesforce (CRM)" },
-    { value: "analytics", label: "Google Analytics / Mixpanel" },
-    { value: "zendesk", label: "Zendesk / Intercom (Support)" },
-    { value: "asana", label: "Asana / Trello (Projets)" },
-    { value: "mailchimp", label: "Mailchimp / Brevo (Email)" },
-    { value: "shopify", label: "Shopify / WooCommerce (E-commerce)" },
-    { value: "quickbooks", label: "QuickBooks / Xero (Compta)" }
+    { 
+      category: "💳 Paiements", 
+      tools: [
+        { value: "stripe", label: "Stripe" },
+        { value: "paypal", label: "PayPal" },
+        { value: "mollie", label: "Mollie" },
+        { value: "square", label: "Square" },
+        { value: "other-payment", label: "Autre solution de paiement" }
+      ]
+    },
+    {
+      category: "💼 Comptabilité",
+      tools: [
+        { value: "quickbooks", label: "QuickBooks" },
+        { value: "xero", label: "Xero" },
+        { value: "freshbooks", label: "FreshBooks" },
+        { value: "tiime", label: "Tiime" },
+        { value: "other-accounting", label: "Autre logiciel de compta" }
+      ]
+    },
+    {
+      category: "📝 CRM & Ventes",
+      tools: [
+        { value: "hubspot", label: "HubSpot" },
+        { value: "salesforce", label: "Salesforce" },
+        { value: "pipedrive", label: "Pipedrive" },
+        { value: "zoho", label: "Zoho CRM" },
+        { value: "other-crm", label: "Autre CRM" }
+      ]
+    },
+    {
+      category: "📊 Analytics",
+      tools: [
+        { value: "google-analytics", label: "Google Analytics" },
+        { value: "mixpanel", label: "Mixpanel" },
+        { value: "amplitude", label: "Amplitude" },
+        { value: "hotjar", label: "Hotjar" },
+        { value: "other-analytics", label: "Autre outil analytics" }
+      ]
+    },
+    {
+      category: "📧 Email Marketing",
+      tools: [
+        { value: "mailchimp", label: "Mailchimp" },
+        { value: "brevo", label: "Brevo (SendinBlue)" },
+        { value: "activecampaign", label: "ActiveCampaign" },
+        { value: "klaviyo", label: "Klaviyo" },
+        { value: "other-email", label: "Autre outil emailing" }
+      ]
+    },
+    {
+      category: "🎧 Support Client",
+      tools: [
+        { value: "zendesk", label: "Zendesk" },
+        { value: "intercom", label: "Intercom" },
+        { value: "freshdesk", label: "Freshdesk" },
+        { value: "crisp", label: "Crisp" },
+        { value: "other-support", label: "Autre outil support" }
+      ]
+    },
+    {
+      category: "✅ Gestion de Projets",
+      tools: [
+        { value: "asana", label: "Asana" },
+        { value: "trello", label: "Trello" },
+        { value: "notion", label: "Notion" },
+        { value: "monday", label: "Monday.com" },
+        { value: "other-project", label: "Autre outil de gestion" }
+      ]
+    },
+    {
+      category: "🛍️ E-commerce",
+      tools: [
+        { value: "shopify", label: "Shopify" },
+        { value: "woocommerce", label: "WooCommerce" },
+        { value: "prestashop", label: "PrestaShop" },
+        { value: "bigcommerce", label: "BigCommerce" },
+        { value: "other-ecommerce", label: "Autre plateforme e-commerce" }
+      ]
+    }
   ];
 
   const businessPriorities = [
@@ -281,25 +353,39 @@ export default function WaitlistEnterpriseClient() {
               <p className="text-sm text-[#666666] mb-6">
                 Quels outils utilisez-vous aujourd'hui ? (Sélectionnez tous ceux qui s'appliquent)
               </p>
+              {formData.tools && formData.tools.length > 0 && (
+                <div className="mb-4 p-3 bg-purple-50 rounded-lg">
+                  <p className="text-sm text-[#6D3FC8] font-medium">
+                    {formData.tools.length} outil{formData.tools.length > 1 ? 's' : ''} sélectionné{formData.tools.length > 1 ? 's' : ''}
+                  </p>
+                </div>
+              )}
             </div>
             
-            <div className="space-y-3">
-              {toolCategories.map((tool) => (
-                <div key={tool.value} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={tool.value}
-                    checked={formData.tools?.includes(tool.value)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setFormData({ ...formData, tools: [...(formData.tools || []), tool.value] });
-                      } else {
-                        setFormData({ ...formData, tools: formData.tools?.filter(t => t !== tool.value) || [] });
-                      }
-                    }}
-                  />
-                  <Label htmlFor={tool.value} className="flex-1 cursor-pointer">
-                    {tool.label}
-                  </Label>
+            <div className="space-y-4">
+              {toolCategories.map((category) => (
+                <div key={category.category} className="space-y-2 pb-3 border-b border-gray-100 last:border-b-0">
+                  <h4 className="font-medium text-sm text-[#6D3FC8]">{category.category}</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-2">
+                    {category.tools.map((tool) => (
+                      <div key={tool.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={tool.value}
+                          checked={formData.tools?.includes(tool.value)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setFormData({ ...formData, tools: [...(formData.tools || []), tool.value] });
+                            } else {
+                              setFormData({ ...formData, tools: formData.tools?.filter(t => t !== tool.value) || [] });
+                            }
+                          }}
+                        />
+                        <Label htmlFor={tool.value} className="flex-1 cursor-pointer text-sm">
+                          {tool.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
