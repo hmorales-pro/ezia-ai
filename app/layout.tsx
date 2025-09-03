@@ -101,9 +101,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const data = await getMe();
-  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-  
-  console.log('GA_MEASUREMENT_ID:', GA_MEASUREMENT_ID); // Debug
+  // Forcer l'ID GA directement
+  const GA_MEASUREMENT_ID = 'G-T9XL833P0F';
   
   return (
     <html lang="en">
@@ -135,7 +134,7 @@ export default async function RootLayout({
                     'ad_storage': 'denied'
                   });
 
-                  gtag('config', '${GA_MEASUREMENT_ID}');
+                  gtag('config', 'G-T9XL833P0F');
                 `
               }}
             />
