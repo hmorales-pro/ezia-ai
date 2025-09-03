@@ -243,12 +243,12 @@ export default function WaitlistEnterpriseClient() {
             <div>
               <Label htmlFor="teamSize">Taille de votre équipe</Label>
               <Select value={formData.teamSize} onValueChange={(value) => setFormData({ ...formData, teamSize: value })}>
-                <SelectTrigger className="mt-1">
+                <SelectTrigger className={`mt-1 hover:border-[#6D3FC8] hover:bg-purple-50/30 focus:border-[#6D3FC8] focus:ring-2 focus:ring-[#6D3FC8]/20 transition-all ${formData.teamSize ? 'border-[#6D3FC8]/50 bg-purple-50/20' : ''}`}>
                   <SelectValue placeholder="Sélectionnez la taille de votre équipe" />
                 </SelectTrigger>
                 <SelectContent>
                   {teamSizes.map((size) => (
-                    <SelectItem key={size.value} value={size.value}>
+                    <SelectItem key={size.value} value={size.value} className="hover:bg-purple-50 hover:text-[#6D3FC8]">
                       {size.label}
                     </SelectItem>
                   ))}

@@ -129,6 +129,22 @@ export default async function RootLayout({
           /* Classes manquantes pour les dropdowns */
           .bg-popover { background-color: hsl(var(--popover)); }
           .text-popover-foreground { color: hsl(var(--popover-foreground)); }
+          
+          /* Amélioration des Select components */
+          [role="combobox"]:hover {
+            border-color: #6D3FC8 !important;
+            background-color: rgba(109, 63, 200, 0.05);
+          }
+          
+          [role="option"]:hover {
+            background-color: rgba(109, 63, 200, 0.1) !important;
+            color: #6D3FC8;
+          }
+          
+          [role="option"][data-highlighted] {
+            background-color: rgba(109, 63, 200, 0.1) !important;
+            color: #6D3FC8;
+          }
         ` }} />
       </head>
       <body
