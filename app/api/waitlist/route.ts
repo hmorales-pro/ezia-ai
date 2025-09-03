@@ -64,6 +64,12 @@ export async function POST(request: NextRequest) {
     try {
       const brevo = getBrevoService();
       if (brevo) {
+        // Déterminer quelle liste utiliser
+        const isEnterprise = source === '/waitlist-enterprise';
+        const listId = isEnterprise 
+          ? process.env.BREVO_LIST_ID_ENTERPRISE 
+          : process.env.BREVO_LIST_ID_STARTUP;
+        
         // Ajouter le contact à Brevo
         await brevo.createOrUpdateContact({
           email: email.toLowerCase(),
@@ -75,13 +81,13 @@ export async function POST(request: NextRequest) {
             SOURCE: source,
             URGENCY: urgency,
             TOOLS: needs,
+            WAITLIST_TYPE: isEnterprise ? 'ENTERPRISE' : 'STARTUP',
           },
-          listIds: [parseInt(process.env.BREVO_LIST_ID || '1')],
+          listIds: listId ? [parseInt(listId)] : undefined,
           updateEnabled: true,
         });
 
         // Envoyer l'email de confirmation
-        const isEnterprise = source === '/waitlist-enterprise';
         await brevo.sendWaitlistConfirmation(email, name, position, isEnterprise);
         
         // Envoyer la notification admin
