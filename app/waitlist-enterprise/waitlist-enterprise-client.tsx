@@ -362,13 +362,15 @@ export default function WaitlistEnterpriseClient() {
               )}
             </div>
             
-            <div className="space-y-4">
-              {toolCategories.map((category) => (
-                <div key={category.category} className="space-y-2 pb-3 border-b border-gray-100 last:border-b-0">
-                  <h4 className="font-medium text-sm text-[#6D3FC8]">{category.category}</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {toolCategories.map((category, index) => (
+                <div key={category.category} className="space-y-1.5">
+                  <h4 className="font-medium text-sm text-[#6D3FC8] flex items-center gap-1">
+                    {category.category}
+                  </h4>
+                  <div className="bg-gray-50/70 rounded-lg p-2.5 space-y-1.5">
                     {category.tools.map((tool) => (
-                      <div key={tool.value} className="flex items-center space-x-2">
+                      <div key={tool.value} className="flex items-center space-x-1.5">
                         <Checkbox
                           id={tool.value}
                           checked={formData.tools?.includes(tool.value)}
@@ -379,8 +381,9 @@ export default function WaitlistEnterpriseClient() {
                               setFormData({ ...formData, tools: formData.tools?.filter(t => t !== tool.value) || [] });
                             }
                           }}
+                          className="data-[state=checked]:bg-[#6D3FC8] data-[state=checked]:border-[#6D3FC8] h-3.5 w-3.5"
                         />
-                        <Label htmlFor={tool.value} className="flex-1 cursor-pointer text-sm">
+                        <Label htmlFor={tool.value} className="flex-1 cursor-pointer text-xs hover:text-[#6D3FC8] transition-colors">
                           {tool.label}
                         </Label>
                       </div>
