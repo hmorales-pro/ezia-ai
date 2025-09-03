@@ -12,6 +12,7 @@ import Script from "next/script";
 import StorageInitializer from "@/components/providers/storage-initializer";
 import AutoSync from "@/components/providers/auto-sync";
 import GoogleAnalytics from "@/components/google-analytics";
+import CookieConsent from "@/components/cookie-consent";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -158,6 +159,7 @@ export default async function RootLayout({
             <StorageInitializer />
             <AutoSync />
             {children}
+            <CookieConsent />
           </AppContext>
         </TanstackProvider>
       </body>
