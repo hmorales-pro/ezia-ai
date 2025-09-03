@@ -112,8 +112,12 @@ export default async function RootLayout({
         />
         <link rel="preload" href="https://cdn.tailwindcss.com" as="script" />
         <script src="https://cdn.tailwindcss.com"></script>
+        {/* Google Analytics - Balise de vérification */}
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+          <>
+            <meta name="google-analytics-id" content={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+            <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+          </>
         )}
         <style dangerouslySetInnerHTML={{ __html: `
           /* Critical CSS pour éviter FOUC */

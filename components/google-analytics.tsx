@@ -1,5 +1,3 @@
-'use client';
-
 import Script from 'next/script';
 
 interface GoogleAnalyticsProps {
@@ -10,12 +8,12 @@ export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps)
   return (
     <>
       <Script
-        strategy="afterInteractive"
+        strategy="beforeInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
       />
       <Script
         id="google-analytics"
-        strategy="afterInteractive"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
@@ -31,12 +29,16 @@ export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps)
               'security_storage': 'granted'
             });
             
-            // Vérifier le consentement stocké
-            const consent = localStorage.getItem('cookie-consent');
-            if (consent === 'all') {
-              gtag('consent', 'update', {
-                'analytics_storage': 'granted'
-              });
+            // Vérifier le consentement stocké si disponible
+            try {
+              const consent = localStorage.getItem('cookie-consent');
+              if (consent === 'all') {
+                gtag('consent', 'update', {
+                  'analytics_storage': 'granted'
+                });
+              }
+            } catch (e) {
+              // localStorage peut ne pas être disponible au moment du chargement initial
             }
             
             gtag('config', '${measurementId}', {
