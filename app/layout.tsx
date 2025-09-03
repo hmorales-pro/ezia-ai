@@ -11,8 +11,6 @@ import AppContext from "@/components/contexts/app-context";
 import Script from "next/script";
 import StorageInitializer from "@/components/providers/storage-initializer";
 import AutoSync from "@/components/providers/auto-sync";
-import GoogleAnalytics from "@/components/google-analytics";
-import GoogleAnalyticsDebug from "@/components/google-analytics-debug";
 import CookieConsent from "@/components/cookie-consent";
 
 const poppins = Poppins({
@@ -117,7 +115,48 @@ export default async function RootLayout({
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <>
             <meta name="google-analytics-id" content={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
-            <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+            {/* Google tag (gtag.js) */}
+            <script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  
+                  // Configuration par défaut du consentement (RGPD)
+                  gtag('consent', 'default', {
+                    'analytics_storage': 'denied',
+                    'ad_storage': 'denied',
+                    'functionality_storage': 'granted',
+                    'personalization_storage': 'denied',
+                    'security_storage': 'granted'
+                  });
+                  
+                  gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
+                    page_path: window.location.pathname,
+                  });
+                  
+                  // Vérifier le consentement après le chargement
+                  if (typeof window !== 'undefined') {
+                    window.addEventListener('load', function() {
+                      try {
+                        const consent = localStorage.getItem('cookie-consent');
+                        if (consent === 'all') {
+                          gtag('consent', 'update', {
+                            'analytics_storage': 'granted'
+                          });
+                        }
+                      } catch (e) {
+                        console.error('Error checking consent:', e);
+                      }
+                    });
+                  }
+                `,
+              }}
+            />
           </>
         )}
         <style dangerouslySetInnerHTML={{ __html: `
