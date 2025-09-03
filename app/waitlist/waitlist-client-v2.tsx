@@ -99,6 +99,28 @@ export default function WaitlistPageV2() {
         toast.error("Email invalide");
         return;
       }
+    } else if (currentStep === 2) {
+      // Validation étape 2
+      if (!formData.profile) {
+        toast.error("Merci de sélectionner ton profil");
+        return;
+      }
+      if (formData.profile === "autre" && !formData.profileOther?.trim()) {
+        toast.error("Merci de préciser ton profil");
+        return;
+      }
+      if (formData.needs.length === 0) {
+        toast.error("Sélectionne au moins un besoin");
+        return;
+      }
+      if (!formData.urgency) {
+        toast.error("Dis-nous où tu en es !");
+        return;
+      }
+      if (!formData.techLevel) {
+        toast.error("Indique ton niveau avec la technologie");
+        return;
+      }
     }
 
     setCurrentStep(prev => Math.min(prev + 1, totalSteps));
@@ -251,7 +273,7 @@ export default function WaitlistPageV2() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
-                className="mt-1"
+                className={`mt-1 ${!formData.name && 'border-gray-300'}`}
               />
             </div>
             
@@ -264,7 +286,7 @@ export default function WaitlistPageV2() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
-                className="mt-1"
+                className={`mt-1 ${!formData.email && 'border-gray-300'}`}
               />
               <p className="text-xs text-[#666666] mt-1">
                 Nous utiliserons cet email uniquement pour t'informer du lancement d'Ezia
@@ -523,7 +545,11 @@ export default function WaitlistPageV2() {
                 <Button
                   type="button"
                   onClick={handleNext}
-                  className="gap-2 bg-[#6D3FC8] hover:bg-[#5A35A5] text-white ml-auto"
+                  disabled={
+                    (currentStep === 1 && (!formData.name || !formData.email)) ||
+                    (currentStep === 2 && (!formData.profile || formData.needs.length === 0 || !formData.urgency || !formData.techLevel || (formData.profile === "autre" && !formData.profileOther?.trim())))
+                  }
+                  className="gap-2 bg-[#6D3FC8] hover:bg-[#5A35A5] text-white ml-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continuer
                   <ArrowRight className="w-4 h-4" />

@@ -102,6 +102,21 @@ export default function WaitlistEnterpriseClient() {
         toast.error("Email invalide");
         return;
       }
+    } else if (currentStep === 2) {
+      if (formData.tools.length === 0) {
+        toast.error("Veuillez sélectionner au moins un outil");
+        return;
+      }
+    } else if (currentStep === 3) {
+      if (!formData.priorities || formData.priorities.length === 0) {
+        toast.error("Veuillez sélectionner au moins une priorité");
+        return;
+      }
+    } else if (currentStep === 4) {
+      if (!formData.techLevel) {
+        toast.error("Veuillez indiquer votre niveau de maturité digitale");
+        return;
+      }
     }
     setCurrentStep(prev => Math.min(prev + 1, totalSteps));
   };
@@ -478,7 +493,13 @@ export default function WaitlistEnterpriseClient() {
               {currentStep < totalSteps ? (
                 <Button 
                   onClick={handleNext}
-                  className="flex-1 bg-[#6D3FC8] hover:bg-[#5A35A5] text-white"
+                  disabled={
+                    (currentStep === 1 && (!formData.name || !formData.email || !formData.company)) ||
+                    (currentStep === 2 && formData.tools.length === 0) ||
+                    (currentStep === 3 && (!formData.priorities || formData.priorities.length === 0)) ||
+                    (currentStep === 4 && !formData.techLevel)
+                  }
+                  className="flex-1 bg-[#6D3FC8] hover:bg-[#5A35A5] text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continuer
                   <ArrowRight className="ml-2 w-4 h-4" />
