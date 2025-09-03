@@ -50,7 +50,7 @@ export default function LogoTest() {
             <div style={{ background: 'linear-gradient(135deg, #1E1E1E 0%, #3A3A3A 100%)' }} className="p-8 rounded-t-lg text-center">
               <img 
                 src="/img/ezia-email-logo.png" 
-                alt="Ezia Enterprise"
+                alt="Ezia Analytics"
                 className="mx-auto"
                 style={{ 
                   width: '90px', 
@@ -61,7 +61,7 @@ export default function LogoTest() {
                   boxShadow: '0 3px 15px rgba(0,0,0,0.2)'
                 }}
               />
-              <h3 className="text-white text-2xl font-bold mt-4">EZIA ENTERPRISE</h3>
+              <h3 className="text-white text-2xl font-bold mt-4">EZIA Analytics</h3>
             </div>
           </div>
         </div>

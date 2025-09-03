@@ -378,20 +378,20 @@ export default function LandingChat() {
         {showQuickActions && messages.length === 1 && (
           <div className="space-y-3 mt-6">
             <p className="text-sm text-gray-600 text-center">Choisissez un sujet pour commencer :</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3">
               {QUICK_ACTIONS.map((action) => (
                 <button
                   key={action.value}
                   onClick={() => handleQuickAction(action)}
-                  className="p-4 border-2 border-gray-200 rounded-xl hover:border-[#6D3FC8] hover:bg-purple-50 transition-all text-left group"
+                  className="p-3 sm:p-4 border-2 border-gray-200 rounded-xl hover:border-[#6D3FC8] hover:bg-purple-50 transition-all text-left group"
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-[#6D3FC8] transition-colors">
-                      <action.icon className="w-5 h-5 text-[#6D3FC8] group-hover:text-white" />
+                  <div className="flex items-center sm:items-start gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-[#6D3FC8] transition-colors flex-shrink-0">
+                      <action.icon className="w-4 h-4 sm:w-5 sm:h-5 text-[#6D3FC8] group-hover:text-white" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-sm mb-1">{action.label}</h4>
-                      <p className="text-xs text-gray-600">{action.description}</p>
+                      <h4 className="font-semibold text-sm mb-0 sm:mb-1">{action.label}</h4>
+                      <p className="hidden sm:block text-xs text-gray-600">{action.description}</p>
                     </div>
                   </div>
                 </button>
