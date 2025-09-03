@@ -8,42 +8,49 @@ export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps)
   return (
     <>
       <Script
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
       />
       <Script
         id="google-analytics"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             
-            // Configuration par défaut du consentement
+            // Pour le développement et la vérification, autoriser temporairement le tracking
+            // IMPORTANT: Remettre à 'denied' une fois la vérification terminée
             gtag('consent', 'default', {
-              'analytics_storage': 'denied',
+              'analytics_storage': 'granted',
               'ad_storage': 'denied',
               'functionality_storage': 'granted',
               'personalization_storage': 'denied',
               'security_storage': 'granted'
             });
             
-            // Vérifier le consentement stocké si disponible
-            try {
-              const consent = localStorage.getItem('cookie-consent');
-              if (consent === 'all') {
-                gtag('consent', 'update', {
-                  'analytics_storage': 'granted'
-                });
-              }
-            } catch (e) {
-              // localStorage peut ne pas être disponible au moment du chargement initial
-            }
-            
+            // Configuration initiale
             gtag('config', '${measurementId}', {
               page_path: window.location.pathname,
             });
+            
+            // Vérifier le consentement après le chargement
+            if (typeof window !== 'undefined') {
+              window.addEventListener('load', function() {
+                try {
+                  const consent = localStorage.getItem('cookie-consent');
+                  if (consent !== 'all') {
+                    // Si l'utilisateur n'a pas consenti, désactiver
+                    gtag('consent', 'update', {
+                      'analytics_storage': 'denied'
+                    });
+                  }
+                } catch (e) {
+                  console.error('Error checking consent:', e);
+                }
+              });
+            }
           `,
         }}
       />
