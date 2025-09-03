@@ -101,6 +101,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const data = await getMe();
+  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  
+  console.log('GA_MEASUREMENT_ID:', GA_MEASUREMENT_ID); // Debug
+  
   return (
     <html lang="en">
       <head>
@@ -112,11 +116,11 @@ export default async function RootLayout({
         <link rel="preload" href="https://cdn.tailwindcss.com" as="script" />
         <script src="https://cdn.tailwindcss.com"></script>
         {/* Google tag (gtag.js) */}
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+        {GA_MEASUREMENT_ID && (
           <>
             <script
               async
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
             ></script>
             <script
               dangerouslySetInnerHTML={{
@@ -131,7 +135,7 @@ export default async function RootLayout({
                     'ad_storage': 'denied'
                   });
 
-                  gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
+                  gtag('config', '${GA_MEASUREMENT_ID}');
                 `
               }}
             />
