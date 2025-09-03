@@ -95,7 +95,7 @@ export class BrevoService {
 
     return this.makeRequest('/smtp/email', 'POST', {
       sender: {
-        name: isEnterprise ? 'Ezia Enterprise' : 'Ezia Team',
+        name: isEnterprise ? 'Ezia Analytics' : 'Ezia - Partenaire Business',
         email: process.env.BREVO_SENDER_EMAIL || 'noreply@ezia.ai'
       },
       to: [{ email, name }],
@@ -122,7 +122,7 @@ export class BrevoService {
     h3 { color: #6D3FC8; margin-top: 25px; }
     ul { padding-left: 20px; }
     li { margin: 10px 0; }
-    .cta-button { display: inline-block; background: #6D3FC8; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+    .cta-button { display: inline-block; background: #6D3FC8; color: white !important; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
     .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }
     a { color: #6D3FC8; }
   </style>
@@ -200,7 +200,7 @@ export class BrevoService {
     li { margin: 12px 0; padding-left: 25px; position: relative; }
     li:before { content: "✓"; position: absolute; left: 0; color: #6D3FC8; font-weight: bold; }
     .cta-section { background: #f8f9fa; padding: 25px; margin: 30px 0; border-radius: 8px; }
-    .cta-button { display: inline-block; background: #6D3FC8; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; font-weight: 600; }
+    .cta-button { display: inline-block; background: #6D3FC8; color: white !important; padding: 14px 35px; text-decoration: none; border-radius: 5px; font-weight: 600; }
     .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
     a { color: #6D3FC8; }
   </style>
