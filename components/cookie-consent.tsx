@@ -14,6 +14,19 @@ export default function CookieConsent() {
     const consent = localStorage.getItem('cookie-consent');
     if (!consent) {
       setShowBanner(true);
+      // Par défaut, autoriser GA pour la détection mais informer l'utilisateur
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('consent', 'update', {
+          'analytics_storage': 'granted'
+        });
+      }
+    } else if (consent === 'essential') {
+      // Si l'utilisateur a choisi essentiels uniquement, désactiver GA
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('consent', 'update', {
+          'analytics_storage': 'denied'
+        });
+      }
     }
   }, []);
 

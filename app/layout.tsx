@@ -12,6 +12,7 @@ import Script from "next/script";
 import StorageInitializer from "@/components/providers/storage-initializer";
 import AutoSync from "@/components/providers/auto-sync";
 import CookieConsent from "@/components/cookie-consent";
+import GoogleAnalytics from "@/components/google-analytics";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -107,39 +108,20 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script
-          defer
-          data-domain="ezia.agency"
-          src="https://plausible.io/js/script.js"
-        />
         <link rel="preload" href="https://cdn.tailwindcss.com" as="script" />
         <script src="https://cdn.tailwindcss.com"></script>
-        {/* Google tag (gtag.js) */}
-        {GA_MEASUREMENT_ID && (
-          <>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-            ></script>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  
-                  // Configuration par défaut (RGPD)
-                  gtag('consent', 'default', {
-                    'analytics_storage': 'denied',
-                    'ad_storage': 'denied'
-                  });
-
-                  gtag('config', 'G-T9XL833P0F');
-                `
-              }}
-            />
-          </>
-        )}
+        {/* Google Analytics */}
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}');
+            `
+          }}
+        />
         <style dangerouslySetInnerHTML={{ __html: `
           /* Critical CSS pour éviter FOUC */
           body { background-color: #ebe7e1; min-height: 100vh; }
@@ -185,6 +167,7 @@ export default async function RootLayout({
             <AutoSync />
             {children}
             <CookieConsent />
+            <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
           </AppContext>
         </TanstackProvider>
       </body>

@@ -7,24 +7,25 @@ interface GoogleAnalyticsHeadProps {
 export default function GoogleAnalyticsHead({ measurementId }: GoogleAnalyticsHeadProps) {
   return (
     <>
-      {/* Google tag (gtag.js) */}
       <Script
-        id="google-analytics-script"
+        id="gtag-base"
         strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
       />
       <Script
-        id="google-analytics-config"
+        id="gtag-config"
         strategy="afterInteractive"
-      >
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-
-          gtag('config', '${measurementId}');
-        `}
-      </Script>
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${measurementId}', {
+              page_path: window.location.pathname,
+            });
+          `,
+        }}
+      />
     </>
   );
 }

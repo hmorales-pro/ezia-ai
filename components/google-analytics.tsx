@@ -21,8 +21,9 @@ export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps)
             gtag('js', new Date());
             
             // Configuration par défaut du consentement (RGPD)
+            // Start with granted to ensure GA is detected, will be updated based on consent
             gtag('consent', 'default', {
-              'analytics_storage': 'denied',
+              'analytics_storage': 'granted',
               'ad_storage': 'denied',
               'functionality_storage': 'granted',
               'personalization_storage': 'denied',
