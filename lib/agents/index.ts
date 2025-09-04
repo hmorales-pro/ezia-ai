@@ -333,17 +333,15 @@ function generateIndustryLeaders(industry: string): string[] {
 export async function runMarketAnalysisAgent(business: any): Promise<any> {
   console.log(`[Agent Marché] Analyse approfondie pour ${business.name}...`);
   
-  // Vérifier si on a une clé Mistral pour utiliser l'IA réelle
-  const mistralKey = process.env.MISTRAL_API_KEY;
-  if (mistralKey && mistralKey.length > 10) {
-    console.log("[Agent Marché] Clé Mistral détectée, activation du mode IA réel");
-    try {
-      // Utiliser l'agent IA réel
-      const { runRealMarketAnalysisAgent } = await import('./market-analysis-agent');
-      return await runRealMarketAnalysisAgent(business);
-    } catch (error) {
-      console.error("[Agent Marché] Erreur avec l'IA, fallback sur données simulées:", error);
-    }
+  // Toujours essayer d'utiliser l'IA (Mistral ou HuggingFace)
+  console.log("[Agent Marché] Utilisation de l'IA pour l'analyse");
+  try {
+    // Utiliser l'agent IA réel (qui gère Mistral ou HuggingFace)
+    const { runRealMarketAnalysisAgent } = await import('./market-analysis-agent');
+    return await runRealMarketAnalysisAgent(business);
+  } catch (error) {
+    console.error("[Agent Marché] Erreur avec l'IA:", error);
+    throw new Error(`Analyse de marché indisponible: ${error.message}`);
   }
   
   // Données spécifiques par industrie pour une analyse plus réaliste
@@ -751,6 +749,15 @@ export async function runMarketAnalysisAgent(business: any): Promise<any> {
 export async function runCompetitorAnalysisAgent(business: any): Promise<any> {
   console.log(`[Agent Concurrence] Analyse pour ${business.name}...`);
   
+  // Toujours utiliser l'IA pour une vraie analyse
+  try {
+    const { runRealCompetitorAnalysisAgent } = await import('./competitor-analysis-agent');
+    return await runRealCompetitorAnalysisAgent(business);
+  } catch (error) {
+    console.error("[Agent Concurrent] Erreur:", error);
+    throw new Error(`Analyse concurrentielle indisponible: ${error.message}`);
+  }
+  
   const industryCompetitors: Record<string, any> = {
     restauration: {
       main_competitors: [
@@ -866,17 +873,13 @@ export async function runCompetitorAnalysisAgent(business: any): Promise<any> {
 export async function runMarketingStrategyAgent(business: any, marketAnalysis: any): Promise<any> {
   console.log(`[Agent Marketing] Stratégie détaillée pour ${business.name}...`);
   
-  // Vérifier si on a une clé Mistral pour utiliser l'IA réelle
-  const mistralKey = process.env.MISTRAL_API_KEY;
-  if (mistralKey && mistralKey.length > 10) {
-    console.log("[Agent Marché] Clé Mistral détectée, activation du mode IA réel");
-    try {
-      // Utiliser la version simplifiée pour éviter les troncatures
-      const { runMarketingStrategyAgentV2 } = await import('./marketing-strategy-agent-v2');
-      return await runMarketingStrategyAgentV2(business, marketAnalysis);
-    } catch (error) {
-      console.error("[Agent Marketing] Erreur avec l'IA, fallback sur données simulées:", error);
-    }
+  // Toujours utiliser l'IA pour une vraie stratégie
+  try {
+    const { runRealMarketingStrategyAgent } = await import('./marketing-strategy-agent');
+    return await runRealMarketingStrategyAgent(business, marketAnalysis);
+  } catch (error) {
+    console.error("[Agent Marketing] Erreur:", error);
+    throw new Error(`Stratégie marketing indisponible: ${error.message}`);
   }
   
   // Données spécifiques par industrie
