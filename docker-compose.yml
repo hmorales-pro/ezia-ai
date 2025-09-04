@@ -5,8 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dokploy
-    ports:
-      - "${EXTERNAL_PORT:-3001}:3000"
+    # Port géré par Dokploy/Traefik - décommentez pour dev local
+    # ports:
+    #   - "${EXTERNAL_PORT:-3001}:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
