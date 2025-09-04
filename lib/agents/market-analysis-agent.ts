@@ -1,13 +1,19 @@
 import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
+import { generateAIResponse } from '@/lib/ai-service';
 
 export async function runRealMarketAnalysisAgent(business: any): Promise<any> {
   console.log(`[Agent Marché IA] Analyse RÉELLE pour ${business.name}...`);
+  
+  // Vérifier d'abord si Mistral API est configurée
+  const mistralKey = process.env.MISTRAL_API_KEY;
+  const useMistral = mistralKey && mistralKey !== 'placeholder' && mistralKey.length > 10;
   
   const systemContext = `Tu es un expert en analyse de marché avec 20 ans d'expérience. 
 Tu dois fournir une analyse de marché SPÉCIFIQUE et DÉTAILLÉE pour ce business.
 IMPORTANT: 
 - Sois TRÈS spécifique à l'industrie "${business.industry}" et au business "${business.name}"
 - Utilise des données réalistes et actuelles (2024)
+- RÉPONDS UNIQUEMENT EN JSON VALIDE, SANS TEXTE AVANT OU APRÈS
 - Évite ABSOLUMENT les généralités
 - Donne des noms de vrais concurrents, des chiffres précis, des tendances actuelles
 - Adapte TOUT le contenu au contexte spécifique du business
@@ -144,7 +150,22 @@ Réponds UNIQUEMENT avec un objet JSON valide au format suivant:
 }`;
 
   try {
-    const response = await generateWithMistralAPI(prompt, systemContext);
+    let response;
+    
+    if (useMistral) {
+      console.log('[Agent Marché IA] Utilisation de Mistral AI');
+      response = await generateWithMistralAPI(prompt, systemContext);
+    } else {
+      console.log('[Agent Marché IA] Mistral non configuré, utilisation de HuggingFace');
+      // Utiliser HuggingFace comme fallback
+      const hfResponse = await generateAIResponse(prompt, {
+        systemContext: systemContext,
+        preferredModel: "mistralai/Mistral-7B-Instruct-v0.2",
+        maxTokens: 4000,
+        temperature: 0.3 // Plus bas pour des réponses plus structurées
+      });
+      response = hfResponse;
+    }
     
     if (response.success && response.content) {
       try {
@@ -178,10 +199,25 @@ Réponds UNIQUEMENT avec un objet JSON valide au format suivant:
         return analysis;
       } catch (parseError) {
         console.error("[Agent Marché IA] Erreur parsing JSON:", parseError);
-        console.log("[Agent Marché IA] Contenu reçu:", response.content);
+        console.log("[Agent Marché IA] Contenu reçu:", response.content?.substring(0, 500));
         
-        // Fallback avec structure minimale mais spécifique
-        return generateSpecificFallback(business);
+        // Si on utilise HuggingFace, essayer de parser différemment
+        if (!useMistral && response.content) {
+          try {
+            // Extraire le JSON même s'il est mal formaté
+            const cleanedContent = response.content
+              .replace(/```json\n?/gi, '')
+              .replace(/```\n?/gi, '')
+              .trim();
+            const analysis = JSON.parse(cleanedContent);
+            return analysis;
+          } catch (secondError) {
+            console.error("[Agent Marché IA] Deuxième tentative de parsing échouée");
+          }
+        }
+        
+        // Ne pas utiliser le fallback générique
+        throw new Error('Impossible de parser la réponse de l\'IA. Veuillez réessayer.');
       }
     }
     
@@ -189,7 +225,8 @@ Réponds UNIQUEMENT avec un objet JSON valide au format suivant:
     
   } catch (error) {
     console.error("[Agent Marché IA] Erreur:", error);
-    return generateSpecificFallback(business);
+    // Ne pas utiliser de fallback générique - forcer une vraie analyse
+    throw new Error(`Erreur lors de l'analyse de marché: ${error.message}`);
   }
 }
 
