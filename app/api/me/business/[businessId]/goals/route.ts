@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth-simple";
-import dbConnect from "@/lib/mongodb";
-import { Business } from "@/models/Business";
-import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 import { nanoid } from "nanoid";
+import { getDB } from "@/lib/database";
 
 // GET /api/me/business/[businessId]/goals - Liste tous les objectifs
 export async function GET(
@@ -17,27 +15,15 @@ export async function GET(
 
   try {
     const { businessId } = await params;
-    let business;
+    const db = getDB();
     
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      business = await Business.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      }).lean();
-    }
-
-    if (!business) {
+    const business = await db.findBusinessById(businessId);
+    
+    // Vérifier que le business appartient à l'utilisateur
+    if (!business || business.user_id !== user.id || !business.is_active) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
+
 
     return NextResponse.json({
       ok: true,
@@ -102,61 +88,40 @@ export async function POST(
       }]
     };
 
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      const business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id
-      });
-      
-      if (!business) {
-        return NextResponse.json({ error: "Business not found" }, { status: 404 });
-      }
-
-      business.goals = business.goals || [];
-      business.goals.push(newGoal);
-      await memoryDB.updateBusiness(businessId, { goals: business.goals });
-
-      // Ajouter une interaction Ezia
-      const interaction = {
-        timestamp: new Date(),
-        agent: "Ezia",
-        interaction_type: "goal_creation",
-        summary: `Nouvel objectif créé : "${title}"`,
-        recommendations: [
-          "Définissez des jalons intermédiaires",
-          "Suivez régulièrement votre progression",
-          "Ajustez vos actions pour atteindre cet objectif"
-        ]
-      };
-      await memoryDB.updateBusinessInteraction(businessId, interaction);
-    } else {
-      await dbConnect();
-      const result = await Business.findOneAndUpdate(
-        { business_id: businessId, user_id: user.id },
-        { 
-          $push: { 
-            goals: newGoal,
-            ezia_interactions: {
-              timestamp: new Date(),
-              agent: "Ezia",
-              interaction_type: "goal_creation",
-              summary: `Nouvel objectif créé : "${title}"`,
-              recommendations: [
-                "Définissez des jalons intermédiaires",
-                "Suivez régulièrement votre progression",
-                "Ajustez vos actions pour atteindre cet objectif"
-              ]
-            }
-          }
-        },
-        { new: true }
-      );
-
-      if (!result) {
-        return NextResponse.json({ error: "Business not found" }, { status: 404 });
-      }
+    const db = getDB();
+    
+    // Vérifier que le business existe et appartient à l'utilisateur
+    const business = await db.findBusinessById(businessId);
+    if (!business || business.user_id !== user.id || !business.is_active) {
+      return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
+
+    // Ajouter le nouvel objectif
+    const goals = business.goals || [];
+    goals.push(newGoal);
+    
+    // Ajouter une interaction Ezia
+    const interaction = {
+      timestamp: new Date(),
+      agent: "Ezia",
+      interaction_type: "goal_creation",
+      summary: `Nouvel objectif créé : "${title}"`,
+      recommendations: [
+        "Définissez des jalons intermédiaires",
+        "Suivez régulièrement votre progression",
+        "Ajustez vos actions pour atteindre cet objectif"
+      ]
+    };
+    
+    // Ajouter l'interaction Ezia
+    const ezia_interactions = business.ezia_interactions || [];
+    ezia_interactions.push(interaction);
+    
+    // Mettre à jour le business avec les nouveaux objectifs et interactions
+    await db.updateBusiness(businessId, {
+      goals: goals,
+      ezia_interactions: ezia_interactions
+    });
 
     return NextResponse.json({
       ok: true,

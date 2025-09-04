@@ -236,6 +236,23 @@ export class Database {
     ).lean();
   }
   
+  // Goal operations
+  async updateBusinessGoals(businessId: string, goalId: string, updates: any): Promise<any> {
+    await this.initialize();
+    
+    const business = await this.findBusinessById(businessId);
+    if (!business || !business.goals) return null;
+    
+    const goalIndex = business.goals.findIndex((g: any) => g.goal_id === goalId);
+    if (goalIndex === -1) return null;
+    
+    // Apply updates to the specific goal
+    Object.assign(business.goals[goalIndex], updates);
+    
+    // Save the updated business
+    return this.updateBusiness(businessId, { goals: business.goals });
+  }
+  
   // Usage tracking
   async incrementUsage(userId: string, usageType: string, increment: number = 1): Promise<any> {
     await this.initialize();

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth-simple";
-import dbConnect from "@/lib/mongodb";
-import { Subscription, EZIA_PLANS } from "@/models/Subscription";
-import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
+import { EZIA_PLANS } from "@/models/Subscription";
+import { getDB } from "@/lib/database";
 
 // GET - Récupérer l'abonnement de l'utilisateur
 export async function GET(request: NextRequest) {
@@ -18,57 +17,30 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    let subscription;
+    const db = getDB();
+    let subscription = await db.getSubscription(user.id);
     
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      subscription = await memoryDB.getSubscription(user.id);
-      
-      // Créer un abonnement gratuit par défaut si inexistant
-      if (!subscription) {
-        subscription = {
-          user_id: user.id,
-          plan: 'free',
-          status: 'active',
-          features: EZIA_PLANS.free.features,
-          billing: {
-            amount: 0,
-            currency: 'EUR',
-            interval: 'monthly'
-          },
-          usage: {
-            businesses_created: 0,
-            analyses_this_month: 0,
-            websites_created: 0
-          },
-          created_at: new Date(),
-          updated_at: new Date()
-        };
-        await memoryDB.createSubscription(subscription);
-      }
-    } else {
-      await dbConnect();
-      subscription = await Subscription.findOne({ user_id: user.id });
-      
-      // Créer un abonnement gratuit par défaut si inexistant
-      if (!subscription) {
-        subscription = await Subscription.create({
-          user_id: user.id,
-          plan: 'free',
-          status: 'active',
-          features: EZIA_PLANS.free.features,
-          billing: {
-            amount: 0,
-            currency: 'EUR',
-            interval: 'monthly'
-          },
-          usage: {
-            businesses_created: 0,
-            analyses_this_month: 0,
-            websites_created: 0
-          }
-        });
-      }
+    // Créer un abonnement gratuit par défaut si inexistant
+    if (!subscription) {
+      subscription = await db.createSubscription({
+        _id: `sub_${user.id}`,
+        user_id: user.id,
+        plan: 'free',
+        status: 'active',
+        features: EZIA_PLANS.free.features,
+        billing: {
+          amount: 0,
+          currency: 'EUR',
+          interval: 'monthly'
+        },
+        usage: {
+          businesses_created: 0,
+          analyses_this_month: 0,
+          websites_created: 0
+        },
+        created_at: new Date(),
+        updated_at: new Date()
+      });
     }
 
     return NextResponse.json({

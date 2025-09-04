@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth-simple";
-import dbConnect from "@/lib/mongodb";
-import { Business } from "@/models/Business";
-import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 import { generateWithMistralAPI } from "@/lib/mistral-ai-service";
+import { getDB } from "@/lib/database";
 import MY_TOKEN_KEY from "@/lib/get-cookie-name";
 
 export async function POST(request: NextRequest) {
@@ -16,24 +14,10 @@ export async function POST(request: NextRequest) {
     const { businessId, actionType, userPrompt } = await request.json();
 
     // Récupérer le business
-    let business;
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      business = await Business.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    }
-
-    if (!business) {
+    const db = getDB();
+    const business = await db.findBusinessById(businessId);
+    
+    if (!business || business.user_id !== user.id || !business.is_active) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
 
