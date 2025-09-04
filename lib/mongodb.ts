@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
 // @ts-expect-error iknown issue with mongoose types
 let cached = global.mongoose;
 
@@ -13,6 +12,8 @@ async function dbConnect() {
   if (cached.conn) {
     return cached.conn;
   }
+
+  const MONGODB_URI = process.env.MONGODB_URI;
 
   if (!MONGODB_URI) {
     throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
@@ -34,8 +35,8 @@ async function dbConnect() {
         console.error("MongoDB connection error:", error);
         // Log more details in production
         if (process.env.NODE_ENV === 'production') {
-          console.error("MongoDB URI length:", MONGODB_URI.length);
-          console.error("MongoDB URI starts with:", MONGODB_URI.substring(0, 20) + "...");
+          console.error("MongoDB URI length:", MONGODB_URI?.length);
+          console.error("MongoDB URI starts with:", MONGODB_URI?.substring(0, 20) + "...");
         }
         throw error;
       });

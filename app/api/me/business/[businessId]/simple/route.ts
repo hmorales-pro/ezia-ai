@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from 'jsonwebtoken';
+import { getDB } from '@/lib/database';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-// Utiliser le même stockage en mémoire que business-simple
-declare global {
-  var businesses: any[];
-}
-
-if (!global.businesses) {
-  global.businesses = [];
-}
 
 export async function GET(
   req: NextRequest,
@@ -31,12 +23,12 @@ export async function GET(
     // Await params
     const { businessId } = await params;
     
-    // Trouver le business
-    const business = global.businesses.find(
-      b => b.business_id === businessId && b.userId === decoded.userId
-    );
+    // Utiliser le système de base de données unifié
+    const db = getDB();
+    const business = await db.findBusinessById(businessId);
     
-    if (!business) {
+    // Vérifier que le business existe et appartient à l'utilisateur
+    if (!business || business.user_id !== decoded.userId) {
       return NextResponse.json({ ok: false, error: "Business non trouvé" }, { status: 404 });
     }
     
@@ -65,24 +57,28 @@ export async function PUT(
     // Await params
     const { businessId } = await params;
     
-    // Trouver et mettre à jour le business
-    const businessIndex = global.businesses.findIndex(
-      b => b.business_id === businessId && b.userId === decoded.userId
-    );
+    // Utiliser le système de base de données unifié
+    const db = getDB();
     
-    if (businessIndex === -1) {
+    // Vérifier que le business existe et appartient à l'utilisateur
+    const existingBusiness = await db.findBusinessById(businessId);
+    if (!existingBusiness || existingBusiness.user_id !== decoded.userId) {
       return NextResponse.json({ ok: false, error: "Business non trouvé" }, { status: 404 });
     }
     
-    global.businesses[businessIndex] = {
-      ...global.businesses[businessIndex],
+    // Mettre à jour le business
+    const updatedBusiness = await db.updateBusiness(businessId, {
       ...updates,
-      _updatedAt: new Date().toISOString()
-    };
+      _updatedAt: new Date()
+    });
+    
+    if (!updatedBusiness) {
+      return NextResponse.json({ ok: false, error: "Échec de la mise à jour" }, { status: 500 });
+    }
     
     return NextResponse.json({ 
       ok: true, 
-      business: global.businesses[businessIndex]
+      business: updatedBusiness
     });
   } catch (error) {
     console.error('Update business error:', error);

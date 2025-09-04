@@ -2,17 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from 'jsonwebtoken';
 import { runAgentForAnalysis } from "@/lib/agents";
+import { getDB } from '@/lib/database';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-// Utiliser le même stockage en mémoire que business-simple
-declare global {
-  var businesses: any[];
-}
-
-if (!global.businesses) {
-  global.businesses = [];
-}
 
 export async function POST(
   request: NextRequest,
@@ -46,39 +38,46 @@ export async function POST(
       return NextResponse.json({ error: "Analysis type is required" }, { status: 400 });
     }
 
-    // Récupérer les données du business depuis la mémoire globale
-    const business = global.businesses.find(
-      b => b.business_id === businessId && b.userId === userId
-    );
+    // Utiliser le système de base de données unifié
+    const db = getDB();
+    const business = await db.findBusinessById(businessId);
 
-    if (!business) {
+    if (!business || business.user_id !== userId) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
 
-    // Mettre à jour le statut de l'analyse pour la relancer
-    if (!business.agents_status) {
-      business.agents_status = {};
-    }
-
-    // Réinitialiser le statut de l'analyse spécifique
-    business.agents_status[analysisType] = 'pending';
+    // Préparer les mises à jour
+    const updates: any = {
+      agents_status: {
+        ...business.agents_status,
+        [analysisType]: 'pending'
+      }
+    };
     
     // Effacer les données existantes de cette analyse
     if (analysisType === 'market_analysis') {
-      delete business.market_analysis;
+      updates.market_analysis = null;
     } else if (analysisType === 'marketing_strategy') {
-      delete business.marketing_strategy;
+      updates.marketing_strategy = null;
     } else if (analysisType === 'competitor_analysis') {
-      delete business.competitor_analysis;
+      updates.competitor_analysis = null;
     } else if (analysisType === 'website_prompt') {
-      delete business.website_prompt;
+      updates.website_prompt = null;
     }
+    
+    // Mettre à jour le business
+    await db.updateBusiness(businessId, updates);
 
     // Lancer l'analyse de manière asynchrone
     setTimeout(async () => {
       try {
         // Mettre à jour le statut en "in_progress"
-        business.agents_status[analysisType] = 'in_progress';
+        await db.updateBusiness(businessId, {
+          agents_status: {
+            ...business.agents_status,
+            [analysisType]: 'in_progress'
+          }
+        });
 
         // Générer de vraies données avec l'IA en utilisant les VRAIES données du business
         const analysisResult = await runAgentForAnalysis(
@@ -89,25 +88,26 @@ export async function POST(
           business.description
         );
 
-        // Trouver l'index du business pour le mettre à jour
-        const businessIndex = global.businesses.findIndex(
-          b => b.business_id === businessId && b.userId === userId
-        );
+        // Sauvegarder les résultats
+        const finalUpdate: any = {
+          [analysisType]: analysisResult,
+          agents_status: {
+            ...business.agents_status,
+            [analysisType]: 'completed'
+          }
+        };
         
-        if (businessIndex !== -1) {
-          // Sauvegarder les résultats
-          global.businesses[businessIndex][analysisType] = analysisResult;
-          global.businesses[businessIndex].agents_status[analysisType] = 'completed';
-        }
+        await db.updateBusiness(businessId, finalUpdate);
+        
       } catch (error) {
         console.error(`Error running ${analysisType}:`, error);
         // Mettre à jour le statut en cas d'erreur
-        const businessIndex = global.businesses.findIndex(
-          b => b.business_id === businessId && b.userId === userId
-        );
-        if (businessIndex !== -1) {
-          global.businesses[businessIndex].agents_status[analysisType] = 'failed';
-        }
+        await db.updateBusiness(businessId, {
+          agents_status: {
+            ...business.agents_status,
+            [analysisType]: 'failed'
+          }
+        });
       }
     }, 100);
 
@@ -151,12 +151,11 @@ export async function GET(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // Récupérer les données du business depuis la mémoire globale
-    const business = global.businesses.find(
-      b => b.business_id === businessId && b.userId === userId
-    );
+    // Utiliser le système de base de données unifié
+    const db = getDB();
+    const business = await db.findBusinessById(businessId);
 
-    if (!business) {
+    if (!business || business.user_id !== userId) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
 

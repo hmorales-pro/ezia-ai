@@ -317,17 +317,20 @@ class MemoryDB {
   }
   
   addBusinessInteraction(businessId: string, interaction: any): any {
-    const business = this.businesses.get(businessId);
-    if (!business) return null;
-    
-    if (!business.ezia_interactions) {
-      business.ezia_interactions = [];
+    // Find business by business_id, not by _id
+    for (const business of this.businesses.values()) {
+      if (business.business_id === businessId) {
+        if (!business.ezia_interactions) {
+          business.ezia_interactions = [];
+        }
+        
+        business.ezia_interactions.push(interaction);
+        business._updatedAt = new Date();
+        
+        return business;
+      }
     }
-    
-    business.ezia_interactions.push(interaction);
-    business.updated_at = new Date();
-    
-    return business;
+    return null;
   }
 }
 
