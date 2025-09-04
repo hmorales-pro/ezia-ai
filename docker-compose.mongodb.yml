@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  ezia:
+    build:
+      context: .
+      dockerfile: Dockerfile.dokploy
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=${MONGODB_URI}
+      - HF_TOKEN=${HF_TOKEN}
+      - DEFAULT_HF_TOKEN=${DEFAULT_HF_TOKEN}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - NEXT_APP_API_URL=${NEXT_APP_API_URL}
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7.0
+    container_name: ezia-mongodb
+    environment:
+      - MONGO_INITDB_DATABASE=ezia
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+    driver: local

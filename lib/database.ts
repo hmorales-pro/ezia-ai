@@ -28,6 +28,7 @@ async function checkMongoDB(): Promise<boolean> {
   
   if (!process.env.MONGODB_URI) {
     console.log("❌ No MongoDB URI configured");
+    console.log("💡 Using memory database as fallback (data will not persist)");
     isConnected = false;
     return false;
   }
@@ -40,6 +41,8 @@ async function checkMongoDB(): Promise<boolean> {
     return true;
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error);
+    console.log("💡 Using memory database as fallback (data will not persist)");
+    console.log("📝 To fix: Configure MONGODB_URI with a valid MongoDB connection string");
     isConnected = false;
     lastAttempt = now;
     return false;
