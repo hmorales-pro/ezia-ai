@@ -1,7 +1,11 @@
 import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
+import { generateAIResponse } from '@/lib/ai-service';
 
 export async function runRealMarketingStrategyAgent(business: any, marketAnalysis: any): Promise<any> {
   console.log(`[Agent Marketing IA] Stratégie RÉELLE pour ${business.name}...`);
+  
+  const mistralKey = process.env.MISTRAL_API_KEY;
+  const useMistral = mistralKey && mistralKey !== 'placeholder' && mistralKey.length > 10;
   
   const systemContext = `Tu es un directeur marketing avec 15 ans d'expérience en stratégie digitale.
 Tu dois créer une stratégie marketing ULTRA-SPÉCIFIQUE pour ce business.
@@ -10,7 +14,8 @@ IMPORTANT:
 - Propose des actions CONCRÈTES avec des exemples précis
 - Utilise des canaux et tactiques adaptés à 2024
 - Donne des budgets réalistes et des KPIs mesurables
-- AUCUNE généralité - tout doit être actionnable immédiatement`;
+- AUCUNE généralité - tout doit être actionnable immédiatement
+- RÉPONDS UNIQUEMENT EN JSON VALIDE, SANS TEXTE AVANT OU APRÈS`;
 
   const marketContext = marketAnalysis ? `
 Contexte marché:
@@ -178,7 +183,21 @@ Réponds UNIQUEMENT avec un objet JSON valide:
 }`;
 
   try {
-    const response = await generateWithMistralAPI(prompt, systemContext);
+    let response;
+    
+    if (useMistral) {
+      console.log('[Agent Marketing IA] Utilisation de Mistral AI');
+      response = await generateWithMistralAPI(prompt, systemContext);
+    } else {
+      console.log('[Agent Marketing IA] Mistral non configuré, utilisation de HuggingFace');
+      const hfResponse = await generateAIResponse(prompt, {
+        systemContext: systemContext,
+        preferredModel: "mistralai/Mistral-7B-Instruct-v0.2",
+        maxTokens: 4000,
+        temperature: 0.3
+      });
+      response = hfResponse;
+    }
     
     if (response.success && response.content) {
       try {
@@ -289,10 +308,10 @@ Réponds UNIQUEMENT avec un objet JSON valide:
             };
           }
         } catch (e) {
-          // Ignorer l'erreur et utiliser le fallback
+          console.error('[Agent Marketing IA] Deuxième tentative de parsing échouée');
         }
         
-        return generateMarketingFallback(business);
+        throw new Error('Impossible de parser la réponse IA pour la stratégie marketing');
       }
     }
     
@@ -300,7 +319,7 @@ Réponds UNIQUEMENT avec un objet JSON valide:
     
   } catch (error) {
     console.error("[Agent Marketing IA] Erreur:", error);
-    return generateMarketingFallback(business);
+    throw new Error(`Erreur lors de la génération de la stratégie marketing: ${error.message}`);
   }
 }
 
