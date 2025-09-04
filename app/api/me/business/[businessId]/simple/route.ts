@@ -37,59 +37,7 @@ export async function GET(
     );
     
     if (!business) {
-      // Créer un business de démonstration si aucun n'existe
-      const demoBusiness = {
-        _id: businessId,
-        business_id: businessId,
-        userId: decoded.userId,
-        name: "Business de Démonstration",
-        description: "Un business créé pour la démonstration",
-        industry: "technology",
-        stage: "startup",
-        _createdAt: new Date().toISOString(),
-        completion_score: 20,
-        ezia_interactions: [{
-          timestamp: new Date().toISOString(),
-          agent: "Ezia",
-          interaction_type: "business_creation",
-          summary: "Business de démonstration créé"
-        }],
-        metrics: {
-          website_visitors: 0,
-          conversion_rate: 0,
-          monthly_growth: 0,
-          task_completion: 20
-        },
-        agents_status: {
-          market_analysis: 'pending',
-          competitor_analysis: 'pending',
-          marketing_strategy: 'pending',
-          website_prompt: 'pending'
-        }
-      };
-      global.businesses.push(demoBusiness);
-      
-      // Importer et lancer les agents pour le business de démo
-      import('@/lib/agents').then(({ runAllAgentsForBusiness }) => {
-        runAllAgentsForBusiness(demoBusiness).then(analyses => {
-          const idx = global.businesses.findIndex(b => b.business_id === businessId);
-          if (idx !== -1) {
-            global.businesses[idx] = {
-              ...global.businesses[idx],
-              ...analyses,
-              agents_status: {
-                market_analysis: 'completed',
-                competitor_analysis: 'completed',
-                marketing_strategy: 'completed',
-                website_prompt: 'completed'
-              },
-              completion_score: 60
-            };
-          }
-        });
-      });
-      
-      return NextResponse.json({ ok: true, business: demoBusiness });
+      return NextResponse.json({ ok: false, error: "Business non trouvé" }, { status: 404 });
     }
     
     return NextResponse.json({ ok: true, business });
