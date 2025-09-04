@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.dokploy
     ports:
-      - "${EXTERNAL_PORT:-3001}:3000"
+      - "3002:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -18,4 +18,11 @@ services:
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
       - NEXT_APP_API_URL=${NEXT_APP_API_URL}
+      - BREVO_API_KEY=${BREVO_API_KEY}
+      - BREVO_LIST_ID_STARTUP=${BREVO_LIST_ID_STARTUP}
+      - BREVO_LIST_ID_ENTERPRISE=${BREVO_LIST_ID_ENTERPRISE}
+      - BREVO_SENDER_EMAIL=${BREVO_SENDER_EMAIL}
+      - ADMIN_NOTIFICATION_EMAIL=${ADMIN_NOTIFICATION_EMAIL}
+      - NEXT_PUBLIC_GA_MEASUREMENT_ID=${NEXT_PUBLIC_GA_MEASUREMENT_ID}
+      - NEXT_PUBLIC_ENV=${NEXT_PUBLIC_ENV}
     restart: unless-stopped
