@@ -1,5 +1,6 @@
 import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
 import { generateAIResponse } from '@/lib/ai-service';
+import { parseAIGeneratedJson } from './json-sanitizer';
 
 export async function runRealMarketingStrategyAgent(business: any, marketAnalysis: any): Promise<any> {
   console.log(`[Agent Marketing IA] Stratégie RÉELLE pour ${business.name}...`);
@@ -201,89 +202,9 @@ Réponds UNIQUEMENT avec un objet JSON valide:
     
     if (response.success && response.content) {
       try {
-        let jsonContent = response.content;
-        
-        // Extraire le JSON du contenu
-        const jsonMatch = jsonContent.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          jsonContent = jsonMatch[0];
-        }
-        
-        // Nettoyer le JSON des erreurs courantes
-        jsonContent = jsonContent
-          .replace(/,\s*}/g, '}') // Enlever les virgules avant les accolades fermantes
-          .replace(/,\s*]/g, ']') // Enlever les virgules avant les crochets fermants
-          .replace(/}\s*{/g, '},{') // Ajouter des virgules entre objets
-          .replace(/]\s*\[/g, '],[') // Ajouter des virgules entre tableaux
-          .replace(/"\s*\n\s*"/g, '",\n"') // Ajouter des virgules entre chaînes sur plusieurs lignes
-          .replace(/,\s*,/g, ',') // Enlever les virgules doubles
-          .replace(/\n\s*\n/g, '\n'); // Enlever les lignes vides multiples
-        
-        // Vérifier si le JSON est tronqué et essayer de le réparer
-        if (jsonContent) {
-          console.log(`[Agent Marketing IA] Taille du JSON reçu: ${jsonContent.length} caractères`);
-          
-          if (!jsonContent.trim().endsWith('}')) {
-            console.warn("[Agent Marketing IA] JSON tronqué détecté, tentative de réparation...");
-            
-            // Trouver la dernière position valide avant la troncature
-            let lastValidPos = jsonContent.length;
-            let inString = false;
-            let escaped = false;
-            
-            for (let i = 0; i < jsonContent.length; i++) {
-              const char = jsonContent[i];
-              
-              if (escaped) {
-                escaped = false;
-                continue;
-              }
-              
-              if (char === '\\') {
-                escaped = true;
-                continue;
-              }
-              
-              if (char === '"') {
-                inString = !inString;
-              }
-            }
-            
-            // Si on est dans une chaîne, la fermer
-            let repaired = jsonContent;
-            if (inString) {
-              repaired += '"';
-            }
-            
-            // Compter les accolades et crochets ouverts
-            const openBraces = (repaired.match(/{/g) || []).length;
-            const closeBraces = (repaired.match(/}/g) || []).length;
-            const openBrackets = (repaired.match(/\[/g) || []).length;
-            const closeBrackets = (repaired.match(/]/g) || []).length;
-            
-            // Ajouter une virgule si nécessaire
-            const lastChar = repaired.trim().slice(-1);
-            if (lastChar !== ',' && lastChar !== '{' && lastChar !== '[' && 
-                (openBrackets > closeBrackets || openBraces > closeBraces)) {
-              repaired += ',';
-            }
-            
-            // Fermer les tableaux
-            for (let i = 0; i < openBrackets - closeBrackets; i++) {
-              repaired += ']';
-            }
-            
-            // Fermer les objets
-            for (let i = 0; i < openBraces - closeBraces; i++) {
-              repaired += '}';
-            }
-            
-            jsonContent = repaired;
-            console.log("[Agent Marketing IA] JSON réparé, nouvelle taille:", jsonContent.length);
-          }
-        }
-        
-        const strategy = JSON.parse(jsonContent);
+        // Use the sanitizer to parse AI-generated JSON
+        const strategy = parseAIGeneratedJson(response.content);
+        console.log(`[Agent Marketing IA] JSON parsed successfully`);
         
         // Enrichir avec des éléments visuels
         strategy.visual_assets = {

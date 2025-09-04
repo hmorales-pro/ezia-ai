@@ -1,4 +1,5 @@
 import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
+import { parseAIGeneratedJson } from './json-sanitizer';
 
 interface PersonaGenerationInput {
   business: any;
@@ -113,7 +114,7 @@ Réponds UNIQUEMENT avec un objet JSON valide:
       try {
         const jsonMatch = response.content.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          const personas = JSON.parse(jsonMatch[0]);
+          const personas = parseAIGeneratedJson(jsonMatch[0]);
           
           // Enrichir avec des données calculées
           personas.personas = personas.personas.map((persona: any, index: number) => ({

@@ -1,4 +1,5 @@
 import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
+import { parseAIGeneratedJson } from './json-sanitizer';
 
 interface BusinessPlanInput {
   business: any;
@@ -304,7 +305,7 @@ Réponds UNIQUEMENT avec un objet JSON valide:
       try {
         const jsonMatch = response.content.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          const businessPlan = JSON.parse(jsonMatch[0]);
+          const businessPlan = parseAIGeneratedJson(jsonMatch[0]);
           
           // Enrichir avec des calculs supplémentaires
           businessPlan.key_metrics = calculateKeyMetrics(businessPlan, collectedData);

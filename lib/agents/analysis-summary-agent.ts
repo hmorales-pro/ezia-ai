@@ -1,4 +1,5 @@
 import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
+import { parseAIGeneratedJson } from './json-sanitizer';
 
 interface AnalysisSummaryInput {
   business: any;
@@ -244,7 +245,7 @@ Réponds UNIQUEMENT avec un objet JSON valide:
       try {
         const jsonMatch = response.content.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          const summary = JSON.parse(jsonMatch[0]);
+          const summary = parseAIGeneratedJson(jsonMatch[0]);
           
           // Enrichir avec des insights calculés
           summary.insights = generateAdditionalInsights(input);

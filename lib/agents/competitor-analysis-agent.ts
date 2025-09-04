@@ -1,5 +1,6 @@
 import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
 import { generateAIResponse } from '@/lib/ai-service';
+import { parseAIGeneratedJson } from './json-sanitizer';
 
 export async function runRealCompetitorAnalysisAgent(business: any): Promise<any> {
   console.log(`[Agent Concurrent IA] Analyse RÉELLE pour ${business.name}...`);
@@ -74,7 +75,7 @@ Fournis une structure JSON avec:
           jsonContent = jsonMatch[0];
         }
         
-        const analysis = JSON.parse(jsonContent);
+        const analysis = parseAIGeneratedJson(jsonContent);
         return analysis;
       } catch (parseError) {
         console.error("[Agent Concurrent IA] Erreur parsing JSON:", parseError);
@@ -88,7 +89,7 @@ Fournis une structure JSON avec:
               .replace(/```json\n?/gi, '')
               .replace(/```\n?/gi, '')
               .trim();
-            const analysis = JSON.parse(cleanedContent);
+            const analysis = parseAIGeneratedJson(cleanedContent);
             return analysis;
           } catch (secondError) {
             console.error("[Agent Concurrent IA] Deuxième tentative de parsing échouée");

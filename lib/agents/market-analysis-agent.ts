@@ -1,5 +1,6 @@
 import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
 import { generateAIResponse } from '@/lib/ai-service';
+import { parseAIGeneratedJson } from './json-sanitizer';
 
 export async function runRealMarketAnalysisAgent(business: any): Promise<any> {
   console.log(`[Agent Marché IA] Analyse RÉELLE pour ${business.name}...`);
@@ -169,16 +170,8 @@ Réponds UNIQUEMENT avec un objet JSON valide au format suivant:
     
     if (response.success && response.content) {
       try {
-        // Nettoyer la réponse pour extraire le JSON
-        let jsonContent = response.content;
-        
-        // Extraire le JSON s'il est entouré de texte
-        const jsonMatch = jsonContent.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          jsonContent = jsonMatch[0];
-        }
-        
-        const analysis = JSON.parse(jsonContent);
+        // Use the sanitizer to parse AI-generated JSON
+        const analysis = parseAIGeneratedJson(response.content);
         
         // Ajouter des visualisations basées sur les données réelles
         analysis.visualization_data = {
@@ -201,23 +194,8 @@ Réponds UNIQUEMENT avec un objet JSON valide au format suivant:
         console.error("[Agent Marché IA] Erreur parsing JSON:", parseError);
         console.log("[Agent Marché IA] Contenu reçu:", response.content?.substring(0, 500));
         
-        // Si on utilise HuggingFace, essayer de parser différemment
-        if (!useMistral && response.content) {
-          try {
-            // Extraire le JSON même s'il est mal formaté
-            const cleanedContent = response.content
-              .replace(/```json\n?/gi, '')
-              .replace(/```\n?/gi, '')
-              .trim();
-            const analysis = JSON.parse(cleanedContent);
-            return analysis;
-          } catch (secondError) {
-            console.error("[Agent Marché IA] Deuxième tentative de parsing échouée");
-          }
-        }
-        
-        // Ne pas utiliser le fallback générique
-        throw new Error('Impossible de parser la réponse de l\'IA. Veuillez réessayer.');
+        // The sanitizer already handles multiple parsing attempts
+        throw new Error(`Impossible de parser la réponse de l'IA: ${parseError.message}`);
       }
     }
     

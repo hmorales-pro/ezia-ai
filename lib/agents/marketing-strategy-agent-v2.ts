@@ -1,4 +1,5 @@
 import { generateWithMistralAPI } from '../mistral-ai-service';
+import { parseAIGeneratedJson } from './json-sanitizer';
 
 export async function runMarketingStrategyAgentV2(business: any, marketAnalysis?: any): Promise<any> {
   const marketContext = marketAnalysis ? `
@@ -78,7 +79,7 @@ Limite chaque section à l'essentiel.`;
           jsonContent = jsonMatch[0];
         }
         
-        const strategy = JSON.parse(jsonContent);
+        const strategy = parseAIGeneratedJson(jsonContent);
         
         // Enrichir avec une structure complète mais avec les données simplifiées
         return {
