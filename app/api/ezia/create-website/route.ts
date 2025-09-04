@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth-simple";
-import dbConnect from "@/lib/mongodb";
-import { Business } from "@/models/Business";
-import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
-import UserProject from "@/models/UserProject";
+import { getDB } from "@/lib/database";
 import { nanoid } from "nanoid";
 import { generateSmartSubdomain } from "@/lib/subdomain-generator";
 
@@ -17,24 +14,10 @@ export async function POST(request: NextRequest) {
     const { businessId, businessName, html, css, prompt } = await request.json();
 
     // Vérifier que le business appartient à l'utilisateur
-    let business;
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      business = await Business.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    }
-
-    if (!business) {
+    const db = getDB();
+    const business = await db.findBusinessById(businessId);
+    
+    if (!business || business.user_id !== user.id || !business.is_active) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
 
@@ -64,101 +47,39 @@ ${html || getDefaultHTML(businessName, business.description)}
     console.log(`[DEMO] URL: ${websiteUrl}`);
     console.log(`[DEMO] Contenu HTML: ${fullHtml.length} caractères`);
 
-    // Déclarer le stockage global des sites web
-    declare global {
-      var websites: any[];
-    }
-    
-    if (!global.websites) {
-      global.websites = [];
-    }
+    // Vérifier s'il existe déjà un site pour ce business
+    const existingWebsite = await db.findUserProjectByBusinessId(user.id, businessId);
     
     let savedWebsite: any;
     
-    // Essayer de sauvegarder dans MongoDB d'abord
-    try {
-      await dbConnect();
-      
-      // Vérifier s'il existe déjà un site pour ce business
-      const existingWebsite = await UserProject.findOne({
-        userId: user.id,
-        businessId: businessId,
-        status: { $ne: 'archived' }
-      });
-      
-      if (existingWebsite) {
-        // Mettre à jour le site existant
-        existingWebsite.html = fullHtml;
-        existingWebsite.css = css || getDefaultCSS();
-        existingWebsite.js = "";
-        existingWebsite.prompt = prompt || `Site web pour ${businessName}`;
-        
-        // Ajouter une nouvelle version
-        await existingWebsite.addVersion({
-          html: fullHtml,
-          css: css || getDefaultCSS(),
-          js: "",
-          prompt: prompt || `Site web pour ${businessName}`,
-          createdBy: 'Ezia AI'
-        });
-        
-        savedWebsite = await existingWebsite.save();
-      } else {
-        // Créer un nouveau site
-        savedWebsite = await UserProject.create({
-          projectId: siteId,
-          userId: user.id,
-          businessId: businessId,
-          businessName: businessName,
-          name: `Site Web ${businessName}`,
-          description: `Site web généré automatiquement pour ${businessName}`,
-          subdomain: subdomain,
-          html: fullHtml,
-          css: css || getDefaultCSS(),
-          js: "",
-          prompt: prompt || `Site web pour ${businessName}`,
-          version: 1,
-          versions: [{
-            version: 1,
-            html: fullHtml,
-            css: css || getDefaultCSS(),
-            js: "",
-            prompt: prompt || `Site web pour ${businessName}`,
-            createdAt: new Date(),
-            createdBy: 'Ezia AI'
-          }],
-          status: 'published',
-          metadata: {
-            generatedBy: 'ezia-ai',
-            siteId: siteId,
-            websiteUrl: websiteUrl
-          }
-        });
-      }
-      
-      // Ajouter aussi au stockage en mémoire
-      const memoryWebsite = {
-        _id: savedWebsite._id.toString(),
-        ...savedWebsite.toObject()
+    if (existingWebsite) {
+      // Mettre à jour le site existant
+      const updateData = {
+        html: fullHtml,
+        css: css || getDefaultCSS(),
+        js: "",
+        prompt: prompt || `Site web pour ${businessName}`,
+        version: (existingWebsite.version || 0) + 1
       };
       
-      // Remplacer ou ajouter dans le stockage mémoire
-      const existingIndex = global.websites.findIndex(
-        w => w.businessId === businessId && w.userId === user.id
-      );
+      // Ajouter la nouvelle version
+      const newVersion = {
+        version: updateData.version,
+        html: fullHtml,
+        css: css || getDefaultCSS(),
+        js: "",
+        prompt: prompt || `Site web pour ${businessName}`,
+        createdAt: new Date(),
+        createdBy: 'Ezia AI'
+      };
       
-      if (existingIndex >= 0) {
-        global.websites[existingIndex] = memoryWebsite;
-      } else {
-        global.websites.push(memoryWebsite);
-      }
-      
-    } catch (dbError) {
-      console.log("[Create Website] MongoDB not available, using memory storage only");
-      
-      // Créer uniquement en mémoire
-      const memoryWebsite = {
-        _id: siteId,
+      savedWebsite = await db.updateUserProject(existingWebsite._id.toString(), {
+        ...updateData,
+        versions: [...(existingWebsite.versions || []), newVersion]
+      });
+    } else {
+      // Créer un nouveau site
+      const projectData = {
         projectId: siteId,
         userId: user.id,
         businessId: businessId,
@@ -185,46 +106,18 @@ ${html || getDefaultHTML(businessName, business.description)}
           generatedBy: 'ezia-ai',
           siteId: siteId,
           websiteUrl: websiteUrl
-        },
-        createdAt: new Date(),
-        updatedAt: new Date()
+        }
       };
       
-      // Remplacer ou ajouter dans le stockage mémoire
-      const existingIndex = global.websites.findIndex(
-        w => w.businessId === businessId && w.userId === user.id
-      );
-      
-      if (existingIndex >= 0) {
-        global.websites[existingIndex] = memoryWebsite;
-      } else {
-        global.websites.push(memoryWebsite);
-      }
-      
-      savedWebsite = memoryWebsite;
+      savedWebsite = await db.createUserProject(projectData);
     }
 
     // Mettre à jour le business avec l'URL du site
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      await memoryDB.update(
-        { business_id: businessId },
-        { 
-          website_url: websiteUrl,
-          space_id: siteId,
-          websiteGeneratedAt: new Date().toISOString()
-        }
-      );
-    } else {
-      await Business.findOneAndUpdate(
-        { business_id: businessId },
-        { 
-          website_url: websiteUrl,
-          space_id: siteId,
-          websiteGeneratedAt: new Date()
-        }
-      );
-    }
+    await db.updateBusinessWebsite(businessId, {
+      website_url: websiteUrl,
+      space_id: siteId,
+      websiteGeneratedAt: new Date()
+    });
 
     return NextResponse.json({
       success: true,

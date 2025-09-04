@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth-simple";
-import dbConnect from "@/lib/mongodb";
-import { Business } from "@/models/Business";
-import { Project } from "@/models/Project";
-import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
+import { getDB } from "@/lib/database";
 import { agentSpeak, multiAgentConversation } from "@/lib/ai-agents";
 import { nanoid } from "nanoid";
 
@@ -22,24 +19,10 @@ export async function POST(request: NextRequest) {
     } = await request.json();
 
     // Vérifier que le business appartient à l'utilisateur
-    let business;
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      business = await Business.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    }
-
-    if (!business) {
+    const db = getDB();
+    const business = await db.findBusinessById(businessId);
+    
+    if (!business || business.user_id !== user.id || !business.is_active) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
 
@@ -94,30 +77,13 @@ Industrie: ${business.industry}
     };
 
     // Sauvegarder le projet
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      await memoryDB.createProject(project);
-    } else {
-      await dbConnect();
-      await Project.create(project);
-    }
+    await db.createProject(project);
 
     // Mettre à jour le business avec le nouveau projet
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      await memoryDB.updateBusiness(businessId, {
-        website_url: project.preview_url,
-        space_id: projectId
-      });
-    } else {
-      await Business.findOneAndUpdate(
-        { business_id: businessId },
-        { 
-          website_url: project.preview_url,
-          space_id: projectId
-        }
-      );
-    }
+    await db.updateBusiness(businessId, {
+      website_url: project.preview_url,
+      space_id: projectId
+    });
 
     return NextResponse.json({
       success: true,

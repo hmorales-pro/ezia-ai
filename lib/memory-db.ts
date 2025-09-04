@@ -260,6 +260,61 @@ class MemoryDB {
       project.updated_at = new Date();
     }
   }
+
+  // UserProject operations
+  findUserProjectByBusinessId(userId: string, businessId: string): any {
+    // Check global websites storage first
+    if (global.websites) {
+      return global.websites.find(
+        (w: any) => w.userId === userId && w.businessId === businessId && w.status !== 'archived'
+      );
+    }
+    return null;
+  }
+
+  createUserProject(project: any): any {
+    if (!global.websites) {
+      global.websites = [];
+    }
+    global.websites.push(project);
+    return project;
+  }
+
+  updateUserProject(projectId: string, updates: any): any {
+    if (!global.websites) return null;
+    
+    const index = global.websites.findIndex((w: any) => w._id === projectId);
+    if (index >= 0) {
+      global.websites[index] = {
+        ...global.websites[index],
+        ...updates,
+        updatedAt: new Date()
+      };
+      return global.websites[index];
+    }
+    return null;
+  }
+  
+  findUserProjectsByUserId(userId: string): any[] {
+    if (!global.websites) {
+      global.websites = [];
+    }
+    return global.websites.filter((w: any) => w.userId === userId);
+  }
+  
+  deleteUserProject(projectId: string, userId: string): boolean {
+    if (!global.websites) return false;
+    
+    const index = global.websites.findIndex(
+      (w: any) => w._id === projectId && w.userId === userId
+    );
+    
+    if (index >= 0) {
+      global.websites.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
 }
 
 // Singleton instance

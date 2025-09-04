@@ -1,21 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@/hooks";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, User, Bell, Shield, CreditCard, Loader2 } from "lucide-react";
+import { ArrowLeft, User, Bell, Shield, CreditCard, Loader2, Download, FileDown, Database } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("profile");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["profile", "notifications", "security", "billing", "gdpr"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
   
   const [profile, setProfile] = useState({
     fullname: user?.fullname || "",
@@ -72,12 +81,13 @@ export default function SettingsPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile">Profil</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="security">Sécurité</TabsTrigger>
             <TabsTrigger value="billing">Facturation</TabsTrigger>
+            <TabsTrigger value="gdpr">RGPD</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
@@ -283,6 +293,128 @@ export default function SettingsPage() {
                   <h3 className="font-medium mb-4">Historique de facturation</h3>
                   <p className="text-sm text-[#666666]">
                     Aucune facture disponible
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="gdpr">
+            <Card>
+              <CardHeader>
+                <CardTitle>Protection des données (RGPD)</CardTitle>
+                <CardDescription>
+                  Gérez vos données personnelles conformément au Règlement Général sur la Protection des Données
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="p-6 bg-purple-50 rounded-lg space-y-4">
+                    <div className="flex items-start gap-3">
+                      <Database className="w-5 h-5 text-[#6D3FC8] mt-1" />
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-[#1E1E1E]">Exporter vos données</h3>
+                        <p className="text-sm text-[#666666] mt-1">
+                          Téléchargez une copie complète de toutes vos données stockées sur Ezia, 
+                          incluant votre profil, vos business et vos projets.
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={async () => {
+                        setLoading(true);
+                        try {
+                          const response = await fetch('/api/me/export-data');
+                          if (!response.ok) throw new Error('Erreur lors de l\'export');
+                          
+                          const blob = await response.blob();
+                          const url = window.URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `ezia-export-${new Date().toISOString().split('T')[0]}.json`;
+                          document.body.appendChild(a);
+                          a.click();
+                          window.URL.revokeObjectURL(url);
+                          document.body.removeChild(a);
+                          
+                          toast.success('Vos données ont été exportées avec succès');
+                        } catch (error) {
+                          toast.error('Erreur lors de l\'export de vos données');
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      disabled={loading}
+                      className="w-full"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4 mr-2" />
+                      )}
+                      Télécharger mes données
+                    </Button>
+                  </div>
+
+                  <div className="p-6 bg-gray-50 rounded-lg space-y-4">
+                    <h3 className="font-semibold text-[#1E1E1E]">Vos droits RGPD</h3>
+                    <ul className="space-y-3 text-sm text-[#666666]">
+                      <li className="flex items-start gap-2">
+                        <Shield className="w-4 h-4 mt-0.5 text-[#666666]" />
+                        <div>
+                          <strong>Droit d'accès :</strong> Vous pouvez accéder à toutes vos données personnelles
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Shield className="w-4 h-4 mt-0.5 text-[#666666]" />
+                        <div>
+                          <strong>Droit de rectification :</strong> Vous pouvez modifier vos informations dans votre profil
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Shield className="w-4 h-4 mt-0.5 text-[#666666]" />
+                        <div>
+                          <strong>Droit à l'effacement :</strong> Vous pouvez demander la suppression de votre compte
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Shield className="w-4 h-4 mt-0.5 text-[#666666]" />
+                        <div>
+                          <strong>Droit à la portabilité :</strong> Exportez vos données dans un format lisible
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="p-6 bg-red-50 rounded-lg space-y-4">
+                    <h3 className="font-semibold text-red-600">Suppression du compte</h3>
+                    <p className="text-sm text-[#666666]">
+                      La suppression de votre compte est une action définitive et irréversible. 
+                      Pour des raisons de sécurité et afin de nous assurer de votre identité, 
+                      cette procédure nécessite une vérification manuelle.
+                    </p>
+                    <div className="bg-white p-4 rounded-lg">
+                      <p className="text-sm font-medium text-[#1E1E1E] mb-2">
+                        Pour supprimer votre compte :
+                      </p>
+                      <ol className="list-decimal list-inside space-y-1 text-sm text-[#666666]">
+                        <li>Exportez vos données (bouton ci-dessus)</li>
+                        <li>Envoyez un email à <a href="mailto:support@ezia.ai" className="text-[#6D3FC8] hover:underline">support@ezia.ai</a></li>
+                        <li>Indiquez votre email de compte et la raison</li>
+                        <li>Notre équipe traitera votre demande sous 72h</li>
+                      </ol>
+                    </div>
+                    <p className="text-xs text-[#666666] text-center">
+                      Cette procédure garantit la protection de votre compte contre les suppressions accidentelles ou malveillantes.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t">
+                  <p className="text-sm text-[#666666]">
+                    Pour toute question concernant vos données personnelles ou l'exercice de vos droits RGPD, 
+                    contactez notre délégué à la protection des données : 
+                    <a href="mailto:privacy@ezia.ai" className="text-[#6D3FC8] hover:underline"> privacy@ezia.ai</a>
                   </p>
                 </div>
               </CardContent>

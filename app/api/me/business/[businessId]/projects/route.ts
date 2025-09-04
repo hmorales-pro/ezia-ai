@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth-simple";
-import dbConnect from "@/lib/mongodb";
-import { Business } from "@/models/Business";
-import { Project } from "@/models/Project";
-import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
+import { getDB } from "@/lib/database";
 
 interface RouteParams {
   params: Promise<{
@@ -22,24 +19,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { businessId } = await params;
 
     // Vérifier que le business appartient à l'utilisateur
-    let business;
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      business = await Business.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    }
-
-    if (!business) {
+    const db = getDB();
+    const business = await db.findBusinessById(businessId);
+    
+    if (!business || business.user_id !== user.id || !business.is_active) {
       return NextResponse.json(
         { ok: false, error: "Business not found" },
         { status: 404 }
@@ -47,16 +30,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Récupérer les projets du business
-    let projects;
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      projects = await memoryDB.findProjectsByBusiness(businessId);
-    } else {
-      projects = await Project.find({
-        business_id: businessId,
-        status: { $ne: 'archived' }
-      }).sort({ created_at: -1 });
-    }
+    const projects = await db.findProjectsByBusiness(businessId);
 
     return NextResponse.json({
       ok: true,
@@ -85,24 +59,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { projectType, projectName, projectDescription } = await request.json();
 
     // Vérifier que le business appartient à l'utilisateur
-    let business;
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      business = await Business.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    }
-
-    if (!business) {
+    const db = getDB();
+    const business = await db.findBusinessById(businessId);
+    
+    if (!business || business.user_id !== user.id || !business.is_active) {
       return NextResponse.json(
         { ok: false, error: "Business not found" },
         { status: 404 }

@@ -275,6 +275,31 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
 
+            {/* Section GDPR */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Protection des données (RGPD)</CardTitle>
+                <CardDescription>
+                  Gérez vos données personnelles conformément au RGPD
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-[#666666]">
+                    Vous avez le droit d'accéder, de rectifier, de supprimer et d'exporter vos données personnelles.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push("/settings?tab=gdpr")}
+                    className="w-full"
+                  >
+                    <Shield className="w-4 h-4 mr-2" />
+                    Accéder aux paramètres RGPD
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Section danger zone */}
             <Card className="mt-6 border-red-200">
               <CardHeader>
@@ -284,12 +309,26 @@ export default function ProfilePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="destructive" disabled>
-                  Supprimer mon compte
-                </Button>
-                <p className="text-xs text-[#666666] mt-2">
-                  Cette action est définitive et supprimera toutes vos données
-                </p>
+                <div className="space-y-4">
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <p className="text-sm text-[#666666] mb-3">
+                      La suppression de compte nécessite une vérification manuelle pour votre sécurité.
+                    </p>
+                    <p className="text-sm text-[#666666]">
+                      Pour supprimer votre compte, contactez notre support à{" "}
+                      <a href="mailto:support@ezia.ai" className="text-[#6D3FC8] hover:underline">
+                        support@ezia.ai
+                      </a>
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={() => router.push("/settings?tab=gdpr")}
+                  >
+                    Voir la procédure complète
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

@@ -272,6 +272,108 @@ export class Database {
       { new: true }
     ).lean();
   }
+  
+  // UserProject operations
+  async findUserProjectByBusinessId(userId: string, businessId: string): Promise<any> {
+    await this.initialize();
+    
+    if (this.useMemory) {
+      return this.memoryDB.findUserProjectByBusinessId(userId, businessId);
+    }
+    
+    const UserProject = (await import("@/models/UserProject")).default;
+    return UserProject.findOne({
+      userId: userId,
+      businessId: businessId,
+      status: { $ne: 'archived' }
+    }).lean();
+  }
+  
+  async createUserProject(data: any): Promise<any> {
+    await this.initialize();
+    
+    if (this.useMemory) {
+      const project = {
+        _id: data.projectId,
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      this.memoryDB.createUserProject(project);
+      return project;
+    }
+    
+    const UserProject = (await import("@/models/UserProject")).default;
+    const project = new UserProject(data);
+    await project.save();
+    return project.toObject();
+  }
+  
+  async updateUserProject(projectId: string, updates: any): Promise<any> {
+    await this.initialize();
+    
+    if (this.useMemory) {
+      return this.memoryDB.updateUserProject(projectId, updates);
+    }
+    
+    const UserProject = (await import("@/models/UserProject")).default;
+    return UserProject.findByIdAndUpdate(
+      projectId,
+      { ...updates, updatedAt: new Date() },
+      { new: true }
+    ).lean();
+  }
+  
+  async updateBusinessWebsite(businessId: string, websiteData: any): Promise<any> {
+    await this.initialize();
+    
+    if (this.useMemory) {
+      return this.memoryDB.update(
+        { business_id: businessId },
+        { 
+          website_url: websiteData.website_url,
+          space_id: websiteData.space_id,
+          websiteGeneratedAt: websiteData.websiteGeneratedAt?.toISOString() || new Date().toISOString()
+        }
+      );
+    }
+    
+    const { Business } = await import("@/models/Business");
+    return Business.findOneAndUpdate(
+      { business_id: businessId },
+      websiteData,
+      { new: true }
+    ).lean();
+  }
+  
+  async findUserProjectsByUserId(userId: string): Promise<any[]> {
+    await this.initialize();
+    
+    if (this.useMemory) {
+      return this.memoryDB.findUserProjectsByUserId(userId);
+    }
+    
+    const UserProject = (await import("@/models/UserProject")).default;
+    return UserProject.find({ userId })
+      .sort({ createdAt: -1 })
+      .lean();
+  }
+  
+  async deleteUserProject(projectId: string, userId: string): Promise<boolean> {
+    await this.initialize();
+    
+    if (this.useMemory) {
+      return this.memoryDB.deleteUserProject(projectId, userId);
+    }
+    
+    const UserProject = (await import("@/models/UserProject")).default;
+    const result = await UserProject.deleteOne({
+      _id: projectId,
+      userId: userId
+    });
+    
+    return result.deletedCount > 0;
+  }
 }
 
 // Singleton instance

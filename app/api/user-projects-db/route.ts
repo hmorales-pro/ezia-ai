@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth-simple';
-import dbConnect from '@/lib/mongodb';
-import UserProject from '@/models/UserProject';
+import { getDB } from '@/lib/database';
 import { generateSmartSubdomain } from '@/lib/subdomain-generator';
 
 export async function GET(request: NextRequest) {
@@ -14,15 +13,9 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
     
-    // Connexion à MongoDB
-    await dbConnect();
-    
     // Récupérer tous les projets de l'utilisateur
-    const projects = await UserProject.find({ 
-      userId: user.id 
-    })
-    .sort({ createdAt: -1 })
-    .lean();
+    const db = getDB();
+    const projects = await db.findUserProjectsByUserId(user.id);
     
     // S'assurer que projectId est inclus dans la réponse
     const formattedProjects = projects.map(project => ({
@@ -56,9 +49,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     
-    // Connexion à MongoDB
-    await dbConnect();
-    
     // Générer un projectId unique
     const projectId = `project-${Date.now()}`;
     
@@ -66,7 +56,8 @@ export async function POST(request: NextRequest) {
     const subdomain = await generateSmartSubdomain(body.businessName || body.name || 'site');
     
     // Créer le nouveau projet
-    const newProject = await UserProject.create({
+    const db = getDB();
+    const newProject = await db.createUserProject({
       projectId: projectId,
       userId: user.id,
       businessId: body.businessId,
@@ -130,16 +121,11 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
     
-    // Connexion à MongoDB
-    await dbConnect();
-    
     // Supprimer le projet (vérifier qu'il appartient à l'utilisateur)
-    const result = await UserProject.deleteOne({
-      _id: projectId,
-      userId: user.id
-    });
+    const db = getDB();
+    const deleted = await db.deleteUserProject(projectId, user.id);
     
-    if (result.deletedCount === 0) {
+    if (!deleted) {
       return NextResponse.json({ 
         ok: false, 
         message: 'Projet non trouvé ou non autorisé' 

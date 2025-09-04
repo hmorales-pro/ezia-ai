@@ -1,0 +1,68 @@
+# Dockerfile optimisé pour HuggingFace Spaces
+# Contraintes HF Spaces: 7GB RAM, pas de volumes persistants
+FROM node:20-alpine AS builder
+
+RUN apk add --no-cache libc6-compat
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+WORKDIR /app
+
+# Copier les fichiers de package
+COPY package.json pnpm-lock.yaml ./
+
+# Installer toutes les dépendances
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
+
+# Copier le code source
+COPY . .
+
+# Variables d'environnement pour le build
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV SKIP_ENV_VALIDATION=1
+# Valeurs par défaut pour le build (seront remplacées au runtime)
+ENV MONGODB_URI="mongodb://localhost:27017/temp"
+ENV HF_TOKEN="placeholder"
+ENV DEFAULT_HF_TOKEN="placeholder"
+ENV MISTRAL_API_KEY="placeholder"
+
+# Build de l'application
+RUN pnpm run build
+
+# Stage de production
+FROM node:20-alpine AS runner
+
+# Installer bash pour compatibilité HF Spaces
+RUN apk add --no-cache bash
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Copier les fichiers nécessaires
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Créer le dossier .data pour le stockage temporaire
+# Note: Sur HF Spaces, ce dossier ne sera pas persistant entre les redémarrages
+RUN mkdir -p .data && chmod 777 .data
+
+# HuggingFace Spaces utilise l'utilisateur 'user' avec UID 1000
+RUN addgroup -g 1000 -S user && \
+    adduser -S user -u 1000 -G user && \
+    chown -R user:user /app
+
+USER user
+
+# Port exposé (doit correspondre à app_port dans le README)
+EXPOSE 3000
+
+# Variables d'environnement HuggingFace Spaces
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV HUGGINGFACE_SPACES=1
+
+# Démarrer l'application
+CMD ["node", "server.js"]
