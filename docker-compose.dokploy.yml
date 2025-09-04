@@ -1,25 +1,35 @@
+version: '3.8'
+
 services:
-  app:
+  ezia:
     build:
       context: .
       dockerfile: Dockerfile.dokploy
-    ports:
-      - "3000:3000"
+    # PAS DE PORTS - Dokploy/Traefik gère automatiquement
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - MONGODB_URI=${MONGODB_URI:-mongodb://localhost:27017/ezia}
+      - MONGODB_URI=${MONGODB_URI}
       - HF_TOKEN=${HF_TOKEN}
       - DEFAULT_HF_TOKEN=${DEFAULT_HF_TOKEN}
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      - JWT_SECRET=${JWT_SECRET:-your-secret-key-here}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-your-nextauth-secret}
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-      - NEXT_APP_API_URL=${NEXT_APP_API_URL:-http://localhost:8000}
+      - JWT_SECRET=${JWT_SECRET}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - NEXT_APP_API_URL=${NEXT_APP_API_URL}
+      - BREVO_API_KEY=${BREVO_API_KEY}
+      - BREVO_LIST_ID_STARTUP=${BREVO_LIST_ID_STARTUP}
+      - BREVO_LIST_ID_ENTERPRISE=${BREVO_LIST_ID_ENTERPRISE}
+      - BREVO_SENDER_EMAIL=${BREVO_SENDER_EMAIL}
+      - ADMIN_NOTIFICATION_EMAIL=${ADMIN_NOTIFICATION_EMAIL}
+      - NEXT_PUBLIC_GA_MEASUREMENT_ID=${NEXT_PUBLIC_GA_MEASUREMENT_ID}
+      - NEXT_PUBLIC_ENV=${NEXT_PUBLIC_ENV}
+      - DISABLE_ECOSYSTEM_FEATURE=${DISABLE_ECOSYSTEM_FEATURE}
+      - NEXT_PUBLIC_DISABLE_ECOSYSTEM_FEATURE=${NEXT_PUBLIC_DISABLE_ECOSYSTEM_FEATURE}
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
