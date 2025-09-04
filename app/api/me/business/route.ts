@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth-simple";
-import dbConnect from "@/lib/mongodb";
-import { Business } from "@/models/Business";
 import { nanoid } from "nanoid";
-import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 import { calculateBusinessCompletion } from "@/lib/business-utils";
+import { getDB } from "@/lib/database";
 
 // GET /api/me/business - Liste tous les business de l'utilisateur
 export async function GET() {
@@ -14,26 +12,8 @@ export async function GET() {
   }
 
   try {
-    let businesses;
-    
-    if (isUsingMemoryDB()) {
-      console.log("Using in-memory database for businesses");
-      const memoryDB = getMemoryDB();
-      businesses = await memoryDB.find({
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      businesses = await Business.find({
-        user_id: user.id,
-        is_active: true
-      })
-        .sort({ _createdAt: -1 })
-        .limit(50)
-        .select('-__v')
-        .lean();
-    }
+    const db = getDB();
+    const businesses = await db.findBusinesses(user.id);
 
     // Calculer le score de complétion pour chaque business
     const businessesWithScores = businesses.map((business: any) => {
@@ -100,22 +80,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let existingCount: number;
-    
-    if (isUsingMemoryDB()) {
-      console.log("Using in-memory database for business creation");
-      const memoryDB = getMemoryDB();
-      existingCount = await memoryDB.countDocuments({
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      existingCount = await Business.countDocuments({
-        user_id: user.id,
-        is_active: true
-      });
-    }
+    const db = getDB();
+    const existingCount = await db.countBusinesses(user.id);
 
     if (existingCount >= 10) {
       return NextResponse.json(
@@ -163,17 +129,7 @@ export async function POST(request: NextRequest) {
       is_active: true
     };
 
-    let createdBusiness;
-    
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      createdBusiness = await memoryDB.create(businessData);
-    } else {
-      const business = await Business.create(businessData);
-      createdBusiness = await Business.findById(business._id)
-        .select('-__v')
-        .lean();
-    }
+    const createdBusiness = await db.createBusiness(businessData);
 
     return NextResponse.json({
       ok: true,

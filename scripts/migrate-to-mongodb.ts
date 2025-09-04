@@ -1,140 +1,121 @@
-#!/usr/bin/env tsx
-
-/**
- * Script de migration des données de fichiers JSON vers MongoDB
- * Usage: npx tsx scripts/migrate-to-mongodb.ts
- */
-
+#!/usr/bin/env node
 import fs from 'fs/promises';
 import path from 'path';
-import mongoose from 'mongoose';
-import UserProject from '../models/UserProject';
-import dotenv from 'dotenv';
 
-// Load environment variables
-dotenv.config({ path: '.env.local' });
+const API_DIRS = [
+  'app/api/me/business',
+  'app/api/ezia',
+  'app/api/user-projects',
+];
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  console.error('❌ MONGODB_URI is not defined in environment variables');
-  console.log('Please add MONGODB_URI to your .env.local file');
-  process.exit(1);
-}
-
-const STORAGE_DIR = path.join(process.cwd(), '.data');
-const PROJECTS_FILE = path.join(STORAGE_DIR, 'projects.json');
-
-async function loadProjectsFromFile(): Promise<Record<string, any[]> | null> {
-  try {
-    const data = await fs.readFile(PROJECTS_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.log('ℹ️  No projects file found, skipping migration');
-    return null;
-  }
-}
-
-async function connectToMongoDB() {
-  try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('✅ Connected to MongoDB');
-  } catch (error) {
-    console.error('❌ Failed to connect to MongoDB:', error);
-    process.exit(1);
-  }
-}
-
-async function migrateProjects() {
-  console.log('🚀 Starting migration to MongoDB...');
+async function findFilesRecursively(dir: string): Promise<string[]> {
+  const files: string[] = [];
   
-  // Charger les projets depuis les fichiers
-  const fileProjects = await loadProjectsFromFile();
-  
-  if (!fileProjects) {
-    console.log('✅ No projects to migrate');
-    return;
-  }
-
-  let totalMigrated = 0;
-  let totalSkipped = 0;
-  
-  for (const [userId, projects] of Object.entries(fileProjects)) {
-    console.log(`📂 Migrating ${projects.length} projects for user ${userId}...`);
+  async function scan(currentDir: string) {
+    const entries = await fs.readdir(currentDir, { withFileTypes: true });
     
-    for (const project of projects) {
-      try {
-        // Vérifier si le projet existe déjà
-        const existingProject = await UserProject.findOne({ 
-          projectId: project.id 
-        });
-        
-        if (existingProject) {
-          console.log(`⏭️  Skipping ${project.name} (already exists)`);
-          totalSkipped++;
-          continue;
-        }
-        
-        // Créer le nouveau projet MongoDB
-        const mongoProject = new UserProject({
-          projectId: project.id,
-          userId: project.userId,
-          businessId: project.businessId,
-          businessName: project.businessName,
-          name: project.name,
-          description: project.description,
-          html: project.html,
-          css: project.css || '',
-          js: project.js || '',
-          prompt: project.prompt,
-          version: project.version || 1,
-          versions: project.versions || [],
-          status: project.status || 'draft',
-          metadata: project.metadata || {
-            generatedBy: 'ezia-ai'
-          },
-          previewUrl: `/preview/${project.id}`,
-          analytics: {
-            views: 0,
-            deployments: 0
-          },
-          createdAt: project.createdAt ? new Date(project.createdAt) : new Date(),
-          updatedAt: project.updatedAt ? new Date(project.updatedAt) : new Date()
-        });
-        
-        await mongoProject.save();
-        console.log(`✅ Migrated: ${project.name}`);
-        totalMigrated++;
-        
-      } catch (error) {
-        console.error(`❌ Failed to migrate project ${project.name}:`, error);
+    for (const entry of entries) {
+      const fullPath = path.join(currentDir, entry.name);
+      
+      if (entry.isDirectory()) {
+        await scan(fullPath);
+      } else if (entry.isFile() && entry.name.endsWith('.ts')) {
+        files.push(fullPath);
       }
     }
   }
   
-  console.log('\n📊 Migration Summary:');
-  console.log(`✅ Migrated: ${totalMigrated} projects`);
-  console.log(`⏭️  Skipped: ${totalSkipped} projects (already existed)`);
+  await scan(dir);
+  return files;
+}
+
+async function migrateFile(filePath: string) {
+  let content = await fs.readFile(filePath, 'utf-8');
+  let modified = false;
   
-  if (totalMigrated > 0) {
-    console.log('\n🎉 Migration completed successfully!');
-    console.log('Your projects are now stored in MongoDB and will persist across restarts.');
+  // Check if file uses isUsingMemoryDB
+  if (!content.includes('isUsingMemoryDB')) {
+    return false;
   }
+  
+  console.log(`📝 Migrating: ${filePath}`);
+  
+  // Update imports
+  if (content.includes('import { getMemoryDB, isUsingMemoryDB }')) {
+    content = content.replace(
+      'import { getMemoryDB, isUsingMemoryDB }',
+      'import { getMemoryDB }'
+    );
+    
+    // Add db-utils import if not present
+    if (!content.includes('from "@/lib/db-utils"')) {
+      const lastImport = content.lastIndexOf('import');
+      const endOfLine = content.indexOf('\n', lastImport);
+      content = content.slice(0, endOfLine + 1) + 
+        'import { getDatabase } from "@/lib/db-utils";\n' + 
+        content.slice(endOfLine + 1);
+    }
+    modified = true;
+  }
+  
+  // Replace isUsingMemoryDB() patterns
+  const patterns = [
+    {
+      from: /if \(isUsingMemoryDB\(\)\) {/g,
+      to: 'const { type, db } = await getDatabase();\n    if (type === \'memory\') {'
+    },
+    {
+      from: /const memoryDB = getMemoryDB\(\);/g,
+      to: '// Memory DB is now available as db parameter'
+    }
+  ];
+  
+  for (const pattern of patterns) {
+    if (pattern.from.test(content)) {
+      content = content.replace(pattern.from, pattern.to);
+      modified = true;
+    }
+  }
+  
+  // Fix memoryDB usage to db
+  content = content.replace(/memoryDB\./g, 'db!.');
+  
+  if (modified) {
+    await fs.writeFile(filePath, content);
+    console.log(`✅ Migrated: ${filePath}`);
+    return true;
+  }
+  
+  return false;
 }
 
 async function main() {
-  await connectToMongoDB();
-  await migrateProjects();
-  await mongoose.disconnect();
-  console.log('👋 Disconnected from MongoDB');
+  console.log('🚀 Starting MongoDB migration...\n');
+  
+  let totalFiles = 0;
+  let migratedFiles = 0;
+  
+  for (const dir of API_DIRS) {
+    if (await fs.access(dir).then(() => true).catch(() => false)) {
+      const files = await findFilesRecursively(dir);
+      totalFiles += files.length;
+      
+      for (const file of files) {
+        if (await migrateFile(file)) {
+          migratedFiles++;
+        }
+      }
+    }
+  }
+  
+  console.log(`\n📊 Migration complete!`);
+  console.log(`   Total files scanned: ${totalFiles}`);
+  console.log(`   Files migrated: ${migratedFiles}`);
+  
+  if (migratedFiles > 0) {
+    console.log('\n⚠️  Please review the changes and test thoroughly!');
+    console.log('💡 Run "npm run dev" and test all features to ensure everything works.');
+  }
 }
 
-// Exécuter le script
-if (require.main === module) {
-  main().catch(error => {
-    console.error('💥 Migration failed:', error);
-    process.exit(1);
-  });
-}
-
-export { migrateProjects };
+main().catch(console.error);

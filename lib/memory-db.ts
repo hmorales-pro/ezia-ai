@@ -272,4 +272,5 @@ export function getMemoryDB(): MemoryDB {
   return memoryDB;
 }
 
+// DEPRECATED: Use checkMongoDBAvailability from db-utils.ts instead
 export const isUsingMemoryDB = () => !process.env.MONGODB_URI || process.env.MONGODB_URI.trim() === '';
