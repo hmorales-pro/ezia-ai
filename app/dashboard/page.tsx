@@ -86,7 +86,7 @@ export default function DashboardPage() {
   const fetchBusinesses = async () => {
     try {
       setLoadingMessage("Récupération de vos business...");
-      const response = await api.get("/api/me/business-simple");
+      const response = await api.get("/api/me/business-unified");
       if (response.data.ok) {
         setBusinesses(response.data.businesses);
         // Sélectionner automatiquement le premier business

@@ -46,7 +46,7 @@ export default function ProfilePage() {
 
   const fetchBusinessCount = async () => {
     try {
-      const response = await api.get("/api/me/business-simple");
+      const response = await api.get("/api/me/business-unified");
       if (response.data.ok) {
         setBusinessCount(response.data.businesses.length);
       }

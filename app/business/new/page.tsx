@@ -73,7 +73,7 @@ export default function NewBusinessPage() {
       console.log("FormData:", formData);
       console.log("API base URL:", api.defaults.baseURL);
       
-      const response = await api.post("/api/me/business-simple", formData);
+      const response = await api.post("/api/me/business-unified", formData);
       
       if (response.data.ok) {
         setLoadingMessage("Business créé ! Lancement des analyses...");

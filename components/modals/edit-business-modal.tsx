@@ -90,7 +90,7 @@ export function EditBusinessModal({ open, onClose, business, onSuccess }: EditBu
 
     setLoading(true);
     try {
-      const response = await api.put(`/api/me/business-simple/${business.business_id}`, formData);
+      const response = await api.put(`/api/me/business-unified/${business.business_id}`, formData);
       
       if (response.data.ok) {
         toast.success("Business mis à jour avec succès");

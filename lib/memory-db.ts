@@ -315,6 +315,20 @@ class MemoryDB {
     }
     return false;
   }
+  
+  addBusinessInteraction(businessId: string, interaction: any): any {
+    const business = this.businesses.get(businessId);
+    if (!business) return null;
+    
+    if (!business.ezia_interactions) {
+      business.ezia_interactions = [];
+    }
+    
+    business.ezia_interactions.push(interaction);
+    business.updated_at = new Date();
+    
+    return business;
+  }
 }
 
 // Singleton instance

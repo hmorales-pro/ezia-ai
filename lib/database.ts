@@ -374,6 +374,24 @@ export class Database {
     
     return result.deletedCount > 0;
   }
+  
+  async addBusinessInteraction(businessId: string, interaction: any): Promise<any> {
+    await this.initialize();
+    
+    if (this.useMemory) {
+      return this.memoryDB.addBusinessInteraction(businessId, interaction);
+    }
+    
+    const { Business } = await import("@/models/Business");
+    return Business.findOneAndUpdate(
+      { business_id: businessId },
+      { 
+        $push: { ezia_interactions: interaction },
+        $set: { updated_at: new Date() }
+      },
+      { new: true }
+    ).lean();
+  }
 }
 
 // Singleton instance

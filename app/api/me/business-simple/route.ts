@@ -146,57 +146,58 @@ export async function POST(req: NextRequest) {
           status: "in_progress"
         });
       }
-    }, 1000); // Délai court pour que le client voie le statut pending d'abord
-    
-    runAllAgentsForBusiness(newBusiness).then(async analyses => {
-      console.log(`[Business Creation] Analyses terminées pour ${newBusiness.name}`);
       
-      // Mettre à jour le business avec les résultats des analyses
-      const businessIndex = global.businesses.findIndex(b => b.business_id === businessId);
-      if (businessIndex !== -1) {
-        global.businesses[businessIndex] = {
-          ...global.businesses[businessIndex],
-          ...analyses,
-          agents_status: {
-            market_analysis: 'completed',
-            competitor_analysis: 'completed',
-            marketing_strategy: 'completed',
-            website_prompt: 'completed'
-          },
-          ezia_interactions: [
-            ...global.businesses[businessIndex].ezia_interactions,
-            {
-              timestamp: new Date().toISOString(),
-              agent: "Agent Marché",
-              interaction_type: "market_analysis",
-              summary: "Analyse de marché complétée",
-              content: JSON.stringify(analyses.market_analysis)
-            },
-            {
-              timestamp: new Date().toISOString(),
-              agent: "Agent Concurrence",
-              interaction_type: "competitor_analysis",
-              summary: "Analyse de la concurrence complétée",
-              content: JSON.stringify(analyses.competitor_analysis)
-            },
-            {
-              timestamp: new Date().toISOString(),
-              agent: "Agent Marketing",
-              interaction_type: "marketing_strategy",
-              summary: "Stratégie marketing définie",
-              content: JSON.stringify(analyses.marketing_strategy)
-            },
-            {
-              timestamp: new Date().toISOString(),
-              agent: "Agent Website",
-              interaction_type: "website_prompt",
-              summary: "Prompt pour le site web généré",
-              content: analyses.website_prompt?.prompt,
-              recommendations: analyses.website_prompt?.key_features
-            }
-          ],
-          completion_score: 60 // Augmenter le score après les analyses
-        };
+      // Lancer les analyses APRÈS avoir mis à jour le statut in_progress
+      runAllAgentsForBusiness(newBusiness)
+        .then(async analyses => {
+          console.log(`[Business Creation] Analyses terminées pour ${newBusiness.name}`);
+          
+          // Mettre à jour le business avec les résultats des analyses
+          const businessIndex = global.businesses.findIndex(b => b.business_id === businessId);
+          if (businessIndex !== -1) {
+            global.businesses[businessIndex] = {
+              ...global.businesses[businessIndex],
+              ...analyses,
+              agents_status: {
+                market_analysis: 'completed',
+                competitor_analysis: 'completed',
+                marketing_strategy: 'completed',
+                website_prompt: 'completed'
+              },
+            ezia_interactions: [
+              ...global.businesses[businessIndex].ezia_interactions,
+              {
+                timestamp: new Date().toISOString(),
+                agent: "Agent Marché",
+                interaction_type: "market_analysis",
+                summary: "Analyse de marché complétée",
+                content: JSON.stringify(analyses.market_analysis)
+              },
+              {
+                timestamp: new Date().toISOString(),
+                agent: "Agent Concurrence",
+                interaction_type: "competitor_analysis",
+                summary: "Analyse de la concurrence complétée",
+                content: JSON.stringify(analyses.competitor_analysis)
+              },
+              {
+                timestamp: new Date().toISOString(),
+                agent: "Agent Marketing",
+                interaction_type: "marketing_strategy",
+                summary: "Stratégie marketing définie",
+                content: JSON.stringify(analyses.marketing_strategy)
+              },
+              {
+                timestamp: new Date().toISOString(),
+                agent: "Agent Website",
+                interaction_type: "website_prompt",
+                summary: "Prompt pour le site web généré",
+                content: analyses.website_prompt?.prompt,
+                recommendations: analyses.website_prompt?.key_features
+              }
+            ],
+            completion_score: 60 // Augmenter le score après les analyses
+          };
         
         // Si l'utilisateur veut générer un site automatiquement
         if (newBusiness.wantsWebsite === 'yes' && newBusiness.hasWebsite === 'no') {
@@ -248,21 +249,31 @@ export async function POST(req: NextRequest) {
               status: "failed"
             });
           }
+          }
         }
-      }
-    }).catch(error => {
-      console.error(`[Business Creation] Erreur lors des analyses pour ${newBusiness.name}:`, error);
-      // Mettre à jour le statut en cas d'erreur
-      const businessIndex = global.businesses.findIndex(b => b.business_id === businessId);
-      if (businessIndex !== -1) {
-        global.businesses[businessIndex].agents_status = {
-          market_analysis: 'failed',
-          competitor_analysis: 'failed',
-          marketing_strategy: 'failed',
-          website_prompt: 'failed'
-        };
-      }
-    });
+      }).catch(error => {
+        console.error(`[Business Creation] Erreur lors des analyses pour ${newBusiness.name}:`, error);
+        // Mettre à jour le statut en cas d'erreur
+        const businessIndex = global.businesses.findIndex(b => b.business_id === businessId);
+        if (businessIndex !== -1) {
+          global.businesses[businessIndex].agents_status = {
+            market_analysis: 'failed',
+            competitor_analysis: 'failed',
+            marketing_strategy: 'failed',
+            website_prompt: 'failed'
+          };
+          
+          // Ajouter une interaction d'erreur
+          global.businesses[businessIndex].ezia_interactions.push({
+            timestamp: new Date().toISOString(),
+            agent: "Ezia",
+            interaction_type: "analysis_error",
+            summary: "Une erreur s'est produite lors de l'analyse",
+            status: "failed"
+          });
+        }
+      });
+    }, 1000); // Délai court pour que le client voie le statut pending d'abord
     
     return NextResponse.json({ 
       ok: true, 

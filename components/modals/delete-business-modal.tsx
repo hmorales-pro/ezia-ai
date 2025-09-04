@@ -30,7 +30,7 @@ export function DeleteBusinessModal({ open, onClose, business }: DeleteBusinessM
   const handleDelete = async () => {
     setLoading(true);
     try {
-      const response = await api.delete(`/api/me/business-simple/${business.business_id}`);
+      const response = await api.delete(`/api/me/business-unified/${business.business_id}`);
       
       if (response.data.ok) {
         toast.success("Business supprimé avec succès");

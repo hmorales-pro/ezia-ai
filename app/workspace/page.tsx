@@ -53,7 +53,7 @@ export default function WorkspacePage() {
   const fetchWorkspaceData = async () => {
     try {
       // Fetch businesses
-      const businessResponse = await api.get("/api/me/business-simple");
+      const businessResponse = await api.get("/api/me/business-unified");
       if (businessResponse.data.ok) {
         setBusinesses(businessResponse.data.businesses);
       }
