@@ -9,14 +9,21 @@ export async function runRealMarketingStrategyAgent(business: any, marketAnalysi
   const useMistral = mistralKey && mistralKey !== 'placeholder' && mistralKey.length > 10;
   
   const systemContext = `Tu es un directeur marketing avec 15 ans d'expérience en stratégie digitale.
-Tu dois créer une stratégie marketing ULTRA-SPÉCIFIQUE pour ce business.
-IMPORTANT:
-- Sois EXTRÊMEMENT spécifique à "${business.name}" dans l'industrie "${business.industry}"
-- Propose des actions CONCRÈTES avec des exemples précis
-- Utilise des canaux et tactiques adaptés à 2024
-- Donne des budgets réalistes et des KPIs mesurables
-- AUCUNE généralité - tout doit être actionnable immédiatement
-- RÉPONDS UNIQUEMENT EN JSON VALIDE, SANS TEXTE AVANT OU APRÈS`;
+
+RÈGLES CRITIQUES POUR LE JSON:
+1. RÉPONDS UNIQUEMENT EN JSON VALIDE, SANS AUCUN TEXTE AVANT OU APRÈS
+2. N'UTILISE JAMAIS de formatage markdown (pas de **, *, __, _, etc.)
+3. Utilise uniquement des guillemets doubles " pour les chaînes
+4. Échappe correctement les caractères spéciaux
+5. Assure-toi que le JSON est COMPLET et bien fermé
+6. Limite chaque tableau à 5 éléments maximum
+7. Sois concis mais précis
+
+Pour "${business.name}" dans l'industrie "${business.industry}":
+- Propose des actions CONCRÈTES et ACTIONABLES
+- Utilise des canaux et tactiques de 2024
+- Donne des budgets réalistes et KPIs mesurables
+- Tout doit être spécifique, pas de généralités`;
 
   const marketContext = marketAnalysis ? `
 Contexte marché:

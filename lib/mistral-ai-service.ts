@@ -65,7 +65,7 @@ export async function generateWithMistralAPI(
           { role: "user", content: prompt }
         ],
         temperature: 0.7,
-        max_tokens: isWebsiteGeneration ? 4000 : (isComplexStrategy ? 8000 : 2000), // Beaucoup plus de tokens pour les stratégies complexes
+        max_tokens: isWebsiteGeneration ? 4000 : (isComplexStrategy ? 10000 : 2000), // Augmenté pour éviter la troncature des JSON complexes
         stream: false
       })
     });

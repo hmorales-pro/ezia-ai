@@ -58,8 +58,8 @@ export function extractAndCleanJson(content: string): string {
     .replace(/```\s*/gi, '')
     .trim();
   
-  // Try to extract JSON object or array
-  const jsonMatch = jsonContent.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+  // Try to extract JSON object or array (non-greedy to get the first complete JSON)
+  const jsonMatch = jsonContent.match(/(\{[\s\S]*?\}(?=\s*$)|\[[\s\S]*?\](?=\s*$)|\{[\s\S]*\}|\[[\s\S]*\])/);
   if (jsonMatch) {
     jsonContent = jsonMatch[0];
   }

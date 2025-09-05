@@ -10,42 +10,46 @@ export async function runRealCompetitorAnalysisAgent(business: any): Promise<any
   
   const systemContext = `Tu es un expert en analyse concurrentielle avec 15 ans d'expérience.
 Tu dois fournir une analyse concurrentielle SPÉCIFIQUE et DÉTAILLÉE.
-IMPORTANT: 
-- Sois TRÈS spécifique à l'industrie "${business.industry}" et au business "${business.name}"
-- Identifie de VRAIS concurrents existants avec leurs forces/faiblesses réelles
-- Utilise des données actuelles (2024) et des parts de marché réalistes
-- RÉPONDS UNIQUEMENT EN JSON VALIDE, SANS TEXTE AVANT OU APRÈS
-- Évite ABSOLUMENT les généralités`;
 
-  const prompt = `Analyse concurrentielle complète pour:
-Nom: ${business.name}
+RÈGLES CRITIQUES POUR LE JSON:
+1. RÉPONDS UNIQUEMENT EN JSON VALIDE, SANS AUCUN TEXTE AVANT OU APRÈS
+2. N'UTILISE JAMAIS de formatage markdown (pas de **, *, __, _, etc.)
+3. Utilise uniquement des guillemets doubles " pour les chaînes
+4. Échappe correctement les caractères spéciaux dans les chaînes
+5. Assure-toi que le JSON est COMPLET et bien fermé
+6. Pour l'industrie "${business.industry}" et le business "${business.name}", fournis des concurrents RÉELS et SPÉCIFIQUES
+7. Limite chaque tableau à 5 éléments maximum pour éviter la troncature`;
+
+  const prompt = `Analyse concurrentielle pour ${business.name} dans l'industrie ${business.industry}.
+
 Description: ${business.description}
-Industrie: ${business.industry}
 
-Fournis une structure JSON avec:
+Génère UNIQUEMENT ce JSON (pas de texte, pas de markdown):
 {
   "main_competitors": [
     {
-      "name": "Nom réel du concurrent",
-      "strengths": ["3-4 forces spécifiques"],
-      "weaknesses": ["2-3 faiblesses réelles"],
-      "market_share": "Part de marché en %"
+      "name": "Nom du concurrent réel",
+      "strengths": ["Force 1", "Force 2", "Force 3"],
+      "weaknesses": ["Faiblesse 1", "Faiblesse 2"],
+      "market_share": "XX%"
     }
   ],
-  "competitive_advantages": ["3-4 avantages concurrentiels uniques"],
-  "threats": ["3-4 menaces identifiées"],
-  "opportunities": ["3-4 opportunités de marché"],
+  "competitive_advantages": ["Avantage 1", "Avantage 2", "Avantage 3"],
+  "threats": ["Menace 1", "Menace 2", "Menace 3"],
+  "opportunities": ["Opportunité 1", "Opportunité 2", "Opportunité 3"],
   "competitive_positioning": {
-    "current_position": "Position actuelle sur le marché",
-    "desired_position": "Position souhaitée",
-    "key_differentiators": ["3-4 différenciateurs clés"]
+    "current_position": "Description courte",
+    "desired_position": "Description courte",
+    "key_differentiators": ["Diff 1", "Diff 2", "Diff 3"]
   },
   "competitive_strategy": {
-    "approach": "Stratégie recommandée",
-    "tactics": ["4-5 tactiques spécifiques"],
-    "timeline": "Calendrier de mise en œuvre"
+    "approach": "Description de la stratégie",
+    "tactics": ["Tactique 1", "Tactique 2", "Tactique 3", "Tactique 4"],
+    "timeline": "3-6 mois"
   }
-}`;
+}
+
+Limite: 3 concurrents max, textes courts et précis.`;
 
   try {
     let response;
@@ -58,7 +62,7 @@ Fournis une structure JSON avec:
       const hfResponse = await generateAIResponse(prompt, {
         systemContext: systemContext,
         preferredModel: "mistralai/Mistral-7B-Instruct-v0.2",
-        maxTokens: 3000,
+        maxTokens: 4000,
         temperature: 0.3
       });
       response = hfResponse;
@@ -79,7 +83,15 @@ Fournis une structure JSON avec:
         return analysis;
       } catch (parseError) {
         console.error("[Agent Concurrent IA] Erreur parsing JSON:", parseError);
-        console.log("[Agent Concurrent IA] Contenu reçu:", response.content?.substring(0, 500));
+        console.log("[Agent Concurrent IA] Longueur du contenu:", response.content?.length);
+        console.log("[Agent Concurrent IA] Début du contenu:", response.content?.substring(0, 500));
+        console.log("[Agent Concurrent IA] Fin du contenu:", response.content?.substring(Math.max(0, (response.content?.length || 0) - 200)));
+        
+        // Vérifier si le JSON semble tronqué
+        const lastChar = response.content?.trim().slice(-1);
+        if (lastChar !== '}' && lastChar !== ']') {
+          console.error("[Agent Concurrent IA] ATTENTION: Le JSON semble être tronqué. Dernier caractère:", lastChar);
+        }
         
         // Si on utilise HuggingFace, essayer de parser différemment
         if (!useMistral && response.content) {

@@ -9,19 +9,22 @@ export async function runRealMarketAnalysisAgent(business: any): Promise<any> {
   const mistralKey = process.env.MISTRAL_API_KEY;
   const useMistral = mistralKey && mistralKey !== 'placeholder' && mistralKey.length > 10;
   
-  const systemContext = `Tu es un expert en analyse de marché avec 20 ans d'expérience. 
-Tu dois fournir une analyse de marché SPÉCIFIQUE et DÉTAILLÉE pour ce business.
-IMPORTANT: 
-- Sois TRÈS spécifique à l'industrie "${business.industry}" et au business "${business.name}"
-- Utilise des données réalistes et actuelles (2024)
-- RÉPONDS UNIQUEMENT EN JSON VALIDE, SANS TEXTE AVANT OU APRÈS
-- Évite ABSOLUMENT les généralités
-- Donne des noms de vrais concurrents, des chiffres précis, des tendances actuelles
-- Adapte TOUT le contenu au contexte spécifique du business
-- Inclus une analyse PESTEL complète
-- Applique le modèle des 5 forces de Porter de manière détaillée
+  const systemContext = `Tu es un expert en analyse de marché avec 20 ans d'expérience.
 
-Format de réponse attendu (JSON valide uniquement):`;
+RÈGLES CRITIQUES POUR LE JSON:
+1. RÉPONDS UNIQUEMENT EN JSON VALIDE, SANS AUCUN TEXTE AVANT OU APRÈS
+2. N'UTILISE JAMAIS de formatage markdown (pas de **, *, __, _, etc.)
+3. Utilise uniquement des guillemets doubles " pour les chaînes
+4. Échappe correctement les caractères spéciaux dans les chaînes
+5. Assure-toi que le JSON est COMPLET et bien fermé
+6. Limite chaque tableau à 5 éléments maximum pour éviter la troncature
+7. Sois concis mais précis dans tes réponses
+
+Pour l'industrie "${business.industry}" et le business "${business.name}":
+- Fournis des données RÉELLES et SPÉCIFIQUES (pas de généralités)
+- Utilise des chiffres actuels de 2024
+- Cite de vrais concurrents existants
+- Adapte TOUT le contenu au contexte spécifique`;
 
   const prompt = `Analyse le marché pour ce business:
 Nom: ${business.name}
