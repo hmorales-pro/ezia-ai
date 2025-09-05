@@ -27,6 +27,17 @@ interface MarketAnalysisDisplayProps {
 export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) {
   if (!analysis) return null;
 
+  // Helper to check if an object has any non-empty values
+  const hasData = (obj: any): boolean => {
+    if (!obj) return false;
+    if (Array.isArray(obj)) return obj.length > 0;
+    if (typeof obj === 'string') return obj.trim().length > 0;
+    if (typeof obj === 'object') {
+      return Object.values(obj).some((value) => hasData(value));
+    }
+    return Boolean(obj);
+  };
+
   const getLevelColor = (level: string) => {
     switch(level) {
       case 'high': return 'text-red-600 bg-red-50';
@@ -47,44 +58,61 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
 
   return (
     <div className="space-y-6">
-      {/* Executive Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Briefcase className="w-5 h-5 text-[#6D3FC8]" />
-            Résumé Exécutif
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h4 className="font-medium mb-2">Points clés</h4>
-            <ul className="space-y-2">
-              {analysis.executive_summary?.key_findings?.map((finding: string, idx: number) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <span className="text-[#6D3FC8] mt-1">•</span>
-                  <span className="text-sm text-gray-700">{finding}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-50 p-4 rounded-lg">
-              <h5 className="font-medium text-[#6D3FC8] mb-1">Opportunité de marché</h5>
-              <p className="text-sm">{analysis.executive_summary?.market_opportunity}</p>
-            </div>
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h5 className="font-medium text-blue-700 mb-1">Prévision de croissance</h5>
-              <p className="text-sm">{analysis.executive_summary?.growth_forecast}</p>
-            </div>
-          </div>
+      {/* Executive Summary - Only show if we have data */}
+      {analysis.executive_summary && (
+        (analysis.executive_summary.key_findings?.length > 0 ||
+         analysis.executive_summary.market_opportunity ||
+         analysis.executive_summary.growth_forecast ||
+         analysis.executive_summary.strategic_positioning) && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-[#6D3FC8]" />
+                Résumé Exécutif
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {analysis.executive_summary.key_findings?.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-2">Points clés</h4>
+                  <ul className="space-y-2">
+                    {analysis.executive_summary.key_findings.map((finding: string, idx: number) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="text-[#6D3FC8] mt-1">•</span>
+                        <span className="text-sm text-gray-700">{finding}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {(analysis.executive_summary.market_opportunity || analysis.executive_summary.growth_forecast) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {analysis.executive_summary.market_opportunity && (
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <h5 className="font-medium text-[#6D3FC8] mb-1">Opportunité de marché</h5>
+                      <p className="text-sm">{analysis.executive_summary.market_opportunity}</p>
+                    </div>
+                  )}
+                  {analysis.executive_summary.growth_forecast && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h5 className="font-medium text-blue-700 mb-1">Prévision de croissance</h5>
+                      <p className="text-sm">{analysis.executive_summary.growth_forecast}</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h5 className="font-medium mb-1">Positionnement stratégique</h5>
-            <p className="text-sm">{analysis.executive_summary?.strategic_positioning}</p>
-          </div>
-        </CardContent>
-      </Card>
+              {analysis.executive_summary.strategic_positioning && (
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h5 className="font-medium mb-1">Positionnement stratégique</h5>
+                  <p className="text-sm">{analysis.executive_summary.strategic_positioning}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )
+      )}
 
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid grid-cols-2 lg:grid-cols-6 gap-2 h-auto p-1">
@@ -98,28 +126,37 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
 
         <TabsContent value="overview" className="space-y-4">
           {/* Market Overview */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="w-5 h-5" />
-                Vue d'ensemble du marché
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Taille du marché</p>
-                  <p className="font-semibold">{analysis.market_overview?.market_size}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Taux de croissance</p>
-                  <p className="font-semibold">{analysis.market_overview?.growth_rate}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Maturité</p>
-                  <p className="font-semibold">{analysis.market_overview?.market_maturity}</p>
-                </div>
-              </div>
+          {hasData(analysis.market_overview) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="w-5 h-5" />
+                  Vue d'ensemble du marché
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {(analysis.market_overview?.market_size || analysis.market_overview?.growth_rate || analysis.market_overview?.market_maturity) && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {analysis.market_overview.market_size && (
+                      <div>
+                        <p className="text-sm text-gray-500">Taille du marché</p>
+                        <p className="font-semibold">{analysis.market_overview.market_size}</p>
+                      </div>
+                    )}
+                    {analysis.market_overview.growth_rate && (
+                      <div>
+                        <p className="text-sm text-gray-500">Taux de croissance</p>
+                        <p className="font-semibold">{analysis.market_overview.growth_rate}</p>
+                      </div>
+                    )}
+                    {analysis.market_overview.market_maturity && (
+                      <div>
+                        <p className="text-sm text-gray-500">Maturité</p>
+                        <p className="font-semibold">{analysis.market_overview.market_maturity}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
               {analysis.market_overview?.key_players && (
                 <div>
@@ -155,93 +192,125 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
               )}
             </CardContent>
           </Card>
+          )}
 
-          {/* Trends Analysis */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5" />
-                Analyse des tendances
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <h4 className="font-medium mb-2 text-green-700">Tendances actuelles</h4>
-                  <ul className="space-y-1">
-                    {analysis.trends_analysis?.current_trends?.map((trend: string, idx: number) => (
-                      <li key={idx} className="text-sm flex items-start gap-1">
-                        <TrendingUp className="w-3 h-3 text-green-600 mt-0.5 flex-shrink-0" />
-                        {trend}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2 text-blue-700">Tendances émergentes</h4>
-                  <ul className="space-y-1">
-                    {analysis.trends_analysis?.emerging_trends?.map((trend: string, idx: number) => (
-                      <li key={idx} className="text-sm flex items-start gap-1">
-                        <Zap className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
-                        {trend}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2 text-gray-700">Tendances déclinantes</h4>
-                  <ul className="space-y-1">
-                    {analysis.trends_analysis?.declining_trends?.map((trend: string, idx: number) => (
-                      <li key={idx} className="text-sm flex items-start gap-1">
-                        <AlertTriangle className="w-3 h-3 text-gray-600 mt-0.5 flex-shrink-0" />
-                        {trend}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {analysis.trends_analysis?.future_projections && (
-                <div>
-                  <h4 className="font-medium mb-3">Projections futures</h4>
-                  <div className="space-y-2">
-                    {analysis.trends_analysis.future_projections.map((proj: any, idx: number) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <span className="font-medium">{proj.year}</span>
-                          <span className="ml-2 text-sm">{proj.projection}</span>
-                        </div>
-                        <Badge className={getLevelColor(proj.confidence)}>
-                          Confiance {proj.confidence === 'high' ? 'élevée' : proj.confidence === 'medium' ? 'moyenne' : 'faible'}
-                        </Badge>
+          {/* Trends Analysis - Only show if we have data */}
+          {analysis.trends_analysis && (
+            (analysis.trends_analysis.current_trends?.length > 0 ||
+             analysis.trends_analysis.emerging_trends?.length > 0 ||
+             analysis.trends_analysis.declining_trends?.length > 0 ||
+             analysis.trends_analysis.future_projections?.length > 0) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="w-5 h-5" />
+                    Analyse des tendances
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {analysis.trends_analysis.current_trends?.length > 0 && (
+                      <div>
+                        <h4 className="font-medium mb-2 text-green-700">Tendances actuelles</h4>
+                        <ul className="space-y-1">
+                          {analysis.trends_analysis.current_trends.map((trend: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-1">
+                              <TrendingUp className="w-3 h-3 text-green-600 mt-0.5 flex-shrink-0" />
+                              {trend}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                    ))}
+                    )}
+                    {analysis.trends_analysis.emerging_trends?.length > 0 && (
+                      <div>
+                        <h4 className="font-medium mb-2 text-blue-700">Tendances émergentes</h4>
+                        <ul className="space-y-1">
+                          {analysis.trends_analysis.emerging_trends.map((trend: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-1">
+                              <Zap className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
+                              {trend}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {analysis.trends_analysis.declining_trends?.length > 0 && (
+                      <div>
+                        <h4 className="font-medium mb-2 text-gray-700">Tendances déclinantes</h4>
+                        <ul className="space-y-1">
+                          {analysis.trends_analysis.declining_trends.map((trend: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-1">
+                              <AlertTriangle className="w-3 h-3 text-gray-600 mt-0.5 flex-shrink-0" />
+                              {trend}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+
+                  {analysis.trends_analysis.future_projections?.length > 0 && (
+                    <div>
+                      <h4 className="font-medium mb-3">Projections futures</h4>
+                      <div className="space-y-2">
+                        {analysis.trends_analysis.future_projections.map((proj: any, idx: number) => (
+                          <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                              <span className="font-medium">{proj.year}</span>
+                              <span className="ml-2 text-sm">{proj.projection}</span>
+                            </div>
+                            <Badge className={getLevelColor(proj.confidence)}>
+                              Confiance {proj.confidence === 'high' ? 'élevée' : proj.confidence === 'medium' ? 'moyenne' : 'faible'}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )
+          )}
+          
+          {/* Show message if no data available */}
+          {!hasData(analysis.market_overview) && !hasData(analysis.trends_analysis) && (
+            <Card>
+              <CardContent className="text-center py-12">
+                <Globe className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                <p className="text-gray-500 mb-4">Aucune donnée de marché disponible</p>
+                <p className="text-sm text-gray-400">Les analyses détaillées seront disponibles après génération</p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="audience" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Public cible
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-[#6D3FC8] mb-2">Cible principale</h4>
-                  <p className="text-sm">{analysis.target_audience?.primary}</p>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-blue-700 mb-2">Cible secondaire</h4>
-                  <p className="text-sm">{analysis.target_audience?.secondary}</p>
-                </div>
-              </div>
+          {hasData(analysis.target_audience) ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Public cible
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {(analysis.target_audience?.primary || analysis.target_audience?.secondary) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {analysis.target_audience.primary && (
+                      <div className="bg-purple-50 p-4 rounded-lg">
+                        <h4 className="font-medium text-[#6D3FC8] mb-2">Cible principale</h4>
+                        <p className="text-sm">{analysis.target_audience.primary}</p>
+                      </div>
+                    )}
+                    {analysis.target_audience.secondary && (
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <h4 className="font-medium text-blue-700 mb-2">Cible secondaire</h4>
+                        <p className="text-sm">{analysis.target_audience.secondary}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
               {analysis.target_audience?.demographics && (
                 <div>
@@ -295,6 +364,22 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
               )}
             </CardContent>
           </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Public cible
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <Users className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">Aucune donnée sur le public cible disponible</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="pestel" className="space-y-4">
@@ -508,86 +593,103 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
               <CardDescription>Forces, Faiblesses, Opportunités et Menaces</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {analysis.swot_analysis && (
-                  <>
-                    <div className="bg-green-50 rounded-lg p-4">
-                      <h4 className="font-medium text-green-800 mb-3 flex items-center gap-2">
-                        <Target className="w-4 h-4" />
-                        Forces
-                      </h4>
-                      <ul className="space-y-2">
-                        {analysis.swot_analysis.strengths?.map((item: string, idx: number) => (
-                          <li key={idx} className="text-sm flex items-start gap-2">
-                            <span className="text-green-600 mt-0.5">+</span>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+              {analysis.swot_analysis && (
+                (analysis.swot_analysis.strengths?.length > 0 ||
+                 analysis.swot_analysis.weaknesses?.length > 0 ||
+                 analysis.swot_analysis.opportunities?.length > 0 ||
+                 analysis.swot_analysis.threats?.length > 0) ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {analysis.swot_analysis.strengths?.length > 0 && (
+                      <div className="bg-green-50 rounded-lg p-4">
+                        <h4 className="font-medium text-green-800 mb-3 flex items-center gap-2">
+                          <Target className="w-4 h-4" />
+                          Forces
+                        </h4>
+                        <ul className="space-y-2">
+                          {analysis.swot_analysis.strengths.map((item: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">+</span>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-                    <div className="bg-red-50 rounded-lg p-4">
-                      <h4 className="font-medium text-red-800 mb-3 flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4" />
-                        Faiblesses
-                      </h4>
-                      <ul className="space-y-2">
-                        {analysis.swot_analysis.weaknesses?.map((item: string, idx: number) => (
-                          <li key={idx} className="text-sm flex items-start gap-2">
-                            <span className="text-red-600 mt-0.5">-</span>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    {analysis.swot_analysis.weaknesses?.length > 0 && (
+                      <div className="bg-red-50 rounded-lg p-4">
+                        <h4 className="font-medium text-red-800 mb-3 flex items-center gap-2">
+                          <AlertTriangle className="w-4 h-4" />
+                          Faiblesses
+                        </h4>
+                        <ul className="space-y-2">
+                          {analysis.swot_analysis.weaknesses.map((item: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-2">
+                              <span className="text-red-600 mt-0.5">-</span>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-                    <div className="bg-blue-50 rounded-lg p-4">
-                      <h4 className="font-medium text-blue-800 mb-3 flex items-center gap-2">
-                        <Lightbulb className="w-4 h-4" />
-                        Opportunités
-                      </h4>
-                      <ul className="space-y-2">
-                        {analysis.swot_analysis.opportunities?.map((item: string, idx: number) => (
-                          <li key={idx} className="text-sm flex items-start gap-2">
-                            <span className="text-blue-600 mt-0.5">↗</span>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    {analysis.swot_analysis.opportunities?.length > 0 && (
+                      <div className="bg-blue-50 rounded-lg p-4">
+                        <h4 className="font-medium text-blue-800 mb-3 flex items-center gap-2">
+                          <Lightbulb className="w-4 h-4" />
+                          Opportunités
+                        </h4>
+                        <ul className="space-y-2">
+                          {analysis.swot_analysis.opportunities.map((item: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-2">
+                              <span className="text-blue-600 mt-0.5">↗</span>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-                    <div className="bg-yellow-50 rounded-lg p-4">
-                      <h4 className="font-medium text-yellow-800 mb-3 flex items-center gap-2">
-                        <Shield className="w-4 h-4" />
-                        Menaces
-                      </h4>
-                      <ul className="space-y-2">
-                        {analysis.swot_analysis.threats?.map((item: string, idx: number) => (
-                          <li key={idx} className="text-sm flex items-start gap-2">
-                            <span className="text-yellow-600 mt-0.5">!</span>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </>
-                )}
-              </div>
+                    {analysis.swot_analysis.threats?.length > 0 && (
+                      <div className="bg-yellow-50 rounded-lg p-4">
+                        <h4 className="font-medium text-yellow-800 mb-3 flex items-center gap-2">
+                          <Shield className="w-4 h-4" />
+                          Menaces
+                        </h4>
+                        <ul className="space-y-2">
+                          {analysis.swot_analysis.threats.map((item: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-2">
+                              <span className="text-yellow-600 mt-0.5">!</span>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Shield className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500">Aucune donnée SWOT disponible</p>
+                  </div>
+                )
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="strategy" className="space-y-4">
           {/* Strategic Recommendations */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                Recommandations stratégiques
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {analysis.strategic_recommendations?.immediate_actions && (
+          {hasData(analysis.strategic_recommendations) ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Recommandations stratégiques
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {analysis.strategic_recommendations?.immediate_actions?.length > 0 && (
                 <div>
                   <h4 className="font-medium mb-3">Actions immédiates</h4>
                   <div className="space-y-3">
@@ -678,9 +780,25 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
               )}
             </CardContent>
           </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Recommandations stratégiques
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <Target className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">Aucune recommandation stratégique disponible</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Competitive Benchmark */}
-          {analysis.competitive_benchmark && (
+          {hasData(analysis.competitive_benchmark) && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
