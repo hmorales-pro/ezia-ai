@@ -29,8 +29,10 @@ RÈGLES CRITIQUES POUR LE JSON:
 3. Utilise uniquement des guillemets doubles " pour les chaînes
 4. Échappe correctement les caractères spéciaux dans les chaînes
 5. Assure-toi que le JSON est COMPLET et bien fermé
-6. Limite chaque tableau à 5 éléments maximum pour éviter la troncature
-7. Sois concis mais précis dans tes réponses
+6. Limite chaque tableau à 3-4 éléments maximum
+7. Sois CONCIS: max 20 mots par champ texte
+8. IMPORTANT: Le JSON total ne doit PAS dépasser 3000 caractères
+9. Si tu approches de la limite, RACCOURCIS le contenu plutôt que de risquer la troncature
 
 Pour l'industrie "${business.industry}" et le business "${business.name}":
 - Fournis des données RÉELLES et SPÉCIFIQUES (pas de généralités)
@@ -177,7 +179,7 @@ Réponds UNIQUEMENT avec un objet JSON valide au format suivant:
       const hfResponse = await generateAIResponse(prompt, {
         systemContext: systemContext,
         preferredModel: "mistralai/Mistral-7B-Instruct-v0.2",
-        maxTokens: 2500,
+        maxTokens: 3500,
         temperature: 0.3 // Plus bas pour des réponses plus structurées
       });
       response = hfResponse;

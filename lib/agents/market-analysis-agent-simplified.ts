@@ -14,60 +14,54 @@ export async function runSimplifiedMarketAnalysisAgent(business: any): Promise<a
   const systemContext = `Tu es un expert en analyse de marché. 
 RÈGLES CRITIQUES:
 1. Réponds UNIQUEMENT en JSON valide, sans texte avant/après
-2. Sois TRÈS CONCIS (max 30 mots par champ)
-3. Limite les tableaux à 3 éléments max
+2. Sois ULTRA CONCIS (max 15 mots par champ texte)
+3. Limite TOUS les tableaux à 3 éléments MAXIMUM
 4. Utilise uniquement des guillemets doubles "
-5. Pas de markdown, pas d'émojis
-6. JSON total < 2000 caractères`;
+5. Pas de markdown, pas d'émojis, pas de caractères spéciaux
+6. JSON total DOIT être < 1500 caractères
+7. Si tu dépasses la limite, COUPE le contenu plutôt que de tronquer le JSON`;
 
   const prompt = `Analyse concise du marché pour:
 ${business.name} - ${business.industry}
 Description: ${business.description}
 
-Retourne ce JSON simplifié:
+Retourne EXACTEMENT ce JSON (remplace les valeurs entre guillemets):
 {
   "executive_summary": {
-    "key_findings": ["3 découvertes courtes max"],
-    "market_opportunity": "opportunité en 20 mots",
-    "strategic_positioning": "position en 20 mots",
-    "growth_forecast": "croissance en %"
+    "key_findings": ["Découverte 1", "Découverte 2", "Découverte 3"],
+    "market_opportunity": "Opportunité principale (15 mots max)",
+    "strategic_positioning": "Positionnement (15 mots max)",
+    "growth_forecast": "10-20%"
   },
   "target_audience": {
-    "primary": "segment principal",
+    "primary": "Segment principal",
     "demographics": {
-      "age": "tranche",
-      "income": "niveau",
-      "location": "zone"
+      "age": "25-45",
+      "income": "Moyen+",
+      "location": "France"
     },
-    "pain_points": ["3 problèmes courts"]
+    "pain_points": ["Problème 1", "Problème 2", "Problème 3"]
   },
   "market_overview": {
-    "market_size": "taille en €/$ ",
-    "growth_rate": "% annuel",
-    "key_players": ["3 concurrents max"],
-    "market_segments": [
-      {
-        "name": "nom",
-        "size": "% marché",
-        "growth": "% croissance"
-      }
-    ]
+    "market_size": "X milliards EUR",
+    "growth_rate": "X%",
+    "key_players": ["Concurrent 1", "Concurrent 2", "Concurrent 3"]
   },
   "swot_analysis": {
-    "strengths": ["3 forces"],
-    "weaknesses": ["3 faiblesses"],
-    "opportunities": ["3 opportunités"],
-    "threats": ["3 menaces"]
+    "strengths": ["Force 1", "Force 2", "Force 3"],
+    "weaknesses": ["Faiblesse 1", "Faiblesse 2", "Faiblesse 3"],
+    "opportunities": ["Opportunité 1", "Opportunité 2", "Opportunité 3"],
+    "threats": ["Menace 1", "Menace 2", "Menace 3"]
   },
   "strategic_recommendations": {
     "immediate_actions": [
       {
-        "action": "action courte",
-        "impact": "high/medium/low",
-        "timeline": "durée"
+        "action": "Action prioritaire",
+        "impact": "high",
+        "timeline": "2 mois"
       }
     ],
-    "long_term_vision": "vision en 20 mots"
+    "long_term_vision": "Vision à 5 ans (15 mots max)"
   }
 }`;
 
@@ -82,7 +76,7 @@ Retourne ce JSON simplifié:
       response = await generateAIResponse(prompt, {
         systemContext: systemContext,
         preferredModel: "mistralai/Mistral-7B-Instruct-v0.2",
-        maxTokens: 1500, // Réduit pour éviter la troncature
+        maxTokens: 2000, // Augmenté pour permettre des réponses JSON complètes
         temperature: 0.3
       });
     }

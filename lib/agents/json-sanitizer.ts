@@ -160,6 +160,18 @@ export function parseAIGeneratedJson(content: string, removeMarkdown: boolean = 
       // Try to intelligently close the JSON
       let fixedContent = cleanedContent;
       
+      // First, check if we're in the middle of a string value
+      // Look for the last complete property
+      const lastQuoteIndex = fixedContent.lastIndexOf('"');
+      const lastColonIndex = fixedContent.lastIndexOf(':');
+      const lastCommaIndex = fixedContent.lastIndexOf(',');
+      
+      // If we're in the middle of a string value, close it
+      if (lastColonIndex > lastCommaIndex && lastQuoteIndex < lastColonIndex) {
+        // We're likely in the middle of a string value
+        fixedContent += '"';
+      }
+      
       // Count open braces and brackets
       const openBraces = (fixedContent.match(/\{/g) || []).length;
       const closeBraces = (fixedContent.match(/\}/g) || []).length;
