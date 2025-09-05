@@ -5,6 +5,7 @@ import { parseAIGeneratedJson } from './json-sanitizer';
 // Version simplifiée de l'analyse de marché pour éviter la troncature
 export async function runSimplifiedMarketAnalysisAgent(business: any): Promise<any> {
   console.log(`[Agent Marché Simplifié] Analyse pour ${business.name}...`);
+  console.log(`[Agent Marché Simplifié] Business data:`, { name: business.name, industry: business.industry, description: business.description?.substring(0, 100) });
   
   const mistralKey = process.env.MISTRAL_API_KEY;
   const useMistral = mistralKey && mistralKey !== 'placeholder' && mistralKey.length > 10;
@@ -132,9 +133,12 @@ Retourne ce JSON simplifié:
     
   } catch (error) {
     console.error("[Agent Marché Simplifié] Erreur:", error);
+    console.error("[Agent Marché Simplifié] Stack:", error.stack);
     // Retourner une analyse minimale en cas d'erreur
-    console.log('[Agent Marché Simplifié] Utilisation du fallback minimal');
-    return generateMinimalMarketAnalysis(business);
+    console.log('[Agent Marché Simplifié] Utilisation du fallback minimal suite à erreur');
+    const minimalAnalysis = generateMinimalMarketAnalysis(business);
+    console.log('[Agent Marché Simplifié] Fallback analysis:', JSON.stringify(minimalAnalysis).substring(0, 200));
+    return minimalAnalysis;
   }
 }
 

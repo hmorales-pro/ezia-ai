@@ -89,13 +89,23 @@ export async function POST(
             // Get updated business state again
             currentBusiness = await db.findBusinessById(businessId);
             
-            await db.updateBusiness(businessId, {
+            const updateData = {
               [type]: analysisResult,
               agents_status: {
                 ...currentBusiness.agents_status,
                 [type]: 'completed'
               }
-            });
+            };
+            
+            console.log(`[Rerun Analysis] Updating ${type} with data:`, JSON.stringify(analysisResult).substring(0, 200));
+            
+            const updateResult = await db.updateBusiness(businessId, updateData);
+            
+            if (!updateResult) {
+              console.error(`[Rerun Analysis] Failed to update ${type} for business ${businessId}`);
+            } else {
+              console.log(`[Rerun Analysis] Successfully updated ${type} for business ${businessId}`);
+            }
           } catch (error) {
             console.error(`Error running ${type}:`, error);
             // Get updated business state for error handling

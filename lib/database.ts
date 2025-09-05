@@ -119,10 +119,11 @@ export class Database {
     }
     
     const { Business } = await import("@/models/Business");
+    // Utiliser $set pour s'assurer que les mises à jour sont appliquées
     return Business.findOneAndUpdate(
       { business_id: businessId },
-      updates,
-      { new: true }
+      { $set: updates },
+      { new: true, runValidators: false } // Désactiver les validateurs pour les types Mixed
     ).lean();
   }
   
