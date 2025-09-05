@@ -6,7 +6,7 @@ interface MistralResponse {
 
 // Configuration Mistral AI
 const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
-const MISTRAL_MODEL = "mistral-medium-latest"; // Modèle plus performant pour les contenus complexes
+const MISTRAL_MODEL = "mistral-large-latest"; // Modèle plus performant et disponible
 
 export async function generateWithMistralAPI(
   prompt: string,
@@ -71,12 +71,48 @@ export async function generateWithMistralAPI(
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error("Mistral API error:", error);
-      if (isWebsiteGeneration) {
-        return generateDefaultWebsite(prompt);
+      const errorText = await response.text();
+      console.error("[Mistral] API error response:", response.status, errorText);
+      
+      try {
+        const error = JSON.parse(errorText);
+        console.error("[Mistral] Error details:", error);
+        
+        // Si le modèle n'est pas disponible, essayer avec un modèle alternatif
+        if (error.message?.includes('model') || response.status === 404) {
+          console.log("[Mistral] Modèle non disponible, essai avec mistral-small-latest");
+          
+          const fallbackResponse = await fetch(MISTRAL_API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${mistralApiKey}`
+            },
+            body: JSON.stringify({
+              model: "mistral-small-latest",
+              messages: [
+                { role: "system", content: systemContext },
+                { role: "user", content: prompt }
+              ],
+              temperature: 0.7,
+              max_tokens: isWebsiteGeneration ? 4000 : (isComplexStrategy ? 4000 : 2000),
+              stream: false
+            })
+          });
+          
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            return {
+              success: true,
+              content: fallbackData.choices[0]?.message?.content || "Aucune réponse générée"
+            };
+          }
+        }
+      } catch (e) {
+        console.error("[Mistral] Erreur parsing error:", e);
       }
-      return generateDefaultBusinessResponse(prompt, systemContext);
+      
+      throw new Error(`Mistral API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
@@ -86,11 +122,8 @@ export async function generateWithMistralAPI(
       content: data.choices[0]?.message?.content || "Aucune réponse générée"
     };
   } catch (error: any) {
-    console.error("Mistral API error:", error);
-    if (isWebsiteGeneration) {
-      return generateDefaultWebsite(prompt);
-    }
-    return generateDefaultBusinessResponse(prompt, systemContext);
+    console.error("[Mistral] Exception:", error.message);
+    throw error; // Propager l'erreur pour que le système utilise HuggingFace
   }
 }
 

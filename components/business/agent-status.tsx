@@ -110,8 +110,9 @@ export function AgentStatus({ business, onRefresh }: AgentStatusProps) {
 
   const calculateProgress = () => {
     const statuses = Object.values(business.agents_status || {});
+    if (statuses.length === 0) return 0; // Prévenir NaN
     const completed = statuses.filter(s => s === 'completed').length;
-    return (completed / statuses.length) * 100;
+    return Math.round((completed / statuses.length) * 100);
   };
 
   const handleRerunAnalysis = async (analysisType: string) => {
