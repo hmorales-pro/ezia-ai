@@ -102,7 +102,25 @@ Retourne ce JSON simplifié:
           }
         };
         
-        return analysis;
+        // Transformer pour correspondre au schéma MongoDB
+        const transformedAnalysis = {
+          ...analysis,
+          // Convertir target_audience en string si c'est un objet
+          target_audience: typeof analysis.target_audience === 'string' 
+            ? analysis.target_audience 
+            : `${analysis.target_audience?.primary || 'Public cible'}, ${analysis.target_audience?.demographics?.age || '25-55 ans'}, ${analysis.target_audience?.demographics?.income || 'revenus moyens à élevés'}, ${analysis.target_audience?.demographics?.location || 'France'}`,
+          
+          // S'assurer que les autres champs existent
+          value_proposition: analysis.value_proposition || `Solution innovante pour ${business.industry}`,
+          competitors: Array.isArray(analysis.competitors) ? analysis.competitors : 
+            (analysis.market_overview?.key_players || ["Concurrent 1", "Concurrent 2", "Concurrent 3"]),
+          opportunities: Array.isArray(analysis.opportunities) ? analysis.opportunities :
+            (analysis.swot_analysis?.opportunities || ["Opportunité 1", "Opportunité 2", "Opportunité 3"]),
+          threats: Array.isArray(analysis.threats) ? analysis.threats :
+            (analysis.swot_analysis?.threats || ["Menace 1", "Menace 2", "Menace 3"])
+        };
+        
+        return transformedAnalysis;
       } catch (parseError) {
         console.error("[Agent Marché Simplifié] Erreur parsing JSON:", parseError);
         console.log("[Agent Marché Simplifié] Contenu reçu:", response.content?.substring(0, 500));
@@ -135,15 +153,12 @@ export function generateMinimalMarketAnalysis(business: any): any {
       strategic_positioning: `Innovation et service client dans ${business.industry}`,
       growth_forecast: "15-25% annuel"
     },
-    target_audience: {
-      primary: "PME et professionnels du secteur",
-      demographics: {
-        age: "25-50 ans",
-        income: "Moyen à élevé",
-        location: "France urbaine"
-      },
-      pain_points: ["Coûts élevés", "Manque d'efficacité", "Service limité"]
-    },
+    // Format string pour MongoDB
+    target_audience: `PME et professionnels du secteur ${business.industry}, 25-50 ans, revenus moyens à élevés, France urbaine`,
+    value_proposition: `Solutions innovantes et efficaces pour ${business.industry}`,
+    competitors: ["Leader du marché", "Challenger principal", "Acteur traditionnel"],
+    opportunities: ["Digitalisation du secteur", "Nouveaux besoins clients", "Expansion géographique"],
+    threats: ["Concurrence accrue", "Évolution réglementaire", "Incertitude économique"],
     market_overview: {
       market_size: "2-5 milliards EUR",
       growth_rate: "8% annuel",
