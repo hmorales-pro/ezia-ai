@@ -14,7 +14,8 @@ import {
   AlertCircle,
   Loader2,
   ArrowRight,
-  RefreshCw
+  RefreshCw,
+  RotateCw
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
@@ -57,6 +58,7 @@ export function AgentStatus({ business, onRefresh }: AgentStatusProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [allAnalysesComplete, setAllAnalysesComplete] = useState(false);
   const [rerunningAnalysis, setRerunningAnalysis] = useState<string | null>(null);
+  const [rerunningAll, setRerunningAll] = useState(false);
 
   useEffect(() => {
     // Vérifier si toutes les analyses sont terminées
@@ -165,17 +167,65 @@ export function AgentStatus({ business, onRefresh }: AgentStatusProps) {
     }
   };
 
+  const handleRerunAllAnalyses = async () => {
+    setRerunningAll(true);
+    try {
+      // Appeler l'API pour relancer toutes les analyses
+      await api.post(`/api/me/business/${business.business_id}/rerun-analysis`, {
+        analysisType: 'all'
+      });
+      
+      toast.success("Toutes les analyses ont été relancées");
+      
+      // Attendre un peu puis rafraîchir
+      setTimeout(() => {
+        if (onRefresh) {
+          onRefresh();
+        } else {
+          window.location.reload();
+        }
+        setRerunningAll(false);
+      }, 3000);
+      
+    } catch (error) {
+      console.error("Erreur lors de la relance de toutes les analyses:", error);
+      toast.error("Erreur lors de la relance des analyses");
+      setRerunningAll(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Analyses automatiques</span>
-          {allAnalysesComplete && (
-            <Badge variant="success" className="ml-2">
-              <CheckCircle2 className="w-3 h-3 mr-1" />
-              Toutes les analyses terminées
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {allAnalysesComplete && (
+              <Badge variant="success" className="ml-2">
+                <CheckCircle2 className="w-3 h-3 mr-1" />
+                Toutes les analyses terminées
+              </Badge>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRerunAllAnalyses}
+              disabled={rerunningAll || rerunningAnalysis !== null}
+              title="Relancer toutes les analyses"
+            >
+              {rerunningAll ? (
+                <>
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  Relance en cours...
+                </>
+              ) : (
+                <>
+                  <RotateCw className="w-3 h-3 mr-1" />
+                  Tout relancer
+                </>
+              )}
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

@@ -46,6 +46,68 @@ export async function POST(
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
 
+    // Si analysisType est "all", relancer toutes les analyses
+    if (analysisType === 'all') {
+      const allAnalysisTypes = ['market_analysis', 'competitor_analysis', 'marketing_strategy', 'website_prompt'];
+      
+      // Réinitialiser tous les statuts
+      await db.updateBusiness(businessId, {
+        agents_status: {
+          market_analysis: 'pending',
+          competitor_analysis: 'pending',
+          marketing_strategy: 'pending',
+          website_prompt: 'pending'
+        },
+        market_analysis: null,
+        marketing_strategy: null,
+        competitor_analysis: null,
+        website_prompt: null
+      });
+
+      // Lancer toutes les analyses de manière asynchrone
+      setTimeout(async () => {
+        for (const type of allAnalysisTypes) {
+          try {
+            await db.updateBusiness(businessId, {
+              agents_status: {
+                ...business.agents_status,
+                [type]: 'in_progress'
+              }
+            });
+
+            const analysisResult = await runAgentForAnalysis(
+              type,
+              business.name,
+              business.industry,
+              business.stage,
+              business.description
+            );
+
+            await db.updateBusiness(businessId, {
+              [type]: analysisResult,
+              agents_status: {
+                ...business.agents_status,
+                [type]: 'completed'
+              }
+            });
+          } catch (error) {
+            console.error(`Error running ${type}:`, error);
+            await db.updateBusiness(businessId, {
+              agents_status: {
+                ...business.agents_status,
+                [type]: 'failed'
+              }
+            });
+          }
+        }
+      }, 100);
+
+      return NextResponse.json({ 
+        success: true,
+        message: "Toutes les analyses ont été relancées"
+      });
+    }
+
     // Préparer les mises à jour
     const updates: any = {
       agents_status: {
