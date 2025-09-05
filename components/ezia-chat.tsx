@@ -17,7 +17,9 @@ import {
   Globe,
   Calendar,
   BarChart3,
-  MessageSquare
+  MessageSquare,
+  RefreshCcw,
+  Plus
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -66,6 +68,36 @@ const actionPrompts = {
     icon: BarChart3,
     title: "Analyse concurrentielle",
     initialPrompt: "Analysons tes concurrents pour {businessName}. Qui sont tes 3 principaux concurrents ?"
+  },
+  rerun_market_overview: {
+    icon: RefreshCcw,
+    title: "Relancer - Vue d'ensemble du marché",
+    initialPrompt: "Je vais relancer l'analyse de la vue d'ensemble du marché pour {businessName}. Y a-t-il des aspects spécifiques que tu veux que j'approfondisse ?"
+  },
+  deepen_market_overview: {
+    icon: Plus,
+    title: "Approfondir - Vue d'ensemble du marché",
+    initialPrompt: "Je vais approfondir l'analyse du marché pour {businessName}. Quels aspects souhaites-tu explorer davantage : taille du marché, tendances, segments, ou autre chose ?"
+  },
+  rerun_target_audience: {
+    icon: RefreshCcw,
+    title: "Relancer - Public cible",
+    initialPrompt: "Je vais relancer l'analyse du public cible pour {businessName}. Décris-moi plus précisément ta clientèle idéale."
+  },
+  deepen_target_audience: {
+    icon: Plus,
+    title: "Approfondir - Public cible",
+    initialPrompt: "Approfondissons l'analyse de ton public cible pour {businessName}. Quels comportements d'achat, motivations ou freins veux-tu explorer ?"
+  },
+  rerun_swot: {
+    icon: RefreshCcw,
+    title: "Relancer - Analyse SWOT",
+    initialPrompt: "Je vais refaire l'analyse SWOT pour {businessName}. Y a-t-il des changements récents dans ton environnement business ?"
+  },
+  deepen_swot: {
+    icon: Plus,
+    title: "Approfondir - Analyse SWOT",
+    initialPrompt: "Approfondissons l'analyse SWOT de {businessName}. Sur quoi veux-tu te concentrer : forces à exploiter, faiblesses à corriger, opportunités à saisir, ou menaces à anticiper ?"
   },
   branding: {
     icon: Sparkles,

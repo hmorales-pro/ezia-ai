@@ -448,7 +448,17 @@ function BusinessDetailPage() {
           
           <TabsContent value="market" className="space-y-4">
             {business.market_analysis ? (
-              <MarketAnalysisDisplay analysis={business.market_analysis} />
+              <MarketAnalysisDisplay 
+                analysis={business.market_analysis} 
+                onRerunSection={(section) => {
+                  setChatAction(`rerun_${section}`);
+                  setChatOpen(true);
+                }}
+                onDeepenSection={(section) => {
+                  setChatAction(`deepen_${section}`);
+                  setChatOpen(true);
+                }}
+              />
             ) : (
               <Card>
                 <CardHeader>

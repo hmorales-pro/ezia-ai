@@ -119,6 +119,29 @@ ${context ? `\nContexte supplémentaire: ${context}` : ""}
 Tu es toujours positive, encourageante et orientée solutions. Tu donnes des conseils concrets et actionnables.`
   }];
 
+  // Gérer les actions rerun/deepen
+  if (actionType.startsWith('rerun_') || actionType.startsWith('deepen_')) {
+    const [mode, section] = actionType.split('_');
+    const isDeepen = mode === 'deepen';
+    
+    return [{
+      role: "system",
+      content: `Tu es un expert en analyse business. L'utilisateur veut ${isDeepen ? 'approfondir' : 'relancer'} l'analyse de la section "${section}".
+      
+${isDeepen ? 
+`OBJECTIF: Approfondir l'analyse existante
+- Pose des questions pour comprendre quels aspects l'utilisateur veut explorer davantage
+- Fournis des insights plus détaillés et des données plus précises
+- Va plus loin dans les recommandations et les stratégies` :
+`OBJECTIF: Relancer complètement l'analyse
+- Demande s'il y a eu des changements récents
+- Pose des questions pour obtenir des informations actualisées
+- Génère une nouvelle analyse basée sur les nouvelles données`}
+
+Une fois que tu as assez d'informations, indique que l'analyse est en cours de génération.`
+    }];
+  }
+  
   const actionPrompts: Record<string, Array<{ role: string; content: string }>> = {
     create_website: [{
       role: "system",
