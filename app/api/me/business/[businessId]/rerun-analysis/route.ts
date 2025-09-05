@@ -68,9 +68,12 @@ export async function POST(
       setTimeout(async () => {
         for (const type of allAnalysisTypes) {
           try {
+            // Get the current business state to have the latest agents_status
+            let currentBusiness = await db.findBusinessById(businessId);
+            
             await db.updateBusiness(businessId, {
               agents_status: {
-                ...business.agents_status,
+                ...currentBusiness.agents_status,
                 [type]: 'in_progress'
               }
             });
@@ -83,18 +86,23 @@ export async function POST(
               business.description
             );
 
+            // Get updated business state again
+            currentBusiness = await db.findBusinessById(businessId);
+            
             await db.updateBusiness(businessId, {
               [type]: analysisResult,
               agents_status: {
-                ...business.agents_status,
+                ...currentBusiness.agents_status,
                 [type]: 'completed'
               }
             });
           } catch (error) {
             console.error(`Error running ${type}:`, error);
+            // Get updated business state for error handling
+            const currentBusiness = await db.findBusinessById(businessId);
             await db.updateBusiness(businessId, {
               agents_status: {
-                ...business.agents_status,
+                ...currentBusiness.agents_status,
                 [type]: 'failed'
               }
             });
@@ -133,10 +141,13 @@ export async function POST(
     // Lancer l'analyse de manière asynchrone
     setTimeout(async () => {
       try {
+        // Get current business state
+        let currentBusiness = await db.findBusinessById(businessId);
+        
         // Mettre à jour le statut en "in_progress"
         await db.updateBusiness(businessId, {
           agents_status: {
-            ...business.agents_status,
+            ...currentBusiness.agents_status,
             [analysisType]: 'in_progress'
           }
         });
@@ -150,11 +161,14 @@ export async function POST(
           business.description
         );
 
+        // Get updated business state before final update
+        currentBusiness = await db.findBusinessById(businessId);
+        
         // Sauvegarder les résultats
         const finalUpdate: any = {
           [analysisType]: analysisResult,
           agents_status: {
-            ...business.agents_status,
+            ...currentBusiness.agents_status,
             [analysisType]: 'completed'
           }
         };
@@ -163,10 +177,12 @@ export async function POST(
         
       } catch (error) {
         console.error(`Error running ${analysisType}:`, error);
+        // Get updated business state for error handling
+        const currentBusiness = await db.findBusinessById(businessId);
         // Mettre à jour le statut en cas d'erreur
         await db.updateBusiness(businessId, {
           agents_status: {
-            ...business.agents_status,
+            ...currentBusiness.agents_status,
             [analysisType]: 'failed'
           }
         });

@@ -26,6 +26,14 @@ interface MemoryBusiness {
     content_calendar?: Array<unknown>;
     [key: string]: unknown;
   };
+  competitor_analysis?: any;
+  website_prompt?: any;
+  agents_status?: {
+    market_analysis?: 'pending' | 'in_progress' | 'completed' | 'failed';
+    competitor_analysis?: 'pending' | 'in_progress' | 'completed' | 'failed';
+    marketing_strategy?: 'pending' | 'in_progress' | 'completed' | 'failed';
+    website_prompt?: 'pending' | 'in_progress' | 'completed' | 'failed';
+  };
   ezia_interactions?: Array<Record<string, unknown>>;
   metrics?: Record<string, unknown>;
   goals?: Array<unknown>;
@@ -166,13 +174,26 @@ class MemoryDB {
     }
   }
 
-  async updateBusiness(businessId: string, updates: Partial<MemoryBusiness>): Promise<void> {
+  async updateBusiness(businessId: string, updates: Partial<MemoryBusiness>): Promise<MemoryBusiness | null> {
     for (const business of this.businesses.values()) {
       if (business.business_id === businessId) {
-        Object.assign(business, updates, { _updatedAt: new Date() });
-        break;
+        // Handle nested objects like agents_status properly
+        if (updates.agents_status && business.agents_status) {
+          // Merge agents_status properly
+          business.agents_status = {
+            ...business.agents_status,
+            ...updates.agents_status
+          };
+          // Remove agents_status from updates to avoid overwriting the merged value
+          const { agents_status, ...otherUpdates } = updates;
+          Object.assign(business, otherUpdates, { _updatedAt: new Date() });
+        } else {
+          Object.assign(business, updates, { _updatedAt: new Date() });
+        }
+        return business;
       }
     }
+    return null;
   }
 
   // Méthodes pour les abonnements

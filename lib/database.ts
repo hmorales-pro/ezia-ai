@@ -115,7 +115,7 @@ export class Database {
     await this.initialize();
     
     if (this.useMemory) {
-      return this.memoryDB.update({ business_id: businessId }, updates);
+      return this.memoryDB.updateBusiness(businessId, updates);
     }
     
     const { Business } = await import("@/models/Business");

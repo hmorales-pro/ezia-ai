@@ -166,6 +166,18 @@ export interface IBusiness {
     }>;
   }>;
   
+  // Status des agents d'analyse
+  agents_status?: {
+    market_analysis?: 'pending' | 'in_progress' | 'completed' | 'failed';
+    competitor_analysis?: 'pending' | 'in_progress' | 'completed' | 'failed';
+    marketing_strategy?: 'pending' | 'in_progress' | 'completed' | 'failed';
+    website_prompt?: 'pending' | 'in_progress' | 'completed' | 'failed';
+  };
+  
+  // Analyses générées par les agents
+  competitor_analysis?: any;
+  website_prompt?: any;
+  
   // Metadata
   _createdAt: Date;
   _updatedAt: Date;
@@ -331,6 +343,30 @@ const BusinessSchema = new Schema<IBusiness>({
     partners: [{ type: String }],
     certifications: [{ type: String }]
   },
+  
+  // Status des agents d'analyse
+  agents_status: {
+    market_analysis: {
+      type: String,
+      enum: ['pending', 'in_progress', 'completed', 'failed']
+    },
+    competitor_analysis: {
+      type: String,
+      enum: ['pending', 'in_progress', 'completed', 'failed']
+    },
+    marketing_strategy: {
+      type: String,
+      enum: ['pending', 'in_progress', 'completed', 'failed']
+    },
+    website_prompt: {
+      type: String,
+      enum: ['pending', 'in_progress', 'completed', 'failed']
+    }
+  },
+  
+  // Analyses générées par les agents
+  competitor_analysis: { type: Schema.Types.Mixed },
+  website_prompt: { type: Schema.Types.Mixed },
   
   // Objectifs
   goals: [{
