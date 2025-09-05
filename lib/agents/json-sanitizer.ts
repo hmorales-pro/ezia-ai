@@ -58,6 +58,35 @@ export function extractAndCleanJson(content: string): string {
     .replace(/```\s*/gi, '')
     .trim();
   
+  // Try to find the start and end of JSON
+  const startIndex = jsonContent.indexOf('{');
+  if (startIndex === -1) {
+    throw new Error('No JSON object found in content');
+  }
+  
+  // Try to find matching closing brace
+  let braceCount = 0;
+  let endIndex = -1;
+  
+  for (let i = startIndex; i < jsonContent.length; i++) {
+    if (jsonContent[i] === '{') braceCount++;
+    else if (jsonContent[i] === '}') {
+      braceCount--;
+      if (braceCount === 0) {
+        endIndex = i;
+        break;
+      }
+    }
+  }
+  
+  if (endIndex === -1) {
+    // JSON is truncated, try to close it
+    console.warn('[JSON Sanitizer] JSON appears truncated, attempting to close it');
+    jsonContent = jsonContent.substring(startIndex) + '}';
+  } else {
+    jsonContent = jsonContent.substring(startIndex, endIndex + 1);
+  }
+  
   // Try to extract JSON object or array (non-greedy to get the first complete JSON)
   const jsonMatch = jsonContent.match(/(\{[\s\S]*?\}(?=\s*$)|\[[\s\S]*?\](?=\s*$)|\{[\s\S]*\}|\[[\s\S]*\])/);
   if (jsonMatch) {
@@ -121,7 +150,39 @@ export function parseAIGeneratedJson(content: string, removeMarkdown: boolean = 
     console.log('[JSON Sanitizer] Lenient parse failed, attempting reconstruction...');
   }
   
-  // Fourth attempt: try to reconstruct valid JSON
+  // Fourth attempt: try to fix truncated JSON
+  try {
+    // Check if JSON might be truncated
+    const lastChar = cleanedContent.trim().slice(-1);
+    if (lastChar !== '}' && lastChar !== ']') {
+      console.log('[JSON Sanitizer] Attempting to fix potentially truncated JSON');
+      
+      // Try to intelligently close the JSON
+      let fixedContent = cleanedContent;
+      
+      // Count open braces and brackets
+      const openBraces = (fixedContent.match(/\{/g) || []).length;
+      const closeBraces = (fixedContent.match(/\}/g) || []).length;
+      const openBrackets = (fixedContent.match(/\[/g) || []).length;
+      const closeBrackets = (fixedContent.match(/\]/g) || []).length;
+      
+      // Add missing closing characters
+      if (openBrackets > closeBrackets) {
+        fixedContent += ']'.repeat(openBrackets - closeBrackets);
+      }
+      if (openBraces > closeBraces) {
+        fixedContent += '}'.repeat(openBraces - closeBraces);
+      }
+      
+      // Try to parse the fixed content
+      const parsed = JSON.parse(fixedContent);
+      return removeMarkdown ? deepSanitizeObject(parsed) : parsed;
+    }
+  } catch (truncateFixError) {
+    console.log('[JSON Sanitizer] Truncation fix failed, trying final attempt');
+  }
+  
+  // Final attempt: try to reconstruct valid JSON
   try {
     // This is a last resort - try to eval the content as JavaScript object literal
     // and then stringify/parse to get valid JSON
@@ -137,11 +198,11 @@ export function parseAIGeneratedJson(content: string, removeMarkdown: boolean = 
     // Convert to JSON and back to ensure valid JSON
     const finalObj = removeMarkdown ? deepSanitizeObject(obj) : obj;
     return JSON.parse(JSON.stringify(finalObj));
-  } catch (fourthError) {
+  } catch (finalError) {
     console.error('[JSON Sanitizer] All parsing attempts failed');
     console.error('Original content (first 500 chars):', content.substring(0, 500));
     console.error('Cleaned content (first 500 chars):', cleanedContent.substring(0, 500));
-    throw new Error(`Failed to parse AI-generated JSON: ${fourthError.message}`);
+    throw new Error(`Failed to parse AI-generated JSON: ${finalError.message}`);
   }
 }
 

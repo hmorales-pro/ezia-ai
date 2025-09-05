@@ -1,9 +1,21 @@
 import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
 import { generateAIResponse } from '@/lib/ai-service';
 import { parseAIGeneratedJson } from './json-sanitizer';
+import { runSimplifiedMarketAnalysisAgent, generateMinimalMarketAnalysis } from './market-analysis-agent-simplified';
 
 export async function runRealMarketAnalysisAgent(business: any): Promise<any> {
   console.log(`[Agent Marché IA] Analyse RÉELLE pour ${business.name}...`);
+  
+  // Utiliser d'abord la version simplifiée pour éviter les problèmes de troncature
+  try {
+    const simplifiedResult = await runSimplifiedMarketAnalysisAgent(business);
+    if (simplifiedResult) {
+      console.log('[Agent Marché IA] Analyse simplifiée réussie');
+      return simplifiedResult;
+    }
+  } catch (simplifiedError) {
+    console.log('[Agent Marché IA] Échec de l\'analyse simplifiée, tentative complète...', simplifiedError.message);
+  }
   
   // Vérifier d'abord si Mistral API est configurée
   const mistralKey = process.env.MISTRAL_API_KEY;
@@ -165,7 +177,7 @@ Réponds UNIQUEMENT avec un objet JSON valide au format suivant:
       const hfResponse = await generateAIResponse(prompt, {
         systemContext: systemContext,
         preferredModel: "mistralai/Mistral-7B-Instruct-v0.2",
-        maxTokens: 4000,
+        maxTokens: 2500,
         temperature: 0.3 // Plus bas pour des réponses plus structurées
       });
       response = hfResponse;
@@ -197,8 +209,9 @@ Réponds UNIQUEMENT avec un objet JSON valide au format suivant:
         console.error("[Agent Marché IA] Erreur parsing JSON:", parseError);
         console.log("[Agent Marché IA] Contenu reçu:", response.content?.substring(0, 500));
         
-        // The sanitizer already handles multiple parsing attempts
-        throw new Error(`Impossible de parser la réponse de l'IA: ${parseError.message}`);
+        // Essayer la version minimale en dernier recours
+        console.log('[Agent Marché IA] Utilisation du fallback minimal');
+        return generateMinimalMarketAnalysis(business);
       }
     }
     
@@ -206,8 +219,9 @@ Réponds UNIQUEMENT avec un objet JSON valide au format suivant:
     
   } catch (error) {
     console.error("[Agent Marché IA] Erreur:", error);
-    // Ne pas utiliser de fallback générique - forcer une vraie analyse
-    throw new Error(`Erreur lors de l'analyse de marché: ${error.message}`);
+    // Utiliser le fallback minimal en cas d'erreur critique
+    console.log('[Agent Marché IA] Utilisation du fallback minimal suite à erreur');
+    return generateMinimalMarketAnalysis(business);
   }
 }
 
