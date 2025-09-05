@@ -53,18 +53,8 @@ interface Business {
   existingWebsiteUrl?: string;
   websiteGeneratedAt?: string;
   social_media?: Record<string, string>;
-  market_analysis?: {
-    target_audience: string;
-    value_proposition: string;
-    competitors?: string[];
-    opportunities?: string[];
-    threats?: string[];
-  };
-  marketing_strategy?: {
-    positioning: string;
-    key_messages: string[];
-    channels: string[];
-  };
+  market_analysis?: any;
+  marketing_strategy?: any;
   ezia_interactions?: Array<{
     timestamp: string;
     agent: string;

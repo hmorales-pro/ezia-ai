@@ -31,30 +31,11 @@ export interface IBusiness {
     youtube?: string;
   };
   
-  // Analyse de marché (généré par les agents)
-  market_analysis: {
-    target_audience: string;
-    value_proposition: string;
-    market_size?: string;
-    competitors?: string[];
-    opportunities?: string[];
-    threats?: string[];
-    last_updated?: Date;
-  };
+  // Analyse de marché (généré par les agents) - structure complète flexible
+  market_analysis?: any;
   
-  // Marketing (généré par les agents)
-  marketing_strategy: {
-    positioning: string;
-    key_messages: string[];
-    channels: string[];
-    content_calendar?: Array<{
-      date: Date;
-      type: string;
-      content: string;
-      status: 'draft' | 'scheduled' | 'published';
-    }>;
-    last_updated?: Date;
-  };
+  // Marketing (généré par les agents) - structure complète flexible
+  marketing_strategy?: any;
   
   // Historique des interactions avec Ezia
   ezia_interactions: Array<{
@@ -218,33 +199,11 @@ const BusinessSchema = new Schema<IBusiness>({
     youtube: { type: String }
   },
   
-  // Analyse de marché
-  market_analysis: {
-    target_audience: { type: String },
-    value_proposition: { type: String },
-    market_size: { type: String },
-    competitors: [{ type: String }],
-    opportunities: [{ type: String }],
-    threats: [{ type: String }],
-    last_updated: { type: Date }
-  },
+  // Analyse de marché (stocke la structure complète des agents)
+  market_analysis: { type: Schema.Types.Mixed },
   
-  // Marketing
-  marketing_strategy: {
-    positioning: { type: String },
-    key_messages: [{ type: String }],
-    channels: [{ type: String }],
-    content_calendar: [{
-      date: { type: Date },
-      type: { type: String },
-      content: { type: String },
-      status: {
-        type: String,
-        enum: ['draft', 'scheduled', 'published']
-      }
-    }],
-    last_updated: { type: Date }
-  },
+  // Marketing (stocke la structure complète des agents)
+  marketing_strategy: { type: Schema.Types.Mixed },
   
   // Historique Ezia
   ezia_interactions: {
