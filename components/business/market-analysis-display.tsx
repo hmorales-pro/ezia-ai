@@ -20,12 +20,15 @@ import {
   Info
 } from "lucide-react";
 import { SourcesDisplay } from "./sources-display";
+import { DeepenButton } from "./deepen-button";
 
 interface MarketAnalysisDisplayProps {
   analysis: any;
+  businessId?: string;
+  onDeepen?: (section: string, analysisType: string) => Promise<void>;
 }
 
-export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) {
+export function MarketAnalysisDisplay({ analysis, businessId, onDeepen }: MarketAnalysisDisplayProps) {
   if (!analysis) return null;
 
   // Helper to check if an object has any non-empty values
@@ -685,7 +688,17 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
             <>
             <Card>
               <CardHeader>
-                <CardTitle>Analyse PESTEL</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  Analyse PESTEL
+                  {businessId && onDeepen && (
+                    <DeepenButton
+                      section="pestel_analysis"
+                      businessId={businessId}
+                      analysisType="market"
+                      onDeepen={onDeepen}
+                    />
+                  )}
+                </CardTitle>
                 <CardDescription>Facteurs macro-environnementaux affectant le marché</CardDescription>
               </CardHeader>
               <CardContent>
@@ -726,7 +739,17 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
             <>
             <Card>
               <CardHeader>
-                <CardTitle>Analyse PESTEL</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  Analyse PESTEL
+                  {businessId && onDeepen && (
+                    <DeepenButton
+                      section="pestel_analysis"
+                      businessId={businessId}
+                      analysisType="market"
+                      onDeepen={onDeepen}
+                    />
+                  )}
+                </CardTitle>
                 <CardDescription>Facteurs macro-environnementaux affectant le marché</CardDescription>
               </CardHeader>
               <CardContent>
@@ -784,7 +807,17 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
           ) : (
             <Card>
               <CardHeader>
-                <CardTitle>Analyse PESTEL</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  Analyse PESTEL
+                  {businessId && onDeepen && (
+                    <DeepenButton
+                      section="pestel_analysis"
+                      businessId={businessId}
+                      analysisType="market"
+                      onDeepen={onDeepen}
+                    />
+                  )}
+                </CardTitle>
                 <CardDescription>Facteurs macro-environnementaux affectant le marché</CardDescription>
               </CardHeader>
               <CardContent>

@@ -183,6 +183,29 @@ function BusinessDetailPage() {
     }
   }, [business?.agents_status, businessId]);
 
+  const handleDeepen = async (section: string, analysisType: string) => {
+    try {
+      const response = await api.post(`/api/businesses/${businessId}/deepen-section`, {
+        section,
+        analysisType
+      });
+      
+      if (response.data.success) {
+        toast.success('Section approfondie avec succès', {
+          description: `La section a été enrichie avec plus de détails`
+        });
+        
+        // Rafraîchir les données
+        await fetchBusiness();
+      }
+    } catch (error) {
+      console.error('Erreur approfondissement:', error);
+      toast.error('Échec de l\'approfondissement', {
+        description: 'Impossible d\'approfondir cette section pour le moment'
+      });
+    }
+  };
+
   const fetchBusiness = async () => {
     try {
       if (!business) {
@@ -450,6 +473,8 @@ function BusinessDetailPage() {
             {business.market_analysis ? (
               <MarketAnalysisDisplay 
                 analysis={business.market_analysis} 
+                businessId={businessId}
+                onDeepen={handleDeepen}
               />
             ) : (
               <Card>
