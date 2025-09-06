@@ -5,6 +5,18 @@ import { parseAIGeneratedJson } from './json-sanitizer';
 export async function runRealCompetitorAnalysisAgent(business: any): Promise<any> {
   console.log(`[Agent Concurrent IA] Analyse RÉELLE pour ${business.name}...`);
   
+  // Essayer d'abord la version simplifiée
+  try {
+    const { runSimplifiedCompetitorAnalysisAgent } = await import('./competitor-analysis-agent-simplified');
+    const simplifiedResult = await runSimplifiedCompetitorAnalysisAgent(business);
+    if (simplifiedResult) {
+      console.log('[Agent Concurrent IA] Utilisation de l\'analyse simplifiée');
+      return simplifiedResult;
+    }
+  } catch (simplifiedError) {
+    console.log('[Agent Concurrent IA] Erreur avec la version simplifiée, tentative complète...');
+  }
+  
   const mistralKey = process.env.MISTRAL_API_KEY;
   const useMistral = mistralKey && mistralKey !== 'placeholder' && mistralKey.length > 10;
   

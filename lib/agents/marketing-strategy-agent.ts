@@ -5,6 +5,85 @@ import { parseAIGeneratedJson } from './json-sanitizer';
 export async function runRealMarketingStrategyAgent(business: any, marketAnalysis: any): Promise<any> {
   console.log(`[Agent Marketing IA] Stratégie RÉELLE pour ${business.name}...`);
   
+  // Essayer d'abord la version simplifiée pour éviter les problèmes de troncature
+  try {
+    const { runSimplifiedMarketingStrategyAgent } = await import('./marketing-strategy-agent-simplified');
+    const simplifiedResult = await runSimplifiedMarketingStrategyAgent(business, marketAnalysis);
+    if (simplifiedResult) {
+      console.log('[Agent Marketing IA] Utilisation de la stratégie simplifiée');
+      // Enrichir avec des champs supplémentaires basiques
+      return {
+        executive_summary: {
+          vision: simplifiedResult.vision,
+          mission: simplifiedResult.mission,
+          unique_value_proposition: simplifiedResult.unique_value_proposition,
+          target_roi: "200% en 2 ans"
+        },
+        brand_positioning: {
+          brand_essence: `${business.name} - Excellence`,
+          brand_promise: simplifiedResult.mission,
+          brand_personality: ["Innovant", "Fiable"],
+          brand_values: ["Excellence", "Innovation"],
+          positioning_statement: simplifiedResult.positioning,
+          competitive_advantages: ["Service", "Qualité"]
+        },
+        target_segments: [{
+          name: "Segment principal",
+          description: `Cœur de cible ${business.industry}`,
+          size: "60%",
+          characteristics: ["Urbains", "CSP+"],
+          pain_points: ["Temps", "Qualité"],
+          preferred_channels: simplifiedResult.channels,
+          budget: "Moyen+"
+        }],
+        marketing_mix: {
+          product: {
+            core_offerings: ["Offre principale"],
+            unique_features: ["Innovation"],
+            quality_indicators: ["Certifié"],
+            innovation_pipeline: ["R&D"]
+          },
+          price: {
+            strategy: "Premium accessible",
+            positioning: simplifiedResult.positioning,
+            model: "Flexible",
+            tactics: ["Promos ciblées"]
+          },
+          place: {
+            distribution_channels: simplifiedResult.channels,
+            geographic_focus: ["Paris"],
+            online_presence: ["Site web"],
+            partnerships: ["Partenaires clés"]
+          },
+          promotion: {
+            key_messages: simplifiedResult.key_messages,
+            campaign_themes: ["Lancement"],
+            content_pillars: simplifiedResult.content_pillars,
+            promotional_tactics: ["Digital", "PR"]
+          }
+        },
+        channel_strategy: simplifiedResult.channels.map((channel: string) => ({
+          channel,
+          priority: 'high',
+          objectives: ["Acquisition"],
+          tactics: ["Contenu", "Ads"],
+          kpis: ["ROI", "Leads"],
+          budget_allocation: 50 / simplifiedResult.channels.length
+        })),
+        implementation_roadmap: simplifiedResult.immediate_actions.map((action: any, idx: number) => ({
+          phase: `Phase ${idx + 1}`,
+          duration: action.timeline,
+          objectives: [action.action],
+          key_activities: [action.action],
+          success_criteria: ["KPIs atteints"],
+          budget: "À définir"
+        }))
+      };
+    }
+  } catch (simplifiedError) {
+    console.log('[Agent Marketing IA] Erreur avec la version simplifiée, tentative complète...');
+  }
+  
   const mistralKey = process.env.MISTRAL_API_KEY;
   const useMistral = mistralKey && mistralKey !== 'placeholder' && mistralKey.length > 10;
   
