@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from 'jsonwebtoken';
-import { runAgentForAnalysis } from "@/lib/agents";
+import { runAgentForAnalysis, runAllAgentsForBusiness } from "@/lib/agents";
 import { getDB } from '@/lib/database';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -48,8 +48,6 @@ export async function POST(
 
     // Si analysisType est "all", relancer toutes les analyses
     if (analysisType === 'all') {
-      const allAnalysisTypes = ['market_analysis', 'competitor_analysis', 'marketing_strategy', 'website_prompt'];
-      
       // Réinitialiser tous les statuts
       await db.updateBusiness(businessId, {
         agents_status: {
@@ -66,57 +64,48 @@ export async function POST(
 
       // Lancer toutes les analyses de manière asynchrone
       setTimeout(async () => {
-        for (const type of allAnalysisTypes) {
-          try {
-            // Get the current business state to have the latest agents_status
-            let currentBusiness = await db.findBusinessById(businessId);
-            
-            await db.updateBusiness(businessId, {
-              agents_status: {
-                ...currentBusiness.agents_status,
-                [type]: 'in_progress'
-              }
-            });
-
-            const analysisResult = await runAgentForAnalysis(
-              type,
-              business.name,
-              business.industry,
-              business.stage,
-              business.description
-            );
-
-            // Get updated business state again
-            currentBusiness = await db.findBusinessById(businessId);
-            
-            const updateData = {
-              [type]: analysisResult,
-              agents_status: {
-                ...currentBusiness.agents_status,
-                [type]: 'completed'
-              }
-            };
-            
-            console.log(`[Rerun Analysis] Updating ${type} with data:`, JSON.stringify(analysisResult).substring(0, 200));
-            
-            const updateResult = await db.updateBusiness(businessId, updateData);
-            
-            if (!updateResult) {
-              console.error(`[Rerun Analysis] Failed to update ${type} for business ${businessId}`);
-            } else {
-              console.log(`[Rerun Analysis] Successfully updated ${type} for business ${businessId}`);
+        try {
+          console.log(`[Rerun Analysis] Démarrage de toutes les analyses pour ${business.name}`);
+          
+          // Marquer toutes comme "in_progress"
+          await db.updateBusiness(businessId, {
+            agents_status: {
+              market_analysis: 'in_progress',
+              competitor_analysis: 'in_progress',
+              marketing_strategy: 'in_progress',
+              website_prompt: 'in_progress'
             }
-          } catch (error) {
-            console.error(`Error running ${type}:`, error);
-            // Get updated business state for error handling
-            const currentBusiness = await db.findBusinessById(businessId);
-            await db.updateBusiness(businessId, {
-              agents_status: {
-                ...currentBusiness.agents_status,
-                [type]: 'failed'
-              }
-            });
-          }
+          });
+          
+          // Utiliser la fonction qui lance toutes les analyses en parallèle
+          const analysisResults = await runAllAgentsForBusiness(business);
+          
+          console.log(`[Rerun Analysis] Toutes les analyses terminées pour ${business.name}`);
+          
+          // Sauvegarder tous les résultats
+          await db.updateBusiness(businessId, {
+            ...analysisResults,
+            agents_status: {
+              market_analysis: 'completed',
+              competitor_analysis: 'completed',
+              marketing_strategy: 'completed',
+              website_prompt: 'completed'
+            }
+          });
+          
+          console.log(`[Rerun Analysis] Résultats sauvegardés pour ${business.name}`);
+          
+        } catch (error) {
+          console.error(`[Rerun Analysis] Erreur globale:`, error);
+          // En cas d'erreur, marquer toutes comme failed
+          await db.updateBusiness(businessId, {
+            agents_status: {
+              market_analysis: 'failed',
+              competitor_analysis: 'failed',
+              marketing_strategy: 'failed',
+              website_prompt: 'failed'
+            }
+          });
         }
       }, 100);
 
