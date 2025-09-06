@@ -156,6 +156,13 @@ docker build -t ezia-ai .
 docker run -p 3000:3000 --env-file .env.production ezia-ai
 ```
 
+## 🚀 Déploiement Preprod
+
+Pour le déploiement preprod avec Dokploy, consultez [docs/PREPROD_CONFIG.md](docs/PREPROD_CONFIG.md) pour :
+- Configuration MongoDB Atlas
+- Configuration des APIs IA (Mistral/HuggingFace)
+- Résolution des problèmes courants
+
 ## 📂 Structure du Projet
 
 ```

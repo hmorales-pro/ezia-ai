@@ -80,9 +80,30 @@ export function extractAndCleanJson(content: string): string {
   }
   
   if (endIndex === -1) {
-    // JSON is truncated, try to close it
+    // JSON is truncated, try to close it properly
     console.warn('[JSON Sanitizer] JSON appears truncated, attempting to close it');
-    jsonContent = jsonContent.substring(startIndex) + '}';
+    // First, try to find the last complete property
+    let contentToClose = jsonContent.substring(startIndex);
+    
+    // Remove any incomplete property at the end
+    const lastComma = contentToClose.lastIndexOf(',');
+    const lastQuote = contentToClose.lastIndexOf('"');
+    const lastColon = contentToClose.lastIndexOf(':');
+    
+    if (lastComma > lastColon && lastComma > lastQuote - 5) {
+      // We have a trailing comma, remove everything after it
+      contentToClose = contentToClose.substring(0, lastComma);
+    }
+    
+    // Close any open arrays or objects
+    const openBrackets = (contentToClose.match(/\[/g) || []).length;
+    const closeBrackets = (contentToClose.match(/\]/g) || []).length;
+    const openBraces = (contentToClose.match(/\{/g) || []).length;
+    const closeBraces = (contentToClose.match(/\}/g) || []).length;
+    
+    jsonContent = contentToClose + 
+      ']'.repeat(Math.max(0, openBrackets - closeBrackets)) +
+      '}'.repeat(Math.max(0, openBraces - closeBraces));
   } else {
     jsonContent = jsonContent.substring(startIndex, endIndex + 1);
   }

@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, 
   Target, 
@@ -18,18 +17,14 @@ import {
   Activity,
   Briefcase,
   Zap,
-  Info,
-  RefreshCw,
-  Plus
+  Info
 } from "lucide-react";
 
 interface MarketAnalysisDisplayProps {
   analysis: any;
-  onRerunSection?: (section: string) => void;
-  onDeepenSection?: (section: string) => void;
 }
 
-export function MarketAnalysisDisplay({ analysis, onRerunSection, onDeepenSection }: MarketAnalysisDisplayProps) {
+export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) {
   if (!analysis) return null;
 
   // Helper to check if an object has any non-empty values
@@ -130,29 +125,6 @@ export function MarketAnalysisDisplay({ analysis, onRerunSection, onDeepenSectio
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          {/* Action buttons */}
-          {(hasData(analysis.market_overview) || hasData(analysis.trends_analysis)) && (
-            <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onRerunSection?.("market_overview")}
-                className="gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Relancer l'analyse
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onDeepenSection?.("market_overview")}
-                className="gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Approfondir
-              </Button>
-            </div>
-          )}
           {/* Market Overview */}
           {hasData(analysis.market_overview) && (
             <Card>
@@ -316,27 +288,6 @@ export function MarketAnalysisDisplay({ analysis, onRerunSection, onDeepenSectio
         <TabsContent value="audience" className="space-y-4">
           {hasData(analysis.target_audience) ? (
             <>
-              {/* Action buttons */}
-              <div className="flex gap-2 justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onRerunSection?.("target_audience")}
-                  className="gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Relancer l'analyse
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onDeepenSection?.("target_audience")}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Approfondir
-                </Button>
-              </div>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -436,27 +387,6 @@ export function MarketAnalysisDisplay({ analysis, onRerunSection, onDeepenSectio
         <TabsContent value="pestel" className="space-y-4">
           {analysis.pestel_analysis && Object.keys(analysis.pestel_analysis).length > 0 ? (
             <>
-              {/* Action buttons */}
-              <div className="flex gap-2 justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onRerunSection?.("pestel_analysis")}
-                  className="gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Relancer l'analyse
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onDeepenSection?.("pestel_analysis")}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Approfondir
-                </Button>
-              </div>
             <Card>
               <CardHeader>
                 <CardTitle>Analyse PESTEL</CardTitle>
@@ -534,27 +464,6 @@ export function MarketAnalysisDisplay({ analysis, onRerunSection, onDeepenSectio
         <TabsContent value="porter" className="space-y-4">
           {analysis.porter_five_forces && Object.keys(analysis.porter_five_forces).length > 0 ? (
             <>
-              {/* Action buttons */}
-              <div className="flex gap-2 justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onRerunSection?.("porter_five_forces")}
-                  className="gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Relancer l'analyse
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onDeepenSection?.("porter_five_forces")}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Approfondir
-                </Button>
-              </div>
             <Card>
               <CardHeader>
                 <CardTitle>Analyse des 5 Forces de Porter</CardTitle>
@@ -685,28 +594,6 @@ export function MarketAnalysisDisplay({ analysis, onRerunSection, onDeepenSectio
 
         <TabsContent value="swot" className="space-y-4">
           {/* Action buttons */}
-          {analysis.swot_analysis && hasData(analysis.swot_analysis) && (
-            <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onRerunSection?.("swot_analysis")}
-                className="gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Relancer l'analyse
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onDeepenSection?.("swot_analysis")}
-                className="gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Approfondir
-              </Button>
-            </div>
-          )}
           <Card>
             <CardHeader>
               <CardTitle>Analyse SWOT</CardTitle>
@@ -799,29 +686,6 @@ export function MarketAnalysisDisplay({ analysis, onRerunSection, onDeepenSectio
         </TabsContent>
 
         <TabsContent value="strategy" className="space-y-4">
-          {/* Action buttons */}
-          {(hasData(analysis.strategic_recommendations) || hasData(analysis.competitive_benchmark)) && (
-            <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onRerunSection?.("strategic_recommendations")}
-                className="gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Relancer l'analyse
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onDeepenSection?.("strategic_recommendations")}
-                className="gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Approfondir
-              </Button>
-            </div>
-          )}
           
           {/* Strategic Recommendations */}
           {hasData(analysis.strategic_recommendations) ? (

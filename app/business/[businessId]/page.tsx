@@ -450,14 +450,6 @@ function BusinessDetailPage() {
             {business.market_analysis ? (
               <MarketAnalysisDisplay 
                 analysis={business.market_analysis} 
-                onRerunSection={(section) => {
-                  setChatAction(`rerun_${section}`);
-                  setChatOpen(true);
-                }}
-                onDeepenSection={(section) => {
-                  setChatAction(`deepen_${section}`);
-                  setChatOpen(true);
-                }}
               />
             ) : (
               <Card>

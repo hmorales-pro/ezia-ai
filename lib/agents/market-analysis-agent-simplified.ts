@@ -14,54 +14,40 @@ export async function runSimplifiedMarketAnalysisAgent(business: any): Promise<a
   const systemContext = `Tu es un expert en analyse de marché. 
 RÈGLES CRITIQUES:
 1. Réponds UNIQUEMENT en JSON valide, sans texte avant/après
-2. Sois ULTRA CONCIS (max 15 mots par champ texte)
-3. Limite TOUS les tableaux à 3 éléments MAXIMUM
+2. Sois ULTRA CONCIS (max 10 mots par champ)
+3. Limite TOUS les tableaux à 2 éléments MAXIMUM
 4. Utilise uniquement des guillemets doubles "
 5. Pas de markdown, pas d'émojis, pas de caractères spéciaux
-6. JSON total DOIT être < 1500 caractères
-7. Si tu dépasses la limite, COUPE le contenu plutôt que de tronquer le JSON`;
+6. JSON total DOIT être < 1000 caractères
+7. TERMINE TOUJOURS le JSON correctement avec }`;
 
-  const prompt = `Analyse concise du marché pour:
-${business.name} - ${business.industry}
-Description: ${business.description}
+  const prompt = `Analyse pour: ${business.name} (${business.industry})
 
-Retourne EXACTEMENT ce JSON (remplace les valeurs entre guillemets):
+JSON requis (max 10 mots/champ, 2 items/tableau):
 {
   "executive_summary": {
-    "key_findings": ["Découverte 1", "Découverte 2", "Découverte 3"],
-    "market_opportunity": "Opportunité principale (15 mots max)",
-    "strategic_positioning": "Positionnement (15 mots max)",
-    "growth_forecast": "10-20%"
+    "key_findings": ["Point 1", "Point 2"],
+    "market_opportunity": "Opportunité",
+    "growth_forecast": "15%"
   },
-  "target_audience": {
-    "primary": "Segment principal",
-    "demographics": {
-      "age": "25-45",
-      "income": "Moyen+",
-      "location": "France"
-    },
-    "pain_points": ["Problème 1", "Problème 2", "Problème 3"]
-  },
+  "target_audience": "Clients cibles",
   "market_overview": {
-    "market_size": "X milliards EUR",
+    "market_size": "X M€",
     "growth_rate": "X%",
-    "key_players": ["Concurrent 1", "Concurrent 2", "Concurrent 3"]
+    "key_players": ["Leader 1", "Leader 2"]
   },
   "swot_analysis": {
-    "strengths": ["Force 1", "Force 2", "Force 3"],
-    "weaknesses": ["Faiblesse 1", "Faiblesse 2", "Faiblesse 3"],
-    "opportunities": ["Opportunité 1", "Opportunité 2", "Opportunité 3"],
-    "threats": ["Menace 1", "Menace 2", "Menace 3"]
+    "strengths": ["Force 1", "Force 2"],
+    "weaknesses": ["Faiblesse 1", "Faiblesse 2"],
+    "opportunities": ["Opportunité 1", "Opportunité 2"],
+    "threats": ["Menace 1", "Menace 2"]
   },
   "strategic_recommendations": {
-    "immediate_actions": [
-      {
-        "action": "Action prioritaire",
-        "impact": "high",
-        "timeline": "2 mois"
-      }
-    ],
-    "long_term_vision": "Vision à 5 ans (15 mots max)"
+    "immediate_actions": [{
+      "action": "Priorité",
+      "impact": "high",
+      "timeline": "2m"
+    }]
   }
 }`;
 
@@ -76,7 +62,7 @@ Retourne EXACTEMENT ce JSON (remplace les valeurs entre guillemets):
       response = await generateAIResponse(prompt, {
         systemContext: systemContext,
         preferredModel: "mistralai/Mistral-7B-Instruct-v0.2",
-        maxTokens: 2000, // Augmenté pour permettre des réponses JSON complètes
+        maxTokens: 1500, // Limité pour forcer des réponses concises
         temperature: 0.3
       });
     }
@@ -140,39 +126,29 @@ Retourne EXACTEMENT ce JSON (remplace les valeurs entre guillemets):
 export function generateMinimalMarketAnalysis(business: any): any {
   const currentYear = new Date().getFullYear();
   
+  const industryName = business.industry || "votre secteur";
+  const businessName = business.name || "votre entreprise";
+  
   return {
     executive_summary: {
       key_findings: [
-        `Marché ${business.industry} en croissance`,
-        "Opportunités digitales importantes",
-        "Concurrence fragmentée"
+        `Marché ${industryName} en croissance`,
+        "Fort potentiel digital"
       ],
-      market_opportunity: `Potentiel de croissance dans ${business.industry}`,
-      strategic_positioning: `Innovation et service client dans ${business.industry}`,
-      growth_forecast: "15-25% annuel"
+      market_opportunity: `Croissance dans ${industryName}`,
+      strategic_positioning: `Innovation dans ${industryName}`,
+      growth_forecast: "15-25%"
     },
-    // Format string pour MongoDB
-    target_audience: `PME et professionnels du secteur ${business.industry}, 25-50 ans, revenus moyens à élevés, France urbaine`,
-    value_proposition: `Solutions innovantes et efficaces pour ${business.industry}`,
-    competitors: ["Leader du marché", "Challenger principal", "Acteur traditionnel"],
-    opportunities: ["Digitalisation du secteur", "Nouveaux besoins clients", "Expansion géographique"],
-    threats: ["Concurrence accrue", "Évolution réglementaire", "Incertitude économique"],
+    // Format string pour MongoDB - IMPORTANT
+    target_audience: `PME et pros ${industryName}, 25-50 ans, France`,
+    value_proposition: `Solutions pour ${industryName}`,
+    competitors: ["Leader marché", "Challenger"],
+    opportunities: ["Digital", "Nouveaux besoins"],
+    threats: ["Concurrence", "Réglementation"],
     market_overview: {
-      market_size: "2-5 milliards EUR",
-      growth_rate: "8% annuel",
-      key_players: ["Leader 1", "Leader 2", "Challenger 1"],
-      market_segments: [
-        {
-          name: "Entreprises",
-          size: "60%",
-          growth: "10%"
-        },
-        {
-          name: "Particuliers",
-          size: "40%",
-          growth: "5%"
-        }
-      ]
+      market_size: "2-5 Mds€",
+      growth_rate: "8%",
+      key_players: ["Leader 1", "Leader 2"]
     },
     swot_analysis: {
       strengths: ["Innovation", "Agilité", "Vision claire"],
