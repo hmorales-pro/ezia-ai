@@ -19,6 +19,7 @@ import {
   Zap,
   Info
 } from "lucide-react";
+import { SourcesDisplay } from "./sources-display";
 
 interface MarketAnalysisDisplayProps {
   analysis: any;
@@ -885,6 +886,13 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
           )}
         </TabsContent>
       </Tabs>
+      
+      {/* Sources de l'analyse */}
+      {analysis.sources && (
+        <div className="mt-8">
+          <SourcesDisplay sources={analysis.sources} analysisType="market" />
+        </div>
+      )}
     </div>
   );
 }
