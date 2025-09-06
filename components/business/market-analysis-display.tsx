@@ -302,13 +302,27 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
                     {analysis.target_audience.primary && (
                       <div className="bg-purple-50 p-4 rounded-lg">
                         <h4 className="font-medium text-[#6D3FC8] mb-2">Cible principale</h4>
-                        <p className="text-sm">{analysis.target_audience.primary}</p>
+                        <p className="text-sm">
+                          {typeof analysis.target_audience.primary === 'string' 
+                            ? analysis.target_audience.primary 
+                            : analysis.target_audience.primary.description || 'Cible principale à définir'}
+                        </p>
+                        {typeof analysis.target_audience.primary === 'object' && analysis.target_audience.primary.size && (
+                          <p className="text-xs text-[#6D3FC8] mt-1">Taille: {analysis.target_audience.primary.size}</p>
+                        )}
                       </div>
                     )}
                     {analysis.target_audience.secondary && (
                       <div className="bg-blue-50 p-4 rounded-lg">
                         <h4 className="font-medium text-blue-700 mb-2">Cible secondaire</h4>
-                        <p className="text-sm">{analysis.target_audience.secondary}</p>
+                        <p className="text-sm">
+                          {typeof analysis.target_audience.secondary === 'string' 
+                            ? analysis.target_audience.secondary 
+                            : analysis.target_audience.secondary.description || 'Cible secondaire à définir'}
+                        </p>
+                        {typeof analysis.target_audience.secondary === 'object' && analysis.target_audience.secondary.size && (
+                          <p className="text-xs text-blue-700 mt-1">Taille: {analysis.target_audience.secondary.size}</p>
+                        )}
                       </div>
                     )}
                   </div>

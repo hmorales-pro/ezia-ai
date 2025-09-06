@@ -171,9 +171,17 @@ ${JSON.stringify(exampleJson, null, 2)}`;
         systemContext
       );
       
-      if (searchResponse.success) {
-        response = searchResponse;
-        console.log('[Agent Concurrent Simplifié] Données concurrentielles web intégrées');
+      if (searchResponse.success && searchResponse.content) {
+        // Vérifier si le contenu est du JSON valide
+        try {
+          JSON.parse(searchResponse.content);
+          response = searchResponse;
+          console.log('[Agent Concurrent Simplifié] Données concurrentielles web intégrées avec JSON valide');
+        } catch (e) {
+          // Si ce n'est pas du JSON valide, utiliser l'API standard avec format JSON
+          console.log('[Agent Concurrent Simplifié] Réponse web non-JSON, fallback vers API standard');
+          response = await generateWithMistralAPI(prompt, systemContext);
+        }
       } else {
         // Fallback vers l'API standard
         response = await generateWithMistralAPI(prompt, systemContext);

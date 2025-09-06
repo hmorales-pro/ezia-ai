@@ -328,9 +328,17 @@ ${JSON.stringify(exampleJson, null, 2)}`;
         systemContext
       );
       
-      if (searchResponse.success) {
-        response = searchResponse;
-        console.log('[Agent Marché Simplifié] Données web intégrées');
+      if (searchResponse.success && searchResponse.content) {
+        // Vérifier si le contenu est du JSON valide
+        try {
+          JSON.parse(searchResponse.content);
+          response = searchResponse;
+          console.log('[Agent Marché Simplifié] Données web intégrées avec JSON valide');
+        } catch (e) {
+          // Si ce n'est pas du JSON valide, utiliser l'API standard avec format JSON
+          console.log('[Agent Marché Simplifié] Réponse web non-JSON, fallback vers API standard');
+          response = await generateWithMistralAPI(prompt, systemContext);
+        }
       } else {
         // Fallback vers l'API standard
         response = await generateWithMistralAPI(prompt, systemContext);
@@ -352,8 +360,18 @@ ${JSON.stringify(exampleJson, null, 2)}`;
         // Transformer pour correspondre au schéma MongoDB avec toutes les données
         const transformedAnalysis = {
           ...analysis,
-          // Assurer la compatibilité avec le schéma MongoDB
-          target_audience: analysis.target_audience?.primary?.description || "Cible principale du secteur",
+          // Garder target_audience comme objet si c'est déjà un objet, sinon créer une structure compatible
+          target_audience: analysis.target_audience && typeof analysis.target_audience === 'object' ? 
+            analysis.target_audience : 
+            {
+              primary: {
+                description: analysis.target_audience || "Cible principale du secteur",
+                size: "À déterminer",
+                characteristics: ["À analyser"]
+              }
+            },
+          // Pour la compatibilité MongoDB, on ajoute aussi target_audience_str
+          target_audience_str: analysis.target_audience?.primary?.description || analysis.target_audience || "Cible principale du secteur",
           value_proposition: analysis.executive_summary?.key_insight || `Solution innovante pour ${business.industry}`,
           competitors: analysis.competitive_landscape?.key_success_factors?.slice(0, 3) || ["Leader marché", "Challenger digital", "Spécialiste niche"],
           opportunities: analysis.opportunities || ["Digitalisation", "Nouveaux besoins", "Expansion"],
@@ -450,7 +468,23 @@ export function generateMinimalMarketAnalysis(business: any): any {
           "Personnalisation des menus"
         ]
       },
-      target_audience: "Urbains CSP+ amateurs de gastronomie, 35-55 ans, revenus > 60K€/an",
+      target_audience: {
+        primary: {
+          description: "Urbains CSP+ amateurs de gastronomie, 35-55 ans, revenus > 60K€/an",
+          size: "150K personnes à Paris",
+          characteristics: [
+            "Revenus > 60K€/an",
+            "Fréquentent déjà les restaurants étoilés", 
+            "Early adopters d'expériences culinaires",
+            "Très actifs sur Instagram"
+          ],
+          pain_points: [
+            "Lassitude des restaurants traditionnels",
+            "Difficulté à impressionner leur cercle social"
+          ]
+        }
+      },
+      target_audience_str: "Urbains CSP+ amateurs de gastronomie, 35-55 ans, revenus > 60K€/an",
       value_proposition: "Expérience gastronomique unique et mémorable chaque mois",
       competitors: ["Guy Savoy", "Le Meurice", "L'Ambroisie"],
       opportunities: [
@@ -563,7 +597,23 @@ export function generateMinimalMarketAnalysis(business: any): any {
         "Intelligence artificielle"
       ]
     },
-    target_audience: `PME et professionnels du secteur ${industryName}, 25-50 ans, France`,
+    target_audience: {
+      primary: {
+        description: `PME et professionnels du secteur ${industryName}, 25-50 ans, France`,
+        size: "50K-100K entreprises cibles",
+        characteristics: [
+          "PME de 10 à 250 employés",
+          "CA entre 1M€ et 50M€",
+          "En phase de transformation digitale"
+        ],
+        pain_points: [
+          "Processus manuels inefficaces",
+          "Manque de visibilité sur les données",
+          "Difficulté à suivre la concurrence"
+        ]
+      }
+    },
+    target_audience_str: `PME et professionnels du secteur ${industryName}, 25-50 ans, France`,
     value_proposition: `Solution innovante et performante pour ${industryName}`,
     competitors: ["Leader marché", "Challenger digital", "Spécialiste niche"],
     opportunities: [

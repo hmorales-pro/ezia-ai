@@ -50,7 +50,9 @@ IMPORTANT: Tu as accès à des données web en temps réel. Pour chaque donnée 
 2. Indique l'année de la donnée
 3. Privilégie les sources officielles (INSEE, ministères, études sectorielles reconnues)
 4. Pour la France, utilise des sources françaises quand possible
-5. Structure ta réponse en JSON avec un champ "sources" listant toutes les références utilisées`
+5. Structure ta réponse en JSON avec un champ "sources" listant toutes les références utilisées
+
+TRÈS IMPORTANT: Ta réponse DOIT être un objet JSON valide et RIEN D'AUTRE. Pas de texte avant ou après le JSON.`
           },
           {
             role: "user",
@@ -60,7 +62,7 @@ IMPORTANT: Tu as accès à des données web en temps réel. Pour chaque donnée 
         temperature: 0.3,
         max_tokens: 4000,
         stream: false,
-        response_format: { type: "json_object" },
+        // NOTE: response_format incompatible avec tools, donc on ne l'utilise pas ici
         // Activer la recherche web via tools/functions si disponible
         tools: [
           {
@@ -95,15 +97,31 @@ IMPORTANT: Tu as accès à des données web en temps réel. Pour chaque donnée 
     }
 
     const data = await response.json();
-    const content = data.choices[0]?.message?.content;
+    const message = data.choices[0]?.message;
+    
+    // Gérer les tool calls si présents
+    if (message?.tool_calls) {
+      console.log("[Mistral Search] Tool calls détectés, traitement des résultats");
+      // Pour l'instant, on considère que le modèle a fait la recherche
+      // et nous donne directement le résultat final
+    }
+    
+    const content = message?.content;
+    
+    if (!content) {
+      throw new Error("Aucun contenu dans la réponse");
+    }
     
     // Extraire les sources si présentes dans le JSON
     let sources = [];
     try {
+      // Essayer de parser le contenu comme JSON
       const parsed = JSON.parse(content);
       sources = parsed.sources || [];
     } catch (e) {
       console.log("[Mistral Search] Pas de sources structurées dans la réponse");
+      // Si ce n'est pas du JSON valide, on pourrait avoir du texte avec tool calls
+      // Dans ce cas, on retourne tel quel et on laisse l'appelant gérer
     }
     
     return {
