@@ -59,12 +59,14 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
 
   return (
     <div className="space-y-6">
-      {/* Executive Summary - Only show if we have data */}
-      {analysis.executive_summary && (
-        (analysis.executive_summary.key_findings?.length > 0 ||
-         analysis.executive_summary.market_opportunity ||
-         analysis.executive_summary.growth_forecast ||
-         analysis.executive_summary.strategic_positioning) && (
+      {/* Executive Summary - Check market_study first, then fallback to direct executive_summary */}
+      {(analysis.market_study?.executive_summary || analysis.executive_summary) && (
+        ((analysis.market_study?.executive_summary?.market_opportunity || analysis.executive_summary?.market_opportunity) ||
+         (analysis.market_study?.executive_summary?.key_insight || analysis.executive_summary?.key_insight) ||
+         (analysis.market_study?.executive_summary?.recommendation || analysis.executive_summary?.recommendation) ||
+         (analysis.executive_summary?.key_findings?.length > 0) ||
+         (analysis.executive_summary?.growth_forecast) ||
+         (analysis.executive_summary?.strategic_positioning)) && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -73,7 +75,32 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {analysis.executive_summary.key_findings?.length > 0 && (
+              {/* Market Study Executive Summary */}
+              {analysis.market_study?.executive_summary && (
+                <>
+                  {analysis.market_study.executive_summary.market_opportunity && (
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <h5 className="font-medium text-[#6D3FC8] mb-1">Opportunité de marché</h5>
+                      <p className="text-sm">{analysis.market_study.executive_summary.market_opportunity}</p>
+                    </div>
+                  )}
+                  {analysis.market_study.executive_summary.key_insight && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h5 className="font-medium text-blue-700 mb-1">Insight clé</h5>
+                      <p className="text-sm">{analysis.market_study.executive_summary.key_insight}</p>
+                    </div>
+                  )}
+                  {analysis.market_study.executive_summary.recommendation && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h5 className="font-medium text-green-700 mb-1">Recommandation principale</h5>
+                      <p className="text-sm">{analysis.market_study.executive_summary.recommendation}</p>
+                    </div>
+                  )}
+                </>
+              )}
+              
+              {/* Original Executive Summary fields */}
+              {analysis.executive_summary?.key_findings?.length > 0 && (
                 <div>
                   <h4 className="font-medium mb-2">Points clés</h4>
                   <ul className="space-y-2">
@@ -138,8 +165,162 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          {/* Market Overview */}
-          {hasData(analysis.market_overview) && (
+          {/* Check for market_study structure first */}
+          {analysis.market_study && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="w-5 h-5" />
+                  Vue d'ensemble du marché
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Market Size from market_study */}
+                {analysis.market_study.market_size && (
+                  <div>
+                    <h4 className="font-medium mb-3">Taille du marché</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div>
+                        <p className="text-sm text-gray-500">Valeur totale</p>
+                        <p className="font-semibold">{analysis.market_study.market_size.total_value}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Taux de croissance</p>
+                        <p className="font-semibold">{analysis.market_study.market_size.growth_rate}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Portée géographique</p>
+                        <p className="font-semibold">{analysis.market_study.geographic_scope}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Market Segments */}
+                    {analysis.market_study.market_size.segments && (
+                      <div className="space-y-3">
+                        <h5 className="font-medium">Segments de marché</h5>
+                        {Object.entries(analysis.market_study.market_size.segments).map(([key, segment]: [string, any]) => (
+                          <div key={key} className="border rounded-lg p-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <h6 className="font-medium capitalize">{key.replace(/_/g, ' ')}</h6>
+                              <Badge className="bg-green-100 text-green-700">+{segment.growth}</Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">Valeur: {segment.value}</p>
+                            {segment.market_share && (
+                              <p className="text-sm text-gray-600">Part de marché: {segment.market_share}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Key Trends from market_study */}
+                {analysis.market_study.key_trends && (
+                  <div>
+                    <h4 className="font-medium mb-3">Tendances clés du marché</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {Object.entries(analysis.market_study.key_trends).map(([category, trends]: [string, any]) => (
+                        <div key={category} className="bg-gray-50 p-4 rounded-lg">
+                          <h5 className="font-medium capitalize mb-2">
+                            {category === 'digitalization' ? 'Digitalisation' :
+                             category === 'sustainability' ? 'Durabilité' :
+                             category === 'consumer_behavior' ? 'Comportement consommateur' :
+                             category.replace(/_/g, ' ')}
+                          </h5>
+                          <ul className="space-y-1">
+                            {Object.entries(trends).map(([key, value]: [string, any]) => (
+                              <li key={key} className="text-sm">
+                                <span className="font-medium capitalize">{key.replace(/_/g, ' ')}:</span> {value}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Opportunities from market_study */}
+                {analysis.market_study.opportunities && analysis.market_study.opportunities.length > 0 && (
+                  <div>
+                    <h4 className="font-medium mb-3">Opportunités</h4>
+                    <ul className="space-y-2">
+                      {analysis.market_study.opportunities.map((opportunity: string, idx: number) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <Lightbulb className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">{opportunity}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {/* Risks from market_study */}
+                {analysis.market_study.risks && analysis.market_study.risks.length > 0 && (
+                  <div>
+                    <h4 className="font-medium mb-3">Risques</h4>
+                    <ul className="space-y-2">
+                      {analysis.market_study.risks.map((risk: string, idx: number) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">{risk}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {/* Market Dynamics from market_study */}
+                {analysis.market_study.market_dynamics && (
+                  <div className="space-y-4">
+                    {analysis.market_study.market_dynamics.key_drivers && analysis.market_study.market_dynamics.key_drivers.length > 0 && (
+                      <div>
+                        <h4 className="font-medium mb-2">Moteurs clés</h4>
+                        <ul className="space-y-1">
+                          {analysis.market_study.market_dynamics.key_drivers.map((driver: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">▶</span>
+                              {driver}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {analysis.market_study.market_dynamics.barriers && analysis.market_study.market_dynamics.barriers.length > 0 && (
+                      <div>
+                        <h4 className="font-medium mb-2">Barrières</h4>
+                        <ul className="space-y-1">
+                          {analysis.market_study.market_dynamics.barriers.map((barrier: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-2">
+                              <span className="text-red-600 mt-0.5">■</span>
+                              {barrier}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {analysis.market_study.market_dynamics.trends && analysis.market_study.market_dynamics.trends.length > 0 && (
+                      <div>
+                        <h4 className="font-medium mb-2">Tendances du marché</h4>
+                        <ul className="space-y-1">
+                          {analysis.market_study.market_dynamics.trends.map((trend: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-2">
+                              <TrendingUp className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
+                              {trend}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Original Market Overview - show only if market_study doesn't exist */}
+          {!analysis.market_study && hasData(analysis.market_overview) && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -311,7 +492,82 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
         </TabsContent>
 
         <TabsContent value="audience" className="space-y-4">
-          {hasData(analysis.target_audience) ? (
+          {/* Check for market_study target_audience first */}
+          {analysis.market_study?.target_audience ? (
+            <>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Public cible
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {(analysis.market_study.target_audience.primary || analysis.market_study.target_audience.secondary) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {analysis.market_study.target_audience.primary && (
+                      <div className="bg-purple-50 p-4 rounded-lg">
+                        <h4 className="font-medium text-[#6D3FC8] mb-2">Cible principale</h4>
+                        <p className="text-sm mb-2">{analysis.market_study.target_audience.primary.description}</p>
+                        <p className="text-xs text-[#6D3FC8] mb-3">Taille: {analysis.market_study.target_audience.primary.size}</p>
+                        
+                        {analysis.market_study.target_audience.primary.characteristics && (
+                          <div className="mb-3">
+                            <h5 className="text-xs font-medium text-[#6D3FC8] mb-1">Caractéristiques</h5>
+                            <ul className="space-y-1">
+                              {analysis.market_study.target_audience.primary.characteristics.map((char: string, idx: number) => (
+                                <li key={idx} className="text-xs flex items-start gap-1">
+                                  <span className="text-[#6D3FC8]">•</span>
+                                  {char}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {analysis.market_study.target_audience.primary.pain_points && (
+                          <div>
+                            <h5 className="text-xs font-medium text-[#6D3FC8] mb-1">Points de douleur</h5>
+                            <ul className="space-y-1">
+                              {analysis.market_study.target_audience.primary.pain_points.map((pain: string, idx: number) => (
+                                <li key={idx} className="text-xs flex items-start gap-1">
+                                  <span className="text-red-500">•</span>
+                                  {pain}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {analysis.market_study.target_audience.secondary && (
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <h4 className="font-medium text-blue-700 mb-2">Cible secondaire</h4>
+                        <p className="text-sm mb-2">{analysis.market_study.target_audience.secondary.description}</p>
+                        <p className="text-xs text-blue-700 mb-3">Taille: {analysis.market_study.target_audience.secondary.size}</p>
+                        
+                        {analysis.market_study.target_audience.secondary.characteristics && (
+                          <div>
+                            <h5 className="text-xs font-medium text-blue-700 mb-1">Caractéristiques</h5>
+                            <ul className="space-y-1">
+                              {analysis.market_study.target_audience.secondary.characteristics.map((char: string, idx: number) => (
+                                <li key={idx} className="text-xs flex items-start gap-1">
+                                  <span className="text-blue-700">•</span>
+                                  {char}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            </>
+          ) : hasData(analysis.target_audience) ? (
             <>
             <Card>
               <CardHeader>
@@ -424,7 +680,49 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
         </TabsContent>
 
         <TabsContent value="pestel" className="space-y-4">
-          {analysis.pestel_analysis && Object.keys(analysis.pestel_analysis).length > 0 ? (
+          {/* Check for market_study pestel_analysis first */}
+          {analysis.market_study?.pestel_analysis ? (
+            <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Analyse PESTEL</CardTitle>
+                <CardDescription>Facteurs macro-environnementaux affectant le marché</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.entries(analysis.market_study.pestel_analysis).map(([category, factors]) => (
+                    <div key={category} className="border rounded-lg p-4">
+                      <h4 className="font-medium capitalize mb-3 flex items-center gap-2">
+                        {category === 'political' && <Shield className="w-4 h-4 text-blue-600" />}
+                        {category === 'economic' && <BarChart3 className="w-4 h-4 text-green-600" />}
+                        {category === 'social' && <Users className="w-4 h-4 text-purple-600" />}
+                        {category === 'technological' && <Zap className="w-4 h-4 text-orange-600" />}
+                        {category === 'environmental' && <Globe className="w-4 h-4 text-emerald-600" />}
+                        {category === 'legal' && <Shield className="w-4 h-4 text-red-600" />}
+                        {category === 'political' ? 'Politique' :
+                         category === 'economic' ? 'Économique' :
+                         category === 'social' ? 'Social' :
+                         category === 'technological' ? 'Technologique' :
+                         category === 'environmental' ? 'Environnemental' :
+                         category === 'legal' ? 'Légal' : category}
+                      </h4>
+                      {Array.isArray(factors) && factors.length > 0 && (
+                        <ul className="space-y-2">
+                          {factors.map((factor: string, idx: number) => (
+                            <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                              <span className="text-gray-400 mt-0.5">•</span>
+                              <span>{factor}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            </>
+          ) : analysis.pestel_analysis && Object.keys(analysis.pestel_analysis).length > 0 ? (
             <>
             <Card>
               <CardHeader>
@@ -501,7 +799,31 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
         </TabsContent>
 
         <TabsContent value="porter" className="space-y-4">
-          {analysis.porter_five_forces && Object.keys(analysis.porter_five_forces).length > 0 ? (
+          {/* Check for market_study porter_analysis first */}
+          {analysis.market_study?.porter_analysis ? (
+            <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Analyse des 5 Forces de Porter</CardTitle>
+                <CardDescription>Évaluation de l'intensité concurrentielle et de l'attractivité du marché</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {Object.entries(analysis.market_study.porter_analysis).map(([force, description]: [string, any]) => (
+                  <div key={force} className="border rounded-lg p-4">
+                    <h4 className="font-medium mb-2">
+                      {force === 'threat_of_new_entrants' ? 'Menace de nouveaux entrants' :
+                       force === 'bargaining_power_of_suppliers' ? 'Pouvoir de négociation des fournisseurs' :
+                       force === 'bargaining_power_of_buyers' ? 'Pouvoir de négociation des clients' :
+                       force === 'threat_of_substitutes' ? 'Menace des produits de substitution' :
+                       force === 'industry_rivalry' ? 'Intensité concurrentielle' : force}
+                    </h4>
+                    <p className="text-sm text-gray-700">{description}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+            </>
+          ) : analysis.porter_five_forces && Object.keys(analysis.porter_five_forces).length > 0 ? (
             <>
             <Card>
               <CardHeader>
@@ -632,14 +954,84 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
         </TabsContent>
 
         <TabsContent value="swot" className="space-y-4">
-          {/* Action buttons */}
           <Card>
             <CardHeader>
               <CardTitle>Analyse SWOT</CardTitle>
               <CardDescription>Forces, Faiblesses, Opportunités et Menaces</CardDescription>
             </CardHeader>
             <CardContent>
-              {analysis.swot_analysis && (
+              {/* Check for market_study swot_analysis first */}
+              {analysis.market_study?.swot_analysis ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {analysis.market_study.swot_analysis.strengths?.length > 0 && (
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <h4 className="font-medium text-green-800 mb-3 flex items-center gap-2">
+                        <Target className="w-4 h-4" />
+                        Forces
+                      </h4>
+                      <ul className="space-y-2">
+                        {analysis.market_study.swot_analysis.strengths.map((item: string, idx: number) => (
+                          <li key={idx} className="text-sm flex items-start gap-2">
+                            <span className="text-green-600 mt-0.5">+</span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {analysis.market_study.swot_analysis.weaknesses?.length > 0 && (
+                    <div className="bg-red-50 rounded-lg p-4">
+                      <h4 className="font-medium text-red-800 mb-3 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" />
+                        Faiblesses
+                      </h4>
+                      <ul className="space-y-2">
+                        {analysis.market_study.swot_analysis.weaknesses.map((item: string, idx: number) => (
+                          <li key={idx} className="text-sm flex items-start gap-2">
+                            <span className="text-red-600 mt-0.5">-</span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {analysis.market_study.swot_analysis.opportunities?.length > 0 && (
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h4 className="font-medium text-blue-800 mb-3 flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4" />
+                        Opportunités
+                      </h4>
+                      <ul className="space-y-2">
+                        {analysis.market_study.swot_analysis.opportunities.map((item: string, idx: number) => (
+                          <li key={idx} className="text-sm flex items-start gap-2">
+                            <span className="text-blue-600 mt-0.5">↗</span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {analysis.market_study.swot_analysis.threats?.length > 0 && (
+                    <div className="bg-orange-50 rounded-lg p-4">
+                      <h4 className="font-medium text-orange-800 mb-3 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" />
+                        Menaces
+                      </h4>
+                      <ul className="space-y-2">
+                        {analysis.market_study.swot_analysis.threats.map((item: string, idx: number) => (
+                          <li key={idx} className="text-sm flex items-start gap-2">
+                            <span className="text-orange-600 mt-0.5">!</span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : analysis.swot_analysis && (
                 (analysis.swot_analysis.strengths?.length > 0 ||
                  analysis.swot_analysis.weaknesses?.length > 0 ||
                  analysis.swot_analysis.opportunities?.length > 0 ||
@@ -726,8 +1118,132 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
 
         <TabsContent value="strategy" className="space-y-4">
           
-          {/* Strategic Recommendations */}
-          {hasData(analysis.strategic_recommendations) ? (
+          {/* Check for market_study strategic_recommendations first */}
+          {analysis.market_study?.strategic_recommendations ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Recommandations stratégiques
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {analysis.market_study.strategic_recommendations.immediate_actions?.length > 0 && (
+                  <div>
+                    <h4 className="font-medium mb-3">Actions immédiates</h4>
+                    <div className="space-y-3">
+                      {analysis.market_study.strategic_recommendations.immediate_actions.map((action: any, idx: number) => (
+                        <div key={idx} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <h5 className="font-medium flex-1">{action.action}</h5>
+                            <span className="text-sm text-gray-500 ml-4">{action.timeline}</span>
+                          </div>
+                          <div className="flex gap-4 mt-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500">Impact:</span>
+                              <div className="flex gap-1">
+                                {[1,2,3].map(i => (
+                                  <div 
+                                    key={i} 
+                                    className={`w-2 h-2 rounded-full ${
+                                      i <= (action.impact === 'high' ? 3 : action.impact === 'medium' ? 2 : 1) 
+                                        ? getImpactColor(action.impact) 
+                                        : 'bg-gray-300'
+                                    }`} 
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            {action.effort && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500">Effort:</span>
+                                <div className="flex gap-1">
+                                  {[1,2,3].map(i => (
+                                    <div 
+                                      key={i} 
+                                      className={`w-2 h-2 rounded-full ${
+                                        i <= (action.effort === 'high' ? 3 : action.effort === 'medium' ? 2 : 1) 
+                                          ? 'bg-gray-600' 
+                                          : 'bg-gray-300'
+                                      }`} 
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {analysis.market_study.strategic_recommendations.long_term_vision && (
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-[#6D3FC8] mb-2">Vision à long terme</h4>
+                    <p className="text-sm">{analysis.market_study.strategic_recommendations.long_term_vision}</p>
+                  </div>
+                )}
+                
+                {/* Market Entry Strategy from market_study */}
+                {analysis.market_study.market_entry_strategy && (
+                  <div className="space-y-3">
+                    <h4 className="font-medium mb-3">Stratégie d'entrée sur le marché</h4>
+                    {analysis.market_study.market_entry_strategy.positioning && (
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <p className="text-sm font-medium text-blue-800 mb-1">Positionnement:</p>
+                        <p className="text-sm">{analysis.market_study.market_entry_strategy.positioning}</p>
+                      </div>
+                    )}
+                    {analysis.market_study.market_entry_strategy.launch_strategy && (
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <p className="text-sm font-medium text-green-800 mb-1">Stratégie de lancement:</p>
+                        <p className="text-sm">{analysis.market_study.market_entry_strategy.launch_strategy}</p>
+                      </div>
+                    )}
+                    {analysis.market_study.market_entry_strategy.pricing_strategy && (
+                      <div className="bg-yellow-50 p-4 rounded-lg">
+                        <p className="text-sm font-medium text-yellow-800 mb-1">Stratégie de prix:</p>
+                        <p className="text-sm">{analysis.market_study.market_entry_strategy.pricing_strategy}</p>
+                      </div>
+                    )}
+                    {analysis.market_study.market_entry_strategy.timeline && (
+                      <div className="bg-purple-50 p-4 rounded-lg">
+                        <p className="text-sm font-medium text-purple-800 mb-1">Timeline:</p>
+                        <p className="text-sm">{analysis.market_study.market_entry_strategy.timeline}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Competitive Strategy from market_study */}
+                {analysis.market_study.competitive_strategy && (
+                  <div>
+                    <h4 className="font-medium mb-3">Stratégie compétitive</h4>
+                    {analysis.market_study.competitive_strategy.approach && (
+                      <div className="bg-gray-50 p-4 rounded-lg mb-3">
+                        <p className="text-sm font-medium mb-1">Approche:</p>
+                        <p className="text-sm">{analysis.market_study.competitive_strategy.approach}</p>
+                      </div>
+                    )}
+                    {analysis.market_study.competitive_strategy.tactics && analysis.market_study.competitive_strategy.tactics.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-2">Tactiques:</p>
+                        <ul className="space-y-2">
+                          {analysis.market_study.competitive_strategy.tactics.map((tactic: string, idx: number) => (
+                            <li key={idx} className="text-sm flex items-start gap-2">
+                              <span className="text-[#6D3FC8] mt-0.5">→</span>
+                              {tactic}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ) : hasData(analysis.strategic_recommendations) ? (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
