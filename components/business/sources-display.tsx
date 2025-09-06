@@ -65,6 +65,38 @@ export function SourcesDisplay({ sources, analysisType }: SourcesDisplayProps) {
     }
   };
 
+  // Générer une URL probable basée sur le nom de la source
+  const generateSourceUrl = (source: Source): string | undefined => {
+    if (source.url) return source.url;
+    
+    const name = source.name.toLowerCase();
+    
+    // Sources françaises connues
+    if (name.includes('insee')) return 'https://www.insee.fr';
+    if (name.includes('ministère') && name.includes('économie')) return 'https://www.economie.gouv.fr';
+    if (name.includes('banque de france')) return 'https://www.banque-france.fr';
+    if (name.includes('gni') || name.includes('syndicat national')) return 'https://www.gni-hcr.fr';
+    if (name.includes('michelin')) return 'https://guide.michelin.com/fr';
+    if (name.includes('atout france')) return 'https://www.atout-france.fr';
+    
+    // Sources internationales
+    if (name.includes('mckinsey')) return 'https://www.mckinsey.com/fr';
+    if (name.includes('deloitte')) return 'https://www2.deloitte.com/fr';
+    if (name.includes('pwc')) return 'https://www.pwc.fr';
+    if (name.includes('npd group')) return 'https://www.npd.com';
+    if (name.includes('euromonitor')) return 'https://www.euromonitor.com';
+    if (name.includes('tripadvisor')) return 'https://www.tripadvisor.fr';
+    if (name.includes('la fourchette')) return 'https://www.thefork.fr';
+    
+    // Médias spécialisés restauration
+    if (name.includes('atabula')) return 'https://www.atabula.com';
+    if (name.includes('hospitality on')) return 'https://hospitality-on.com';
+    if (name.includes('snacking')) return 'https://www.snacking.fr';
+    if (name.includes('néorestauration')) return 'https://www.neorestauration.com';
+    
+    return undefined;
+  };
+
   return (
     <Card className="p-6 border-blue-100">
       <div className="space-y-4">
@@ -95,17 +127,23 @@ export function SourcesDisplay({ sources, analysisType }: SourcesDisplayProps) {
                   <span className="text-gray-600">{getCredibilityLabel(source.credibility || 'estimation')}</span>
                 </div>
                 
-                {source.url && (
-                  <a 
-                    href={source.url.startsWith('http') ? source.url : `https://${source.url}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mt-1"
-                  >
-                    Consulter la source
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
+                {(() => {
+                  const url = generateSourceUrl(source);
+                  if (url) {
+                    return (
+                      <a 
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mt-1"
+                      >
+                        Consulter la source
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             </div>
           ))}

@@ -229,172 +229,30 @@ ${JSON.stringify(exampleJson, null, 2)}`;
 }
 
 function generateMinimalAnalysis(business: any): any {
-  const industryName = business.industry || "secteur";
-  const isRestaurant = industryName.toLowerCase().includes('restaura');
-  
-  if (isRestaurant) {
-    return {
-      main_competitors: [
-        {
-          name: "Pierre Gagnaire",
-          strengths: [
-            "3 étoiles Michelin depuis 1996",
-            "Réputation internationale",
-            "Innovation culinaire constante",
-            "Emplacement prestigieux rue Balzac"
-          ],
-          weaknesses: [
-            "Prix très élevés (menu 380€)",
-            "Style culinaire complexe polarisant",
-            "Service parfois hautain",
-            "Décor daté nécessitant rénovation"
-          ],
-          market_share: "12%",
-          threat_level: "high"
-        },
-        {
-          name: "L'Astrance (Pascal Barbot)",
-          strengths: [
-            "Cuisine fusion franco-asiatique unique",
-            "Taille intimiste (25 couverts)",
-            "Menu surprise apprécié",
-            "3 étoiles Michelin"
-          ],
-          weaknesses: [
-            "Réservations quasi impossibles",
-            "Pas de choix dans le menu",
-            "Prix élevés (menu 390€)",
-            "Localisation moins centrale"
-          ],
-          market_share: "8%",
-          threat_level: "medium"
-        }
-      ],
-      competitive_advantages: [
-        "Modèle éphémère unique créant l'urgence de réservation",
-        "Rotation mensuelle garantissant la nouveauté permanente",
-        "Flexibilité totale sur les concepts et cuisines",
-        "Buzz médiatique assuré à chaque changement",
-        "Coûts optimisés par la non-permanence"
-      ],
-      threats: [
-        "Fidélisation client complexe",
-        "Logistique de changement mensuel coûteuse",
-        "Qualité variable selon les chefs",
-        "Risque de lassitude du concept"
-      ],
-      opportunities: [
-        "Marché en quête d'expériences uniques",
-        "Tourism gastronomique post-COVID en hausse",
-        "Potentiel de médiatisation internationale",
-        "Collaborations avec chefs étrangers stars"
-      ],
-      competitive_positioning: {
-        current_position: "Concept innovant en phase de lancement",
-        desired_position: "Référence des restaurants éphémères gastronomiques",
-        key_differentiators: [
-          "Seul restaurant gastronomique éphémère de Paris",
-          "Nouveau chef et concept chaque mois",
-          "Expérience limitée créant la rareté",
-          "Prix justifiés par l'exclusivité"
-        ]
-      },
-      competitive_strategy: {
-        approach: "Océan bleu - Créer un nouveau marché sans concurrence directe",
-        tactics: [
-          "PR et relations presse 2 mois avant chaque chef",
-          "Système de membres VIP pour accès prioritaire",
-          "Collaborations avec influenceurs gastronomiques",
-          "Documentation de chaque expérience (livre annuel)",
-          "Prix premium mais justifiés (menu unique 250€)"
-        ],
-        timeline: "Pré-lancement 2 mois, ouverture, évaluation mensuelle"
-      }
-    };
-  }
-  
-  // Fallback générique pour autres industries
+  // Version minimale en cas d'échec - SANS DONNÉES EN DUR
   return {
-    main_competitors: [
-      {
-        name: `${industryName} Leader Corp`,
-        strengths: [
-          "Part de marché dominante",
-          "Ressources financières importantes",
-          "Réseau de distribution établi",
-          "Marque reconnue"
-        ],
-        weaknesses: [
-          "Innovation ralentie par la taille",
-          "Prix élevés",
-          "Service client à améliorer",
-          "Image vieillissante"
-        ],
-        market_share: "35%",
-        threat_level: "high"
-      },
-      {
-        name: `${industryName} Innovations`,
-        strengths: [
-          "Technologies de pointe",
-          "Équipe agile et réactive",
-          "Prix compétitifs",
-          "Forte croissance"
-        ],
-        weaknesses: [
-          "Ressources limitées",
-          "Manque de notoriété",
-          "Réseau de distribution restreint",
-          "Dépendance aux investisseurs"
-        ],
-        market_share: "18%",
-        threat_level: "medium"
-      }
-    ],
-    competitive_advantages: [
-      "Innovation produit/service différenciante",
-      "Approche client personnalisée",
-      "Agilité et rapidité d'exécution",
-      "Coûts optimisés permettant prix compétitifs"
-    ],
-    threats: [
-      "Réaction des leaders du marché",
-      "Barrières à l'entrée élevées",
-      "Évolution réglementaire",
-      "Fidélisation client difficile"
-    ],
-    opportunities: [
-      "Digitalisation croissante du secteur",
-      "Nouveaux segments mal desservis",
-      "Partenariats stratégiques possibles",
-      "Expansion géographique"
-    ],
+    error: true,
+    message: `L'analyse concurrentielle pour ${business.name} n'a pas pu être générée correctement.`,
+    retry_needed: true,
+    main_competitors: [],
+    competitive_advantages: ["Analyse en cours..."],
+    threats: ["À identifier"],
+    opportunities: ["À analyser"],
     competitive_positioning: {
-      current_position: "Challenger innovant en croissance",
-      desired_position: "Leader de l'innovation " + industryName,
-      key_differentiators: [
-        "Solution unique sur le marché",
-        "Meilleur rapport qualité/prix",
-        "Service client exceptionnel",
-        "Innovation continue"
-      ]
+      current_position: "Analyse nécessaire",
+      desired_position: "À définir",
+      key_differentiators: []
     },
     competitive_strategy: {
-      approach: "Différenciation par l'innovation et le service",
-      tactics: [
-        "Focus sur les segments négligés",
-        "Marketing digital ciblé",
-        "Programme de fidélisation innovant",
-        "Partenariats stratégiques",
-        "R&D continue"
-      ],
-      timeline: "Exécution sur 12 mois avec jalons trimestriels"
+      approach: "Stratégie à développer après analyse",
+      tactics: [],
+      timeline: "À déterminer"
     },
     sources: [
       {
-        name: `Étude de marché ${industryName}`,
-        type: "Analyse sectorielle",
-        date: "2023",
+        name: "Analyse concurrentielle non disponible",
+        type: "Erreur système",
+        date: new Date().getFullYear().toString(),
         credibility: "estimation"
       }
     ]

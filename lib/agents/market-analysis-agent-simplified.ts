@@ -2,7 +2,7 @@ import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
 import { generateWithMistralSearch } from '@/lib/mistral-search-service';
 import { generateAIResponse } from '@/lib/ai-service';
 import { parseAIGeneratedJson } from './json-sanitizer';
-import { generatePestelForIndustry, generatePorterForIndustry } from './analysis-helpers';
+// Removed analysis-helpers import - no hardcoded data
 
 // Version simplifiée de l'analyse de marché pour éviter la troncature
 export async function runSimplifiedMarketAnalysisAgent(business: any): Promise<any> {
@@ -295,7 +295,12 @@ Tu DOIS fournir une analyse de marché PROFESSIONNELLE et ACTIONNABLE en respect
 7. Chaque recommandation doit être actionnable
 8. OBLIGATOIRE: Inclure un champ "sources" avec au moins 4 références crédibles
 9. Générer des analyses PESTEL et Porter complètes et PERTINENTES
-10. SWOT doit contenir des points SPÉCIFIQUES au business, pas génériques`;
+10. SWOT doit contenir des points SPÉCIFIQUES au business, pas génériques
+11. TRÈS IMPORTANT: Le target_audience DOIT contenir primary ET secondary avec:
+    - description détaillée et spécifique (pas de générique)
+    - size avec des chiffres précis
+    - characteristics (au moins 5 points spécifiques)
+    - pain_points pour primary (au moins 3 problèmes réels)`;
 
   const prompt = `Réalise une étude de marché APPROFONDIE et PROFESSIONNELLE pour:
 
@@ -403,8 +408,21 @@ ${JSON.stringify(exampleJson, null, 2)}`;
             ],
             long_term_vision: "Devenir leader du secteur"
           },
-          pestel_analysis: analysis.pestel_analysis || generatePestelForIndustry(business.industry),
-          porter_five_forces: analysis.porter_five_forces || generatePorterForIndustry(business.industry)
+          pestel_analysis: analysis.pestel_analysis || {
+            political: { factors: [], impact: "À générer", risk_level: "unknown" },
+            economic: { factors: [], impact: "À générer", risk_level: "unknown" },
+            social: { factors: [], impact: "À générer", risk_level: "unknown" },
+            technological: { factors: [], impact: "À générer", risk_level: "unknown" },
+            environmental: { factors: [], impact: "À générer", risk_level: "unknown" },
+            legal: { factors: [], impact: "À générer", risk_level: "unknown" }
+          },
+          porter_five_forces: analysis.porter_five_forces || {
+            threat_of_new_entrants: { level: "unknown", factors: [] },
+            bargaining_power_of_suppliers: { level: "unknown", factors: [] },
+            bargaining_power_of_buyers: { level: "unknown", factors: [] },
+            threat_of_substitutes: { level: "unknown", factors: [] },
+            competitive_rivalry: { level: "unknown", factors: [] }
+          }
         };
         
         return transformedAnalysis;
@@ -428,274 +446,78 @@ ${JSON.stringify(exampleJson, null, 2)}`;
   }
 }
 
-// Version encore plus simplifiée pour les cas d'urgence
+// Version minimale en cas d'échec - SANS DONNÉES EN DUR
 export function generateMinimalMarketAnalysis(business: any): any {
-  const currentYear = new Date().getFullYear();
-  const industryName = business.industry || "votre secteur";
-  const isRestaurant = industryName.toLowerCase().includes('restaura');
+  const industryName = business.industry || "secteur";
   
-  if (isRestaurant) {
-    return {
-      executive_summary: {
-        market_opportunity: "Marché de la restauration en transformation avec opportunités pour concepts innovants",
-        key_insight: "Les consommateurs recherchent des expériences uniques au-delà du simple repas",
-        recommendation: "Positionner sur le créneau expérientiel avec forte différenciation"
-      },
-      market_size: {
-        total_addressable_market: "65 milliards € (restauration France)",
-        serviceable_addressable_market: "8 milliards € (restauration Paris)",
-        serviceable_obtainable_market: "10-15 millions € (niche premium)",
-        growth_rate: "8% annuel (segment premium)"
-      },
-      market_overview: {
-        market_size: "65 milliards € (restauration France)",
-        growth_rate: "8% annuel (segment premium)",
-        market_maturity: "Marché mature avec poches d'innovation"
-      },
-      market_dynamics: {
-        key_drivers: [
-          "Recherche d'expériences mémorables",
-          "Influence des réseaux sociaux",
-          "Tourisme gastronomique en hausse",
-          "Pouvoir d'achat segment premium stable"
-        ],
-        barriers: [
-          "Coûts d'entrée élevés",
-          "Pénurie de personnel qualifié",
-          "Normes sanitaires strictes",
-          "Concurrence intense"
-        ],
-        trends: [
-          "Concepts éphémères et pop-ups",
-          "Cuisine durable et locale",
-          "Expériences immersives",
-          "Réservations digitales dominantes",
-          "Personnalisation des menus"
-        ]
-      },
-      target_audience: {
-        primary: {
-          description: "Urbains CSP+ amateurs de gastronomie, 35-55 ans, revenus > 60K€/an",
-          size: "150K personnes à Paris",
-          characteristics: [
-            "Revenus > 60K€/an",
-            "Fréquentent déjà les restaurants étoilés", 
-            "Early adopters d'expériences culinaires",
-            "Très actifs sur Instagram"
-          ],
-          pain_points: [
-            "Lassitude des restaurants traditionnels",
-            "Difficulté à impressionner leur cercle social"
-          ]
-        }
-      },
-      target_audience_str: "Urbains CSP+ amateurs de gastronomie, 35-55 ans, revenus > 60K€/an",
-      value_proposition: "Expérience gastronomique unique et mémorable chaque mois",
-      competitors: ["Guy Savoy", "Le Meurice", "L'Ambroisie"],
-      opportunities: [
-        "Créneau des expériences gastronomiques uniques",
-        "Partenariats avec hôtels de luxe",
-        "Développement de concepts innovants",
-        "Digitalisation de l'expérience client",
-        "Marché de la livraison premium"
-      ],
-      threats: [
-        "Sensibilité aux crises économiques",
-        "Dépendance aux avis en ligne",
-        "Difficulté de recrutement",
-        "Marges opérationnelles serrées",
-        "Réglementation changeante"
-      ],
-      competitive_landscape: {
-        market_maturity: "Marché mature avec poches d'innovation",
-        competitive_intensity: "Très élevée sur tous les segments",
-        key_success_factors: [
-          "Concept différenciant fort",
-          "Excellence opérationnelle",
-          "Marketing digital efficace",
-          "Gestion de la réputation en ligne",
-          "Maîtrise des coûts"
-        ]
-      },
-      market_entry_strategy: {
-        positioning: "Expérience gastronomique unique et mémorable",
-        launch_strategy: "Soft opening avec influenceurs puis montée en puissance",
-        pricing_strategy: "Premium justifié par l'expérience unique",
-        distribution: "Réservations directes + partenariats sélectifs",
-        timeline: "6 mois de préparation, lancement progressif sur 3 mois"
-      },
-      swot_analysis: {
-        strengths: ["Concept unique", "Flexibilité totale", "Buzz assuré"],
-        weaknesses: ["Coûts élevés", "Complexité logistique", "Pas de base client fidèle"],
-        opportunities: ["Marché en quête de nouveauté", "Tourism premium", "Partenariats luxe"],
-        threats: ["Copie du concept", "Dépendance chefs", "Crises économiques"]
-      },
-      strategic_recommendations: {
-        immediate_actions: [
-          {
-            action: "Sécuriser 3 premiers chefs de renom",
-            impact: "high",
-            timeline: "1 mois"
-          },
-          {
-            action: "Finaliser lieu et logistique",
-            impact: "high",
-            timeline: "2 mois"
-          },
-          {
-            action: "Lancer campagne teasing",
-            impact: "medium",
-            timeline: "3 mois"
-          }
-        ],
-        long_term_vision: "Devenir la référence mondiale des restaurants éphémères gastronomiques"
-      },
-      pestel_analysis: generatePestelForIndustry(industryName),
-      porter_five_forces: generatePorterForIndustry(industryName),
-      visualization_data: {
-        market_growth_chart: {
-          type: "line",
-          data: [
-            { year: currentYear - 1, value: 100 },
-            { year: currentYear, value: 108 },
-            { year: currentYear + 1, value: 117 },
-            { year: currentYear + 2, value: 127 }
-          ]
-        }
-      },
-      pestel_analysis: generatePestelForIndustry(industryName),
-      porter_five_forces: generatePorterForIndustry(industryName)
-    };
-  }
-  
-  // Fallback générique pour autres industries
+  // Retourner une structure minimale qui indique que l'analyse a échoué
   return {
+    error: true,
+    message: `L'analyse de marché pour ${business.name} n'a pas pu être générée correctement.`,
+    retry_needed: true,
     executive_summary: {
-      market_opportunity: `Marché ${industryName} en évolution avec opportunités d'innovation`,
-      key_insight: "La digitalisation crée de nouvelles opportunités de disruption",
-      recommendation: "Se positionner sur l'innovation et la qualité de service"
-    },
-    market_size: {
-      total_addressable_market: "100M€ - 500M€ selon estimations",
-      serviceable_addressable_market: "20M€ - 100M€ (segment cible)",
-      serviceable_obtainable_market: "2M€ - 10M€ (part réaliste)",
-      growth_rate: "10-15% annuel"
-    },
-    market_overview: {
-      market_size: "100M€ - 500M€ selon estimations",
-      growth_rate: "10-15% annuel",
-      market_maturity: "Marché en phase de croissance"
-    },
-    market_dynamics: {
-      key_drivers: [
-        "Transformation digitale du secteur",
-        "Évolution des attentes clients",
-        "Recherche de solutions innovantes",
-        "Sensibilité au rapport qualité/prix"
-      ],
-      barriers: [
-        "Concurrence établie",
-        "Coûts d'acquisition client",
-        "Barrières réglementaires",
-        "Besoin en capital initial"
-      ],
-      trends: [
-        "Digitalisation croissante",
-        "Personnalisation des services",
-        "Développement durable",
-        "Modèles d'abonnement",
-        "Intelligence artificielle"
-      ]
+      market_opportunity: "Analyse en cours de génération...",
+      key_insight: "Veuillez patienter ou relancer l'analyse",
+      recommendation: "Une nouvelle analyse est nécessaire"
     },
     target_audience: {
       primary: {
-        description: `PME et professionnels du secteur ${industryName}, 25-50 ans, France`,
-        size: "50K-100K entreprises cibles",
-        characteristics: [
-          "PME de 10 à 250 employés",
-          "CA entre 1M€ et 50M€",
-          "En phase de transformation digitale"
-        ],
-        pain_points: [
-          "Processus manuels inefficaces",
-          "Manque de visibilité sur les données",
-          "Difficulté à suivre la concurrence"
-        ]
+        description: "Analyse du public cible en cours...",
+        size: "À déterminer",
+        characteristics: ["À analyser"],
+        pain_points: ["À identifier"]
       }
     },
-    target_audience_str: `PME et professionnels du secteur ${industryName}, 25-50 ans, France`,
-    value_proposition: `Solution innovante et performante pour ${industryName}`,
-    competitors: ["Leader marché", "Challenger digital", "Spécialiste niche"],
-    opportunities: [
-      "Digitalisation du secteur",
-      "Nouveaux modèles business",
-      "Partenariats stratégiques",
-      "Expansion géographique",
-      "Diversification de l'offre"
-    ],
-    threats: [
-      "Évolution réglementaire",
-      "Intensification concurrentielle",
-      "Changements technologiques rapides",
-      "Sensibilité économique",
-      "Cyber-risques croissants"
-    ],
-    competitive_landscape: {
-      market_maturity: "Marché en phase de croissance",
-      competitive_intensity: "Moyenne à élevée selon les segments",
-      key_success_factors: [
-        "Innovation produit/service",
-        "Excellence opérationnelle",
-        "Relation client de qualité",
-        "Agilité organisationnelle",
-        "Maîtrise technologique"
-      ]
+    market_overview: {
+      market_size: "Données à collecter",
+      growth_rate: "À analyser",
+      market_maturity: "À déterminer"
     },
-    market_entry_strategy: {
-      positioning: "Innovateur fiable offrant le meilleur rapport qualité/prix",
-      launch_strategy: "Approche progressive avec early adopters",
-      pricing_strategy: "Compétitif avec valeur ajoutée claire",
-      distribution: "Multicanal avec focus digital",
-      timeline: "Lancement sur 6-12 mois avec jalons clairs"
+    // Structures minimales pour éviter les erreurs d'affichage
+    market_dynamics: {
+      key_drivers: [],
+      barriers: [],
+      trends: []
     },
+    opportunities: [],
+    threats: [],
     swot_analysis: {
-      strengths: ["Innovation", "Agilité", "Vision claire"],
-      weaknesses: ["Ressources limitées", "Marque nouvelle", "Réseau à construire"],
-      opportunities: ["Digitalisation", "Nouveaux besoins", "Partenariats"],
-      threats: ["Concurrence établie", "Régulations", "Économie"]
+      strengths: [],
+      weaknesses: [],
+      opportunities: [],
+      threats: []
+    },
+    competitive_landscape: {
+      market_maturity: "À analyser",
+      competitive_intensity: "À déterminer",
+      key_success_factors: []
     },
     strategic_recommendations: {
-      immediate_actions: [
-        {
-          action: "Valider le marché avec POC",
-          impact: "high",
-          timeline: "1-2 mois"
-        },
-        {
-          action: "Développer MVP",
-          impact: "high", 
-          timeline: "3 mois"
-        },
-        {
-          action: "Acquérir premiers clients",
-          impact: "medium",
-          timeline: "4-6 mois"
-        }
-      ],
-      long_term_vision: `Leader innovant en ${industryName} d'ici 3-5 ans`
+      immediate_actions: [],
+      long_term_vision: "À définir après analyse complète"
     },
-    visualization_data: {
-      market_growth_chart: {
-        type: "line",
-        data: [
-          { year: currentYear - 1, value: 100 },
-          { year: currentYear, value: 110 },
-          { year: currentYear + 1, value: 121 },
-          { year: currentYear + 2, value: 133 }
-        ]
+    pestel_analysis: {
+      political: { factors: [], impact: "À analyser", risk_level: "unknown" },
+      economic: { factors: [], impact: "À analyser", risk_level: "unknown" },
+      social: { factors: [], impact: "À analyser", risk_level: "unknown" },
+      technological: { factors: [], impact: "À analyser", risk_level: "unknown" },
+      environmental: { factors: [], impact: "À analyser", risk_level: "unknown" },
+      legal: { factors: [], impact: "À analyser", risk_level: "unknown" }
+    },
+    porter_five_forces: {
+      threat_of_new_entrants: { level: "unknown", factors: [], barriers: [] },
+      bargaining_power_of_suppliers: { level: "unknown", factors: [], key_suppliers: [] },
+      bargaining_power_of_buyers: { level: "unknown", factors: [], buyer_concentration: "À analyser" },
+      threat_of_substitutes: { level: "unknown", factors: [], substitutes: [] },
+      competitive_rivalry: { level: "unknown", factors: [], main_competitors: [] }
+    },
+    sources: [
+      {
+        name: "Analyse non disponible",
+        type: "Erreur système",
+        date: new Date().getFullYear().toString(),
+        credibility: "estimation"
       }
-    },
-    pestel_analysis: generatePestelForIndustry(industryName),
-    porter_five_forces: generatePorterForIndustry(industryName)
+    ]
   };
 }
