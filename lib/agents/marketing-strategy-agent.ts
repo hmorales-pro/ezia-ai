@@ -501,10 +501,10 @@ function generateMarketingFallback(business: any) {
     ],
     campaign_ideas: [
       {
-        name: `"${business.name}: La Révolution ${business.industry}"`,
+        name: `${business.name}: La Révolution ${business.industry}`,
         objective: "Lancement et notoriété de marque",
         target_segment: "Innovateurs précoces",
-        key_message: `"Rejoignez les leaders qui transforment ${business.industry}"`,
+        key_message: `Rejoignez les leaders qui transforment ${business.industry}`,
         channels: ["LinkedIn", "Google Ads", "Email", "PR"],
         duration: "3 mois",
         budget_estimate: "15,000€ - 20,000€",

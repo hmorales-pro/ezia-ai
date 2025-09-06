@@ -326,7 +326,7 @@ function generateMinimalAnalysis(business: any): any {
         threat_level: "high"
       },
       {
-        name: `${industryName} Innovations",
+        name: `${industryName} Innovations`,
         strengths: [
           "Technologies de pointe",
           "Équipe agile et réactive",
@@ -363,7 +363,7 @@ function generateMinimalAnalysis(business: any): any {
     ],
     competitive_positioning: {
       current_position: "Challenger innovant en croissance",
-      desired_position: `Leader de l'innovation ${industryName}`,
+      desired_position: "Leader de l'innovation " + industryName,
       key_differentiators: [
         "Solution unique sur le marché",
         "Meilleur rapport qualité/prix",
