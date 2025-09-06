@@ -2,6 +2,7 @@ import { generateWithMistralAPI } from '@/lib/mistral-ai-service';
 import { generateWithMistralSearch } from '@/lib/mistral-search-service';
 import { generateAIResponse } from '@/lib/ai-service';
 import { parseAIGeneratedJson } from './json-sanitizer';
+import { generatePestelForIndustry, generatePorterForIndustry } from './analysis-helpers';
 
 // Version simplifiée de l'analyse de marché pour éviter la troncature
 export async function runSimplifiedMarketAnalysisAgent(business: any): Promise<any> {
@@ -116,6 +117,169 @@ export async function runSimplifiedMarketAnalysisAgent(business: any): Promise<a
           { year: 2025, value: 141 }
         ]
       }
+    },
+    pestel_analysis: {
+      political: {
+        factors: [
+          "Réglementation sanitaire stricte (normes HACCP, traçabilité)",
+          "Politiques de soutien au tourisme gastronomique",
+          "Tensions sur les licences et autorisations temporaires",
+          "Régulation du travail dans la restauration (35h, extras)"
+        ],
+        impact: "Les réglementations strictes favorisent les acteurs organisés et créent des barrières à l'entrée",
+        risk_level: "medium"
+      },
+      economic: {
+        factors: [
+          "Inflation alimentaire élevée (+12% sur produits premium en 2023)",
+          "Pouvoir d'achat segment luxe résilient malgré la crise",
+          "Coûts immobiliers Paris très élevés (150€/m²/mois restauration)",
+          "Pénurie de main d'oeuvre qualifiée (+15% salaires)"
+        ],
+        impact: "Pression sur les marges mais clientèle premium peu sensible aux prix",
+        risk_level: "high"
+      },
+      social: {
+        factors: [
+          "Quête d'expériences uniques et 'instagrammables'",
+          "Montée du foodie tourism international",
+          "Sensibilité croissante à la durabilité et au local",
+          "Culture du FOMO (fear of missing out) chez les millennials"
+        ],
+        impact: "Forte demande pour des concepts innovants et éphémères",
+        risk_level: "low"
+      },
+      technological: {
+        factors: [
+          "Digitalisation des réservations (95% en ligne)",
+          "Influence des réseaux sociaux sur les choix",
+          "Technologies de cuisine moléculaire accessibles",
+          "Outils de gestion et analytics sophistiqués"
+        ],
+        impact: "La tech permet l'optimisation mais crée une dépendance au digital",
+        risk_level: "low"
+      },
+      environmental: {
+        factors: [
+          "Exigences de sourcing durable et bio",
+          "Gestion des déchets alimentaires obligatoire",
+          "Bilan carbone scrutinisé par les clients",
+          "Saisonnalité des produits limite les menus"
+        ],
+        impact: "Contraintes opérationnelles mais opportunité de différenciation",
+        risk_level: "medium"
+      },
+      legal: {
+        factors: [
+          "Droit du travail complexe (CDD, intermittents)",
+          "Licences IV limitées et chères",
+          "Responsabilité hygiene stricte (fermeture immédiate)",
+          "RGPD pour données clients VIP"
+        ],
+        impact: "Complexité administrative élevée nécessitant expertise",
+        risk_level: "high"
+      }
+    },
+    porter_five_forces: {
+      threat_of_new_entrants: {
+        level: "medium",
+        factors: [
+          "Barrières capitalistiques élevées (500K€ minimum Paris)",
+          "Difficulté d'accès aux emplacements premium",
+          "Nécessité d'un réseau dans le milieu gastronomique",
+          "Complexité réglementaire décourageante"
+        ],
+        barriers: [
+          "Investissement initial conséquent",
+          "Expertise culinaire de haut niveau requise",
+          "Réputation à construire dans un milieu fermé"
+        ]
+      },
+      bargaining_power_of_suppliers: {
+        level: "high",
+        factors: [
+          "Fournisseurs premium en position de force",
+          "Rareté des produits d'exception",
+          "Dépendance aux chefs étoilés invités",
+          "Exclusivités difficiles à négocier"
+        ],
+        key_suppliers: [
+          "Producteurs AOP/AOC exclusifs",
+          "Maisons de champagne et vins prestigieux",
+          "Chefs étoilés et leurs agents",
+          "Fournisseurs équipements haute gamme"
+        ]
+      },
+      bargaining_power_of_buyers: {
+        level: "medium",
+        factors: [
+          "Clientèle exigeante mais captive sur le premium",
+          "Forte influence des avis en ligne",
+          "Comparaison facile entre restaurants étoilés",
+          "Fidélité faible sur concepts éphémères"
+        ],
+        buyer_concentration: "Clientèle fragmentée mais influenceurs clés"
+      },
+      threat_of_substitutes: {
+        level: "low",
+        factors: [
+          "Peu d'alternatives au dining gastronomique",
+          "Expérience unique difficile à reproduire",
+          "Chefs privés restent très coûteux",
+          "Food tours ne remplacent pas l'expérience"
+        ],
+        substitutes: [
+          "Restaurants étoilés traditionnels",
+          "Tables d'hôtes exclusives",
+          "Clubs privés avec restauration",
+          "Expériences culinaires à domicile"
+        ]
+      },
+      competitive_rivalry: {
+        level: "high",
+        factors: [
+          "Compétition intense pour les meilleures tables",
+          "Course aux chefs les plus médiatisés",
+          "Innovation constante nécessaire",
+          "Guerre des prix impossible sur le premium"
+        ],
+        main_competitors: [
+          "Restaurants 3 étoiles Michelin",
+          "Pop-ups de chefs célèbres",
+          "Hôtels palaces avec restaurants",
+          "Nouveaux concepts gastronomiques"
+        ]
+      }
+    },
+    swot_analysis: {
+      strengths: [
+        "Concept unique d'éphémère gastronomique mensuel",
+        "Flexibilité totale sur les menus et expériences",
+        "Création de rareté et d'urgence naturelles",
+        "Pas de lassitude grâce au renouvellement",
+        "Buzz médiatique assuré à chaque rotation"
+      ],
+      weaknesses: [
+        "Coûts opérationnels du changement mensuel",
+        "Difficulté à fidéliser sans continuité",
+        "Risque de qualité variable selon les chefs",
+        "Complexité logistique extrême",
+        "Investissement marketing récurrent élevé"
+      ],
+      opportunities: [
+        "Marché des expériences exclusives en boom",
+        "Tourisme gastronomique international croissant",
+        "Potentiel de franchise du concept",
+        "Développement produits dérivés (livre, doc)",
+        "Partenariats luxe pour événements privés"
+      ],
+      threats: [
+        "Copie du concept par acteurs établis",
+        "Dépendance aux chefs stars disponibles",
+        "Sensibilité aux crises (sanitaire, éco)",
+        "Risque d'un mois raté = bad buzz",
+        "Lassitude possible du concept éphémère"
+      ]
     }
   };
   
@@ -129,7 +293,9 @@ Tu DOIS fournir une analyse de marché PROFESSIONNELLE et ACTIONNABLE en respect
 5. Donne des insights STRATÉGIQUES exploitables
 6. Sois PRÉCIS sur les segments et leurs caractéristiques
 7. Chaque recommandation doit être actionnable
-8. OBLIGATOIRE: Inclure un champ "sources" avec au moins 4 références crédibles`;
+8. OBLIGATOIRE: Inclure un champ "sources" avec au moins 4 références crédibles
+9. Générer des analyses PESTEL et Porter complètes et PERTINENTES
+10. SWOT doit contenir des points SPÉCIFIQUES au business, pas génériques`;
 
   const prompt = `Réalise une étude de marché APPROFONDIE et PROFESSIONNELLE pour:
 
@@ -143,6 +309,10 @@ IMPORTANT:
 - Analyse les tendances ACTUELLES et ÉMERGENTES du secteur
 - Donne une stratégie d'entrée sur le marché CONCRÈTE
 - Quantifie les opportunités et les risques
+- IMPORTANT: Ajoute des sections complètes pour:
+  * pestel_analysis: 6 dimensions avec factors, impact et risk_level
+  * porter_five_forces: 5 forces avec level, factors et analyses spécifiques
+  * swot_analysis: forces, faiblesses, opportunités, menaces PERTINENTES
 
 Structure JSON EXACTE à suivre:
 ${JSON.stringify(exampleJson, null, 2)}`;
@@ -214,7 +384,9 @@ ${JSON.stringify(exampleJson, null, 2)}`;
               { action: "Développer un MVP", impact: "high", timeline: "3 mois" }
             ],
             long_term_vision: "Devenir leader du secteur"
-          }
+          },
+          pestel_analysis: analysis.pestel_analysis || generatePestelForIndustry(business.industry),
+          porter_five_forces: analysis.porter_five_forces || generatePorterForIndustry(business.industry)
         };
         
         return transformedAnalysis;
@@ -339,6 +511,8 @@ export function generateMinimalMarketAnalysis(business: any): any {
         ],
         long_term_vision: "Devenir la référence mondiale des restaurants éphémères gastronomiques"
       },
+      pestel_analysis: generatePestelForIndustry(industryName),
+      porter_five_forces: generatePorterForIndustry(industryName),
       visualization_data: {
         market_growth_chart: {
           type: "line",
@@ -349,7 +523,9 @@ export function generateMinimalMarketAnalysis(business: any): any {
             { year: currentYear + 2, value: 127 }
           ]
         }
-      }
+      },
+      pestel_analysis: generatePestelForIndustry(industryName),
+      porter_five_forces: generatePorterForIndustry(industryName)
     };
   }
   
@@ -458,6 +634,8 @@ export function generateMinimalMarketAnalysis(business: any): any {
           { year: currentYear + 2, value: 133 }
         ]
       }
-    }
+    },
+    pestel_analysis: generatePestelForIndustry(industryName),
+    porter_five_forces: generatePorterForIndustry(industryName)
   };
 }
