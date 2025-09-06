@@ -447,6 +447,11 @@ export function generateMinimalMarketAnalysis(business: any): any {
         serviceable_obtainable_market: "10-15 millions € (niche premium)",
         growth_rate: "8% annuel (segment premium)"
       },
+      market_overview: {
+        market_size: "65 milliards € (restauration France)",
+        growth_rate: "8% annuel (segment premium)",
+        market_maturity: "Marché mature avec poches d'innovation"
+      },
       market_dynamics: {
         key_drivers: [
           "Recherche d'expériences mémorables",
@@ -575,6 +580,11 @@ export function generateMinimalMarketAnalysis(business: any): any {
       serviceable_addressable_market: "20M€ - 100M€ (segment cible)",
       serviceable_obtainable_market: "2M€ - 10M€ (part réaliste)",
       growth_rate: "10-15% annuel"
+    },
+    market_overview: {
+      market_size: "100M€ - 500M€ selon estimations",
+      growth_rate: "10-15% annuel",
+      market_maturity: "Marché en phase de croissance"
     },
     market_dynamics: {
       key_drivers: [

@@ -92,13 +92,21 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
                   {analysis.executive_summary.market_opportunity && (
                     <div className="bg-purple-50 p-4 rounded-lg">
                       <h5 className="font-medium text-[#6D3FC8] mb-1">Opportunité de marché</h5>
-                      <p className="text-sm">{analysis.executive_summary.market_opportunity}</p>
+                      <p className="text-sm">
+                        {typeof analysis.executive_summary.market_opportunity === 'string' 
+                          ? analysis.executive_summary.market_opportunity 
+                          : JSON.stringify(analysis.executive_summary.market_opportunity)}
+                      </p>
                     </div>
                   )}
                   {analysis.executive_summary.growth_forecast && (
                     <div className="bg-blue-50 p-4 rounded-lg">
                       <h5 className="font-medium text-blue-700 mb-1">Prévision de croissance</h5>
-                      <p className="text-sm">{analysis.executive_summary.growth_forecast}</p>
+                      <p className="text-sm">
+                        {typeof analysis.executive_summary.growth_forecast === 'string' 
+                          ? analysis.executive_summary.growth_forecast 
+                          : JSON.stringify(analysis.executive_summary.growth_forecast)}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -107,7 +115,11 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
               {analysis.executive_summary.strategic_positioning && (
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h5 className="font-medium mb-1">Positionnement stratégique</h5>
-                  <p className="text-sm">{analysis.executive_summary.strategic_positioning}</p>
+                  <p className="text-sm">
+                    {typeof analysis.executive_summary.strategic_positioning === 'string' 
+                      ? analysis.executive_summary.strategic_positioning 
+                      : JSON.stringify(analysis.executive_summary.strategic_positioning)}
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -141,13 +153,25 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
                     {analysis.market_overview.market_size && (
                       <div>
                         <p className="text-sm text-gray-500">Taille du marché</p>
-                        <p className="font-semibold">{analysis.market_overview.market_size}</p>
+                        <p className="font-semibold">
+                          {typeof analysis.market_overview.market_size === 'string' 
+                            ? analysis.market_overview.market_size 
+                            : analysis.market_overview.market_size.value 
+                              ? `${analysis.market_overview.market_size.value} ${analysis.market_overview.market_size.unit || ''}`.trim()
+                              : 'Non disponible'}
+                        </p>
                       </div>
                     )}
                     {analysis.market_overview.growth_rate && (
                       <div>
                         <p className="text-sm text-gray-500">Taux de croissance</p>
-                        <p className="font-semibold">{analysis.market_overview.growth_rate}</p>
+                        <p className="font-semibold">
+                          {typeof analysis.market_overview.growth_rate === 'string' 
+                            ? analysis.market_overview.growth_rate 
+                            : analysis.market_overview.growth_rate.growth_rate 
+                              ? `${analysis.market_overview.growth_rate.growth_rate}${analysis.market_overview.growth_rate.growth_unit || '%'} ${analysis.market_overview.growth_rate.growth_period ? `(${analysis.market_overview.growth_rate.growth_period})` : ''}`.trim()
+                              : 'Non disponible'}
+                        </p>
                       </div>
                     )}
                     {analysis.market_overview.market_maturity && (
