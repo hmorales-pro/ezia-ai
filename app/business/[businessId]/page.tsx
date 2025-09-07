@@ -160,6 +160,12 @@ function BusinessDetailPage() {
         try {
           // Fetch silencieusement sans recharger la page
           const response = await api.get(`/api/me/business/${businessId}/simple`);
+          
+          if (!response.data || !response.data.business) {
+            console.error('[Auto-refresh] Données invalides reçues');
+            return;
+          }
+          
           const updatedBusiness = response.data.business;
           
           // Vérifier si les analyses sont terminées
@@ -227,6 +233,10 @@ function BusinessDetailPage() {
         setLoadingMessage("Récupération des informations du business...");
       }
       const response = await api.get(`/api/me/business/${businessId}/simple`);
+      
+      if (!response.data || !response.data.business) {
+        throw new Error("Format de réponse invalide");
+      }
       
       if (!business) {
         setLoadingMessage("Préparation de l'interface...");

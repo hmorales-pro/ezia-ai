@@ -17,9 +17,16 @@ export default function ContentPage() {
   const [business, setBusiness] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("blog");
 
   useEffect(() => {
     fetchBusinessInfo();
+    
+    // Vérifier si on doit charger un article depuis le calendrier
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tab') === 'blog' && urlParams.get('edit') === 'true') {
+      setActiveTab('blog');
+    }
   }, [businessId]);
 
   const fetchBusinessInfo = async () => {
@@ -70,7 +77,7 @@ export default function ContentPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="blog" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="blog">
             <FileText className="h-4 w-4 mr-2" />

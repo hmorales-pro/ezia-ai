@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isToday, isSameMonth, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,12 +28,13 @@ import {
   Loader2, Edit, Trash2, Clock, CheckCircle, AlertCircle, Sparkles, TrendingUp, 
   Target, Users, Linkedin, Facebook, Instagram, Twitter, Youtube, Globe, Zap, 
   BarChart3, MessageSquare, Lightbulb, PenTool, Camera, Megaphone, Eye, Send,
-  ImageIcon, Wand2, RefreshCw, MoreVertical, Settings
+  ImageIcon, Wand2, RefreshCw, MoreVertical, Settings, BookOpen, ExternalLink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { useRouter } from "next/navigation";
 
 interface ContentItem {
   id: string;
@@ -63,6 +64,13 @@ interface ContentItem {
     estimatedReach?: number;
     estimatedEngagement?: number;
   };
+  // Propriétés spécifiques aux articles de blog
+  excerpt?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  wordCount?: number;
+  readTime?: number;
+  blogPostId?: string; // ID de l'article dans la base de données
 }
 
 interface UnifiedContentCalendarProps {
@@ -76,7 +84,7 @@ interface UnifiedContentCalendarProps {
 }
 
 const contentTypeConfig = {
-  article: { icon: FileText, color: "bg-blue-100 text-blue-800", label: "Article" },
+  article: { icon: FileText, color: "bg-blue-100 text-blue-800", label: "Article de blog" },
   video: { icon: Video, color: "bg-purple-100 text-purple-800", label: "Vidéo" },
   image: { icon: Image, color: "bg-green-100 text-green-800", label: "Visuel" },
   social: { icon: Hash, color: "bg-orange-100 text-orange-800", label: "Post social" },
@@ -176,6 +184,8 @@ export function UnifiedContentCalendar({
   marketingStrategy,
   competitorAnalysis
 }: UnifiedContentCalendarProps) {
+  const router = useRouter();
+  const saveTimeout = useRef<NodeJS.Timeout | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
@@ -206,11 +216,32 @@ export function UnifiedContentCalendar({
   });
 
   useEffect(() => {
+    // Éviter les appels multiples
+    let mounted = true;
+    
     // Charger le calendrier sauvegardé depuis l'API
-    loadSavedCalendar();
+    const loadData = async () => {
+      if (mounted) {
+        await loadSavedCalendar();
+      }
+    };
+    
+    loadData();
+    
+    return () => {
+      mounted = false;
+      // Nettoyer le timeout de sauvegarde
+      if (saveTimeout.current) {
+        clearTimeout(saveTimeout.current);
+      }
+    };
   }, [businessId]);
 
   const loadSavedCalendar = async () => {
+    // Éviter de recharger si déjà en cours
+    if (loading) return;
+    
+    setLoading(true);
     try {
       const response = await api.get(`/api/me/business/${businessId}/calendar`);
       if (response.data.calendar?.items) {
@@ -226,6 +257,8 @@ export function UnifiedContentCalendar({
       console.error("Error loading calendar:", error);
       // Fallback sur le stockage local
       setContentItems(global.unifiedContentItems[businessId] || []);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -234,14 +267,25 @@ export function UnifiedContentCalendar({
     global.unifiedContentItems[businessId] = items;
     setContentItems(items);
     
-    // Sauvegarder sur le serveur
+    // Sauvegarder sur le serveur de manière asynchrone sans bloquer l'UI
     try {
-      await api.post(`/api/me/business/${businessId}/calendar`, {
-        calendar: items
-      });
+      // Utiliser setTimeout pour éviter les mises à jour trop fréquentes
+      if (saveTimeout.current) {
+        clearTimeout(saveTimeout.current);
+      }
+      
+      saveTimeout.current = setTimeout(async () => {
+        try {
+          await api.post(`/api/me/business/${businessId}/calendar`, {
+            calendar: items
+          });
+        } catch (error) {
+          console.error("Error saving calendar to server:", error);
+          // Ne pas afficher d'erreur toast pour éviter de spammer l'utilisateur
+        }
+      }, 1000); // Debounce de 1 seconde
     } catch (error) {
-      console.error("Error saving calendar to server:", error);
-      toast.error("Erreur lors de la sauvegarde du calendrier");
+      console.error("Error in saveContentItems:", error);
     }
   };
 
@@ -425,11 +469,16 @@ export function UnifiedContentCalendar({
   };
 
   const handleGenerateSingleContent = async (item: ContentItem) => {
+    // Éviter la double génération
+    if (item.status === "generating" || item.status === "generated") {
+      return;
+    }
+    
     setLoading(true);
     const updated = contentItems.map(c => 
       c.id === item.id ? { ...c, status: "generating" as const } : c
     );
-    await saveContentItems(updated);
+    setContentItems(updated); // Mise à jour locale immédiate
     
     try {
       // Appel à l'API pour générer le contenu réel
@@ -594,6 +643,26 @@ export function UnifiedContentCalendar({
     );
     saveContentItems(updated);
     toast.success("Contenu publié avec succès !");
+  };
+
+  const handleOpenBlogEditor = (item: ContentItem) => {
+    // Sauvegarder l'article dans le localStorage pour le récupérer dans l'éditeur
+    if (item.type === "article") {
+      localStorage.setItem('blogEditorContent', JSON.stringify({
+        title: item.title,
+        content: item.content || '',
+        excerpt: item.excerpt || item.description || '',
+        tags: item.tags || [],
+        keywords: item.keywords || [],
+        tone: item.tone as any || 'professional',
+        seoTitle: item.seoTitle || item.title,
+        seoDescription: item.seoDescription || item.description || '',
+        calendarItemId: item.id // Pour pouvoir mettre à jour l'élément du calendrier après édition
+      }));
+      
+      // Naviguer vers l'éditeur de blog
+      router.push(`/space/${businessId}/content?tab=blog&edit=true`);
+    }
   };
 
   const resetForm = () => {
@@ -1044,6 +1113,16 @@ export function UnifiedContentCalendar({
                             >
                               <RefreshCw className="w-4 h-4" />
                             </Button>
+                            {item.type === "article" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleOpenBlogEditor(item)}
+                                title="Éditer dans l'éditeur de blog"
+                              >
+                                <BookOpen className="w-4 h-4" />
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               onClick={() => handlePublishContent(item)}

@@ -32,7 +32,7 @@ export async function GET(
       return NextResponse.json({ ok: false, error: "Business non trouvé" }, { status: 404 });
     }
     
-    return NextResponse.json({ ok: true, business });
+    return NextResponse.json({ success: true, business });
   } catch (error) {
     console.error('Get business error:', error);
     return NextResponse.json({ ok: false, error: "Erreur serveur" }, { status: 500 });

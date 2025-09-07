@@ -46,11 +46,42 @@ export default function BlogEditor({ businessId, businessInfo }: BlogEditorProps
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [activeTab, setActiveTab] = useState('generate');
   const [editedContent, setEditedContent] = useState('');
+  const [calendarItemId, setCalendarItemId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Charger les suggestions au montage
+  // Charger les suggestions au montage et vérifier si on édite depuis le calendrier
   useEffect(() => {
     loadSuggestions();
+    
+    // Vérifier si on a un article à charger depuis le calendrier
+    const savedContent = localStorage.getItem('blogEditorContent');
+    if (savedContent) {
+      try {
+        const data = JSON.parse(savedContent);
+        setTopic(data.title || '');
+        setKeywords(data.keywords || []);
+        setTone(data.tone || 'professional');
+        if (data.calendarItemId) {
+          setCalendarItemId(data.calendarItemId);
+        }
+        // Créer un objet de post généré
+        setGeneratedPost({
+          title: data.title,
+          content: data.content || '',
+          excerpt: data.excerpt || '',
+          seoTitle: data.seoTitle || data.title,
+          seoDescription: data.seoDescription || '',
+          tags: data.tags || []
+        });
+        setEditedContent(data.content || '');
+        setActiveTab('edit'); // Passer directement à l'onglet édition
+        
+        // Nettoyer le localStorage
+        localStorage.removeItem('blogEditorContent');
+      } catch (error) {
+        console.error('Erreur lors du chargement depuis le calendrier:', error);
+      }
+    }
   }, [businessId]);
 
   const loadSuggestions = async () => {
@@ -136,12 +167,56 @@ export default function BlogEditor({ businessId, businessInfo }: BlogEditorProps
   const handleSaveBlog = async () => {
     if (!generatedPost) return;
 
-    // Pour l'instant, on affiche juste un message de succès
-    // Plus tard, on pourra sauvegarder dans la base de données
-    toast({
-      title: "Article sauvegardé !",
-      description: "Votre article a été enregistré dans vos brouillons",
-    });
+    try {
+      const wordCount = editedContent.split(/\s+/).filter(word => word.length > 0).length;
+      const readTime = Math.ceil(wordCount / 200);
+      
+      const postData = {
+        title: generatedPost.title,
+        content: editedContent,
+        excerpt: generatedPost.excerpt || '',
+        tags: generatedPost.tags || [],
+        keywords: keywords,
+        tone: tone,
+        seoTitle: generatedPost.seoTitle || generatedPost.title,
+        seoDescription: generatedPost.seoDescription || generatedPost.excerpt || '',
+        wordCount,
+        readTime,
+        status: 'draft',
+        aiGenerated: true,
+        calendarItemId: calendarItemId
+      };
+
+      const response = await fetch(`/api/me/business/${businessId}/blog-posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast({
+          title: "Article sauvegardé !",
+          description: "Votre article a été enregistré dans vos brouillons",
+        });
+        
+        // Si on a un calendarItemId, on peut mettre à jour le calendrier
+        if (calendarItemId) {
+          // TODO: Appeler l'API pour mettre à jour l'élément du calendrier
+        }
+      } else {
+        throw new Error('Erreur lors de la sauvegarde');
+      }
+    } catch (error) {
+      console.error('Erreur sauvegarde:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder l'article",
+        variant: "destructive"
+      });
+    }
   };
 
   const handlePublishBlog = async () => {
