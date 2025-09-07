@@ -248,7 +248,12 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                         <div>
                           <span className="text-sm font-medium">Canaux préférés: </span>
                           <span className="text-sm text-gray-600">
-                            {segment.preferred_channels?.join(", ")}
+                            {Array.isArray(segment.preferred_channels) 
+                              ? segment.preferred_channels.map((channel: any) => 
+                                  typeof channel === 'string' ? channel : channel.name || channel.channel || JSON.stringify(channel)
+                                ).join(", ")
+                              : segment.preferred_channels
+                            }
                           </span>
                         </div>
                         <Badge variant="outline" className="font-semibold">
@@ -274,10 +279,10 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                 <div>
                   <h5 className="font-medium text-sm mb-1">Offres principales</h5>
                   <ul className="space-y-1">
-                    {strategy.marketing_mix?.product?.core_offerings?.map((offer: string, idx: number) => (
+                    {strategy.marketing_mix?.product?.core_offerings?.map((offer: any, idx: number) => (
                       <li key={idx} className="text-sm flex items-start gap-1">
                         <span className="text-[#6D3FC8]">→</span>
-                        {offer}
+                        {typeof offer === 'string' ? offer : offer.name || offer.offering || JSON.stringify(offer)}
                       </li>
                     ))}
                   </ul>
@@ -286,9 +291,9 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                 <div>
                   <h5 className="font-medium text-sm mb-1">Caractéristiques uniques</h5>
                   <div className="flex flex-wrap gap-1">
-                    {strategy.marketing_mix?.product?.unique_features?.map((feature: string, idx: number) => (
+                    {strategy.marketing_mix?.product?.unique_features?.map((feature: any, idx: number) => (
                       <Badge key={idx} variant="secondary" className="text-xs">
-                        {feature}
+                        {typeof feature === 'string' ? feature : feature.name || feature.feature || JSON.stringify(feature)}
                       </Badge>
                     ))}
                   </div>
@@ -315,10 +320,10 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                 <div>
                   <h5 className="font-medium text-sm">Tactiques</h5>
                   <ul className="space-y-1">
-                    {strategy.marketing_mix?.price?.tactics?.map((tactic: string, idx: number) => (
+                    {strategy.marketing_mix?.price?.tactics?.map((tactic: any, idx: number) => (
                       <li key={idx} className="text-sm flex items-center gap-1">
                         <DollarSign className="w-3 h-3 text-green-600" />
-                        {tactic}
+                        {typeof tactic === 'string' ? tactic : tactic.name || tactic.tactic || JSON.stringify(tactic)}
                       </li>
                     ))}
                   </ul>
@@ -335,10 +340,10 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                 <div>
                   <h5 className="font-medium text-sm mb-1">Canaux de distribution</h5>
                   <ul className="space-y-1">
-                    {strategy.marketing_mix?.place?.distribution_channels?.map((channel: string, idx: number) => (
+                    {strategy.marketing_mix?.place?.distribution_channels?.map((channel: any, idx: number) => (
                       <li key={idx} className="text-sm flex items-center gap-1">
                         <Map className="w-3 h-3 text-blue-600" />
-                        {channel}
+                        {typeof channel === 'string' ? channel : channel.name || channel.channel || JSON.stringify(channel)}
                       </li>
                     ))}
                   </ul>
@@ -346,9 +351,9 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                 <div>
                   <h5 className="font-medium text-sm">Présence en ligne</h5>
                   <div className="flex flex-wrap gap-1">
-                    {strategy.marketing_mix?.place?.online_presence?.map((presence: string, idx: number) => (
+                    {strategy.marketing_mix?.place?.online_presence?.map((presence: any, idx: number) => (
                       <Badge key={idx} variant="outline" className="text-xs">
-                        {presence}
+                        {typeof presence === 'string' ? presence : presence.name || presence.platform || JSON.stringify(presence)}
                       </Badge>
                     ))}
                   </div>
@@ -365,9 +370,9 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                 <div>
                   <h5 className="font-medium text-sm mb-1">Messages clés</h5>
                   <ul className="space-y-1">
-                    {strategy.marketing_mix?.promotion?.key_messages?.slice(0, 3).map((msg: string, idx: number) => (
+                    {strategy.marketing_mix?.promotion?.key_messages?.slice(0, 3).map((msg: any, idx: number) => (
                       <li key={idx} className="text-sm italic">
-                        "{msg}"
+                        "{typeof msg === 'string' ? msg : msg.message || msg.content || JSON.stringify(msg)}"
                       </li>
                     ))}
                   </ul>
@@ -375,9 +380,9 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                 <div>
                   <h5 className="font-medium text-sm">Tactiques promotionnelles</h5>
                   <div className="flex flex-wrap gap-1">
-                    {strategy.marketing_mix?.promotion?.promotional_tactics?.map((tactic: string, idx: number) => (
+                    {strategy.marketing_mix?.promotion?.promotional_tactics?.map((tactic: any, idx: number) => (
                       <Badge key={idx} className="text-xs bg-purple-100 text-purple-700">
-                        {tactic}
+                        {typeof tactic === 'string' ? tactic : tactic.name || tactic.tactic || JSON.stringify(tactic)}
                       </Badge>
                     ))}
                   </div>
