@@ -1,6 +1,7 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { spawn } from 'child_process';
+// MCP imports will be added when the SDK is installed
+// import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+// import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+// import { spawn } from 'child_process';
 import path from 'path';
 
 export interface PostResult {
@@ -29,9 +30,8 @@ export interface AnalyticsResult {
   topPosts?: any[];
 }
 
+// Temporary mock implementation until MCP SDK is installed
 class SocialMediaMCPClient {
-  private client: Client | null = null;
-  private transport: StdioClientTransport | null = null;
   private serverPath: string;
 
   constructor() {
@@ -40,57 +40,16 @@ class SocialMediaMCPClient {
   }
 
   async connect(): Promise<void> {
-    if (this.client) {
-      return; // Already connected
-    }
-
-    try {
-      // Spawn the MCP server process
-      const serverProcess = spawn('node', [this.serverPath], {
-        env: {
-          ...process.env,
-          // Ensure the server has access to env variables
-        },
-      });
-
-      this.transport = new StdioClientTransport({
-        command: 'node',
-        args: [this.serverPath],
-      });
-
-      this.client = new Client(
-        {
-          name: 'social-media-client',
-          version: '1.0.0',
-        },
-        {
-          capabilities: {},
-        }
-      );
-
-      await this.client.connect(this.transport);
-      console.log('Connected to Social Media MCP server');
-    } catch (error) {
-      console.error('Failed to connect to MCP server:', error);
-      throw error;
-    }
+    // Mock implementation
+    console.log('Social Media MCP client: Mock mode (MCP SDK not installed)');
   }
 
   async disconnect(): Promise<void> {
-    if (this.client) {
-      await this.client.close();
-      this.client = null;
-    }
-    if (this.transport) {
-      await this.transport.close();
-      this.transport = null;
-    }
+    // Mock implementation
   }
 
   private async ensureConnected(): Promise<void> {
-    if (!this.client) {
-      await this.connect();
-    }
+    // Mock implementation
   }
 
   async post(
@@ -101,24 +60,13 @@ class SocialMediaMCPClient {
   ): Promise<PostResult[]> {
     await this.ensureConnected();
 
-    try {
-      const result = await this.client!.callTool('social_post', {
-        content,
-        platforms,
-        businessId,
-        mediaUrls,
-      });
-
-      const response = JSON.parse(result.content[0].text);
-      return response.results || [];
-    } catch (error) {
-      console.error('MCP post error:', error);
-      return platforms.map(platform => ({
-        platform,
-        success: false,
-        error: error.message,
-      }));
-    }
+    // Mock implementation - return error for now
+    console.warn('Social media posting not available - MCP SDK not installed');
+    return platforms.map(platform => ({
+      platform,
+      success: false,
+      error: 'MCP SDK not installed - social media posting unavailable',
+    }));
   }
 
   async getAuthUrl(
@@ -128,33 +76,15 @@ class SocialMediaMCPClient {
   ): Promise<string> {
     await this.ensureConnected();
 
-    try {
-      const result = await this.client!.callTool('social_connect', {
-        platform,
-        businessId,
-        redirectUri,
-      });
-
-      const response = JSON.parse(result.content[0].text);
-      return response.authUrl;
-    } catch (error) {
-      console.error('MCP auth URL error:', error);
-      throw error;
-    }
+    // Mock implementation
+    throw new Error('MCP SDK not installed - OAuth connection unavailable');
   }
 
   async disconnect(platform: string, businessId: string): Promise<void> {
     await this.ensureConnected();
 
-    try {
-      await this.client!.callTool('social_disconnect', {
-        platform,
-        businessId,
-      });
-    } catch (error) {
-      console.error('MCP disconnect error:', error);
-      throw error;
-    }
+    // Mock implementation
+    throw new Error('MCP SDK not installed - disconnect unavailable');
   }
 
   async getAnalytics(
@@ -165,19 +95,8 @@ class SocialMediaMCPClient {
   ): Promise<AnalyticsResult> {
     await this.ensureConnected();
 
-    try {
-      const result = await this.client!.callTool('social_analytics', {
-        platform,
-        businessId,
-        startDate,
-        endDate,
-      });
-
-      return JSON.parse(result.content[0].text);
-    } catch (error) {
-      console.error('MCP analytics error:', error);
-      throw error;
-    }
+    // Mock implementation
+    throw new Error('MCP SDK not installed - analytics unavailable');
   }
 
   async formatContent(
@@ -191,30 +110,15 @@ class SocialMediaMCPClient {
   ): Promise<string> {
     await this.ensureConnected();
 
-    try {
-      const result = await this.client!.callTool('format_content', {
-        content,
-        platform,
-        options,
-      });
-
-      return result.content[0].text;
-    } catch (error) {
-      console.error('MCP format content error:', error);
-      return content; // Return original content on error
-    }
+    // Mock implementation - return original content
+    return content;
   }
 
   async listConnectedAccounts(): Promise<any[]> {
     await this.ensureConnected();
 
-    try {
-      const result = await this.client!.listResources();
-      return result.resources || [];
-    } catch (error) {
-      console.error('MCP list resources error:', error);
-      return [];
-    }
+    // Mock implementation
+    return [];
   }
 }
 
