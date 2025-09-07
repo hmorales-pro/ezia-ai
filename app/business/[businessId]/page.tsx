@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,6 +110,17 @@ function BusinessDetailPage() {
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const pollingInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup au démontage du composant
+  useEffect(() => {
+    return () => {
+      if (pollingInterval.current) {
+        clearInterval(pollingInterval.current);
+        pollingInterval.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     fetchBusiness();
@@ -148,6 +159,12 @@ function BusinessDetailPage() {
 
   // Auto-refresh si des analyses sont en cours
   useEffect(() => {
+    // Nettoyer l'interval précédent s'il existe
+    if (pollingInterval.current) {
+      clearInterval(pollingInterval.current);
+      pollingInterval.current = null;
+    }
+    
     if (!business?.agents_status) return;
     
     const hasActiveAnalysis = Object.values(business.agents_status).some(
@@ -156,7 +173,7 @@ function BusinessDetailPage() {
     
     if (hasActiveAnalysis) {
       console.log('[Auto-refresh] Analyses en cours détectées');
-      const interval = setInterval(async () => {
+      pollingInterval.current = setInterval(async () => {
         try {
           // Fetch silencieusement sans recharger la page
           const response = await api.get(`/api/me/business/${businessId}/simple`);
@@ -192,16 +209,24 @@ function BusinessDetailPage() {
           // Si toutes les analyses sont terminées, arrêter le polling
           if (!stillActive) {
             console.log('[Auto-refresh] Toutes les analyses sont terminées');
-            clearInterval(interval);
+            if (pollingInterval.current) {
+              clearInterval(pollingInterval.current);
+              pollingInterval.current = null;
+            }
           }
         } catch (error) {
           console.error('[Auto-refresh] Erreur:', error);
         }
       }, 5000); // Toutes les 5 secondes au lieu de 3
       
-      return () => clearInterval(interval);
+      return () => {
+        if (pollingInterval.current) {
+          clearInterval(pollingInterval.current);
+          pollingInterval.current = null;
+        }
+      };
     }
-  }, [business?.agents_status, businessId]);
+  }, [businessId]); // Retirer business?.agents_status des dépendances pour éviter la boucle
 
   const handleDeepen = async (section: string, analysisType: string) => {
     try {
