@@ -22,7 +22,16 @@ import {
   Eye,
   ShoppingCart,
   UserCheck,
-  Trophy
+  Trophy,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Activity,
+  Zap,
+  Flag,
+  ArrowRight,
+  ListTodo,
+  Timer
 } from "lucide-react";
 
 interface MarketingStrategyDisplayProps {
@@ -650,58 +659,310 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
         </TabsContent>
 
         <TabsContent value="roadmap" className="space-y-4">
+          {/* Roadmap Header avec vue d'ensemble */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Map className="w-5 h-5" />
-                Roadmap de mise en œuvre
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Map className="w-5 h-5" />
+                  Feuille de route stratégique
+                </CardTitle>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <Timer className="w-3 h-3" />
+                  {strategy.implementation_roadmap?.length || 0} phases
+                </Badge>
+              </div>
+              <CardDescription>
+                Plan d'exécution détaillé avec jalons, actions et indicateurs de succès
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          {/* Timeline horizontale des phases */}
+          <Card>
+            <CardHeader className="pb-3">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                Timeline d'exécution
+              </h3>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {strategy.implementation_roadmap?.map((phase: any, idx: number) => (
-                  <div key={idx} className="relative">
-                    {idx < strategy.implementation_roadmap.length - 1 && (
-                      <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-gray-200" />
-                    )}
-                    
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-12 h-12 bg-[#6D3FC8] rounded-full flex items-center justify-center text-white font-semibold">
+              <div className="overflow-x-auto pb-4">
+                <div className="flex gap-2 min-w-max">
+                  {strategy.implementation_roadmap?.map((phase: any, idx: number) => (
+                    <div key={idx} className="relative flex-1 min-w-[200px]">
+                      {idx < strategy.implementation_roadmap.length - 1 && (
+                        <ArrowRight className="absolute right-0 top-6 -mr-1 text-gray-400 w-4 h-4" />
+                      )}
+                      <div className={`p-4 rounded-lg border-2 ${
+                        idx === 0 ? 'border-purple-500 bg-purple-50' : 
+                        idx === 1 ? 'border-blue-500 bg-blue-50' : 
+                        idx === 2 ? 'border-green-500 bg-green-50' : 
+                        'border-gray-300 bg-gray-50'
+                      }`}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white ${
+                            idx === 0 ? 'bg-purple-500' : 
+                            idx === 1 ? 'bg-blue-500' : 
+                            idx === 2 ? 'bg-green-500' : 
+                            'bg-gray-500'
+                          }`}>
+                            {idx + 1}
+                          </span>
+                          <span className="font-semibold text-sm">{phase.phase}</span>
+                        </div>
+                        <p className="text-xs text-gray-600 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {phase.duration}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Phases détaillées avec actions concrètes */}
+          <div className="space-y-4">
+            {strategy.implementation_roadmap?.map((phase: any, idx: number) => (
+              <Card key={idx} className="overflow-hidden">
+                <div className={`h-2 ${
+                  idx === 0 ? 'bg-purple-500' : 
+                  idx === 1 ? 'bg-blue-500' : 
+                  idx === 2 ? 'bg-green-500' : 
+                  'bg-gray-500'
+                }`} />
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg ${
+                        idx === 0 ? 'bg-purple-500' : 
+                        idx === 1 ? 'bg-blue-500' : 
+                        idx === 2 ? 'bg-green-500' : 
+                        'bg-gray-500'
+                      }`}>
                         {idx + 1}
                       </div>
-                      
-                      <div className="flex-1 border rounded-lg p-4 mb-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h4 className="font-semibold">{phase.phase}</h4>
-                            <p className="text-sm text-gray-600">{phase.duration}</p>
-                          </div>
-                          <Badge variant="outline">{phase.budget}</Badge>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div>
-                            <h5 className="text-sm font-medium mb-1">Objectifs</h5>
-                            <ul className="space-y-1">
-                              {phase.objectives?.map((obj: string, objIdx: number) => (
-                                <li key={objIdx} className="text-sm text-gray-600">• {obj}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          
-                          <div>
-                            <h5 className="text-sm font-medium mb-1">Critères de succès</h5>
-                            <ul className="space-y-1">
-                              {phase.success_criteria?.map((criteria: string, critIdx: number) => (
-                                <li key={critIdx} className="text-sm text-green-600">✓ {criteria}</li>
-                              ))}
-                            </ul>
-                          </div>
+                      <div>
+                        <h3 className="text-xl font-bold">{phase.phase}</h3>
+                        <div className="flex items-center gap-4 mt-1">
+                          <p className="text-sm text-gray-600 flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            {phase.duration}
+                          </p>
+                          <p className="text-sm font-semibold text-[#6D3FC8] flex items-center gap-1">
+                            <DollarSign className="w-4 h-4" />
+                            {phase.budget}
+                          </p>
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
+                </CardHeader>
+                
+                <CardContent className="space-y-6">
+                  {/* Objectifs avec icônes */}
+                  <div>
+                    <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-[#6D3FC8]" />
+                      Objectifs clés
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {phase.objectives?.map((obj: string, objIdx: number) => (
+                        <div key={objIdx} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
+                          <Flag className="w-4 h-4 text-[#6D3FC8] mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">{obj}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Actions concrètes */}
+                  <div>
+                    <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                      <ListTodo className="w-5 h-5 text-blue-600" />
+                      Actions à mener
+                    </h4>
+                    <div className="space-y-2">
+                      {phase.key_actions?.map((action: string, actIdx: number) => (
+                        <div key={actIdx} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                          <Zap className="w-4 h-4 text-blue-600" />
+                          <span className="text-sm flex-1">{action}</span>
+                        </div>
+                      )) || (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {phase.objectives?.map((obj: string, objIdx: number) => (
+                            <div key={objIdx} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                              <Zap className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm flex-1">Implémenter: {obj}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Critères de succès */}
+                  <div>
+                    <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      Critères de succès mesurables
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {phase.success_criteria?.map((criteria: string, critIdx: number) => (
+                        <div key={critIdx} className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                          <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-green-900">{criteria}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Risques et dépendances */}
+                  {(phase.risks || phase.dependencies) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {phase.risks && (
+                        <div>
+                          <h5 className="font-medium text-sm mb-2 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4 text-orange-600" />
+                            Risques identifiés
+                          </h5>
+                          <div className="space-y-1">
+                            {phase.risks.map((risk: string, riskIdx: number) => (
+                              <div key={riskIdx} className="text-sm text-orange-700 bg-orange-50 p-2 rounded">
+                                • {risk}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {phase.dependencies && (
+                        <div>
+                          <h5 className="font-medium text-sm mb-2">Dépendances</h5>
+                          <div className="space-y-1">
+                            {phase.dependencies.map((dep: string, depIdx: number) => (
+                              <div key={depIdx} className="text-sm text-gray-700 bg-gray-100 p-2 rounded">
+                                • {dep}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Quick Actions & Next Steps */}
+          <Card className="border-2 border-[#6D3FC8]">
+            <CardHeader className="bg-purple-50">
+              <CardTitle className="flex items-center gap-2">
+                <Rocket className="w-5 h-5 text-[#6D3FC8]" />
+                Actions immédiates recommandées
+              </CardTitle>
+              <CardDescription>
+                Les 3 prochaines actions à lancer dès maintenant pour démarrer votre stratégie
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {strategy.implementation_roadmap?.[0]?.objectives?.slice(0, 3).map((obj: string, idx: number) => (
+                  <div key={idx} className="relative">
+                    <div className="absolute -top-2 -left-2 w-8 h-8 bg-[#6D3FC8] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      {idx + 1}
+                    </div>
+                    <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 pl-8 hover:border-solid hover:border-[#6D3FC8] transition-all cursor-pointer">
+                      <h5 className="font-semibold text-sm mb-2">Action immédiate</h5>
+                      <p className="text-sm text-gray-700">{obj}</p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <Badge variant="outline" className="text-xs">
+                          Phase 1
+                        </Badge>
+                        <ArrowRight className="w-4 h-4 text-[#6D3FC8]" />
+                      </div>
+                    </div>
+                  </div>
+                )) || (
+                  <>
+                    <div className="relative">
+                      <div className="absolute -top-2 -left-2 w-8 h-8 bg-[#6D3FC8] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        1
+                      </div>
+                      <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 pl-8">
+                        <h5 className="font-semibold text-sm mb-2">Audit initial</h5>
+                        <p className="text-sm text-gray-700">Analyser votre présence actuelle et identifier les opportunités</p>
+                        <Badge variant="outline" className="text-xs mt-3">Immédiat</Badge>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute -top-2 -left-2 w-8 h-8 bg-[#6D3FC8] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        2
+                      </div>
+                      <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 pl-8">
+                        <h5 className="font-semibold text-sm mb-2">Définir les KPIs</h5>
+                        <p className="text-sm text-gray-700">Établir les métriques de succès et les tableaux de bord</p>
+                        <Badge variant="outline" className="text-xs mt-3">Semaine 1</Badge>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute -top-2 -left-2 w-8 h-8 bg-[#6D3FC8] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        3
+                      </div>
+                      <div className="border-2 border-dashed border-purple-300 rounded-lg p-4 pl-8">
+                        <h5 className="font-semibold text-sm mb-2">Lancer un pilote</h5>
+                        <p className="text-sm text-gray-700">Tester la première campagne ou action marketing</p>
+                        <Badge variant="outline" className="text-xs mt-3">Semaine 2</Badge>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* KPIs et métriques de succès globales */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                KPIs et métriques de succès
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {strategy.expected_results?.kpis?.map((kpi: any, idx: number) => (
+                  <div key={idx} className="text-center p-4 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-[#6D3FC8]">{kpi.target}</div>
+                    <div className="text-sm text-gray-600 mt-1">{kpi.metric}</div>
+                    <div className="text-xs text-gray-500 mt-2">{kpi.timeline}</div>
+                  </div>
+                )) || (
+                  <>
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-[#6D3FC8]">+25%</div>
+                      <div className="text-sm text-gray-600 mt-1">Croissance CA</div>
+                      <div className="text-xs text-gray-500 mt-2">12 mois</div>
+                    </div>
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-[#6D3FC8]">3x</div>
+                      <div className="text-sm text-gray-600 mt-1">Leads qualifiés</div>
+                      <div className="text-xs text-gray-500 mt-2">6 mois</div>
+                    </div>
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-[#6D3FC8]">50%</div>
+                      <div className="text-sm text-gray-600 mt-1">Taux conversion</div>
+                      <div className="text-xs text-gray-500 mt-2">9 mois</div>
+                    </div>
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-[#6D3FC8]">-30%</div>
+                      <div className="text-sm text-gray-600 mt-1">Coût acquisition</div>
+                      <div className="text-xs text-gray-500 mt-2">12 mois</div>
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
