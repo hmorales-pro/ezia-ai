@@ -48,7 +48,7 @@ export class TwitterClient {
       return url.toString();
     } catch (error) {
       console.error('Twitter auth URL error:', error);
-      throw new Error(`Failed to generate Twitter auth URL: ${error.message}`);
+      throw new Error(`Failed to generate Twitter auth URL: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -88,7 +88,7 @@ export class TwitterClient {
       this.pendingTokens.delete(state);
     } catch (error) {
       console.error('Twitter callback error:', error);
-      throw new Error(`Failed to complete Twitter authentication: ${error.message}`);
+      throw new Error(`Failed to complete Twitter authentication: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -122,10 +122,15 @@ export class TwitterClient {
       }
 
       // Post tweet
-      const tweet = await client.v2.tweet({
+      const tweetData: any = {
         text: content,
-        ...(mediaIds.length > 0 && { media: { media_ids: mediaIds } }),
-      });
+      };
+      
+      if (mediaIds.length > 0) {
+        tweetData.media = { media_ids: mediaIds as [string] | [string, string] | [string, string, string] | [string, string, string, string] };
+      }
+      
+      const tweet = await client.v2.tweet(tweetData);
 
       return {
         id: tweet.data.id,
@@ -133,7 +138,7 @@ export class TwitterClient {
       };
     } catch (error) {
       console.error('Twitter post error:', error);
-      throw new Error(`Failed to post to Twitter: ${error.message}`);
+      throw new Error(`Failed to post to Twitter: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -166,7 +171,7 @@ export class TwitterClient {
       };
     } catch (error) {
       console.error('Twitter account info error:', error);
-      throw new Error(`Failed to get Twitter account info: ${error.message}`);
+      throw new Error(`Failed to get Twitter account info: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -189,7 +194,7 @@ export class TwitterClient {
       });
 
       // Get user tweets
-      const tweets = await client.v2.userTimeline(tokens.userId!, {
+      const timeline = await client.v2.userTimeline(tokens.userId!, {
         max_results: 100,
         'tweet.fields': ['public_metrics', 'created_at'],
         start_time: startDate ? new Date(startDate).toISOString() : undefined,
@@ -203,7 +208,8 @@ export class TwitterClient {
       let totalRetweets = 0;
       let totalReplies = 0;
 
-      for (const tweet of tweets.data || []) {
+      const tweetsData = timeline.data.data || [];
+      for (const tweet of tweetsData) {
         if (tweet.public_metrics) {
           totalImpressions += tweet.public_metrics.impression_count || 0;
           totalLikes += tweet.public_metrics.like_count || 0;
@@ -220,7 +226,7 @@ export class TwitterClient {
           end: endDate || 'now',
         },
         metrics: {
-          posts: tweets.data?.length || 0,
+          posts: tweetsData.length,
           impressions: totalImpressions,
           engagements: totalEngagements,
           likes: totalLikes,
@@ -230,7 +236,7 @@ export class TwitterClient {
             ? ((totalEngagements / totalImpressions) * 100).toFixed(2) + '%'
             : '0%',
         },
-        topPosts: tweets.data?.slice(0, 5).map(tweet => ({
+        topPosts: tweetsData.slice(0, 5).map((tweet: any) => ({
           id: tweet.id,
           text: tweet.text,
           createdAt: tweet.created_at,
@@ -239,7 +245,7 @@ export class TwitterClient {
       };
     } catch (error) {
       console.error('Twitter analytics error:', error);
-      throw new Error(`Failed to get Twitter analytics: ${error.message}`);
+      throw new Error(`Failed to get Twitter analytics: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }

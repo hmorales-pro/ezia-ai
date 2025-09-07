@@ -29,6 +29,49 @@ interface MarketingStrategyDisplayProps {
   strategy: any;
 }
 
+// Helper function to safely extract string value from various data formats
+const extractStringValue = (value: any): string => {
+  if (typeof value === 'string') return value;
+  if (value === null || value === undefined) return '';
+  
+  // Handle common object patterns
+  if (typeof value === 'object') {
+    // Try common property names
+    if (value.name) return value.name;
+    if (value.value) return value.value;
+    if (value.text) return value.text;
+    if (value.content) return value.content;
+    if (value.message) return value.message;
+    if (value.channel) return value.channel;
+    if (value.tactic) return value.tactic;
+    if (value.feature) return value.feature;
+    if (value.offering) return value.offering;
+    if (value.presence) return value.presence;
+    if (value.platform) return value.platform;
+    
+    // If object has a single property, use its value
+    const keys = Object.keys(value);
+    if (keys.length === 1) {
+      return String(value[keys[0]]);
+    }
+    
+    // Last resort: try to create a meaningful string
+    if (value.id && value.label) return value.label;
+    
+    // Don't show [object Object]
+    return '';
+  }
+  
+  // For other types, convert to string
+  return String(value);
+};
+
+// Helper to process arrays of mixed content
+const processArrayItems = (items: any[]): string[] => {
+  if (!Array.isArray(items)) return [];
+  return items.map(extractStringValue).filter(item => item !== '');
+};
+
 export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayProps) {
   if (!strategy) return null;
   
@@ -249,10 +292,8 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                           <span className="text-sm font-medium">Canaux préférés: </span>
                           <span className="text-sm text-gray-600">
                             {Array.isArray(segment.preferred_channels) 
-                              ? segment.preferred_channels.map((channel: any) => 
-                                  typeof channel === 'string' ? channel : channel.name || channel.channel || JSON.stringify(channel)
-                                ).join(", ")
-                              : segment.preferred_channels
+                              ? processArrayItems(segment.preferred_channels).join(", ")
+                              : extractStringValue(segment.preferred_channels)
                             }
                           </span>
                         </div>
@@ -282,7 +323,7 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                     {strategy.marketing_mix?.product?.core_offerings?.map((offer: any, idx: number) => (
                       <li key={idx} className="text-sm flex items-start gap-1">
                         <span className="text-[#6D3FC8]">→</span>
-                        {typeof offer === 'string' ? offer : offer.name || offer.offering || JSON.stringify(offer)}
+                        {extractStringValue(offer)}
                       </li>
                     ))}
                   </ul>
@@ -293,7 +334,7 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                   <div className="flex flex-wrap gap-1">
                     {strategy.marketing_mix?.product?.unique_features?.map((feature: any, idx: number) => (
                       <Badge key={idx} variant="secondary" className="text-xs">
-                        {typeof feature === 'string' ? feature : feature.name || feature.feature || JSON.stringify(feature)}
+                        {extractStringValue(feature)}
                       </Badge>
                     ))}
                   </div>
@@ -323,7 +364,7 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                     {strategy.marketing_mix?.price?.tactics?.map((tactic: any, idx: number) => (
                       <li key={idx} className="text-sm flex items-center gap-1">
                         <DollarSign className="w-3 h-3 text-green-600" />
-                        {typeof tactic === 'string' ? tactic : tactic.name || tactic.tactic || JSON.stringify(tactic)}
+                        {extractStringValue(tactic)}
                       </li>
                     ))}
                   </ul>
@@ -343,7 +384,7 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                     {strategy.marketing_mix?.place?.distribution_channels?.map((channel: any, idx: number) => (
                       <li key={idx} className="text-sm flex items-center gap-1">
                         <Map className="w-3 h-3 text-blue-600" />
-                        {typeof channel === 'string' ? channel : channel.name || channel.channel || JSON.stringify(channel)}
+                        {extractStringValue(channel)}
                       </li>
                     ))}
                   </ul>
@@ -353,7 +394,7 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                   <div className="flex flex-wrap gap-1">
                     {strategy.marketing_mix?.place?.online_presence?.map((presence: any, idx: number) => (
                       <Badge key={idx} variant="outline" className="text-xs">
-                        {typeof presence === 'string' ? presence : presence.name || presence.platform || JSON.stringify(presence)}
+                        {extractStringValue(presence)}
                       </Badge>
                     ))}
                   </div>
@@ -372,7 +413,7 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                   <ul className="space-y-1">
                     {strategy.marketing_mix?.promotion?.key_messages?.slice(0, 3).map((msg: any, idx: number) => (
                       <li key={idx} className="text-sm italic">
-                        "{typeof msg === 'string' ? msg : msg.message || msg.content || JSON.stringify(msg)}"
+                        "{extractStringValue(msg)}"
                       </li>
                     ))}
                   </ul>
@@ -382,7 +423,7 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                   <div className="flex flex-wrap gap-1">
                     {strategy.marketing_mix?.promotion?.promotional_tactics?.map((tactic: any, idx: number) => (
                       <Badge key={idx} className="text-xs bg-purple-100 text-purple-700">
-                        {typeof tactic === 'string' ? tactic : tactic.name || tactic.tactic || JSON.stringify(tactic)}
+                        {extractStringValue(tactic)}
                       </Badge>
                     ))}
                   </div>

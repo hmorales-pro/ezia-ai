@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth-simple";
+import { webGenerator } from "@/lib/specialized-web-models";
 
 declare global {
   let businesses: Array<{
@@ -49,113 +50,137 @@ export async function POST(
       }, { status: 400 });
     }
     
-    // Utiliser le prompt généré par l'agent pour créer le site
-    const websitePrompt = business.website_prompt.prompt;
+    console.log('[Generate Website] Using specialized web models for generation');
     
-    console.log('[Generate Website] Using prompt:', websitePrompt.substring(0, 200) + '...');
+    // Préparer le contexte business pour la génération
+    const businessContext = {
+      name: business.name,
+      type: business.website_prompt.design_style || 'modern',
+      description: business.description,
+      features: business.website_prompt.key_features || [],
+      style: business.website_prompt.design_style as 'modern' | 'classic' | 'minimal' | 'bold' || 'modern',
+      targetImpression: business.website_prompt.target_impression
+    };
     
-    // Créer un prompt plus explicite pour l'IA
-    const aiPrompt = `Tu es un expert en création de sites web. Génère un site web professionnel basé sur les informations suivantes:
-
-${websitePrompt}
-
-IMPORTANT: Tu dois répondre UNIQUEMENT avec un objet JSON valide, sans aucun texte avant ou après.
-Le JSON doit avoir exactement cette structure:
-{
-  "html": "<body><!-- contenu HTML du body uniquement, sans balises html, head ou body --></body>",
-  "css": "/* Tous les styles CSS */"
-}
-
-Assure-toi que:
-1. Le HTML contient UNIQUEMENT le contenu du body (sans les balises <body>)
-2. Le CSS est complet avec tous les styles nécessaires
-3. Le design est moderne, responsive et professionnel
-4. Les couleurs correspondent au secteur d'activité
-5. Le contenu est en français
-
-Réponds UNIQUEMENT avec le JSON, rien d'autre.`;
-
-    // Appeler l'API ask-ai pour générer le code HTML/CSS - SANS streaming pour éviter les problèmes de parsing
-    const aiResponse = await fetch(`${req.nextUrl.origin}/api/ask-ai`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Cookie': req.headers.get('cookie') || ''
-      },
-      body: JSON.stringify({
-        messages: [{
-          role: 'user',
-          content: aiPrompt
-        }],
-        stream: false,  // Désactiver le streaming pour obtenir la réponse complète
-        model: 'mistral-large',  // Utiliser un modèle spécifique
-        provider: 'auto',
-        businessId: businessId
-      })
-    });
-    
-    if (!aiResponse.ok) {
-      const error = await aiResponse.json();
-      console.error('[Generate Website] AI API error:', error);
-      return NextResponse.json({ 
-        ok: false, 
-        error: error.message || "Erreur lors de la génération du contenu" 
-      }, { status: aiResponse.status });
-    }
-    
-    // Lire la réponse comme texte pour mieux la traiter
-    const responseText = await aiResponse.text();
-    console.log('[Generate Website] AI Response (first 500 chars):', responseText.substring(0, 500));
-    
-    let html, css;
+    let html: string;
     
     try {
-      // Essayer de trouver un objet JSON dans la réponse
-      // Parfois l'IA peut ajouter du texte avant ou après
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const jsonStr = jsonMatch[0];
-        const content = JSON.parse(jsonStr);
-        html = content.html;
-        css = content.css;
-        
-        console.log('[Generate Website] Successfully parsed JSON response');
-        console.log('[Generate Website] HTML length:', html?.length || 0);
-        console.log('[Generate Website] CSS length:', css?.length || 0);
-      } else {
-        throw new Error("No JSON found in response");
-      }
-    } catch (parseError) {
-      console.error('[Generate Website] Failed to parse AI response:', parseError);
-      console.log('[Generate Website] Full response:', responseText);
+      // Utiliser le générateur spécialisé pour créer le site
+      console.log('[Generate Website] Generating web structure with specialized model...');
+      html = await webGenerator.generateWebStructure(businessContext);
       
-      // En cas d'échec, essayer d'extraire le HTML et CSS directement
-      // Chercher des patterns HTML/CSS dans la réponse
-      const htmlMatch = responseText.match(/<[^>]+>[\s\S]*<\/[^>]+>/);
-      const cssMatch = responseText.match(/\{[^}]+\}|\.[\w-]+\s*\{[^}]+\}|#[\w-]+\s*\{[^}]+\}/);
+      // Générer du contenu SEO optimisé
+      console.log('[Generate Website] Generating SEO content...');
+      const seoContent = await webGenerator.generateSEOContent({
+        name: business.name,
+        description: business.description,
+        targetAudience: business.website_prompt.target_impression
+      });
       
-      if (htmlMatch) {
-        html = htmlMatch[0];
-        console.log('[Generate Website] Extracted HTML from response');
+      // Injecter le contenu SEO dans le HTML
+      html = html.replace(/<title>[^<]*<\/title>/, `<title>${seoContent.title}</title>`);
+      html = html.replace(/<meta name="description"[^>]*>/, `<meta name="description" content="${seoContent.metaDescription}">`);
+      
+      // Si le HTML contient des placeholders, les remplacer
+      if (html.includes('${')) {
+        html = html.replace(/\${business\.name}/g, business.name);
+        html = html.replace(/\${business\.description}/g, business.description);
+        html = html.replace(/\${seo\.h1}/g, seoContent.h1);
+        html = html.replace(/\${seo\.heroText}/g, seoContent.heroText);
+        html = html.replace(/\${seo\.ctaText}/g, seoContent.ctaText);
       }
       
-      if (cssMatch) {
-        css = cssMatch[0];
-        console.log('[Generate Website] Extracted CSS from response');
-      }
+      console.log('[Generate Website] Website generated successfully with specialized models');
       
-      // Si toujours pas de contenu, retourner une erreur claire
-      if (!html && !css) {
+    } catch (error) {
+      console.error('[Generate Website] Specialized generation failed, falling back to standard AI:', error);
+      
+      // Fallback sur l'ancienne méthode si le générateur spécialisé échoue
+      const aiPrompt = `Tu es un expert en création de sites web. Génère un site web professionnel basé sur les informations suivantes:
+
+${business.website_prompt.prompt}
+
+IMPORTANT: Tu dois générer un fichier HTML COMPLET avec tout le code nécessaire.
+Le site doit être:
+1. Moderne, responsive et professionnel
+2. Avec un design ${businessContext.style}
+3. En français
+4. Avec du CSS inline pour la simplicité
+
+Commence directement par <!DOCTYPE html>`;
+
+      const aiResponse = await fetch(`${req.nextUrl.origin}/api/ask-ai`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': req.headers.get('cookie') || ''
+        },
+        body: JSON.stringify({
+          messages: [{
+            role: 'user',
+            content: aiPrompt
+          }],
+          stream: false,
+          model: 'mistral-large',
+          provider: 'auto',
+          businessId: businessId
+        })
+      });
+      
+      if (!aiResponse.ok) {
+        const error = await aiResponse.json();
+        console.error('[Generate Website] AI API error:', error);
         return NextResponse.json({ 
           ok: false, 
-          error: "L'IA n'a pas pu générer le site web. Veuillez réessayer." 
-        }, { status: 500 });
+          error: error.message || "Erreur lors de la génération du contenu" 
+        }, { status: aiResponse.status });
       }
+      
+      const responseText = await aiResponse.text();
+      
+      // Extraire le HTML de la réponse
+      const htmlMatch = responseText.match(/<!DOCTYPE html>[\s\S]*<\/html>/i);
+      if (htmlMatch) {
+        html = htmlMatch[0];
+      } else {
+        // Si pas de HTML complet, essayer de construire un document valide
+        const bodyMatch = responseText.match(/<body[^>]*>[\s\S]*<\/body>/i);
+        if (bodyMatch) {
+          html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${business.name}</title>
+</head>
+${bodyMatch[0]}
+</html>`;
+        } else {
+          return NextResponse.json({ 
+            ok: false, 
+            error: "Impossible de générer le site web. Veuillez réessayer." 
+          }, { status: 500 });
+        }
+      }
+    }
+    
+    // Extraire le CSS du HTML pour le passer séparément si nécessaire
+    let css = '';
+    const styleMatch = html.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+    if (styleMatch) {
+      css = styleMatch[1];
+    }
+    
+    // Pour l'API create-website, on doit extraire le body du HTML complet
+    let bodyContent = '';
+    const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    if (bodyMatch) {
+      bodyContent = bodyMatch[1];
     }
     
     // Log pour debug
     console.log('[Generate Website] Sending to create-website:', {
-      hasHtml: !!html,
+      hasHtml: !!bodyContent,
       hasCss: !!css,
       businessId,
       businessName: business.name
@@ -171,9 +196,9 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.`;
       body: JSON.stringify({
         businessId,
         businessName: business.name,
-        html: html,  // Passer directement, pas undefined
-        css: css,    // Passer directement, pas undefined
-        prompt: websitePrompt
+        html: bodyContent || html,  // Utiliser le body extrait ou le HTML complet
+        css: css,
+        prompt: business.website_prompt.prompt
       })
     });
     

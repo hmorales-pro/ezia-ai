@@ -7,6 +7,7 @@ import {
   User,
   Settings,
   ChevronDown,
+  Globe,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -109,6 +110,22 @@ export const UserMenu = ({ className }: { className?: string }) => {
                 </div>
                 <p className="text-sm leading-snug text-[#666666] group-hover:text-[#1E1E1E] transition-colors">
                   Tous mes projets business
+                </p>
+              </div>
+            </div>
+          </Link>
+          
+          <Link href="/tools/web-analyzer" className="block">
+            <div className="flex items-center gap-3 p-3 rounded-md hover:bg-purple-50 transition-colors group cursor-pointer">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                <Globe className="w-5 h-5 text-[#6D3FC8]" />
+              </div>
+              <div>
+                <div className="text-sm font-medium leading-none mb-1 text-[#1E1E1E] group-hover:text-[#6D3FC8] transition-colors">
+                  Analyseur Web
+                </div>
+                <p className="text-sm leading-snug text-[#666666] group-hover:text-[#1E1E1E] transition-colors">
+                  Analyser des sites concurrents
                 </p>
               </div>
             </div>

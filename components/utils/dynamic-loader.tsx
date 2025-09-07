@@ -27,7 +27,7 @@ export const DynamicContentCalendar = dynamic(
 );
 
 export const DynamicSocialMediaSettings = dynamic(
-  () => import('@/components/business/social-media-settings').then(mod => ({ default: mod.SocialMediaSettings })),
+  () => import('@/components/business/social-media-manager'),
   {
     loading: () => <LoadingSpinner />,
     ssr: false,

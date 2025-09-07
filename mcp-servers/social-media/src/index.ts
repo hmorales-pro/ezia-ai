@@ -189,7 +189,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     switch (name) {
       case 'social_post': {
-        const { content, platforms, mediaUrls, scheduledTime, businessId } = args;
+        const { content, platforms, mediaUrls, scheduledTime, businessId } = args as {
+          content: string;
+          platforms: string[];
+          mediaUrls?: string[];
+          scheduledTime?: string;
+          businessId: string;
+        };
         const results = [];
 
         for (const platform of platforms) {
@@ -228,7 +234,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'social_connect': {
-        const { platform, businessId, redirectUri } = args;
+        const { platform, businessId, redirectUri } = args as {
+          platform: string;
+          businessId: string;
+          redirectUri: string;
+        };
         let authUrl;
 
         switch (platform) {
@@ -257,7 +267,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'social_disconnect': {
-        const { platform, businessId } = args;
+        const { platform, businessId } = args as {
+          platform: string;
+          businessId: string;
+        };
         await tokenStore.removeTokens(businessId, platform);
 
         return {
@@ -271,7 +284,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'social_analytics': {
-        const { platform, businessId, startDate, endDate } = args;
+        const { platform, businessId, startDate, endDate } = args as {
+          platform: string;
+          businessId: string;
+          startDate?: string;
+          endDate?: string;
+        };
         let analytics;
 
         switch (platform) {
@@ -300,7 +318,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'format_content': {
-        const { content, platform, options } = args;
+        const { content, platform, options } = args as {
+          content: string;
+          platform: string;
+          options?: {
+            addHashtags?: boolean;
+            shortenLinks?: boolean;
+            addEmojis?: boolean;
+          };
+        };
         const formatted = await contentFormatter.format(content, platform, options);
 
         return {
@@ -323,8 +349,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           type: 'text',
           text: JSON.stringify({ 
             error: true, 
-            message: error.message,
-            platform: args.platform || 'unknown'
+            message: error instanceof Error ? error.message : String(error),
+            platform: args?.platform || 'unknown'
           }, null, 2),
         },
       ],

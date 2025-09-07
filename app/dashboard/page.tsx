@@ -204,6 +204,15 @@ export default function DashboardPage() {
                     <Globe className="w-4 h-4 mr-2" />
                     Projets Web
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => router.push("/tools/web-analyzer")}
+                    className="text-[#666666] hover:text-[#1E1E1E] border-[#E0E0E0] hover:bg-gray-50"
+                  >
+                    <Target className="w-4 h-4 mr-2" />
+                    Analyseur Web
+                  </Button>
                   <UserMenu />
                 </>
               ) : (

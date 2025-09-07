@@ -24,12 +24,14 @@ import {
   Lightbulb,
   Package,
   Users,
-  Brain
+  Brain,
+  FileText
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { EziaChatModal, useEziaChatModal } from "@/components/chat/ezia-chat-modal";
 import { toast } from "sonner";
 import { DynamicEziaChat, DynamicContentCalendar, DynamicSocialMediaSettings, DynamicAgentStatus } from "@/components/utils/dynamic-loader";
 import { EditBusinessModal } from "@/components/modals/edit-business-modal";
@@ -104,20 +106,32 @@ function BusinessDetailPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState("Chargement des données...");
   const [error, setError] = useState<string | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatAction, setChatAction] = useState<string>("general");
+  const { openChat, closeChat, ChatComponent } = useEziaChatModal();
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showOnboardingChat, setShowOnboardingChat] = useState(false);
 
   useEffect(() => {
     fetchBusiness();
     
     const action = searchParams.get("action");
-    if (action) {
-      setChatAction(action);
-      setChatOpen(true);
+    if (action && business) {
+      const chatModeMap: Record<string, any> = {
+        'market_analysis': 'analysis',
+        'marketing_strategy': 'strategy',
+        'website_creation': 'website',
+        'content_creation': 'content',
+        'general': 'general'
+      };
+      
+      openChat({
+        businessId,
+        businessName: business.name,
+        mode: chatModeMap[action] || 'general',
+        onActionComplete: (result) => {
+          fetchBusiness();
+        }
+      });
     }
     
     const tab = searchParams.get("tab");
@@ -130,7 +144,7 @@ function BusinessDetailPage() {
     } else if (action === "marketing_strategy" && !tab) {
       setActiveTab("marketing");
     }
-  }, [businessId, searchParams]);
+  }, [businessId, searchParams, business]);
 
   // Auto-refresh si des analyses sont en cours
   useEffect(() => {
@@ -329,6 +343,7 @@ function BusinessDetailPage() {
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="market">Marché</TabsTrigger>
             <TabsTrigger value="marketing">Marketing</TabsTrigger>
+            <TabsTrigger value="content">Contenu</TabsTrigger>
             <TabsTrigger value="calendar">Calendrier de contenu</TabsTrigger>
             <TabsTrigger value="social">Réseaux sociaux</TabsTrigger>
             <TabsTrigger value="goals">Objectifs</TabsTrigger>
@@ -406,7 +421,17 @@ function BusinessDetailPage() {
                     </div>
                     <Button 
                       className="w-full mt-4 bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white"
-                      onClick={() => setShowOnboardingChat(true)}
+                      onClick={() => {
+                        openChat({
+                          businessId,
+                          businessName: business.name,
+                          mode: 'onboarding',
+                          initialContext: 'L\'utilisateur souhaite enrichir ses données business',
+                          onActionComplete: (result) => {
+                            fetchBusiness();
+                          }
+                        });
+                      }}
                     >
                       <Sparkles className="w-4 h-4 mr-2" />
                       Enrichir mes données business
@@ -439,8 +464,16 @@ function BusinessDetailPage() {
               <Card 
                 className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
-                  setChatAction("market_analysis");
-                  setChatOpen(true);
+                  openChat({
+                    businessId,
+                    businessName: business.name,
+                    mode: 'analysis',
+                    initialContext: 'L\'utilisateur souhaite une analyse de marché',
+                    onActionComplete: (result) => {
+                      fetchBusiness();
+                      setActiveTab("market");
+                    }
+                  });
                 }}
               >
                 <CardContent className="p-6">
@@ -454,8 +487,16 @@ function BusinessDetailPage() {
               <Card 
                 className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
                 onClick={() => {
-                  setChatAction("marketing_strategy");
-                  setChatOpen(true);
+                  openChat({
+                    businessId,
+                    businessName: business.name,
+                    mode: 'strategy',
+                    initialContext: 'L\'utilisateur souhaite développer une stratégie marketing',
+                    onActionComplete: (result) => {
+                      fetchBusiness();
+                      setActiveTab("marketing");
+                    }
+                  });
                 }}
               >
                 <CardContent className="p-6">
@@ -666,37 +707,61 @@ function BusinessDetailPage() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="content" className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold">Gestion du contenu</h2>
+                <p className="text-muted-foreground">Créez et gérez vos articles de blog</p>
+              </div>
+              <Button onClick={() => router.push(`/space/${businessId}/content`)}>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Ouvrir l'éditeur de contenu
+              </Button>
+            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Articles de blog</CardTitle>
+                <CardDescription>
+                  Générez du contenu optimisé pour votre audience avec l'aide de modèles spécialisés
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <FileText className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500 mb-4">Commencez à créer du contenu engageant</p>
+                  <Button variant="outline" onClick={() => router.push(`/space/${businessId}/content`)}>
+                    Créer votre premier article
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
       
-      <Dialog open={chatOpen} onOpenChange={setChatOpen}>
-        <DialogContent className="max-w-4xl h-[80vh]">
-          <DialogTitle>Ezia - {chatAction}</DialogTitle>
-          <DialogDescription>
-            Discussion avec l'équipe Ezia pour {business.name}
-          </DialogDescription>
-          <DynamicEziaChat
-            businessId={businessId}
-            businessName={business.name}
-            actionType={chatAction}
-            onActionComplete={(result) => {
-              fetchBusiness();
-              setChatOpen(false);
-            }}
-            onClose={() => setChatOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Nouveau système de chat unifié */}
+      {business && (
+        <>
+          <ChatComponent />
 
-      <Button
-        className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg"
-        onClick={() => {
-          setChatAction("general");
-          setChatOpen(true);
-        }}
-      >
-        <MessageSquare className="w-6 h-6" />
-      </Button>
+          <Button
+            className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
+            onClick={() => {
+              openChat({
+                businessId,
+                businessName: business.name,
+                mode: 'general',
+                onActionComplete: (result) => {
+                  fetchBusiness();
+                }
+              });
+            }}
+          >
+            <Sparkles className="w-6 h-6" />
+          </Button>
+        </>
+      )}
 
       {/* Edit Modal */}
       {showEditModal && (
@@ -717,23 +782,6 @@ function BusinessDetailPage() {
         />
       )}
       
-      {/* Onboarding Chat Dialog */}
-      <Dialog open={showOnboardingChat} onOpenChange={setShowOnboardingChat}>
-        <DialogContent className="sm:max-w-4xl h-[85vh] p-0 gap-0" showCloseButton={false}>
-          <DialogTitle className="sr-only">Discussion avec Ezia</DialogTitle>
-          <div className="h-full flex flex-col overflow-hidden rounded-2xl">
-            <EziaNaturalChat
-              businessId={businessId}
-              businessData={business}
-              onDataCollected={(data) => {
-                fetchBusiness();
-                setShowOnboardingChat(false);
-              }}
-              onClose={() => setShowOnboardingChat(false)}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

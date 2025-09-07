@@ -11,7 +11,8 @@ import {
   ArrowRight,
   Lightbulb,
   Building2,
-  Rocket
+  Rocket,
+  Globe
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -49,6 +50,12 @@ export default function LandingNavbar() {
       href: "/guides",
       description: "Tutoriels détaillés pour réussir en ligne",
       icon: Lightbulb
+    },
+    {
+      title: "Analyseur Web",
+      href: "/tools/web-analyzer",
+      description: "Analysez n'importe quel site web et obtenez des insights",
+      icon: Globe
     }
   ];
 

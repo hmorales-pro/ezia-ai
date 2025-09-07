@@ -78,7 +78,7 @@ export class LinkedInClient {
       return businessId;
     } catch (error) {
       console.error('LinkedIn callback error:', error);
-      throw new Error(`Failed to complete LinkedIn authentication: ${error.message}`);
+      throw new Error(`Failed to complete LinkedIn authentication: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -140,8 +140,8 @@ export class LinkedInClient {
         url: `https://www.linkedin.com/feed/update/${postUrn}/`,
       };
     } catch (error) {
-      console.error('LinkedIn post error:', error.response?.data || error);
-      throw new Error(`Failed to post to LinkedIn: ${error.message}`);
+      console.error('LinkedIn post error:', (error as any).response?.data || error);
+      throw new Error(`Failed to post to LinkedIn: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -180,7 +180,7 @@ export class LinkedInClient {
       };
     } catch (error) {
       console.error('LinkedIn account info error:', error);
-      throw new Error(`Failed to get LinkedIn account info: ${error.message}`);
+      throw new Error(`Failed to get LinkedIn account info: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -224,7 +224,7 @@ export class LinkedInClient {
       };
     } catch (error) {
       console.error('LinkedIn analytics error:', error);
-      throw new Error(`Failed to get LinkedIn analytics: ${error.message}`);
+      throw new Error(`Failed to get LinkedIn analytics: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }
