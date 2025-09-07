@@ -111,6 +111,7 @@ function BusinessDetailPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
+  const [isPollingActive, setIsPollingActive] = useState(false);
 
   // Cleanup au démontage du composant
   useEffect(() => {
@@ -124,7 +125,25 @@ function BusinessDetailPage() {
 
   useEffect(() => {
     fetchBusiness();
+  }, [businessId]);
+
+  // Gérer les actions et les tabs
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) {
+      setActiveTab(tab);
+    }
     
+    const action = searchParams.get("action");
+    if (action === "market_analysis" && !tab) {
+      setActiveTab("market");
+    } else if (action === "marketing_strategy" && !tab) {
+      setActiveTab("marketing");
+    }
+  }, [searchParams]);
+
+  // Gérer l'ouverture du chat quand business est chargé
+  useEffect(() => {
     const action = searchParams.get("action");
     if (action && business) {
       const chatModeMap: Record<string, any> = {
@@ -144,18 +163,7 @@ function BusinessDetailPage() {
         }
       });
     }
-    
-    const tab = searchParams.get("tab");
-    if (tab) {
-      setActiveTab(tab);
-    }
-    
-    if (action === "market_analysis" && !tab) {
-      setActiveTab("market");
-    } else if (action === "marketing_strategy" && !tab) {
-      setActiveTab("marketing");
-    }
-  }, [businessId, searchParams, business]);
+  }, [business?.name, searchParams]); // Utiliser business.name au lieu de business entier
 
   // Auto-refresh si des analyses sont en cours
   useEffect(() => {
@@ -165,14 +173,20 @@ function BusinessDetailPage() {
       pollingInterval.current = null;
     }
     
-    if (!business?.agents_status) return;
+    if (!business?.agents_status) {
+      setIsPollingActive(false);
+      return;
+    }
     
     const hasActiveAnalysis = Object.values(business.agents_status).some(
       status => status === 'pending' || status === 'in_progress'
     );
     
-    if (hasActiveAnalysis) {
-      console.log('[Auto-refresh] Analyses en cours détectées');
+    // Ne démarrer le polling que s'il y a des analyses actives ET qu'il n'est pas déjà actif
+    if (hasActiveAnalysis && !isPollingActive) {
+      console.log('[Auto-refresh] Démarrage du polling pour les analyses');
+      setIsPollingActive(true);
+      
       pollingInterval.current = setInterval(async () => {
         try {
           // Fetch silencieusement sans recharger la page
@@ -190,43 +204,49 @@ function BusinessDetailPage() {
             (status: any) => status === 'pending' || status === 'in_progress'
           );
           
-          // Mettre à jour seulement si nécessaire
-          if (JSON.stringify(updatedBusiness.agents_status) !== JSON.stringify(business.agents_status)) {
-            console.log('[Auto-refresh] Statut des agents mis à jour');
-            setBusiness(updatedBusiness);
-            
-            // Vérifier si une analyse vient de se terminer
-            if (!stillActive && hasActiveAnalysis) {
-              // Importer toast dynamiquement pour éviter les problèmes SSR
-              import('sonner').then(({ toast }) => {
-                toast.success('Toutes les analyses sont terminées !', {
-                  description: 'Les résultats sont maintenant disponibles.'
-                });
-              });
-            }
-          }
-          
           // Si toutes les analyses sont terminées, arrêter le polling
           if (!stillActive) {
             console.log('[Auto-refresh] Toutes les analyses sont terminées');
+            setBusiness(updatedBusiness);
+            setIsPollingActive(false);
+            
             if (pollingInterval.current) {
               clearInterval(pollingInterval.current);
               pollingInterval.current = null;
             }
+            
+            // Notification de fin
+            import('sonner').then(({ toast }) => {
+              toast.success('Toutes les analyses sont terminées !', {
+                description: 'Les résultats sont maintenant disponibles.'
+              });
+            });
+          } else if (JSON.stringify(updatedBusiness.agents_status) !== JSON.stringify(business.agents_status)) {
+            // Mettre à jour seulement si le statut a changé
+            console.log('[Auto-refresh] Statut des agents mis à jour');
+            setBusiness(updatedBusiness);
           }
         } catch (error) {
           console.error('[Auto-refresh] Erreur:', error);
         }
-      }, 5000); // Toutes les 5 secondes au lieu de 3
-      
-      return () => {
-        if (pollingInterval.current) {
-          clearInterval(pollingInterval.current);
-          pollingInterval.current = null;
-        }
-      };
+      }, 5000);
+    } else if (!hasActiveAnalysis && isPollingActive) {
+      // Si plus d'analyses actives mais le polling est encore actif, l'arrêter
+      console.log('[Auto-refresh] Arrêt du polling - plus d\'analyses actives');
+      setIsPollingActive(false);
+      if (pollingInterval.current) {
+        clearInterval(pollingInterval.current);
+        pollingInterval.current = null;
+      }
     }
-  }, [businessId]); // Retirer business?.agents_status des dépendances pour éviter la boucle
+    
+    return () => {
+      if (pollingInterval.current) {
+        clearInterval(pollingInterval.current);
+        pollingInterval.current = null;
+      }
+    };
+  }, [businessId, isPollingActive]); // Dépend de isPollingActive pour éviter les re-créations
 
   const handleDeepen = async (section: string, analysisType: string) => {
     try {
