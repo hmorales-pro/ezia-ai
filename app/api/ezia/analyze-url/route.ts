@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
     // Analyser l'URL
     console.log('[API] Analyse URL:', url);
     const analysis = await WebAnalyzer.analyzeUrl(url);
+    console.log('[API] Résultat analyse:', JSON.stringify(analysis, null, 2));
 
     if (!analysis.success) {
       return NextResponse.json(
