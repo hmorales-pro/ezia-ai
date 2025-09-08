@@ -272,8 +272,48 @@ Fournis ton analyse sous cette forme exacte:
    * Parse une liste à partir du texte
    */
   private static parseList(text: string): string[] {
-    // Nettoyer le texte des balises Markdown
+    // Détecter et traiter les tableaux Markdown
+    if (text.includes('|') && text.includes('---')) {
+      const lines = text.split('\n').filter(line => line.trim());
+      const results = [];
+      
+      for (const line of lines) {
+        // Ignorer les lignes de séparation et en-têtes
+        if (line.includes('---') || line.match(/^\|[-\s|]+\|$/) || 
+            line.toLowerCase().includes('priorité') || 
+            line.toLowerCase().includes('action') ||
+            line.toLowerCase().includes('objectif')) continue;
+        
+        // Extraire le contenu des cellules
+        const cells = line.split('|')
+          .map(cell => cell.trim())
+          .filter(cell => cell && cell.length > 0);
+        
+        if (cells.length >= 2) {
+          // Prendre la colonne action (généralement la 2ème)
+          let content = cells[1] || cells[0];
+          
+          // Nettoyer le HTML et Markdown
+          content = content
+            .replace(/<br\s*\/?>/gi, ' ')
+            .replace(/\*\*/g, '')
+            .replace(/\*/g, '')
+            .replace(/^\d+\.\s*/, '')
+            .replace(/^[-•]\s*/, '')
+            .trim();
+          
+          if (content.length > 10) {
+            results.push(content);
+          }
+        }
+      }
+      
+      return results.slice(0, 5);
+    }
+    
+    // Nettoyage standard pour les listes non-tableaux
     const cleanText = text
+      .replace(/<br\s*\/?>/gi, '\n') // Convertir <br> en nouvelles lignes
       .replace(/\*\*/g, '') // Retirer les **
       .replace(/\*/g, '')   // Retirer les *
       .replace(/###?\s*/g, '') // Retirer les ###

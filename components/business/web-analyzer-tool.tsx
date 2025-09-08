@@ -37,10 +37,37 @@ export function WebAnalyzerTool({ businessId, onAnalysisComplete }: WebAnalyzerT
   // Fonction pour nettoyer le texte du formatage Markdown
   const cleanText = (text: string): string => {
     if (!text) return '';
+    
+    // Si c'est un tableau Markdown, le convertir en texte lisible
+    if (text.includes('|') && text.includes('---')) {
+      // Extraire les lignes du tableau
+      const lines = text.split('\n').filter(line => line.trim());
+      const tableRows = [];
+      
+      for (const line of lines) {
+        // Ignorer les lignes de séparation
+        if (line.includes('---') || line.match(/^\|[-\s|]+\|$/)) continue;
+        
+        // Extraire les cellules
+        const cells = line.split('|')
+          .map(cell => cell.trim())
+          .filter(cell => cell);
+        
+        if (cells.length > 0) {
+          tableRows.push(cells.join(' - '));
+        }
+      }
+      
+      return tableRows.join('. ');
+    }
+    
+    // Nettoyage standard pour le texte non-tableau
     return text
+      .replace(/<br\s*\/?>/gi, ' ') // Remplacer les <br> par des espaces
       .replace(/\*\*/g, '') // Retirer les **
       .replace(/\*/g, '')   // Retirer les *
-      .replace(/^[-–—]\s*/g, '') // Retirer les tirets en début
+      .replace(/^[-–—]\s*/gm, '') // Retirer les tirets en début de ligne
+      .replace(/\|/g, ' - ') // Remplacer les | par des tirets
       .replace(/\s+/g, ' ') // Normaliser les espaces
       .trim();
   };
