@@ -23,10 +23,12 @@ export async function POST(request: NextRequest) {
 
     // Générer un ID unique pour le site
     const siteId = `site-${businessName.toLowerCase().replace(/\s+/g, '-')}-${nanoid(6)}`;
-    const websiteUrl = `https://ezia-demo-${siteId}.vercel.app`;
     
     // Générer un sous-domaine intelligent
     const subdomain = await generateSmartSubdomain(businessName);
+    
+    // Utiliser la vraie URL avec le sous-domaine Ezia
+    const websiteUrl = `https://${subdomain}.ezia.ai`;
 
     // Créer le contenu HTML complet
     const fullHtml = `<!DOCTYPE html>
@@ -116,6 +118,7 @@ ${html || getDefaultHTML(businessName, business.description)}
     await db.updateBusinessWebsite(businessId, {
       website_url: websiteUrl,
       space_id: siteId,
+      subdomain: subdomain,
       websiteGeneratedAt: new Date()
     });
 
@@ -130,7 +133,7 @@ ${html || getDefaultHTML(businessName, business.description)}
         html: fullHtml,
         publicUrl: `/sites/public/${savedWebsite._id}`
       },
-      message: "Site web créé avec succès (mode démo)"
+      message: "Site web créé et publié avec succès"
     });
 
   } catch (error) {
