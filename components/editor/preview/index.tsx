@@ -161,6 +161,7 @@ export const Preview = ({
           }
         )}
         srcDoc={html}
+        sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox"
         onLoad={() => {
           if (iframeRef?.current?.contentWindow?.document?.body) {
             iframeRef.current.contentWindow.document.body.scrollIntoView({

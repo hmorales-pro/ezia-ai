@@ -21,6 +21,7 @@ export default function ViewSitePage({
           padding: 0
         }}
         title="Site Preview"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox"
       />
     </div>
   );

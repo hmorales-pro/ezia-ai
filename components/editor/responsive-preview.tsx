@@ -152,6 +152,7 @@ export function ResponsivePreview({
               border: "none",
               overflow: "auto"
             }}
+            sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox"
           />
         </div>
       </div>
