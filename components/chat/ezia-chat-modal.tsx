@@ -103,7 +103,8 @@ export function EziaChatModal({
                 duration: 0.5,
                 bounce: 0.3
               }}
-              className="relative h-full bg-background rounded-lg overflow-hidden"
+              className="relative h-full bg-white rounded-lg overflow-hidden"
+              data-theme="light"
             >
               {/* Chat principal - on laisse le composant chat gérer ses propres contrôles */}
               <EziaUnifiedChat

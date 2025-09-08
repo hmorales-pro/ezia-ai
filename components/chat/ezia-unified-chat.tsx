@@ -413,13 +413,14 @@ export default function EziaUnifiedChat({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "flex flex-col h-full bg-background rounded-lg border shadow-lg",
+        "flex flex-col h-full bg-white rounded-lg border shadow-lg",
         isExpanded && "fixed inset-4 z-50",
         className
       )}
+      data-theme="light"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
+      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-pink-50">
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12 border-2 border-purple-300">
             <AvatarImage src="/img/ezia-email-logo.png" alt="Ezia" />
@@ -430,7 +431,7 @@ export default function EziaUnifiedChat({
           <div>
             <h3 className="font-bold text-lg flex items-center gap-2">
               Ezia
-              <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+              <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
                 {mode === 'onboarding' ? 'Onboarding' : 
                  mode === 'analysis' ? 'Analyse' :
                  mode === 'content' ? 'Contenu' :
@@ -438,7 +439,7 @@ export default function EziaUnifiedChat({
                  mode === 'website' ? 'Site Web' : 'Assistant'}
               </Badge>
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-500">
               Assistant IA pour {businessName}
             </p>
           </div>
@@ -492,7 +493,7 @@ export default function EziaUnifiedChat({
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 250, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              className="border-r bg-muted/30 overflow-hidden"
+              className="border-r bg-gray-50 overflow-hidden"
             >
               <ScrollArea className="h-full p-3">
                 <h4 className="text-sm font-medium mb-3">Historique</h4>
@@ -500,15 +501,15 @@ export default function EziaUnifiedChat({
                   {sessions.map(session => (
                     <Card
                       key={session.id}
-                      className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                      className="p-3 cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => loadSession(session)}
                     >
                       <p className="text-sm font-medium truncate">{session.title}</p>
                       <div className="flex items-center justify-between mt-1">
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-gray-500">
                           {session.messages.length} message{session.messages.length > 1 ? 's' : ''}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-gray-500">
                           {new Date(session.createdAt).toLocaleTimeString('fr-FR', { 
                             hour: '2-digit', 
                             minute: '2-digit' 
@@ -524,7 +525,7 @@ export default function EziaUnifiedChat({
         </AnimatePresence>
 
         {/* Zone de chat principale */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-gray-900">
+        <div className="flex-1 flex flex-col bg-white">
           <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
             <div className="space-y-4 max-w-3xl mx-auto">
               {messages.map((message) => (
@@ -549,8 +550,8 @@ export default function EziaUnifiedChat({
                   <div className={cn(
                     "rounded-lg",
                     message.role === 'user' 
-                      ? "bg-primary text-primary-foreground px-4 py-3 max-w-[80%]" 
-                      : "bg-white dark:bg-white text-gray-900 dark:text-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm p-6 max-w-[90%]"
+                      ? "bg-blue-500 text-white px-4 py-3 max-w-[80%]" 
+                      : "bg-white text-gray-900 border border-gray-200 shadow-sm p-6 max-w-[90%]"
                   )}>
                     {message.isStreaming ? (
                       <div className="space-y-2">
@@ -561,7 +562,7 @@ export default function EziaUnifiedChat({
                           </span>
                         </div>
                         {message.content && (
-                          <p className="text-sm text-muted-foreground pl-7">
+                          <p className="text-sm text-gray-500 pl-7">
                             {message.content}
                           </p>
                         )}
@@ -569,7 +570,7 @@ export default function EziaUnifiedChat({
                     ) : (
                       <div className="space-y-3">
                         {message.metadata?.agent && (
-                          <div className="text-xs text-muted-foreground font-medium">
+                          <div className="text-xs text-gray-500 font-medium">
                             {message.metadata.agent}
                           </div>
                         )}
@@ -582,7 +583,7 @@ export default function EziaUnifiedChat({
                           prose-blockquote:border-purple-500 prose-blockquote:text-gray-700">
                           <ReactMarkdown>{message.content}</ReactMarkdown>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-2 pt-2 border-t">
+                        <p className="text-xs text-gray-500 mt-2 pt-2 border-t">
                           {new Date(message.timestamp).toLocaleTimeString('fr-FR', { 
                             hour: '2-digit', 
                             minute: '2-digit' 
@@ -626,7 +627,7 @@ export default function EziaUnifiedChat({
           )}
 
           {/* Zone d'input */}
-          <div className="border-t p-4">
+          <div className="border-t p-4 bg-white">
             <div className="flex gap-2">
               <Textarea
                 ref={inputRef}
