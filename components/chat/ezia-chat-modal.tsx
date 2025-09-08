@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogOverlay } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from 'framer-motion';
 import EziaUnifiedChat, { ChatMode } from './ezia-unified-chat';
@@ -90,6 +91,9 @@ export function EziaChatModal({
             )}
             showCloseButton={false}
           >
+            <VisuallyHidden>
+              <DialogTitle>Chat avec Ezia - Assistant IA</DialogTitle>
+            </VisuallyHidden>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

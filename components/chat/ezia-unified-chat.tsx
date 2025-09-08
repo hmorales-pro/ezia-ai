@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,9 +12,7 @@ import {
   Send, 
   Sparkles, 
   Loader2, 
-  Bot,
   User,
-  Maximize2,
   Minimize2,
   X,
   MessageSquare,
@@ -115,7 +113,7 @@ export default function EziaUnifiedChat({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -123,27 +121,13 @@ export default function EziaUnifiedChat({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
 
-  // Message de bienvenue basé sur le mode
+  // Auto-scroll lorsque mode change
   useEffect(() => {
-    const welcomeMessages: Record<ChatMode, string> = {
-      general: `Bonjour ! Je suis Ezia, votre assistante IA pour ${businessName}. Comment puis-je vous aider aujourd'hui ?`,
-      analysis: `Je suis prête à analyser votre business ${businessName} en profondeur. Que souhaitez-vous explorer ?`,
-      content: `Créons du contenu engageant pour ${businessName} ! Quel type de contenu vous intéresse ?`,
-      strategy: `Développons ensemble une stratégie gagnante pour ${businessName}. Par où commencer ?`,
-      website: `Optimisons votre présence en ligne ! Que souhaitez-vous améliorer sur votre site ?`,
-      onboarding: `Bienvenue ! Je suis Ezia, votre partenaire IA. Parlez-moi de ${businessName} pour que je puisse mieux vous aider.`
-    };
-
-    if (messages.length === 0) {
-      setMessages([{
-        id: '1',
-        role: 'assistant',
-        content: welcomeMessages[mode],
-        timestamp: new Date(),
-        metadata: { agent: 'Ezia' }
-      }]);
+    // Si on change de mode et qu'on a une session active, on peut créer une nouvelle session
+    if (currentSessionId && messages.length > 1) {
+      // L'utilisateur peut choisir de créer une nouvelle session via le bouton +
     }
-  }, [mode, businessName]);
+  }, [mode, currentSessionId, messages.length]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -169,10 +153,18 @@ export default function EziaUnifiedChat({
           const lastSession = data.sessions[0];
           setCurrentSessionId(lastSession.id);
           setMessages(lastSession.messages || []);
+        } else if (!currentSessionId || data.sessions?.length === 0) {
+          // Pas de session, créer une nouvelle avec message de bienvenue
+          await startNewSession();
         }
+      } else {
+        // Si la requête échoue, créer une nouvelle session
+        await startNewSession();
       }
     } catch (error) {
       console.error('Erreur lors du chargement de l\'historique:', error);
+      // En cas d'erreur, créer une nouvelle session
+      await startNewSession();
     }
   };
 
@@ -220,15 +212,15 @@ export default function EziaUnifiedChat({
     setIsLoading(true);
 
     // Message de chargement animé avec statuts progressifs
+    let loadingStatus = "Ezia analyse votre demande...";
     const loadingMessage: ChatMessage = {
       id: 'loading',
       role: 'assistant',
-      content: '',
+      content: loadingStatus,
       timestamp: new Date(),
       isStreaming: true,
       metadata: { 
-        agent: 'Ezia',
-        status: "Ezia analyse votre demande..."
+        agent: 'Ezia'
       }
     };
     setMessages(prev => [...prev, loadingMessage]);
@@ -245,10 +237,11 @@ export default function EziaUnifiedChat({
     let statusIndex = 0;
     const statusInterval = setInterval(() => {
       if (statusIndex < statusMessages.length) {
+        loadingStatus = statusMessages[statusIndex];
         setMessages(prev => 
           prev.map(m => 
             m.id === 'loading' 
-              ? { ...m, metadata: { ...m.metadata, status: statusMessages[statusIndex] } }
+              ? { ...m, content: loadingStatus }
               : m
           )
         );
@@ -359,11 +352,29 @@ export default function EziaUnifiedChat({
   };
 
   const startNewSession = async () => {
+    // Créer le message de bienvenue
+    const welcomeMessages: Record<ChatMode, string> = {
+      general: `Bonjour ! Je suis Ezia, votre assistante IA pour ${businessName}. Comment puis-je vous aider aujourd'hui ?`,
+      analysis: `Je suis prête à analyser votre business ${businessName} en profondeur. Que souhaitez-vous explorer ?`,
+      content: `Créons du contenu engageant pour ${businessName} ! Quel type de contenu vous intéresse ?`,
+      strategy: `Développons ensemble une stratégie gagnante pour ${businessName}. Par où commencer ?`,
+      website: `Optimisons votre présence en ligne ! Que souhaitez-vous améliorer sur votre site ?`,
+      onboarding: `Bienvenue ! Je suis Ezia, votre partenaire IA. Parlez-moi de ${businessName} pour que je puisse mieux vous aider.`
+    };
+
+    const welcomeMessage: ChatMessage = {
+      id: '1',
+      role: 'assistant',
+      content: welcomeMessages[mode],
+      timestamp: new Date(),
+      metadata: { agent: 'Ezia' }
+    };
+
     const newSession: ChatSession = {
       id: Date.now().toString(),
       businessId,
       title: `Chat du ${new Date().toLocaleDateString('fr-FR')} - ${mode}`,
-      messages: [],
+      messages: [welcomeMessage],
       createdAt: new Date(),
       updatedAt: new Date(),
       context: mode
@@ -379,14 +390,14 @@ export default function EziaUnifiedChat({
 
       setSessions(prev => [newSession, ...prev]);
       setCurrentSessionId(newSession.id);
-      setMessages([]);
+      setMessages([welcomeMessage]);
       setShowHistory(false);
     } catch (error) {
       console.error('Erreur lors de la création de la session:', error);
       // En cas d'erreur, créer quand même la session localement
       setSessions(prev => [newSession, ...prev]);
       setCurrentSessionId(newSession.id);
-      setMessages([]);
+      setMessages([welcomeMessage]);
       setShowHistory(false);
     }
   };
@@ -513,7 +524,7 @@ export default function EziaUnifiedChat({
         </AnimatePresence>
 
         {/* Zone de chat principale */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col bg-white dark:bg-gray-900">
           <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
             <div className="space-y-4 max-w-3xl mx-auto">
               {messages.map((message) => (
@@ -539,14 +550,14 @@ export default function EziaUnifiedChat({
                     "rounded-lg",
                     message.role === 'user' 
                       ? "bg-primary text-primary-foreground px-4 py-3 max-w-[80%]" 
-                      : "bg-white dark:bg-gray-800 border shadow-sm p-6 max-w-[90%]"
+                      : "bg-white dark:bg-white text-gray-900 dark:text-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm p-6 max-w-[90%]"
                   )}>
                     {message.isStreaming ? (
                       <div className="space-y-2">
                         <div className="flex items-center gap-3">
                           <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
                           <span className="text-sm font-medium text-purple-600 animate-pulse">
-                            {message.metadata?.status || "Ezia analyse votre demande..."}
+                            {message.content || "Ezia analyse votre demande..."}
                           </span>
                         </div>
                         {message.content && (
@@ -562,15 +573,17 @@ export default function EziaUnifiedChat({
                             {message.metadata.agent}
                           </div>
                         )}
-                        <div className="prose prose-base dark:prose-invert max-w-none 
-                          prose-headings:text-lg prose-headings:font-semibold prose-headings:mb-3
-                          prose-p:text-base prose-p:leading-relaxed prose-p:mb-4
-                          prose-ul:space-y-2 prose-li:text-base
-                          prose-strong:text-purple-700 dark:prose-strong:text-purple-400">
+                        <div className="prose prose-base max-w-none 
+                          prose-headings:text-lg prose-headings:font-semibold prose-headings:mb-3 prose-headings:text-gray-900
+                          prose-p:text-base prose-p:leading-relaxed prose-p:mb-4 prose-p:text-gray-700
+                          prose-ul:space-y-2 prose-li:text-base prose-li:text-gray-700
+                          prose-strong:font-semibold prose-strong:text-gray-900
+                          prose-code:text-purple-700
+                          prose-blockquote:border-purple-500 prose-blockquote:text-gray-700">
                           <ReactMarkdown>{message.content}</ReactMarkdown>
                         </div>
                         <p className="text-xs text-muted-foreground mt-2 pt-2 border-t">
-                          {message.timestamp.toLocaleTimeString('fr-FR', { 
+                          {new Date(message.timestamp).toLocaleTimeString('fr-FR', { 
                             hour: '2-digit', 
                             minute: '2-digit' 
                           })}
