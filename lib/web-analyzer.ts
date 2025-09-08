@@ -44,7 +44,9 @@ export class WebAnalyzer {
       }
 
       // Fetch le contenu de la page
+      console.log('[WebAnalyzer] Récupération du contenu de:', validUrl);
       const pageContent = await this.fetchPageContent(validUrl);
+      console.log('[WebAnalyzer] Contenu récupéré:', pageContent ? pageContent.substring(0, 200) + '...' : 'AUCUN');
       if (!pageContent) {
         return {
           success: false,
@@ -174,15 +176,20 @@ Fournis ton analyse sous cette forme exacte:
 9. Recommandations: [3 recommandations stratégiques]`;
 
     try {
+      console.log('[WebAnalyzer] Appel à Mistral...');
       const response = await generateWithMistralAPI(userPrompt, systemPrompt);
+      console.log('[WebAnalyzer] Réponse reçue:', response.success, 'Content length:', response.content?.length);
       
       if (!response.success || !response.content) {
+        console.log('[WebAnalyzer] Pas de réponse, utilisation analyse par défaut');
         // Utiliser une analyse par défaut
         return this.getDefaultAnalysis(content, url);
       }
 
       // Parser la réponse
+      console.log('[WebAnalyzer] Parsing de la réponse...');
       const parsed = this.parseAnalysisResponse(response.content);
+      console.log('[WebAnalyzer] Résultat du parsing:', Object.keys(parsed));
       return parsed;
     } catch (error) {
       console.error('[WebAnalyzer] Erreur Mistral:', error);
