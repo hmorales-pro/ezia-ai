@@ -54,9 +54,7 @@ export class WebAnalyzer {
       }
 
       // Analyser avec Mistral
-      console.log('[WebAnalyzer] Début de l\'analyse du contenu...');
       const analysis = await this.analyzeContent(pageContent, validUrl);
-      console.log('[WebAnalyzer] Résultat de l\'analyse:', analysis);
       
       return {
         success: true,
@@ -102,7 +100,6 @@ export class WebAnalyzer {
       
       return urlObj.href;
     } catch (error) {
-      console.error('[WebAnalyzer] URL invalide:', url, error);
       return null;
     }
   }
@@ -177,19 +174,15 @@ Fournis ton analyse sous cette forme exacte:
 9. Recommandations: [3 recommandations stratégiques]`;
 
     try {
-      console.log('[WebAnalyzer] Appel à Mistral pour l\'analyse...');
       const response = await generateWithMistralAPI(userPrompt, systemPrompt);
-      console.log('[WebAnalyzer] Réponse Mistral:', response);
       
       if (!response.success || !response.content) {
-        console.log('[WebAnalyzer] Échec Mistral, utilisation analyse par défaut');
         // Utiliser une analyse par défaut
         return this.getDefaultAnalysis(content, url);
       }
 
       // Parser la réponse
       const parsed = this.parseAnalysisResponse(response.content);
-      console.log('[WebAnalyzer] Analyse parsée:', parsed);
       return parsed;
     } catch (error) {
       console.error('[WebAnalyzer] Erreur Mistral:', error);
@@ -214,16 +207,24 @@ Fournis ton analyse sous cette forme exacte:
     const opportunitiesMatch = content.match(/8\.\s*Opportunités[^:]*:\s*([\s\S]+?)(?=\d+\.|$)/i);
     const recommendationsMatch = content.match(/9\.\s*Recommandations[^:]*:\s*([\s\S]+?)(?=$)/i);
 
-    if (titleMatch) result.title = titleMatch[1].trim();
-    if (descMatch) result.description = descMatch[1].trim();
-    if (typeMatch) result.businessType = typeMatch[1].trim();
+    if (titleMatch) result.title = titleMatch[1].trim().replace(/\*\*/g, '');
+    if (descMatch) result.description = descMatch[1].trim().replace(/\*\*/g, '');
+    if (typeMatch) result.businessType = typeMatch[1].trim().replace(/\*\*/g, '');
     if (servicesMatch) {
-      result.mainServices = servicesMatch[1]
-        .split(/[,;]/)
+      // Nettoyer et parser les services
+      const servicesText = servicesMatch[1].replace(/\*\*/g, '').replace(/[-–—]\s*/g, '');
+      result.mainServices = servicesText
+        .split(/[,;•\n]/)
         .map(s => s.trim())
-        .filter(s => s.length > 0);
+        .filter(s => s.length > 5 && !s.match(/^[:\s]*$/));
     }
-    if (audienceMatch) result.targetAudience = audienceMatch[1].trim();
+    if (audienceMatch) {
+      // Nettoyer l'audience cible
+      result.targetAudience = audienceMatch[1]
+        .replace(/\*\*/g, '')
+        .replace(/^[-–—]\s*/, '')
+        .trim();
+    }
 
     // Parser les listes
     if (strengthsMatch) result.strengths = this.parseList(strengthsMatch[1]);
@@ -238,10 +239,28 @@ Fournis ton analyse sous cette forme exacte:
    * Parse une liste à partir du texte
    */
   private static parseList(text: string): string[] {
-    return text
-      .split(/\n|;/)
-      .map(item => item.replace(/^[-•*\d.)\s]+/, '').trim())
-      .filter(item => item.length > 0)
+    // Nettoyer le texte des balises Markdown
+    const cleanText = text
+      .replace(/\*\*/g, '') // Retirer les **
+      .replace(/\*/g, '')   // Retirer les *
+      .replace(/###?\s*/g, '') // Retirer les ###
+      .replace(/\s*:\s*$/gm, '') // Retirer les : en fin de ligne
+      .trim();
+    
+    // Séparer par lignes et nettoyer
+    return cleanText
+      .split(/\n+/)
+      .map(item => {
+        // Retirer les puces, numéros, tirets, etc.
+        return item
+          .replace(/^[-•*\d.)\s]+/, '')
+          .replace(/^\s*[-–—]\s*/, '')
+          .trim();
+      })
+      .filter(item => {
+        // Filtrer les lignes vides et trop courtes
+        return item.length > 10 && !item.match(/^[#\s]*$/);
+      })
       .slice(0, 5); // Limiter à 5 éléments
   }
 
