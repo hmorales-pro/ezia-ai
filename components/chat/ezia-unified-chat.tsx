@@ -305,6 +305,19 @@ export default function EziaUnifiedChat({
       // Nettoyer l'interval de statut
       clearInterval(statusInterval);
 
+      // Vérifier si la réponse semble complète
+      const lastChar = accumulatedContent.trim().slice(-1);
+      const seemsTruncated = accumulatedContent.length > 100 && 
+        !['.', '!', '?', '`', '}', ']', ')', '"', "'"].includes(lastChar);
+      
+      if (seemsTruncated) {
+        console.warn('La réponse semble tronquée:', {
+          length: accumulatedContent.length,
+          lastChars: accumulatedContent.slice(-50),
+          lastChar
+        });
+      }
+
       // Finaliser le message
       const assistantMessage = {
         id: Date.now().toString(),
@@ -583,7 +596,7 @@ export default function EziaUnifiedChat({
                           prose-blockquote:border-purple-500 prose-blockquote:text-gray-700">
                           <ReactMarkdown>{message.content}</ReactMarkdown>
                         </div>
-                        <p className="text-xs text-gray-500 mt-2 pt-2 border-t">
+                        <p className="text-xs mt-2 pt-2 border-t">
                           {new Date(message.timestamp).toLocaleTimeString('fr-FR', { 
                             hour: '2-digit', 
                             minute: '2-digit' 

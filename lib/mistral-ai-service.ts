@@ -65,7 +65,7 @@ export async function generateWithMistralAPI(
           { role: "user", content: prompt }
         ],
         temperature: 0.3, // Réduit pour plus de cohérence
-        max_tokens: isWebsiteGeneration ? 4000 : (isComplexStrategy ? 4000 : 2000),
+        max_tokens: isWebsiteGeneration ? 8000 : (isComplexStrategy ? 8000 : 4000),
         stream: false,
         // Ne forcer le format JSON que si nécessaire
         ...(isComplexStrategy && !isWebsiteGeneration ? { response_format: { type: "json_object" } } : {})
@@ -97,7 +97,7 @@ export async function generateWithMistralAPI(
                 { role: "user", content: prompt }
               ],
               temperature: 0.3,
-              max_tokens: isWebsiteGeneration ? 4000 : (isComplexStrategy ? 3000 : 2000),
+              max_tokens: isWebsiteGeneration ? 8000 : (isComplexStrategy ? 8000 : 4000),
               stream: false,
               // Ne forcer le format JSON que si nécessaire
               ...(isComplexStrategy && !isWebsiteGeneration ? { response_format: { type: "json_object" } } : {})

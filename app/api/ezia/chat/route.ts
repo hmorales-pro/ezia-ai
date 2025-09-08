@@ -43,12 +43,13 @@ export async function POST(request: NextRequest) {
           
           if (response.success && response.content) {
             fullResponse = response.content;
-            // Envoyer la réponse en streaming simulé
-            const chunks = response.content.split(" ");
-            for (const chunk of chunks) {
-              const data = encoder.encode(`data: ${JSON.stringify({ content: chunk + " " })}\n\n`);
+            // Envoyer la réponse en streaming par blocs plus larges
+            const chunkSize = 100; // Caractères par bloc
+            for (let i = 0; i < response.content.length; i += chunkSize) {
+              const chunk = response.content.slice(i, Math.min(i + chunkSize, response.content.length));
+              const data = encoder.encode(`data: ${JSON.stringify({ content: chunk })}\n\n`);
               controller.enqueue(data);
-              await new Promise(resolve => setTimeout(resolve, 20)); // Petit délai pour simuler le streaming
+              await new Promise(resolve => setTimeout(resolve, 10)); // Délai réduit
             }
           } else {
             fullResponse = response.error || "Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.";
