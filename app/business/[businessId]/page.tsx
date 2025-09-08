@@ -106,7 +106,7 @@ function BusinessDetailPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState("Chargement des données...");
   const [error, setError] = useState<string | null>(null);
-  const { openChat, closeChat, ChatComponent } = useEziaChatModal();
+  const { openChat, closeChat, ChatComponent, isOpen } = useEziaChatModal();
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
