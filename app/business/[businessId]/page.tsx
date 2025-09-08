@@ -800,21 +800,23 @@ function BusinessDetailPage() {
         <>
           <ChatComponent />
 
-          <Button
-            className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
-            onClick={() => {
-              openChat({
-                businessId,
-                businessName: business.name,
-                mode: 'general',
-                onActionComplete: (result) => {
-                  fetchBusiness();
-                }
-              });
-            }}
-          >
-            <Sparkles className="w-6 h-6" />
-          </Button>
+          {!isOpen && (
+            <Button
+              className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
+              onClick={() => {
+                openChat({
+                  businessId,
+                  businessName: business.name,
+                  mode: 'general',
+                  onActionComplete: (result) => {
+                    fetchBusiness();
+                  }
+                });
+              }}
+            >
+              <Sparkles className="w-6 h-6" />
+            </Button>
+          )}
         </>
       )}
 
