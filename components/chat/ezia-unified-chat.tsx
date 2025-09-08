@@ -436,7 +436,7 @@ export default function EziaUnifiedChat({
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-pink-50">
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12 border-2 border-purple-300">
-            <AvatarImage src="/img/ezia-email-logo.png" alt="Ezia" />
+            <AvatarImage src="/logo.png" alt="Ezia" />
             <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
               <Sparkles className="h-6 w-6" />
             </AvatarFallback>
@@ -553,7 +553,7 @@ export default function EziaUnifiedChat({
                 >
                   {message.role === 'assistant' && (
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src="/img/ezia-email-logo.png" alt="Ezia" />
+                      <AvatarImage src="/logo.png" alt="Ezia" />
                       <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
                         <Sparkles className="h-5 w-5" />
                       </AvatarFallback>
