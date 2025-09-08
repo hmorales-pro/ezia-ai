@@ -24,10 +24,22 @@ export class WebAnalyzer {
       // Valider l'URL
       const validUrl = this.validateUrl(url);
       if (!validUrl) {
+        // Détecter le type d'erreur
+        let errorMessage = "URL invalide.";
+        if (url.includes('httsp://') || url.includes('htps://')) {
+          errorMessage = "Protocole mal orthographié détecté. L'URL a été corrigée automatiquement.";
+          // Réessayer avec la correction
+          const correctedUrl = url.replace(/^ht+[ps]+:\/\//, 'https://');
+          const retryUrl = this.validateUrl(correctedUrl);
+          if (retryUrl) {
+            return this.analyzeUrl(correctedUrl);
+          }
+        }
+        
         return {
           success: false,
           url,
-          error: "URL invalide. Veuillez fournir une URL complète (ex: https://example.com)"
+          error: `${errorMessage} Veuillez fournir une URL complète (ex: https://example.com)`
         };
       }
 
@@ -64,15 +76,31 @@ export class WebAnalyzer {
    */
   private static validateUrl(url: string): string | null {
     try {
-      // Ajouter le protocole si manquant
+      // Nettoyer l'URL
       let normalizedUrl = url.trim();
+      
+      // Vérifier et corriger les protocoles mal orthographiés courants
+      if (normalizedUrl.startsWith('htps://') || normalizedUrl.startsWith('httsp://')) {
+        normalizedUrl = normalizedUrl.replace(/^ht+[ps]+:\/\//, 'https://');
+      } else if (normalizedUrl.startsWith('htp://')) {
+        normalizedUrl = normalizedUrl.replace(/^htp:\/\//, 'http://');
+      }
+      
+      // Ajouter le protocole si manquant
       if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
         normalizedUrl = 'https://' + normalizedUrl;
       }
 
       const urlObj = new URL(normalizedUrl);
+      
+      // Vérifier que l'URL a un hostname valide
+      if (!urlObj.hostname || urlObj.hostname.length < 3) {
+        return null;
+      }
+      
       return urlObj.href;
-    } catch {
+    } catch (error) {
+      console.error('[WebAnalyzer] URL invalide:', url, error);
       return null;
     }
   }
