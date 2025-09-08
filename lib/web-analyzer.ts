@@ -188,8 +188,9 @@ Fournis ton analyse sous cette forme exacte:
 
       // Parser la réponse
       console.log('[WebAnalyzer] Parsing de la réponse...');
+      console.log('[WebAnalyzer] Début de la réponse:', response.content.substring(0, 500));
       const parsed = this.parseAnalysisResponse(response.content);
-      console.log('[WebAnalyzer] Résultat du parsing:', Object.keys(parsed));
+      console.log('[WebAnalyzer] Résultat du parsing:', parsed);
       return parsed;
     } catch (error) {
       console.error('[WebAnalyzer] Erreur Mistral:', error);
@@ -203,16 +204,41 @@ Fournis ton analyse sous cette forme exacte:
   private static parseAnalysisResponse(content: string): Partial<WebAnalysisResult> {
     const result: Partial<WebAnalysisResult> = {};
 
-    // Extraire chaque section
-    const titleMatch = content.match(/1\.\s*Titre[^:]*:\s*(.+)/i);
-    const descMatch = content.match(/2\.\s*Description[^:]*:\s*(.+)/i);
-    const typeMatch = content.match(/3\.\s*Type[^:]*:\s*(.+)/i);
-    const servicesMatch = content.match(/4\.\s*Services[^:]*:\s*(.+)/i);
-    const audienceMatch = content.match(/5\.\s*Audience[^:]*:\s*(.+)/i);
-    const strengthsMatch = content.match(/6\.\s*Points forts[^:]*:\s*([\s\S]+?)(?=\d+\.|$)/i);
-    const weaknessesMatch = content.match(/7\.\s*Points faibles[^:]*:\s*([\s\S]+?)(?=\d+\.|$)/i);
-    const opportunitiesMatch = content.match(/8\.\s*Opportunités[^:]*:\s*([\s\S]+?)(?=\d+\.|$)/i);
-    const recommendationsMatch = content.match(/9\.\s*Recommandations[^:]*:\s*([\s\S]+?)(?=$)/i);
+    // Vérifier si c'est du JSON
+    try {
+      const jsonData = JSON.parse(content);
+      if (jsonData) {
+        return {
+          title: jsonData.title || jsonData.titre,
+          description: jsonData.description,
+          businessType: jsonData.businessType || jsonData.type_business || jsonData.type,
+          mainServices: Array.isArray(jsonData.mainServices) ? jsonData.mainServices : 
+                       (Array.isArray(jsonData.services) ? jsonData.services : []),
+          targetAudience: jsonData.targetAudience || jsonData.audience || jsonData.audience_cible,
+          strengths: Array.isArray(jsonData.strengths) ? jsonData.strengths : 
+                    (Array.isArray(jsonData.points_forts) ? jsonData.points_forts : []),
+          weaknesses: Array.isArray(jsonData.weaknesses) ? jsonData.weaknesses : 
+                     (Array.isArray(jsonData.points_faibles) ? jsonData.points_faibles : []),
+          opportunities: Array.isArray(jsonData.opportunities) ? jsonData.opportunities : 
+                        (Array.isArray(jsonData.opportunites) ? jsonData.opportunites : []),
+          recommendations: Array.isArray(jsonData.recommendations) ? jsonData.recommendations : 
+                          (Array.isArray(jsonData.recommandations) ? jsonData.recommandations : [])
+        };
+      }
+    } catch (e) {
+      // Ce n'est pas du JSON, continuer avec le parsing textuel
+    }
+
+    // Extraire chaque section avec des regex plus flexibles
+    const titleMatch = content.match(/(?:1\.?\s*)?Titre[^:]*:\s*(.+)/i);
+    const descMatch = content.match(/(?:2\.?\s*)?Description[^:]*:\s*(.+)/i);
+    const typeMatch = content.match(/(?:3\.?\s*)?Type[^:]*:\s*(.+)/i);
+    const servicesMatch = content.match(/(?:4\.?\s*)?Services?[^:]*:\s*([\s\S]+?)(?=\n\d+\.|$)/i);
+    const audienceMatch = content.match(/(?:5\.?\s*)?Audience[^:]*:\s*(.+)/i);
+    const strengthsMatch = content.match(/(?:6\.?\s*)?Points?\s+forts?[^:]*:\s*([\s\S]+?)(?=\n\d+\.|$)/i);
+    const weaknessesMatch = content.match(/(?:7\.?\s*)?Points?\s+faibles?[^:]*:\s*([\s\S]+?)(?=\n\d+\.|$)/i);
+    const opportunitiesMatch = content.match(/(?:8\.?\s*)?Opportunit[eé]s?[^:]*:\s*([\s\S]+?)(?=\n\d+\.|$)/i);
+    const recommendationsMatch = content.match(/(?:9\.?\s*)?Recommandations?[^:]*:\s*([\s\S]+?)$/i);
 
     if (titleMatch) result.title = titleMatch[1].trim().replace(/\*\*/g, '');
     if (descMatch) result.description = descMatch[1].trim().replace(/\*\*/g, '');
