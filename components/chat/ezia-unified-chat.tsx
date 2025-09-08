@@ -64,6 +64,8 @@ interface EziaUnifiedChatProps {
   initialContext?: string;
   onActionComplete?: (result: any) => void;
   className?: string;
+  onMinimize?: () => void;
+  onClose?: () => void;
 }
 
 // Quick actions par mode
@@ -106,7 +108,9 @@ export default function EziaUnifiedChat({
   mode = 'general',
   initialContext,
   onActionComplete,
-  className
+  className,
+  onMinimize,
+  onClose
 }: EziaUnifiedChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -155,13 +159,49 @@ export default function EziaUnifiedChat({
 
   const loadChatHistory = async () => {
     try {
-      const response = await fetch(`/api/me/business/${businessId}/chat-history`);
+      const response = await fetch(`/api/me/business/${businessId}/chat-sessions`);
       if (response.ok) {
         const data = await response.json();
         setSessions(data.sessions || []);
+        
+        // Si pas de session courante et qu'il y a des sessions, charger la dernière
+        if (!currentSessionId && data.sessions?.length > 0) {
+          const lastSession = data.sessions[0];
+          setCurrentSessionId(lastSession.id);
+          setMessages(lastSession.messages || []);
+        }
       }
     } catch (error) {
       console.error('Erreur lors du chargement de l\'historique:', error);
+    }
+  };
+
+  const saveChatHistory = async (newMessages: ChatMessage[]) => {
+    try {
+      // Si pas de session courante, en créer une nouvelle
+      if (!currentSessionId) {
+        await startNewSession();
+      }
+
+      await fetch(`/api/me/business/${businessId}/chat-sessions/${currentSessionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, ...newMessages],
+          updatedAt: new Date()
+        })
+      });
+
+      // Mettre à jour la session locale
+      setSessions(prev => 
+        prev.map(s => 
+          s.id === currentSessionId 
+            ? { ...s, messages: [...messages, ...newMessages], updatedAt: new Date() }
+            : s
+        )
+      );
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde de l\'historique:', error);
     }
   };
 
@@ -179,16 +219,42 @@ export default function EziaUnifiedChat({
     setInput('');
     setIsLoading(true);
 
-    // Message de chargement animé
+    // Message de chargement animé avec statuts progressifs
     const loadingMessage: ChatMessage = {
       id: 'loading',
       role: 'assistant',
       content: '',
       timestamp: new Date(),
       isStreaming: true,
-      metadata: { agent: 'Ezia' }
+      metadata: { 
+        agent: 'Ezia',
+        status: "Ezia analyse votre demande..."
+      }
     };
     setMessages(prev => [...prev, loadingMessage]);
+
+    // Simuler des messages de statut progressifs
+    const statusMessages = [
+      "Ezia contacte l'équipe d'agents spécialisés...",
+      "Kiko analyse les aspects techniques...",
+      "Milo prépare des éléments visuels...",
+      "Sophie compile les données du marché...",
+      "Ezia synthétise les informations..."
+    ];
+
+    let statusIndex = 0;
+    const statusInterval = setInterval(() => {
+      if (statusIndex < statusMessages.length) {
+        setMessages(prev => 
+          prev.map(m => 
+            m.id === 'loading' 
+              ? { ...m, metadata: { ...m.metadata, status: statusMessages[statusIndex] } }
+              : m
+          )
+        );
+        statusIndex++;
+      }
+    }, 2000);
 
     try {
       const response = await fetch('/api/ezia/chat', {
@@ -243,29 +309,29 @@ export default function EziaUnifiedChat({
         }
       }
 
+      // Nettoyer l'interval de statut
+      clearInterval(statusInterval);
+
       // Finaliser le message
+      const assistantMessage = {
+        id: Date.now().toString(),
+        role: 'assistant' as const,
+        content: accumulatedContent,
+        timestamp: new Date(),
+        isStreaming: false,
+        metadata: { agent: 'Ezia' }
+      };
+
       setMessages(prev => 
         prev.map(m => 
           m.id === 'loading' 
-            ? { ...m, id: Date.now().toString(), isStreaming: false }
+            ? assistantMessage
             : m
         )
       );
 
       // Sauvegarder dans l'historique
-      if (currentSessionId) {
-        await fetch(`/api/me/business/${businessId}/chat-history`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId: currentSessionId,
-            messages: [userMessage, {
-              role: 'assistant',
-              content: accumulatedContent
-            }]
-          })
-        });
-      }
+      await saveChatHistory([userMessage, assistantMessage]);
 
       // Callback si action complétée
       if (onActionComplete && accumulatedContent.includes('[ACTION_COMPLETE]')) {
@@ -273,6 +339,7 @@ export default function EziaUnifiedChat({
       }
 
     } catch (error) {
+      clearInterval(statusInterval);
       setMessages(prev => prev.filter(m => m.id !== 'loading'));
       toast({
         title: "Erreur",
@@ -291,20 +358,37 @@ export default function EziaUnifiedChat({
     }
   };
 
-  const startNewSession = () => {
+  const startNewSession = async () => {
     const newSession: ChatSession = {
       id: Date.now().toString(),
       businessId,
-      title: `Chat du ${new Date().toLocaleDateString('fr-FR')}`,
+      title: `Chat du ${new Date().toLocaleDateString('fr-FR')} - ${mode}`,
       messages: [],
       createdAt: new Date(),
       updatedAt: new Date(),
       context: mode
     };
-    setSessions(prev => [newSession, ...prev]);
-    setCurrentSessionId(newSession.id);
-    setMessages([]);
-    setShowHistory(false);
+
+    try {
+      // Créer la session sur le serveur
+      await fetch(`/api/me/business/${businessId}/chat-sessions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSession)
+      });
+
+      setSessions(prev => [newSession, ...prev]);
+      setCurrentSessionId(newSession.id);
+      setMessages([]);
+      setShowHistory(false);
+    } catch (error) {
+      console.error('Erreur lors de la création de la session:', error);
+      // En cas d'erreur, créer quand même la session localement
+      setSessions(prev => [newSession, ...prev]);
+      setCurrentSessionId(newSession.id);
+      setMessages([]);
+      setShowHistory(false);
+    }
   };
 
   const loadSession = (session: ChatSession) => {
@@ -324,18 +408,18 @@ export default function EziaUnifiedChat({
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-muted/50">
+      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
         <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10 border-2 border-primary/20">
-            <AvatarImage src="/ezia-avatar.png" />
+          <Avatar className="h-12 w-12 border-2 border-purple-300">
+            <AvatarImage src="/img/ezia-email-logo.png" alt="Ezia" />
             <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-              <Sparkles className="h-5 w-5" />
+              <Sparkles className="h-6 w-6" />
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-semibold flex items-center gap-2">
+            <h3 className="font-bold text-lg flex items-center gap-2">
               Ezia
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
                 {mode === 'onboarding' ? 'Onboarding' : 
                  mode === 'analysis' ? 'Analyse' :
                  mode === 'content' ? 'Contenu' :
@@ -343,17 +427,18 @@ export default function EziaUnifiedChat({
                  mode === 'website' ? 'Site Web' : 'Assistant'}
               </Badge>
             </h3>
-            <p className="text-xs text-muted-foreground">
-              {businessName}
+            <p className="text-sm text-muted-foreground">
+              Assistant IA pour {businessName}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setShowHistory(!showHistory)}
+            title="Historique des conversations"
           >
             <History className="h-4 w-4" />
           </Button>
@@ -361,21 +446,26 @@ export default function EziaUnifiedChat({
             variant="ghost"
             size="icon"
             onClick={startNewSession}
+            title="Nouvelle conversation"
           >
             <Plus className="h-4 w-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          </Button>
-          {onActionComplete && (
+          {onMinimize && (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onActionComplete({ cancelled: true })}
+              onClick={onMinimize}
+              title="Réduire"
+            >
+              <Minimize2 className="h-4 w-4" />
+            </Button>
+          )}
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              title="Fermer"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -403,12 +493,17 @@ export default function EziaUnifiedChat({
                       onClick={() => loadSession(session)}
                     >
                       <p className="text-sm font-medium truncate">{session.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {session.messages.length} messages
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(session.createdAt).toLocaleDateString('fr-FR')}
-                      </p>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-xs text-muted-foreground">
+                          {session.messages.length} message{session.messages.length > 1 ? 's' : ''}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(session.createdAt).toLocaleTimeString('fr-FR', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </p>
+                      </div>
                     </Card>
                   ))}
                 </div>
@@ -432,37 +527,56 @@ export default function EziaUnifiedChat({
                   )}
                 >
                   {message.role === 'assistant' && (
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src="/img/ezia-email-logo.png" alt="Ezia" />
                       <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-                        <Bot className="h-4 w-4" />
+                        <Sparkles className="h-5 w-5" />
                       </AvatarFallback>
                     </Avatar>
                   )}
                   
                   <div className={cn(
-                    "max-w-[80%] rounded-lg px-4 py-2",
+                    "rounded-lg",
                     message.role === 'user' 
-                      ? "bg-primary text-primary-foreground" 
-                      : "bg-muted"
+                      ? "bg-primary text-primary-foreground px-4 py-3 max-w-[80%]" 
+                      : "bg-white dark:bg-gray-800 border shadow-sm p-6 max-w-[90%]"
                   )}>
                     {message.isStreaming ? (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                        <span className="text-sm animate-pulse">
-                          {message.content || "Ezia réfléchit..."}
-                        </span>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
+                          <span className="text-sm font-medium text-purple-600 animate-pulse">
+                            {message.metadata?.status || "Ezia analyse votre demande..."}
+                          </span>
+                        </div>
+                        {message.content && (
+                          <p className="text-sm text-muted-foreground pl-7">
+                            {message.content}
+                          </p>
+                        )}
                       </div>
                     ) : (
-                      <div className="prose prose-sm dark:prose-invert max-w-none">
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                      <div className="space-y-3">
+                        {message.metadata?.agent && (
+                          <div className="text-xs text-muted-foreground font-medium">
+                            {message.metadata.agent}
+                          </div>
+                        )}
+                        <div className="prose prose-base dark:prose-invert max-w-none 
+                          prose-headings:text-lg prose-headings:font-semibold prose-headings:mb-3
+                          prose-p:text-base prose-p:leading-relaxed prose-p:mb-4
+                          prose-ul:space-y-2 prose-li:text-base
+                          prose-strong:text-purple-700 dark:prose-strong:text-purple-400">
+                          <ReactMarkdown>{message.content}</ReactMarkdown>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2 pt-2 border-t">
+                          {message.timestamp.toLocaleTimeString('fr-FR', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </p>
                       </div>
                     )}
-                    <p className="text-xs opacity-70 mt-1">
-                      {message.timestamp.toLocaleTimeString('fr-FR', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </p>
                   </div>
                   
                   {message.role === 'user' && (
