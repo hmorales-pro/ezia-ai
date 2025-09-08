@@ -33,6 +33,17 @@ export function WebAnalyzerTool({ businessId, onAnalysisComplete }: WebAnalyzerT
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  
+  // Fonction pour nettoyer le texte du formatage Markdown
+  const cleanText = (text: string): string => {
+    if (!text) return '';
+    return text
+      .replace(/\*\*/g, '') // Retirer les **
+      .replace(/\*/g, '')   // Retirer les *
+      .replace(/^[-–—]\s*/g, '') // Retirer les tirets en début
+      .replace(/\s+/g, ' ') // Normaliser les espaces
+      .trim();
+  };
 
   const handleAnalyze = async () => {
     if (!url.trim()) {
@@ -181,7 +192,7 @@ export function WebAnalyzerTool({ businessId, onAnalysisComplete }: WebAnalyzerT
                       Audience cible
                     </h4>
                     <p className="text-sm text-gray-600">
-                      {analysis.targetAudience || 'Non identifiée'}
+                      {cleanText(analysis.targetAudience) || 'Non identifiée'}
                     </p>
                   </div>
                 </div>
@@ -195,7 +206,7 @@ export function WebAnalyzerTool({ businessId, onAnalysisComplete }: WebAnalyzerT
                     <div className="flex flex-wrap gap-2">
                       {analysis.mainServices.map((service: string, idx: number) => (
                         <Badge key={idx} variant="secondary">
-                          {service}
+                          {cleanText(service)}
                         </Badge>
                       ))}
                     </div>
@@ -212,7 +223,7 @@ export function WebAnalyzerTool({ businessId, onAnalysisComplete }: WebAnalyzerT
                       {analysis.opportunities.slice(0, 3).map((opp: string, idx: number) => (
                         <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
                           <span className="text-green-500 mt-1">•</span>
-                          {opp}
+                          {cleanText(opp)}
                         </li>
                       ))}
                     </ul>
@@ -226,7 +237,7 @@ export function WebAnalyzerTool({ businessId, onAnalysisComplete }: WebAnalyzerT
                     analysis.strengths.map((strength: string, idx: number) => (
                       <div key={idx} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
                         <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-                        <p className="text-sm">{strength}</p>
+                        <p className="text-sm">{cleanText(strength)}</p>
                       </div>
                     ))
                   ) : (
@@ -241,7 +252,7 @@ export function WebAnalyzerTool({ businessId, onAnalysisComplete }: WebAnalyzerT
                     analysis.weaknesses.map((weakness: string, idx: number) => (
                       <div key={idx} className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
                         <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
-                        <p className="text-sm">{weakness}</p>
+                        <p className="text-sm">{cleanText(weakness)}</p>
                       </div>
                     ))
                   ) : (
@@ -256,7 +267,7 @@ export function WebAnalyzerTool({ businessId, onAnalysisComplete }: WebAnalyzerT
                     analysis.recommendations.map((rec: string, idx: number) => (
                       <div key={idx} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
                         <Lightbulb className="h-5 w-5 text-blue-600 mt-0.5" />
-                        <p className="text-sm">{rec}</p>
+                        <p className="text-sm">{cleanText(rec)}</p>
                       </div>
                     ))
                   ) : (
