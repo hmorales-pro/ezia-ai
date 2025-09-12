@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
+// Button component removed - using native buttons
 import { 
   Menu, 
   X,
@@ -34,10 +34,10 @@ export default function LandingNavbarSimple() {
 
   return (
     <nav className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+      "fixed top-0 left-0 right-0 z-[100] transition-all duration-300",
       isScrolled 
         ? "bg-white shadow-md" 
-        : "bg-white/90 backdrop-blur-sm"
+        : "bg-white shadow-sm"
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -103,19 +103,23 @@ export default function LandingNavbarSimple() {
             {user ? (
               <>
                 <Link href="/dashboard">
-                  <Button variant="ghost">Dashboard</Button>
+                  <button className="px-4 py-2 text-gray-600 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50 transition-all">
+                    Dashboard
+                  </button>
                 </Link>
               </>
             ) : (
               <>
                 <Link href="/auth/ezia">
-                  <Button variant="ghost">Se connecter</Button>
+                  <button className="px-4 py-2 text-gray-600 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50 transition-all">
+                    Se connecter
+                  </button>
                 </Link>
                 <Link href="/auth/ezia">
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                  <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                     Commencer gratuitement
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </Link>
               </>
             )}
@@ -163,18 +167,22 @@ export default function LandingNavbarSimple() {
             
             <div className="pt-4 space-y-2">
               {user ? (
-                <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button className="w-full">Dashboard</Button>
+                <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block">
+                  <button className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg">
+                    Dashboard
+                  </button>
                 </Link>
               ) : (
                 <>
-                  <Link href="/auth/ezia" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full">Se connecter</Button>
+                  <Link href="/auth/ezia" onClick={() => setIsMobileMenuOpen(false)} className="block">
+                    <button className="w-full px-4 py-2 border border-gray-300 text-gray-700 hover:text-purple-600 hover:border-purple-600 font-medium rounded-lg">
+                      Se connecter
+                    </button>
                   </Link>
-                  <Link href="/auth/ezia" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                  <Link href="/auth/ezia" onClick={() => setIsMobileMenuOpen(false)} className="block">
+                    <button className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg">
                       Commencer gratuitement
-                    </Button>
+                    </button>
                   </Link>
                 </>
               )}
