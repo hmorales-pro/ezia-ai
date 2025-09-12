@@ -29,7 +29,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import LandingChat from "@/components/landing-chat";
-import LandingNavbar from "@/components/landing-navbar";
+import LandingNavbarSimple from "@/components/landing-navbar-simple";
 import { Footer } from "@/components/ui/footer";
 import {
   Accordion,
@@ -118,7 +118,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#ebe7e1]">
-      <LandingNavbar />
+      <LandingNavbarSimple />
       
       {/* Hero Section with Chat */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#ebe7e1] via-white to-purple-50/30">
