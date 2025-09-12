@@ -37,6 +37,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import LandingNavbar from "@/components/landing-navbar";
 
 export default function HomePage() {
   const router = useRouter();
@@ -118,7 +119,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#ebe7e1]">
-      <LandingNavbarDebug />
+      <LandingNavbar />
       
       {/* Hero Section with Chat */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#ebe7e1] via-white to-purple-50/30">

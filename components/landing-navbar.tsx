@@ -76,7 +76,7 @@ export default function LandingNavbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden sm:flex items-center gap-4 md:gap-8">
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
@@ -141,7 +141,7 @@ export default function LandingNavbar() {
           </div>
 
           {/* CTA Buttons */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             {user ? (
               <>
                 <Link href="/dashboard">
