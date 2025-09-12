@@ -49,6 +49,12 @@ export default function LandingNavbar() {
       href: "/guides",
       description: "Tutoriels détaillés pour réussir en ligne",
       icon: Lightbulb
+    },
+    {
+      title: "POC Générateur",
+      href: "/sites/poc",
+      description: "Testez notre générateur de sites multi-agent",
+      icon: Rocket
     }
   ];
 
