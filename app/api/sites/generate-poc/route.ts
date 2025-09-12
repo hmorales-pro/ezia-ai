@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SiteOrchestrator } from "@/lib/agents/site-orchestrator";
+import { SiteGenerationOrchestrator } from "@/lib/agents/site-orchestrator";
+import { SiteArchitectAgent } from "@/lib/agents/site-architect";
+import { KikoDesignAgent } from "@/lib/agents/kiko-design";
+import { LexSiteBuilderAgent } from "@/lib/agents/lex-site-builder";
+import { MiloCopywritingAgent } from "@/lib/agents/milo-copywriting";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,25 +16,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create orchestrator with business context
-    const orchestrator = new SiteOrchestrator({
+    // Create all agents
+    const agents = {
+      siteArchitect: new SiteArchitectAgent(),
+      kikoDesign: new KikoDesignAgent(),
+      lexSiteBuilder: new LexSiteBuilderAgent(),
+      miloCopywriting: new MiloCopywritingAgent()
+    };
+
+    // Create orchestrator with agents
+    const orchestrator = new SiteGenerationOrchestrator(agents);
+
+    // Generate the complete site
+    const result = await orchestrator.generateSite({
       businessName,
       industry,
       description: description || `${businessName} est une entreprise dans le secteur ${industry}.`,
       targetAudience: getTargetAudience(industry),
-      goals: getBusinessGoals(industry)
+      features: getBusinessGoals(industry)
     });
-
-    // Generate the complete site
-    const result = await orchestrator.generateSite();
 
     return NextResponse.json({
       html: result.html,
-      metadata: {
-        agents: result.agentOutputs,
-        validationScores: result.validationScores,
-        generatedAt: new Date().toISOString()
-      }
+      metadata: result.metadata,
+      structure: result.structure,
+      designSystem: result.designSystem,
+      content: result.content
     });
 
   } catch (error) {

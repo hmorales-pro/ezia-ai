@@ -3,7 +3,7 @@ import { SiteArchitectAgent } from "./site-architect";
 import { KikoDesignAgent } from "./kiko-design";
 import { LexSiteBuilderAgent } from "./lex-site-builder";
 import { MiloCopywritingAgent } from "./milo-copywriting";
-import { GeneratedSite } from "@/types/agents";
+import { GeneratedSite, IndustryInsights } from "@/types/agents";
 
 interface OrchestratorAgents {
   siteArchitect: SiteArchitectAgent;
