@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import Business from '@/models/Business';
+import dbConnect from '@/lib/mongodb';
+import { Business } from '@/models/Business';
 import SocialConnection from '@/models/SocialConnection';
 import { headers } from 'next/headers';
 import jwt from 'jsonwebtoken';
@@ -29,7 +29,7 @@ export async function GET(
     }
 
     // Connect to database
-    await connectToDatabase();
+    await dbConnect();
 
     // Find business and verify ownership
     const business = await Business.findById(params.businessId);

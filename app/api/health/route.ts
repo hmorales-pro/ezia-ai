@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkMongoDB } from "@/lib/db-utils";
+import { checkMongoDBAvailability } from "@/lib/db-utils";
 
 export async function GET(request: NextRequest) {
   try {
     // Vérifier MongoDB
-    const mongoAvailable = await checkMongoDB();
+    const mongoAvailable = await checkMongoDBAvailability();
     
     // Collecter les informations de santé
     const health = {

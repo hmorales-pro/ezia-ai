@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connect } from '@/lib/mongodb';
+import dbConnect from '@/lib/mongodb';
 import { User } from '@/models/User';
 import { Business } from '@/models/Business';
 import UserProject from '@/models/UserProject';
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Connect to database
-    await connect();
+    await dbConnect();
 
     // Fetch all user data
     const user = await User.findById(userId).select('+password');

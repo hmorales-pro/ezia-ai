@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import Business from '@/models/Business';
+import dbConnect from '@/lib/mongodb';
+import { Business } from '@/models/Business';
 import SocialConnection from '@/models/SocialConnection';
 import { withMCPClient } from '@/lib/mcp/social-media-client';
 import { headers } from 'next/headers';
@@ -39,7 +39,7 @@ export async function POST(
     }
 
     // Connect to database
-    await connectToDatabase();
+    await dbConnect();
 
     // Find business and verify ownership
     const business = await Business.findById(params.businessId);

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import dbConnect from '@/lib/mongodb';
 import SocialConnection from '@/models/SocialConnection';
 import { withMCPClient } from '@/lib/mcp/social-media-client';
 
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     // Extract businessId from state
     const businessId = state.split(':')[0];
 
-    await connectToDatabase();
+    await dbConnect();
 
     // Handle callback using MCP
     try {
