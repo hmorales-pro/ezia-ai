@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
 import { 
   Sparkles, 
   Loader2, 
@@ -27,7 +28,9 @@ import {
   Zap,
   Palette,
   PenTool,
-  Globe
+  Globe,
+  Brain,
+  FileCode
 } from "lucide-react";
 import Link from "next/link";
 
@@ -46,6 +49,7 @@ export default function SiteGeneratorPOC() {
   const [generatedHTML, setGeneratedHTML] = useState("");
   const [status, setStatus] = useState<GenerationStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [useAI, setUseAI] = useState(true); // Default to AI generation
 
   const industries = [
     { value: "restaurant", label: "Restaurant / Alimentation" },
@@ -71,7 +75,8 @@ export default function SiteGeneratorPOC() {
     setGeneratedHTML("");
 
     try {
-      const response = await fetch("/api/sites/generate-poc", {
+      const endpoint = useAI ? "/api/sites/generate-ai" : "/api/sites/generate-poc";
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -223,6 +228,32 @@ export default function SiteGeneratorPOC() {
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={isGenerating}
                 rows={4}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                {useAI ? (
+                  <Brain className="w-5 h-5 text-purple-600" />
+                ) : (
+                  <FileCode className="w-5 h-5 text-gray-600" />
+                )}
+                <div>
+                  <Label htmlFor="ai-toggle" className="text-sm font-medium">
+                    {useAI ? "Génération par IA" : "Génération par Template"}
+                  </Label>
+                  <p className="text-xs text-gray-600">
+                    {useAI 
+                      ? "Utilise Mistral AI pour créer un site unique" 
+                      : "Utilise des templates prédéfinis"}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="ai-toggle"
+                checked={useAI}
+                onCheckedChange={setUseAI}
+                disabled={isGenerating}
               />
             </div>
 
