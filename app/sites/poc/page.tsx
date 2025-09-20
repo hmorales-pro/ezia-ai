@@ -16,7 +16,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Switch } from "@/components/ui/switch";
 import { 
   Sparkles, 
   Loader2, 
@@ -49,7 +48,7 @@ export default function SiteGeneratorPOC() {
   const [generatedHTML, setGeneratedHTML] = useState("");
   const [status, setStatus] = useState<GenerationStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [useAI, setUseAI] = useState(true); // Default to AI generation
+  const [generationMode, setGenerationMode] = useState<"template" | "ai" | "glm">("glm"); // Default to GLM-4.5
 
   const industries = [
     { value: "restaurant", label: "Restaurant / Alimentation" },
@@ -75,7 +74,10 @@ export default function SiteGeneratorPOC() {
     setGeneratedHTML("");
 
     try {
-      const endpoint = useAI ? "/api/sites/generate-ai" : "/api/sites/generate-poc";
+      let endpoint = "/api/sites/generate-poc";
+      if (generationMode === "ai") endpoint = "/api/sites/generate-ai";
+      if (generationMode === "glm") endpoint = "/api/sites/generate-glm";
+      
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -231,30 +233,38 @@ export default function SiteGeneratorPOC() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
-              <div className="flex items-center gap-3">
-                {useAI ? (
-                  <Brain className="w-5 h-5 text-purple-600" />
-                ) : (
-                  <FileCode className="w-5 h-5 text-gray-600" />
-                )}
-                <div>
-                  <Label htmlFor="ai-toggle" className="text-sm font-medium">
-                    {useAI ? "Génération par IA" : "Génération par Template"}
-                  </Label>
-                  <p className="text-xs text-gray-600">
-                    {useAI 
-                      ? "Utilise Mistral AI pour créer un site unique" 
-                      : "Utilise des templates prédéfinis"}
-                  </p>
-                </div>
-              </div>
-              <Switch
-                id="ai-toggle"
-                checked={useAI}
-                onCheckedChange={setUseAI}
-                disabled={isGenerating}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="generation-mode">Mode de génération</Label>
+              <Select value={generationMode} onValueChange={(value: any) => setGenerationMode(value)} disabled={isGenerating}>
+                <SelectTrigger id="generation-mode">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="template">
+                    <div className="flex items-center gap-2">
+                      <FileCode className="w-4 h-4" />
+                      <span>Templates</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="ai">
+                    <div className="flex items-center gap-2">
+                      <Brain className="w-4 h-4" />
+                      <span>Mistral AI</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="glm">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      <span>Code LLMs (HuggingFace)</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-600">
+                {generationMode === "template" && "Utilise des templates prédéfinis"}
+                {generationMode === "ai" && "Utilise Mistral AI avec des agents spécialisés"}
+                {generationMode === "glm" && "Utilise des LLMs spécialisés en code (Zephyr, Mixtral, CodeLlama)"}
+              </p>
             </div>
 
             {error && (
