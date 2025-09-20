@@ -48,7 +48,7 @@ export default function SiteGeneratorPOC() {
   const [generatedHTML, setGeneratedHTML] = useState("");
   const [status, setStatus] = useState<GenerationStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [generationMode, setGenerationMode] = useState<"template" | "ai" | "glm">("glm"); // Default to GLM-4.5
+  const [generationMode, setGenerationMode] = useState<"template" | "ai" | "glm" | "multi-agent">("multi-agent"); // Default to Multi-Agent
 
   const industries = [
     { value: "restaurant", label: "Restaurant / Alimentation" },
@@ -77,6 +77,7 @@ export default function SiteGeneratorPOC() {
       let endpoint = "/api/sites/generate-poc";
       if (generationMode === "ai") endpoint = "/api/sites/generate-ai";
       if (generationMode === "glm") endpoint = "/api/sites/generate-glm";
+      if (generationMode === "multi-agent") endpoint = "/api/sites/generate-multi-agent";
       
       const response = await fetch(endpoint, {
         method: "POST",
@@ -140,7 +141,9 @@ export default function SiteGeneratorPOC() {
         phase: "Construction",
         agent: "Lex",
         progress: 75,
-        message: "Construction du site avec HTML/CSS/JS..."
+        message: generationMode === "multi-agent" 
+          ? "Construction du site avec GLM-4.5..."
+          : "Construction du site avec HTML/CSS/JS..."
       });
     }, 5000);
 
@@ -149,7 +152,9 @@ export default function SiteGeneratorPOC() {
         phase: "Contenu",
         agent: "Milo",
         progress: 90,
-        message: "Génération du contenu et optimisation SEO..."
+        message: generationMode === "multi-agent"
+          ? "Finalisation avec GLM-4.5 et optimisation..."
+          : "Génération du contenu et optimisation SEO..."
       });
     }, 7000);
   }
@@ -258,12 +263,19 @@ export default function SiteGeneratorPOC() {
                       <span>Code LLMs (HuggingFace)</span>
                     </div>
                   </SelectItem>
+                  <SelectItem value="multi-agent">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-purple-600" />
+                      <span>Multi-Agent (Mistral + GLM-4.5)</span>
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-600">
                 {generationMode === "template" && "Utilise des templates prédéfinis"}
                 {generationMode === "ai" && "Utilise Mistral AI avec des agents spécialisés"}
                 {generationMode === "glm" && "Utilise des LLMs spécialisés en code (Zephyr, Mixtral, CodeLlama)"}
+                {generationMode === "multi-agent" && "🚀 Système complet : Mistral AI pour l'analyse et le contenu, GLM-4.5 pour la génération finale"}
               </p>
             </div>
 

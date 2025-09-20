@@ -83,29 +83,68 @@ export class CodeLLMAgent {
   private async generateWithGLM45(context: any): Promise<{ html: string; metadata: any }> {
     console.log("🚀 Using GLM-4.5 via HuggingFace router...");
     
-    const systemPrompt = `You are an expert fullstack web developer specializing in creating modern, responsive websites.
-Your task is to generate a complete, professional website with HTML, CSS, and JavaScript.
-Focus on creating visually appealing designs with smooth animations and excellent user experience.
-Adapt the design and content specifically for the ${context.industry} industry.`;
+    const systemPrompt = `You are an expert fullstack web developer. Generate COMPLETE multi-section websites with ALL sections fully implemented.
+Each section must have substantial content. DO NOT create single-page placeholders.
+The website must be production-ready with all features working.`;
 
-    const userPrompt = `Create a modern, responsive website for:
+    const userPrompt = `Create a COMPLETE multi-section website for:
 - Business: ${context.businessName}
 - Industry: ${context.industry}
 - Description: ${context.description}
 
-Requirements:
-1. Complete HTML5 document with semantic tags
-2. Embedded CSS with modern styles and animations
-3. Responsive design (mobile-first approach)
-4. Professional color scheme for ${context.industry}
-5. Hero section with call-to-action
-6. Features/services section
-7. Contact form with validation
-8. Smooth scrolling navigation
-9. SEO-optimized meta tags
-10. JavaScript for interactivity
+MANDATORY SECTIONS (all must be included with full content):
 
-Generate the complete HTML code with all styles and scripts embedded.`;
+1. NAVIGATION BAR - Fixed navigation with links to all sections
+
+2. HERO SECTION - Eye-catching intro with:
+   - Large headline
+   - Compelling subtitle
+   - Call-to-action buttons
+   - Background image or gradient
+
+3. ABOUT SECTION - Detailed presentation:
+   - Company story (minimum 3 paragraphs)
+   - Mission and values
+   - What makes them unique
+
+4. SERVICES/MENU SECTION - Complete offering:
+   - At least 6 items/services with descriptions
+   - Prices if applicable
+   - Visual cards or grid layout
+
+5. FEATURES/WHY US SECTION - Key benefits:
+   - At least 4 feature cards
+   - Icons or visuals
+   - Detailed descriptions
+
+6. TESTIMONIALS SECTION - Social proof:
+   - At least 3 customer reviews
+   - Names and ratings
+
+7. GALLERY SECTION - Visual showcase:
+   - Image grid or carousel
+   - At least 6 image placeholders
+
+8. CONTACT SECTION - Complete contact info:
+   - Contact form with validation
+   - Address, phone, email
+   - Business hours
+   - Map or location info
+
+9. FOOTER - Professional footer with:
+   - Quick links
+   - Social media
+   - Copyright
+
+STYLE REQUIREMENTS:
+- Modern CSS with animations
+- Fully responsive design
+- Professional color scheme for ${context.industry}
+- Smooth scroll behavior
+- Hover effects
+- Form validation
+
+Generate the COMPLETE HTML with ALL sections fully implemented. Each section must have real, substantial content - no placeholders!`;
 
     try {
       const response = await fetch(

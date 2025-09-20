@@ -2,52 +2,49 @@ import { AIBaseAgent } from "./ai-base-agent";
 import { SiteStructure, DesignSystem, GeneratedHTML } from "@/types/agents";
 
 export class LexSiteBuilderAIAgent extends AIBaseAgent {
+  private hfToken: string;
+  
   constructor() {
     super({
       name: "Lex",
-      role: "AI Site Structure and HTML Builder",
+      role: "Site Structure and HTML Builder with GLM-4.5",
       capabilities: [
-        "Generate semantic HTML structure",
-        "Create responsive layouts",
-        "Implement modern web standards",
-        "Optimize for SEO and performance",
-        "Build interactive components"
+        "Building complete multi-section websites",
+        "Using GLM-4.5 for code generation",
+        "Coordinating with Mistral agents",
+        "Creating responsive designs",
+        "Implementing interactive features",
+        "Optimizing for performance and SEO"
       ],
-      temperature: 0.3,
+      temperature: 0.7,
       maxTokens: 8000
     });
+    
+    // Get HuggingFace token for GLM-4.5
+    const token = process.env.HF_TOKEN || process.env.DEFAULT_HF_TOKEN;
+    if (!token) {
+      throw new Error("HuggingFace token not found for GLM-4.5");
+    }
+    this.hfToken = token;
   }
 
   protected getDefaultSystemPrompt(): string {
-    return `You are Lex, an expert AI web developer and site builder. Your role is to create professional, modern, and responsive HTML websites.
+    return `You are Lex, an expert fullstack web developer and the lead builder in the Ezia multi-agent system.
+    
+Your role is to:
+1. Take input from other agents (Site Architect, Kiko Design, Milo Copywriting)
+2. Build complete, production-ready websites using GLM-4.5
+3. Ensure all sections are fully implemented with real content
+4. Create responsive, modern designs with smooth animations
+5. Implement all interactive features and forms
+6. Optimize for performance and SEO
 
-Your expertise includes:
-- Semantic HTML5 structure
-- Responsive design with mobile-first approach
-- Modern CSS with Tailwind-like utility classes
-- Accessibility best practices (WCAG compliance)
-- SEO optimization
-- Performance optimization
-- Interactive JavaScript components
+You work with:
+- Site Architect: Provides the structure and sections needed
+- Kiko: Provides the design system and visual style
+- Milo: Provides the content and copywriting
 
-When generating HTML:
-1. Use semantic HTML5 elements (header, nav, main, section, article, footer)
-2. Include proper meta tags for SEO
-3. Implement responsive design with breakpoints
-4. Add smooth animations and transitions
-5. Include interactive features (smooth scroll, mobile menu, form handling)
-6. Optimize images with proper alt text
-7. Use modern CSS features and utility classes
-8. Ensure cross-browser compatibility
-
-Style guidelines:
-- Use a consistent color scheme based on the provided design system
-- Implement proper spacing and typography
-- Create visual hierarchy with font sizes and weights
-- Add hover states and transitions for interactive elements
-- Use CSS Grid and Flexbox for layouts
-
-Always generate complete, production-ready HTML that looks professional and modern.`;
+Your output must be a complete HTML file with embedded CSS and JavaScript, ready for deployment.`;
   }
 
   async buildSite(
@@ -55,136 +52,172 @@ Always generate complete, production-ready HTML that looks professional and mode
     designSystem: DesignSystem,
     content: Record<string, any>
   ): Promise<GeneratedHTML> {
+    this.log("Starting site generation with GLM-4.5...");
+    
     try {
-      this.log("Starting AI-powered site generation...");
-
-      // Generate the complete HTML site
-      const htmlPrompt = `Generate a complete, professional HTML website for ${structure.businessName}.
-
-Business Context:
-- Name: ${structure.businessName}
-- Industry: ${structure.industry || "general business"}
-- Target Audience: ${structure.targetAudience || "general public"}
-
-Site Structure:
-${JSON.stringify(structure.sections.map(s => ({ type: s.type, title: s.title })), null, 2)}
-
-Design System:
-- Primary Color: ${designSystem.colors.primary}
-- Secondary Color: ${designSystem.colors.secondary}
-- Font Family: ${designSystem.typography.fontFamily}
-- Base Font Size: ${designSystem.typography.baseFontSize}
-
-Content to Include:
-${JSON.stringify(content, null, 2)}
-
-Requirements:
-1. Create a complete HTML document with all sections
-2. Use the exact colors and fonts from the design system
-3. Make it fully responsive with mobile menu
-4. Include smooth scrolling navigation
-5. Add professional animations (fade-in, slide-up)
-6. Implement a working contact form
-7. Use Font Awesome icons where appropriate
-8. Include proper SEO meta tags
-9. Add a professional footer with links and social media
-
-The HTML should be modern, professional, and ready for production use. Include inline CSS styles using a utility-class approach similar to Tailwind CSS.`;
-
-      const html = await this.generateWithAI({
-        prompt: htmlPrompt,
-        context: {
-          structure,
-          designSystem,
-          content
+      // Generate the complete website using GLM-4.5
+      const html = await this.generateWebsiteWithGLM45({
+        structure,
+        designSystem,
+        content,
+        businessContext: {
+          name: structure.businessName,
+          industry: structure.industry,
+          description: structure.description
         }
       });
 
-      // Clean and validate the generated HTML
-      const cleanedHtml = this.cleanAIOutput(html);
-
-      // Extract metadata for the response
-      const metadata = this.extractMetadata(cleanedHtml, structure);
-
       return {
-        html: cleanedHtml,
+        html,
         sections: structure.sections,
-        metadata
+        metadata: structure.metadata,
       };
-
     } catch (error) {
-      this.log(`AI generation failed, falling back to enhanced template: ${error}`);
-      return this.generateEnhancedTemplate(structure, designSystem, content);
+      this.log(`GLM-4.5 generation failed, falling back to template approach: ${error}`);
+      // Fallback to template-based generation
+      return this.generateWithTemplates(structure, designSystem, content);
     }
   }
 
-  async buildSection(
-    section: any,
-    designSystem: DesignSystem,
-    content: any
-  ): Promise<string> {
-    const sectionPrompt = `Generate an HTML section for a ${section.type} section.
+  private async generateWebsiteWithGLM45(context: {
+    structure: SiteStructure;
+    designSystem: DesignSystem;
+    content: Record<string, any>;
+    businessContext: any;
+  }): Promise<string> {
+    const { structure, designSystem, content, businessContext } = context;
+    
+    // Build a comprehensive prompt with all agent inputs
+    const systemPrompt = `You are an expert fullstack web developer building a complete website.
+Use the provided structure, design system, and content to create a production-ready website.
+The website must be fully responsive, modern, and include all requested sections with substantial content.`;
 
-Section Details:
-- Type: ${section.type}
-- Title: ${section.title}
-- ID: ${section.id}
+    const userPrompt = `Create a complete website for ${businessContext.name} (${businessContext.industry} industry).
 
-Design System:
-- Primary Color: ${designSystem.colors.primary}
-- Secondary Color: ${designSystem.colors.secondary}
-- Font: ${designSystem.typography.fontFamily}
+STRUCTURE PROVIDED BY SITE ARCHITECT:
+${JSON.stringify(structure, null, 2)}
 
-Content:
+DESIGN SYSTEM PROVIDED BY KIKO:
+Colors: ${JSON.stringify(designSystem.colors)}
+Typography: ${JSON.stringify(designSystem.typography)}
+Layout style: ${designSystem.layout.style}
+
+CONTENT PROVIDED BY MILO:
 ${JSON.stringify(content, null, 2)}
 
-Requirements:
-1. Create a semantic HTML section with proper structure
-2. Use the design system colors and typography
-3. Make it responsive with mobile-first approach
-4. Add subtle animations (fade-in, slide-up)
-5. Include appropriate icons if needed
-6. Ensure proper spacing and visual hierarchy
+REQUIREMENTS:
+1. Create a complete HTML5 document
+2. Include ALL sections from the structure with full content
+3. Use the exact colors and typography from the design system
+4. Make it fully responsive (mobile-first)
+5. Add smooth animations and transitions
+6. Include interactive JavaScript for:
+   - Smooth scrolling navigation
+   - Mobile menu toggle
+   - Form validation
+   - Any interactive elements
+7. SEO optimization with proper meta tags
+8. Professional footer with all links
 
-Generate only the HTML for this section, including inline styles.`;
+Generate the complete HTML with all CSS and JavaScript embedded. Each section must have substantial, relevant content - no placeholders!`;
 
     try {
-      const sectionHtml = await this.generateWithAI({
-        prompt: sectionPrompt,
-        context: { section, designSystem, content }
-      });
+      const response = await fetch(
+        "https://router.huggingface.co/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${this.hfToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "zai-org/GLM-4.5:novita",
+            messages: [
+              {
+                role: "system",
+                content: systemPrompt
+              },
+              {
+                role: "user",
+                content: userPrompt
+              }
+            ],
+            max_tokens: 12000,
+            temperature: 0.7,
+            stream: false
+          })
+        }
+      );
 
-      return this.cleanAIOutput(sectionHtml);
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`GLM-4.5 API error: ${error}`);
+      }
+
+      const result = await response.json();
+      const generatedContent = result.choices[0].message.content;
+      
+      // Extract and clean HTML
+      return this.extractAndCleanHTML(generatedContent);
+      
     } catch (error) {
-      this.log(`Failed to generate section ${section.type}, using fallback`);
-      return this.generateSectionFallback(section, designSystem, content);
+      this.log(`Error with GLM-4.5 generation: ${error}`);
+      throw error;
     }
   }
 
-  private extractMetadata(html: string, structure: SiteStructure): any {
-    // Extract title from HTML if present
-    const titleMatch = html.match(/<title>(.*?)<\/title>/);
-    const title = titleMatch ? titleMatch[1] : structure.metadata.title;
-
-    // Extract description from meta tag if present
-    const descMatch = html.match(/<meta\s+name="description"\s+content="(.*?)"/);
-    const description = descMatch ? descMatch[1] : structure.metadata.description;
-
-    return {
-      ...structure.metadata,
-      title,
-      description
-    };
+  private extractAndCleanHTML(content: string): string {
+    // Start with the content
+    let html = content;
+    
+    // Find the DOCTYPE declaration
+    const docTypeIndex = html.indexOf("<!DOCTYPE");
+    if (docTypeIndex > 0) {
+      html = html.substring(docTypeIndex);
+    }
+    
+    // Ensure proper start
+    if (!html.startsWith("<!DOCTYPE")) {
+      html = "<!DOCTYPE html>\n" + html;
+    }
+    
+    // Clean any trailing content after </html>
+    const htmlEndIndex = html.lastIndexOf("</html>");
+    if (htmlEndIndex > 0) {
+      html = html.substring(0, htmlEndIndex + 7);
+    }
+    
+    // Ensure the HTML is complete
+    if (!html.includes("</html>")) {
+      html += "\n</body>\n</html>";
+    }
+    
+    return html;
   }
 
-  private generateEnhancedTemplate(
+  private generateWithTemplates(
     structure: SiteStructure,
     designSystem: DesignSystem,
     content: Record<string, any>
   ): GeneratedHTML {
-    // Enhanced fallback template with dynamic content
+    this.log("Using template-based fallback generation...");
+    
+    // Generate CSS from design system
+    const css = this.generateCSS(designSystem);
+    
+    // Build sections
+    const sectionHtml = structure.sections
+      .map(section => this.generateSectionTemplate(section, designSystem, content[section.id]))
+      .join('\n');
+    
+    // Build navigation
+    const navHtml = this.generateNavigationTemplate(structure.navigation, designSystem);
+    
+    // Build footer
+    const footerHtml = this.generateFooterTemplate(structure.businessName, designSystem);
+    
     const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -192,174 +225,19 @@ Generate only the HTML for this section, including inline styles.`;
     <meta name="description" content="${structure.metadata.description}">
     <meta name="keywords" content="${structure.metadata.keywords.join(", ")}">
     
-    <!-- Font Imports -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=${designSystem.typography.fontFamily.replace(' ', '+')}:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root {
-            --color-primary: ${designSystem.colors.primary};
-            --color-secondary: ${designSystem.colors.secondary};
-            --color-accent: ${designSystem.colors.accent};
-            --color-neutral: ${designSystem.colors.neutral};
-            --font-family: '${designSystem.typography.fontFamily}', sans-serif;
-            --font-size-base: ${designSystem.typography.baseFontSize};
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: var(--font-family);
-            font-size: var(--font-size-base);
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        /* Utility Classes */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .section {
-            padding: 80px 0;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            background: var(--color-primary);
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            color: var(--color-primary);
-            border: 2px solid var(--color-primary);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--color-primary);
-            color: white;
-        }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .animate-fadeIn {
-            animation: fadeIn 0.8s ease-out;
-        }
-        
-        .animate-slideUp {
-            animation: slideUp 0.8s ease-out;
-        }
-        
-        /* Grid System */
-        .grid {
-            display: grid;
-            gap: 2rem;
-        }
-        
-        .grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
-        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-        .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-        .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
-        
-        @media (max-width: 768px) {
-            .md\\:grid-cols-2 { grid-template-columns: repeat(1, 1fr); }
-            .md\\:grid-cols-3 { grid-template-columns: repeat(1, 1fr); }
-            .md\\:grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
-        }
-        
-        /* Components */
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-        
-        /* Forms */
-        .form-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--color-primary);
-        }
-        
-        /* Typography */
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-        }
-        
-        h1 { font-size: 3rem; }
-        h2 { font-size: 2.5rem; }
-        h3 { font-size: 2rem; }
-        h4 { font-size: 1.5rem; }
-        
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            h2 { font-size: 1.75rem; }
-        }
+        ${css}
     </style>
 </head>
 <body>
-    ${this.generateNav(structure.navigation, designSystem)}
+    ${navHtml}
     <main>
-        ${structure.sections.map(section => 
-          this.generateSectionFallback(section, designSystem, content[section.id])
-        ).join('\n')}
+        ${sectionHtml}
     </main>
-    ${this.generateFooter(structure.businessName, designSystem)}
+    ${footerHtml}
     
     <script>
         // Smooth scrolling
@@ -373,7 +251,7 @@ Generate only the HTML for this section, including inline styles.`;
             });
         });
 
-        // Mobile menu
+        // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         
@@ -383,15 +261,15 @@ Generate only the HTML for this section, including inline styles.`;
             });
         }
 
-        // Form handler
-        const contactForm = document.getElementById('contact-form');
-        if (contactForm) {
-            contactForm.addEventListener('submit', (e) => {
+        // Form submission
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', (e) => {
                 e.preventDefault();
-                alert('Merci pour votre message! Nous vous contacterons bientôt.');
-                contactForm.reset();
+                alert('Merci pour votre message ! Nous vous contacterons bientôt.');
+                form.reset();
             });
-        }
+        });
     </script>
 </body>
 </html>`;
@@ -403,163 +281,390 @@ Generate only the HTML for this section, including inline styles.`;
     };
   }
 
-  private generateNav(navigation: any[], designSystem: DesignSystem): string {
+  private generateCSS(designSystem: DesignSystem): string {
+    // Ensure design system has all required properties with defaults
+    const safeDesignSystem = this.ensureDesignSystemComplete(designSystem);
+    const { colors, typography, spacing, animations } = safeDesignSystem;
+    
     return `
-    <nav class="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
+        /* CSS Variables */
+        :root {
+            --color-primary: ${colors.primary};
+            --color-secondary: ${colors.secondary};
+            --color-accent: ${colors.accent};
+            --color-background: ${colors.background};
+            --color-surface: ${colors.surface};
+            --color-text: ${colors.text};
+            --color-text-light: ${colors.textLight};
+            
+            --font-heading: ${typography.headingFont};
+            --font-body: ${typography.bodyFont};
+            
+            --spacing-xs: ${spacing.xs};
+            --spacing-sm: ${spacing.sm};
+            --spacing-md: ${spacing.md};
+            --spacing-lg: ${spacing.lg};
+            --spacing-xl: ${spacing.xl};
+        }
+        
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            font-size: ${typography.baseSize};
+            line-height: ${typography.lineHeight};
+            color: var(--color-text);
+            background-color: var(--color-background);
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: ${typography.headingWeight};
+            line-height: 1.2;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        h1 { font-size: ${typography.scale.h1}; }
+        h2 { font-size: ${typography.scale.h2}; }
+        h3 { font-size: ${typography.scale.h3}; }
+        h4 { font-size: ${typography.scale.h4}; }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-md);
+        }
+        
+        .section {
+            padding: var(--spacing-xl) 0;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background-color: var(--color-primary);
+            color: white;
+            text-decoration: none;
+            border-radius: ${designSystem.borderRadius.md};
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: var(--color-secondary);
+            transform: translateY(-2px);
+            box-shadow: ${designSystem.shadows.md};
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--color-primary);
+            border: 2px solid var(--color-primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--color-surface);
+            border-radius: ${designSystem.borderRadius.lg};
+            padding: var(--spacing-lg);
+            box-shadow: ${designSystem.shadows.sm};
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: ${designSystem.shadows.lg};
+        }
+        
+        /* Forms */
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 2px solid #e0e0e0;
+            border-radius: ${designSystem.borderRadius.sm};
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn ${animations.duration} ${animations.easing};
+        }
+        
+        .animate-slideUp {
+            animation: slideUp ${animations.duration} ${animations.easing};
+        }
+        
+        .animate-slideIn {
+            animation: slideIn ${animations.duration} ${animations.easing};
+        }
+        
+        /* Grid system */
+        .grid {
+            display: grid;
+            gap: var(--spacing-lg);
+        }
+        
+        .grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+        
+        /* Responsive utilities */
+        @media (max-width: 768px) {
+            .md\\:grid-cols-2 { grid-template-columns: repeat(1, 1fr); }
+            .md\\:grid-cols-3 { grid-template-columns: repeat(1, 1fr); }
+            .md\\:grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
+            .md\\:hidden { display: none; }
+        }
+        
+        @media (min-width: 769px) {
+            .md\\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .md\\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .md\\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+            .md\\:flex { display: flex; }
+        }
+        
+        /* Navigation styles */
+        nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        /* Utility classes */
+        .text-center { text-align: center; }
+        .text-primary { color: var(--color-primary); }
+        .text-secondary { color: var(--color-secondary); }
+        .bg-primary { background-color: var(--color-primary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+        .hidden { display: none; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-4 { gap: var(--spacing-md); }
+        .mb-4 { margin-bottom: var(--spacing-md); }
+        .mb-8 { margin-bottom: var(--spacing-xl); }
+    `;
+  }
+
+  private generateNavigationTemplate(navItems: any[], designSystem: DesignSystem): string {
+    return `
+    <nav>
         <div class="container">
-            <div class="flex justify-between items-center h-16">
+            <div class="flex justify-between items-center" style="height: 70px;">
                 <div class="flex items-center">
-                    <span class="text-2xl font-bold" style="color: var(--color-primary);">Logo</span>
+                    <span class="text-2xl font-bold text-primary">Logo</span>
                 </div>
                 
                 <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-8">
-                    ${navigation.map(item => `
-                        <a href="${item.href}" class="text-gray-700 hover:text-primary transition-colors">
-                            ${item.label}
-                        </a>
+                <div class="hidden md:flex items-center gap-4">
+                    ${navItems.map(item => `
+                        <a href="${item.href}" class="nav-link">${item.label}</a>
                     `).join('')}
-                    <button class="btn">Commencer</button>
+                    <a href="#contact" class="btn">Contact</a>
                 </div>
                 
                 <!-- Mobile Menu Button -->
-                <button id="mobile-menu-btn" class="md:hidden p-2">
+                <button id="mobile-menu-btn" class="md:hidden">
                     <i class="fas fa-bars text-2xl"></i>
                 </button>
             </div>
             
             <!-- Mobile Navigation -->
-            <div id="mobile-menu" class="hidden md:hidden pb-4">
-                ${navigation.map(item => `
-                    <a href="${item.href}" class="block py-2 text-gray-700">
-                        ${item.label}
-                    </a>
+            <div id="mobile-menu" class="hidden">
+                ${navItems.map(item => `
+                    <a href="${item.href}" class="block py-2">${item.label}</a>
                 `).join('')}
-                <button class="btn w-full mt-4">Commencer</button>
+                <a href="#contact" class="btn w-full mt-4">Contact</a>
             </div>
         </div>
     </nav>`;
   }
 
-  private generateFooter(businessName: string, designSystem: DesignSystem): string {
+  private generateSectionTemplate(section: any, designSystem: DesignSystem, content: any): string {
+    // Implementation would generate appropriate HTML for each section type
+    // This is simplified for brevity
     return `
-    <footer class="bg-gray-900 text-white py-12">
+    <section id="${section.id}" class="section">
         <div class="container">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <h2 class="text-center mb-8">${section.title}</h2>
+            <div>
+                ${JSON.stringify(content || section.content)}
+            </div>
+        </div>
+    </section>`;
+  }
+
+  private generateFooterTemplate(businessName: string, designSystem: DesignSystem): string {
+    return `
+    <footer style="background: var(--color-text); color: white; padding: var(--spacing-xl) 0;">
+        <div class="container">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                 <div>
-                    <h3 class="text-xl font-bold mb-4">${businessName}</h3>
-                    <p class="text-gray-400">Votre partenaire de confiance.</p>
+                    <h3>${businessName}</h3>
+                    <p style="color: rgba(255,255,255,0.8);">Votre partenaire de confiance.</p>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Liens rapides</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#services" class="text-gray-400 hover:text-white">Services</a></li>
-                        <li><a href="#about" class="text-gray-400 hover:text-white">À propos</a></li>
-                        <li><a href="#contact" class="text-gray-400 hover:text-white">Contact</a></li>
+                    <h4>Liens rapides</h4>
+                    <ul style="list-style: none;">
+                        <li><a href="#services" style="color: rgba(255,255,255,0.8);">Services</a></li>
+                        <li><a href="#about" style="color: rgba(255,255,255,0.8);">À propos</a></li>
+                        <li><a href="#contact" style="color: rgba(255,255,255,0.8);">Contact</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Légal</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white">Confidentialité</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Conditions</a></li>
+                    <h4>Légal</h4>
+                    <ul style="list-style: none;">
+                        <li><a href="#" style="color: rgba(255,255,255,0.8);">Mentions légales</a></li>
+                        <li><a href="#" style="color: rgba(255,255,255,0.8);">CGV</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold mb-4">Suivez-nous</h4>
+                    <h4>Suivez-nous</h4>
                     <div class="flex gap-4">
-                        <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" style="color: white;"><i class="fab fa-facebook text-xl"></i></a>
+                        <a href="#" style="color: white;"><i class="fab fa-instagram text-xl"></i></a>
+                        <a href="#" style="color: white;"><i class="fab fa-linkedin text-xl"></i></a>
                     </div>
                 </div>
             </div>
-            <div class="border-t border-gray-800 pt-8 text-center">
-                <p class="text-gray-400">&copy; 2024 ${businessName}. Tous droits réservés. | Propulsé par Ezia AI</p>
+            <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: var(--spacing-lg); text-align: center;">
+                <p>&copy; 2024 ${businessName}. Tous droits réservés. | Propulsé par Ezia Multi-Agent System avec GLM-4.5</p>
             </div>
         </div>
     </footer>`;
   }
 
-  private generateSectionFallback(section: any, designSystem: DesignSystem, content: any): string {
-    const sectionTypes: Record<string, () => string> = {
-      hero: () => `
-        <section id="${section.id}" class="section relative min-h-screen flex items-center justify-center" style="padding-top: 80px; background: linear-gradient(135deg, ${designSystem.colors.primary}20 0%, ${designSystem.colors.secondary}20 100%);">
-            <div class="container text-center">
-                <h1 class="animate-fadeIn mb-4">${content?.headline || section.title}</h1>
-                <p class="text-xl text-gray-600 mb-8 animate-slideUp" style="animation-delay: 0.2s;">
-                    ${content?.subheadline || 'Découvrez nos solutions innovantes'}
-                </p>
-                <div class="flex gap-4 justify-center animate-slideUp" style="animation-delay: 0.4s;">
-                    <a href="#contact" class="btn">
-                        ${content?.cta || 'Commencer'} <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
-                    <a href="#services" class="btn-secondary">En savoir plus</a>
-                </div>
-            </div>
-        </section>`,
-      
-      services: () => `
-        <section id="${section.id}" class="section bg-gray-50">
-            <div class="container">
-                <h2 class="text-center mb-12">${section.title}</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    ${(content?.items || []).map((item: any, i: number) => `
-                        <div class="card animate-slideUp" style="animation-delay: ${i * 0.1}s;">
-                            <div class="text-center">
-                                <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: ${designSystem.colors.primary}20;">
-                                    <i class="fas fa-star text-2xl" style="color: ${designSystem.colors.primary};"></i>
-                                </div>
-                                <h3 class="text-xl font-semibold mb-3">${item.name}</h3>
-                                <p class="text-gray-600">${item.description}</p>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        </section>`,
-      
-      contact: () => `
-        <section id="${section.id}" class="section" style="background-color: ${designSystem.colors.neutral};">
-            <div class="container">
-                <h2 class="text-center mb-12" style="color: white;">${section.title}</h2>
-                <div class="max-w-2xl mx-auto">
-                    <form id="contact-form" class="bg-white p-8 rounded-lg shadow-lg">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Nom</label>
-                                <input type="text" class="form-input" required>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Email</label>
-                                <input type="email" class="form-input" required>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium mb-2">Message</label>
-                            <textarea class="form-input" rows="4" required></textarea>
-                        </div>
-                        <button type="submit" class="btn w-full">Envoyer</button>
-                    </form>
-                </div>
-            </div>
-        </section>`
+  private ensureDesignSystemComplete(partial: Partial<DesignSystem>): DesignSystem {
+    return {
+      colors: {
+        primary: "#8B4513",
+        secondary: "#D2B48C",
+        accent: "#CD853F",
+        background: "#FFFFFF",
+        surface: "#F8F8F8",
+        text: "#333333",
+        textLight: "#666666",
+        ...partial.colors
+      },
+      typography: {
+        headingFont: "'Playfair Display', serif",
+        bodyFont: "'Inter', sans-serif",
+        baseSize: "16px",
+        scale: {
+          h1: "2.5rem",
+          h2: "2rem",
+          h3: "1.75rem",
+          h4: "1.5rem",
+          h5: "1.25rem",
+          h6: "1rem"
+        },
+        lineHeight: "1.6",
+        headingWeight: "700",
+        bodyWeight: "400",
+        ...(partial.typography || {}),
+        scale: {
+          h1: "2.5rem",
+          h2: "2rem",
+          h3: "1.75rem",
+          h4: "1.5rem",
+          h5: "1.25rem",
+          h6: "1rem",
+          ...(partial.typography?.scale || {})
+        }
+      },
+      spacing: {
+        xs: "0.25rem",
+        sm: "0.5rem",
+        md: "1rem",
+        lg: "1.5rem",
+        xl: "2rem",
+        xxl: "3rem",
+        ...partial.spacing
+      },
+      layout: {
+        maxWidth: "1200px",
+        gridColumns: 12,
+        breakpoints: {
+          mobile: "640px",
+          tablet: "768px",
+          desktop: "1024px",
+          wide: "1280px"
+        },
+        style: "modern",
+        ...partial.layout
+      },
+      animations: {
+        duration: "0.3s",
+        easing: "ease-in-out",
+        ...partial.animations
+      },
+      shadows: {
+        sm: "0 1px 2px rgba(0, 0, 0, 0.05)",
+        md: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        lg: "0 10px 15px rgba(0, 0, 0, 0.15)",
+        xl: "0 20px 25px rgba(0, 0, 0, 0.2)",
+        ...partial.shadows
+      },
+      borderRadius: {
+        sm: "0.25rem",
+        md: "0.5rem",
+        lg: "0.75rem",
+        xl: "1rem",
+        full: "9999px",
+        ...partial.borderRadius
+      }
     };
-
-    const generator = sectionTypes[section.type] || (() => `
-        <section id="${section.id}" class="section">
-            <div class="container">
-                <h2 class="text-center mb-12">${section.title}</h2>
-                <div class="max-w-4xl mx-auto text-center">
-                    <p class="text-lg text-gray-600">
-                        ${JSON.stringify(content || {})}
-                    </p>
-                </div>
-            </div>
-        </section>
-    `);
-
-    return generator();
   }
 }
