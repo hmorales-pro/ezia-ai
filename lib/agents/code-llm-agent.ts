@@ -2,8 +2,10 @@ import { HfInference } from "@huggingface/inference";
 
 export class CodeLLMAgent {
   private hf: HfInference;
+  private hfToken: string;
   // Modèles de code disponibles sur HuggingFace
   private models = {
+    glm45: "zai-org/GLM-4.5:novita",
     codellama: "codellama/CodeLlama-7b-Instruct-hf",
     starcoder: "bigcode/starcoder",
     santacoder: "bigcode/santacoder",
@@ -15,13 +17,14 @@ export class CodeLLMAgent {
   
   private selectedModel: string;
 
-  constructor(model: keyof typeof CodeLLMAgent.prototype.models = "zephyr") {
+  constructor(model: keyof typeof CodeLLMAgent.prototype.models = "glm45") {
     const token = process.env.HF_TOKEN || process.env.DEFAULT_HF_TOKEN;
     if (!token) {
       throw new Error("HuggingFace token not found");
     }
+    this.hfToken = token;
     this.hf = new HfInference(token);
-    this.selectedModel = this.models[model] || this.models.zephyr;
+    this.selectedModel = this.models[model] || this.models.glm45;
   }
 
   async generateWebsite(context: {
@@ -33,6 +36,11 @@ export class CodeLLMAgent {
     console.log(`🤖 Using ${this.selectedModel} for code generation...`);
 
     try {
+      // Si c'est GLM-4.5, utiliser l'API router
+      if (this.selectedModel === this.models.glm45) {
+        return await this.generateWithGLM45(context);
+      }
+      
       const prompt = this.createWebsitePrompt(context);
       
       // Appel au modèle
@@ -69,6 +77,89 @@ export class CodeLLMAgent {
       }
       
       throw error;
+    }
+  }
+
+  private async generateWithGLM45(context: any): Promise<{ html: string; metadata: any }> {
+    console.log("🚀 Using GLM-4.5 via HuggingFace router...");
+    
+    const systemPrompt = `You are an expert fullstack web developer specializing in creating modern, responsive websites.
+Your task is to generate a complete, professional website with HTML, CSS, and JavaScript.
+Focus on creating visually appealing designs with smooth animations and excellent user experience.
+Adapt the design and content specifically for the ${context.industry} industry.`;
+
+    const userPrompt = `Create a modern, responsive website for:
+- Business: ${context.businessName}
+- Industry: ${context.industry}
+- Description: ${context.description}
+
+Requirements:
+1. Complete HTML5 document with semantic tags
+2. Embedded CSS with modern styles and animations
+3. Responsive design (mobile-first approach)
+4. Professional color scheme for ${context.industry}
+5. Hero section with call-to-action
+6. Features/services section
+7. Contact form with validation
+8. Smooth scrolling navigation
+9. SEO-optimized meta tags
+10. JavaScript for interactivity
+
+Generate the complete HTML code with all styles and scripts embedded.`;
+
+    try {
+      const response = await fetch(
+        "https://router.huggingface.co/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${this.hfToken}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "zai-org/GLM-4.5:novita",
+            messages: [
+              {
+                role: "system",
+                content: systemPrompt
+              },
+              {
+                role: "user",
+                content: userPrompt
+              }
+            ],
+            max_tokens: 8000,
+            temperature: 0.7,
+            stream: false
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("GLM-4.5 API error:", error);
+        throw new Error(`GLM-4.5 API error: ${error}`);
+      }
+
+      const result = await response.json();
+      const content = result.choices[0].message.content;
+      
+      // Extract HTML from the response
+      const html = this.extractAndCleanHTML(content);
+      
+      return {
+        html,
+        metadata: {
+          model: "GLM-4.5 (via HuggingFace Router)",
+          generatedAt: new Date().toISOString(),
+          context
+        }
+      };
+      
+    } catch (error) {
+      console.error("Error with GLM-4.5:", error);
+      console.log("Falling back to alternative approach...");
+      return this.generateWithAlternativeApproach(context);
     }
   }
 

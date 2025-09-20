@@ -16,32 +16,14 @@ export async function POST(request: NextRequest) {
 
     console.log("🤖 Starting Code LLM Full-Stack generation for:", businessName);
 
-    // Try different models in order of preference
-    const models: Array<"zephyr" | "mixtral" | "codellama" | "starcoder"> = ["zephyr", "mixtral", "codellama"];
-    let result = null;
-    let lastError = null;
-
-    for (const model of models) {
-      try {
-        console.log(`🔧 Trying with ${model}...`);
-        const agent = new CodeLLMAgent(model);
-        result = await agent.generateWebsite({
-          businessName,
-          industry,
-          description: description || `${businessName} est une entreprise dans le secteur ${industry}.`,
-          features
-        });
-        console.log(`✅ Success with ${model}!`);
-        break;
-      } catch (error) {
-        console.log(`❌ Failed with ${model}:`, error);
-        lastError = error;
-      }
-    }
-
-    if (!result) {
-      throw lastError || new Error("All models failed");
-    }
+    // Use GLM-4.5 model directly
+    const agent = new CodeLLMAgent("glm45");
+    const result = await agent.generateWebsite({
+      businessName,
+      industry,
+      description: description || `${businessName} est une entreprise dans le secteur ${industry}.`,
+      features
+    });
 
     console.log("✅ Code LLM generation complete!");
 
