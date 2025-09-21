@@ -1,4 +1,5 @@
 import { generateWithMistralAPI } from "@/lib/mistral-ai-service";
+import { AIResponseValidator, ValidationResult } from "./validators/ai-response-validator";
 
 export interface AIAgentConfig {
   name: string;
@@ -14,6 +15,8 @@ export interface AIGenerationOptions {
   context?: Record<string, any>;
   formatJson?: boolean;
   maxRetries?: number;
+  validationRules?: any[];
+  requireValidation?: boolean;
 }
 
 export abstract class AIBaseAgent {
@@ -50,10 +53,17 @@ export abstract class AIBaseAgent {
   }
 
   /**
-   * Generate content using Mistral AI
+   * Generate content using Mistral AI with validation and retry
    */
   protected async generateWithAI(options: AIGenerationOptions): Promise<string> {
-    const { prompt, context, formatJson = false, maxRetries = 3 } = options;
+    const { 
+      prompt, 
+      context, 
+      formatJson = false, 
+      maxRetries = 3,
+      validationRules,
+      requireValidation = false
+    } = options;
     
     // Build enhanced prompt with context
     let enhancedPrompt = prompt;
@@ -117,6 +127,31 @@ export abstract class AIBaseAgent {
           }
         }
 
+        // Validate the response if validation rules provided
+        if (requireValidation && validationRules) {
+          const parsedContent = formatJson ? this.parseAIJson(response.content, null) : response.content;
+          const validationResult = AIResponseValidator.validate(parsedContent, validationRules);
+          
+          if (!validationResult.isValid) {
+            this.log(`Response validation failed: ${validationResult.errors.join(', ')}`);
+            
+            // Create enhanced prompt with validation feedback
+            const validationPrompt = AIResponseValidator.createValidationPrompt(
+              prompt,
+              validationResult,
+              context
+            );
+            
+            // Retry with enhanced prompt
+            if (attempt < maxRetries) {
+              this.log(`Retrying with validation feedback...`);
+              options.prompt = validationPrompt;
+              // Continue to next iteration
+              throw new Error('Validation failed, retrying with feedback');
+            }
+          }
+        }
+        
         return response.content;
       } catch (error) {
         lastError = error as Error;
@@ -165,11 +200,21 @@ export abstract class AIBaseAgent {
   protected abstract getDefaultSystemPrompt(): string;
 
   /**
-   * Validate AI-generated content
+   * Validate AI-generated content with detailed validation
    * Override this in subclasses to add specific validation
    */
-  protected validateContent(content: any): boolean {
-    return content !== null && content !== undefined;
+  protected validateContent(content: any, validationRules?: any[]): ValidationResult {
+    if (!validationRules) {
+      // Basic validation
+      const isValid = content !== null && content !== undefined;
+      return {
+        isValid,
+        errors: isValid ? [] : ['Content is null or undefined'],
+        suggestions: isValid ? [] : ['Generate valid content']
+      };
+    }
+    
+    return AIResponseValidator.validate(content, validationRules);
   }
 
   /**
@@ -187,25 +232,60 @@ export abstract class AIBaseAgent {
   }
 
   /**
-   * Generate content with fallback to template if AI fails
+   * Generate content with AI regeneration on failure
+   * No hardcoded fallbacks - relies on AI to regenerate
    */
-  protected async generateWithFallback<T>(
+  protected async generateWithRegeneration<T>(
     aiOptions: AIGenerationOptions,
-    templateGenerator: () => T,
-    parser?: (content: string) => T
+    parser?: (content: string) => T,
+    regenerationAttempts: number = 2
   ): Promise<T> {
-    try {
-      const content = await this.generateWithAI(aiOptions);
-      
-      if (parser) {
-        return parser(content);
+    let lastError: Error | null = null;
+    
+    for (let attempt = 1; attempt <= regenerationAttempts; attempt++) {
+      try {
+        // Add attempt context
+        const enhancedOptions = {
+          ...aiOptions,
+          context: {
+            ...aiOptions.context,
+            attemptNumber: attempt,
+            isRegeneration: attempt > 1
+          }
+        };
+        
+        if (attempt > 1) {
+          enhancedOptions.prompt = `${aiOptions.prompt}\n\nIMPORTANT: This is regeneration attempt ${attempt}. Please ensure the response is complete and valid.`;
+        }
+        
+        const content = await this.generateWithAI(enhancedOptions);
+        
+        if (parser) {
+          const parsed = parser(content);
+          
+          // Validate parsed content if it's an object
+          if (typeof parsed === 'object' && parsed !== null) {
+            const validation = this.validateContent(parsed);
+            if (!validation.isValid) {
+              throw new Error(`Parsed content validation failed: ${validation.errors.join(', ')}`);
+            }
+          }
+          
+          return parsed;
+        }
+        
+        return content as unknown as T;
+      } catch (error) {
+        lastError = error as Error;
+        this.log(`Generation attempt ${attempt} failed: ${lastError.message}`);
+        
+        if (attempt < regenerationAttempts) {
+          this.log(`Attempting regeneration (${attempt}/${regenerationAttempts})...`);
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+        }
       }
-      
-      // If no parser provided, assume the content is the result
-      return content as unknown as T;
-    } catch (error) {
-      this.log(`AI generation failed, using template fallback: ${error}`);
-      return templateGenerator();
     }
+    
+    throw new Error(`Failed to generate valid content after ${regenerationAttempts} attempts: ${lastError?.message}`);
   }
 }

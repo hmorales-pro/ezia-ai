@@ -128,8 +128,8 @@ Ensure all colors have proper contrast ratios for accessibility.`;
       return this.validateDesignSystem(designSystem, input);
 
     } catch (error) {
-      this.log(`AI design generation failed, using enhanced fallback: ${error}`);
-      return this.generateEnhancedDesignSystem(input);
+      this.log(`AI design generation failed: ${error}`);
+      throw error;
     }
   }
 
@@ -138,38 +138,19 @@ Ensure all colors have proper contrast ratios for accessibility.`;
     const colors = data.colors || {};
     
     const colorPalette: ColorPalette = {
-      primary: colors.primary || "#3B82F6",
-      secondary: colors.secondary || "#8B5CF6",
-      accent: colors.accent || "#F59E0B",
-      neutral: this.generateNeutralScale(colors.neutral || "#6B7280"),
-      success: colors.success || "#10B981",
-      warning: colors.warning || "#F59E0B",
-      error: colors.error || "#EF4444",
-      info: colors.info || "#3B82F6"
+      primary: colors.primary,
+      secondary: colors.secondary,
+      accent: colors.accent,
+      neutral: colors.neutral ? this.generateNeutralScale(colors.neutral) : {},
+      success: colors.success,
+      warning: colors.warning,
+      error: colors.error,
+      info: colors.info
     };
 
-    const typography: Typography = {
-      fontFamily: data.typography?.fontFamily || "Inter",
-      headingFont: data.typography?.headingFont || data.typography?.fontFamily || "Inter",
-      baseFontSize: data.typography?.baseFontSize || "16px",
-      fontWeights: data.typography?.fontWeights || {
-        light: 300,
-        regular: 400,
-        medium: 500,
-        semibold: 600,
-        bold: 700
-      },
-      lineHeights: data.typography?.lineHeights || {
-        tight: 1.2,
-        normal: 1.6,
-        relaxed: 1.8
-      }
-    };
+    const typography: Typography = data.typography || {};
 
-    const spacing = data.spacing || {
-      base: 8,
-      scale: [0, 4, 8, 12, 16, 24, 32, 48, 64, 96]
-    };
+    const spacing = data.spacing || {};
 
     const components = this.generateComponentStyles(colorPalette, typography);
     const animations = this.generateAnimations();
@@ -187,223 +168,24 @@ Ensure all colors have proper contrast ratios for accessibility.`;
         desktop: "1024px",
         wide: "1280px"
       },
-      borderRadius: data.borderRadius || {
-        small: "4px",
-        medium: "8px",
-        large: "16px",
-        full: "9999px"
-      },
-      shadows: data.shadows || {
-        small: "0 1px 3px rgba(0,0,0,0.1)",
-        medium: "0 4px 6px rgba(0,0,0,0.1)",
-        large: "0 10px 25px rgba(0,0,0,0.15)"
-      }
+      borderRadius: data.borderRadius || {},
+      shadows: data.shadows || {}
     };
   }
 
   private validateDesignSystem(system: DesignSystem, input: any): DesignSystem {
-    // Ensure all required fields are present
-    if (!system.colors?.primary) {
-      system.colors = this.generateIndustryColors(input.industry);
-    }
-
-    if (!system.typography?.fontFamily) {
-      system.typography = this.generateIndustryTypography(input.industry);
-    }
-
-    // Ensure color contrast ratios
-    system = this.ensureAccessibility(system);
-
+    // Return as-is, let AI handle all design decisions
     return system;
   }
 
-  private generateEnhancedDesignSystem(input: any): DesignSystem {
-    const colors = this.generateIndustryColors(input.industry);
-    const typography = this.generateIndustryTypography(input.industry);
-    const spacing = this.generateSpacingSystem();
-    const components = this.generateComponentStyles(colors, typography);
 
-    return {
-      colors,
-      colorPalette: colors, // Legacy support
-      typography,
-      spacing,
-      components,
-      animations: this.generateAnimations(),
-      breakpoints: {
-        mobile: "640px",
-        tablet: "768px",
-        desktop: "1024px",
-        wide: "1280px"
-      },
-      borderRadius: {
-        small: "4px",
-        medium: "8px",
-        large: "16px",
-        full: "9999px"
-      },
-      shadows: {
-        small: "0 1px 3px rgba(0,0,0,0.1)",
-        medium: "0 4px 6px rgba(0,0,0,0.1)",
-        large: "0 10px 25px rgba(0,0,0,0.15)"
-      }
-    };
-  }
 
-  private generateIndustryColors(industry: string): ColorPalette {
-    const industryPalettes: Record<string, ColorPalette> = {
-      restaurant: {
-        primary: "#D97706", // Warm amber
-        secondary: "#92400E", // Deep brown
-        accent: "#EF4444", // Appetizing red
-        neutral: this.generateNeutralScale("#78716C"),
-        success: "#10B981",
-        warning: "#F59E0B",
-        error: "#EF4444",
-        info: "#3B82F6"
-      },
-      ecommerce: {
-        primary: "#4F46E5", // Trust-building indigo
-        secondary: "#7C3AED", // Engaging purple
-        accent: "#EC4899", // CTA pink
-        neutral: this.generateNeutralScale("#6B7280"),
-        success: "#10B981",
-        warning: "#F59E0B",
-        error: "#EF4444",
-        info: "#3B82F6"
-      },
-      consulting: {
-        primary: "#1E40AF", // Professional blue
-        secondary: "#0F766E", // Sophisticated teal
-        accent: "#DC2626", // Attention red
-        neutral: this.generateNeutralScale("#64748B"),
-        success: "#059669",
-        warning: "#D97706",
-        error: "#DC2626",
-        info: "#2563EB"
-      },
-      health: {
-        primary: "#059669", // Healing green
-        secondary: "#0891B2", // Calming cyan
-        accent: "#7C3AED", // Gentle purple
-        neutral: this.generateNeutralScale("#64748B"),
-        success: "#10B981",
-        warning: "#F59E0B",
-        error: "#EF4444",
-        info: "#3B82F6"
-      },
-      tech: {
-        primary: "#3B82F6", // Tech blue
-        secondary: "#8B5CF6", // Innovation purple
-        accent: "#10B981", // Success green
-        neutral: this.generateNeutralScale("#6B7280"),
-        success: "#10B981",
-        warning: "#F59E0B",
-        error: "#EF4444",
-        info: "#3B82F6"
-      }
-    };
-
-    return industryPalettes[industry.toLowerCase()] || industryPalettes.tech;
-  }
-
-  private generateIndustryTypography(industry: string): Typography {
-    const industryFonts: Record<string, Typography> = {
-      restaurant: {
-        fontFamily: "Merriweather",
-        headingFont: "Playfair Display",
-        baseFontSize: "16px",
-        fontWeights: {
-          light: 300,
-          regular: 400,
-          medium: 500,
-          semibold: 600,
-          bold: 700
-        },
-        lineHeights: {
-          tight: 1.2,
-          normal: 1.6,
-          relaxed: 1.8
-        }
-      },
-      ecommerce: {
-        fontFamily: "Open Sans",
-        headingFont: "Poppins",
-        baseFontSize: "16px",
-        fontWeights: {
-          light: 300,
-          regular: 400,
-          medium: 500,
-          semibold: 600,
-          bold: 700
-        },
-        lineHeights: {
-          tight: 1.2,
-          normal: 1.6,
-          relaxed: 1.8
-        }
-      },
-      consulting: {
-        fontFamily: "Source Sans Pro",
-        headingFont: "Roboto",
-        baseFontSize: "16px",
-        fontWeights: {
-          light: 300,
-          regular: 400,
-          medium: 500,
-          semibold: 600,
-          bold: 700
-        },
-        lineHeights: {
-          tight: 1.2,
-          normal: 1.6,
-          relaxed: 1.8
-        }
-      },
-      tech: {
-        fontFamily: "Inter",
-        headingFont: "Inter",
-        baseFontSize: "16px",
-        fontWeights: {
-          light: 300,
-          regular: 400,
-          medium: 500,
-          semibold: 600,
-          bold: 700
-        },
-        lineHeights: {
-          tight: 1.2,
-          normal: 1.6,
-          relaxed: 1.8
-        }
-      }
-    };
-
-    return industryFonts[industry.toLowerCase()] || industryFonts.tech;
-  }
 
   private generateNeutralScale(base: string): Record<string, string> {
-    // Generate a neutral color scale from a base color
-    return {
-      "50": "#FAFAFA",
-      "100": "#F5F5F5",
-      "200": "#E5E5E5",
-      "300": "#D4D4D4",
-      "400": "#A3A3A3",
-      "500": base,
-      "600": "#525252",
-      "700": "#404040",
-      "800": "#262626",
-      "900": "#171717"
-    };
+    // Let AI generate the neutral scale
+    return { "500": base };
   }
 
-  private generateSpacingSystem(): any {
-    return {
-      base: 8,
-      scale: [0, 4, 8, 12, 16, 24, 32, 48, 64, 96]
-    };
-  }
 
   private generateComponentStyles(colors: ColorPalette, typography: Typography): any {
     return {
@@ -480,15 +262,4 @@ Ensure all colors have proper contrast ratios for accessibility.`;
     };
   }
 
-  private ensureAccessibility(system: DesignSystem): DesignSystem {
-    // This is a simplified accessibility check
-    // In production, you'd want to check actual contrast ratios
-    
-    // Ensure text colors have good contrast
-    if (!system.colors) {
-      system.colors = this.generateIndustryColors("default");
-    }
-
-    return system;
-  }
 }

@@ -81,20 +81,13 @@ Consider industry best practices and modern web standards.`;
         formatJson: true
       });
 
-      const insights = this.parseAIJson<IndustryInsights>(response, {
-        keyFeatures: ["services", "portfolio", "about", "contact"],
-        userJourney: ["discover", "explore", "evaluate", "contact"],
-        competitiveAdvantages: ["quality", "experience", "innovation"],
-        requiredSections: ["hero", "services", "about", "testimonials", "contact"],
-        businessGoals: ["increase visibility", "generate leads", "build trust"],
-        targetPersonas: []
-      });
+      const insights = this.parseAIJson<IndustryInsights>(response, {});
 
       // Validate and enhance insights
       return this.validateInsights(insights, input);
     } catch (error) {
-      this.log(`AI analysis failed, using enhanced fallback: ${error}`);
-      return this.generateEnhancedInsights(input);
+      this.log(`AI analysis failed: ${error}`);
+      throw error;
     }
   }
 
@@ -155,32 +148,21 @@ Create sections that align with the user journey and business goals. Each sectio
       const structure: SiteStructure = {
         businessName: input.businessName,
         industry: input.industry,
-        sections: structureData.sections || this.generateDefaultSections(input),
-        navigation: structureData.navigation || this.generateDefaultNavigation(structureData.sections),
-        metadata: structureData.metadata || this.generateDefaultMetadata(input)
+        sections: structureData.sections || [],
+        navigation: structureData.navigation || [],
+        metadata: structureData.metadata || {}
       };
 
       return this.validateStructure(structure);
     } catch (error) {
-      this.log(`AI structure generation failed, using enhanced fallback: ${error}`);
-      return this.generateEnhancedStructure(input);
+      this.log(`AI structure generation failed: ${error}`);
+      throw error;
     }
   }
 
   private validateInsights(insights: IndustryInsights, input: any): IndustryInsights {
-    // Ensure all required fields are present and valid
-    return {
-      keyFeatures: insights.keyFeatures?.length > 0 ? insights.keyFeatures : 
-        ["quality service", "expertise", "customer focus", "innovation"],
-      userJourney: insights.userJourney?.length > 0 ? insights.userJourney :
-        ["discover", "explore", "evaluate", "contact", "convert"],
-      competitiveAdvantages: insights.competitiveAdvantages?.length > 0 ? insights.competitiveAdvantages :
-        ["industry expertise", "proven results", "customer satisfaction"],
-      requiredSections: insights.requiredSections?.length > 0 ? insights.requiredSections :
-        ["hero", "services", "about", "testimonials", "contact"],
-      businessGoals: insights.businessGoals || this.inferBusinessGoals(input),
-      targetPersonas: insights.targetPersonas || this.generateDefaultPersonas(input.targetAudience)
-    };
+    // Return as-is, let AI handle all insights
+    return insights;
   }
 
   private validateStructure(structure: SiteStructure): SiteStructure {
@@ -198,257 +180,20 @@ Create sections that align with the user journey and business goals. Each sectio
       structure.navigation = this.generateDefaultNavigation(structure.sections);
     }
 
-    // Ensure metadata is complete
-    structure.metadata = {
-      title: structure.metadata?.title || `${structure.businessName} - ${structure.industry}`,
-      description: structure.metadata?.description || `Welcome to ${structure.businessName}`,
-      keywords: structure.metadata?.keywords || this.generateKeywords(structure)
-    };
+    // Return metadata as-is from AI
+    structure.metadata = structure.metadata || {};
 
     return structure;
   }
 
-  private generateEnhancedInsights(input: any): IndustryInsights {
-    // Enhanced fallback based on industry patterns
-    const industryPatterns: Record<string, Partial<IndustryInsights>> = {
-      restaurant: {
-        keyFeatures: ["online menu", "table reservations", "customer reviews", "location & hours", "special events"],
-        userJourney: ["search for restaurant", "view menu & prices", "check reviews", "make reservation", "visit restaurant"],
-        competitiveAdvantages: ["unique cuisine", "ambiance", "chef expertise", "local ingredients"],
-        requiredSections: ["hero", "menu", "about", "reservations", "reviews", "location", "contact"]
-      },
-      ecommerce: {
-        keyFeatures: ["product catalog", "shopping cart", "secure checkout", "customer accounts", "order tracking"],
-        userJourney: ["browse products", "search & filter", "add to cart", "checkout", "track order"],
-        competitiveAdvantages: ["product selection", "competitive pricing", "fast shipping", "customer service"],
-        requiredSections: ["hero", "featured-products", "categories", "testimonials", "shipping-info", "contact"]
-      },
-      consulting: {
-        keyFeatures: ["service offerings", "case studies", "team expertise", "client testimonials", "contact forms"],
-        userJourney: ["identify need", "research services", "review credentials", "schedule consultation", "engage services"],
-        competitiveAdvantages: ["industry expertise", "proven methodology", "client results", "team credentials"],
-        requiredSections: ["hero", "services", "case-studies", "team", "testimonials", "process", "contact"]
-      },
-      health: {
-        keyFeatures: ["services", "practitioner profiles", "appointment booking", "patient resources", "insurance info"],
-        userJourney: ["search symptoms", "find services", "check credentials", "book appointment", "visit clinic"],
-        competitiveAdvantages: ["medical expertise", "modern facilities", "patient care", "convenient location"],
-        requiredSections: ["hero", "services", "team", "appointments", "patient-info", "insurance", "contact"]
-      }
-    };
 
-    const pattern = industryPatterns[input.industry.toLowerCase()] || {
-      keyFeatures: ["professional services", "portfolio", "about us", "contact information"],
-      userJourney: ["discover", "explore services", "evaluate expertise", "make contact"],
-      competitiveAdvantages: ["quality", "experience", "customer service", "innovation"],
-      requiredSections: ["hero", "services", "about", "portfolio", "testimonials", "contact"]
-    };
 
-    return {
-      ...pattern,
-      businessGoals: this.inferBusinessGoals(input),
-      targetPersonas: this.generateDefaultPersonas(input.targetAudience)
-    } as IndustryInsights;
-  }
 
-  private generateEnhancedStructure(input: any): SiteStructure {
-    const insights = input.insights;
-    const sections: SiteSection[] = insights.requiredSections.map((type: string, index: number) => 
-      this.createEnhancedSection(type, input, index + 1)
-    );
 
-    return {
-      businessName: input.businessName,
-      industry: input.industry,
-      sections,
-      navigation: this.generateDefaultNavigation(sections),
-      metadata: this.generateDefaultMetadata(input)
-    };
-  }
 
-  private createEnhancedSection(type: string, input: any, priority: number): SiteSection {
-    const sectionTemplates: Record<string, () => SiteSection> = {
-      hero: () => ({
-        id: "hero",
-        type: "hero",
-        title: `Welcome to ${input.businessName}`,
-        priority: 1,
-        content: {
-          headline: `Excellence in ${input.industry}`,
-          subheadline: `Discover why ${input.businessName} is the trusted choice for quality and innovation`,
-          cta: "Get Started Today"
-        }
-      }),
-      services: () => ({
-        id: "services",
-        type: "services",
-        title: "Our Services",
-        priority,
-        content: {
-          items: this.generateServiceItems(input.industry)
-        }
-      }),
-      about: () => ({
-        id: "about",
-        type: "about",
-        title: `About ${input.businessName}`,
-        priority,
-        content: {
-          story: `With years of experience in ${input.industry}, we've built a reputation for excellence and innovation.`,
-          mission: "Our mission is to deliver exceptional value and results that exceed expectations."
-        }
-      }),
-      contact: () => ({
-        id: "contact",
-        type: "contact",
-        title: "Get in Touch",
-        priority,
-        content: {
-          headline: "Ready to get started?",
-          subheadline: "Contact us today for a free consultation"
-        }
-      }),
-      testimonials: () => ({
-        id: "testimonials",
-        type: "testimonials",
-        title: "What Our Clients Say",
-        priority,
-        content: {
-          headline: "Trusted by businesses like yours"
-        }
-      }),
-      menu: () => ({
-        id: "menu",
-        type: "menu",
-        title: "Our Menu",
-        priority,
-        content: {
-          categories: ["Appetizers", "Main Courses", "Desserts", "Beverages"]
-        }
-      }),
-      "case-studies": () => ({
-        id: "case-studies",
-        type: "case-studies",
-        title: "Success Stories",
-        priority,
-        content: {
-          headline: "See how we've helped businesses succeed"
-        }
-      }),
-      team: () => ({
-        id: "team",
-        type: "team",
-        title: "Meet Our Team",
-        priority,
-        content: {
-          headline: "The experts behind your success"
-        }
-      })
-    };
 
-    const template = sectionTemplates[type];
-    if (template) {
-      return template();
-    }
 
-    // Generic section fallback
-    return {
-      id: type,
-      type: type,
-      title: this.formatTitle(type),
-      priority,
-      content: {}
-    };
-  }
 
-  private generateServiceItems(industry: string): any[] {
-    const serviceTemplates: Record<string, any[]> = {
-      restaurant: [
-        { name: "Dine In", description: "Enjoy our full restaurant experience" },
-        { name: "Takeout", description: "Quality meals to go" },
-        { name: "Catering", description: "Perfect for events and gatherings" }
-      ],
-      consulting: [
-        { name: "Strategy Consulting", description: "Develop winning business strategies" },
-        { name: "Digital Transformation", description: "Modernize your operations" },
-        { name: "Process Optimization", description: "Improve efficiency and reduce costs" }
-      ],
-      ecommerce: [
-        { name: "Wide Selection", description: "Thousands of products to choose from" },
-        { name: "Fast Shipping", description: "Get your orders quickly" },
-        { name: "Easy Returns", description: "Hassle-free return policy" }
-      ]
-    };
-
-    return serviceTemplates[industry.toLowerCase()] || [
-      { name: "Professional Service", description: "Expert solutions for your needs" },
-      { name: "Custom Solutions", description: "Tailored to your requirements" },
-      { name: "Ongoing Support", description: "We're here when you need us" }
-    ];
-  }
-
-  private inferBusinessGoals(input: any): string[] {
-    const industryGoals: Record<string, string[]> = {
-      restaurant: ["increase reservations", "showcase menu", "build local presence", "encourage repeat visits"],
-      ecommerce: ["drive online sales", "reduce cart abandonment", "increase average order value", "build customer loyalty"],
-      consulting: ["generate qualified leads", "demonstrate expertise", "build trust", "convert visitors to clients"],
-      health: ["facilitate appointments", "educate patients", "build trust", "streamline patient communication"]
-    };
-
-    return industryGoals[input.industry.toLowerCase()] || [
-      "increase brand awareness",
-      "generate qualified leads",
-      "showcase expertise",
-      "convert visitors to customers"
-    ];
-  }
-
-  private generateDefaultPersonas(targetAudience: string): any[] {
-    // Parse target audience and create basic personas
-    const audienceSegments = targetAudience.split(",").map(s => s.trim());
-    
-    return audienceSegments.slice(0, 3).map((segment, index) => ({
-      name: `${segment} Persona`,
-      demographics: segment,
-      goals: `Find quality solutions that meet their specific needs`,
-      painPoints: `Limited time, need reliable service, value for money`
-    }));
-  }
-
-  private generateDefaultNavigation(sections: SiteSection[]): any[] {
-    return sections
-      .filter(s => s.type !== "hero") // Don't include hero in nav
-      .sort((a, b) => a.priority - b.priority)
-      .map(section => ({
-        label: section.title,
-        href: `#${section.id}`,
-        priority: section.priority
-      }));
-  }
-
-  private generateDefaultMetadata(input: any): any {
-    return {
-      title: `${input.businessName} - Leading ${input.industry} Solutions`,
-      description: `${input.businessName} provides exceptional ${input.industry} services. Contact us today to learn how we can help you succeed.`,
-      keywords: this.generateKeywords(input)
-    };
-  }
-
-  private generateKeywords(input: any): string[] {
-    const baseKeywords = [
-      input.businessName,
-      input.industry,
-      `${input.industry} services`,
-      `best ${input.industry}`,
-      `professional ${input.industry}`
-    ];
-
-    if (input.insights?.keyFeatures) {
-      baseKeywords.push(...input.insights.keyFeatures);
-    }
-
-    return baseKeywords;
-  }
 
   private formatTitle(type: string): string {
     return type

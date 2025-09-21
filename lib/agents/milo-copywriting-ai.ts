@@ -1,5 +1,6 @@
 import { AIBaseAgent } from "./ai-base-agent";
 import { SiteStructure, SiteContent } from "@/types/agents";
+import { AIResponseValidator } from "./validators/ai-response-validator";
 
 export class MiloCopywritingAIAgent extends AIBaseAgent {
   constructor() {
@@ -56,26 +57,74 @@ Always write in a way that resonates with the target audience and drives action.
     this.log(`Generating AI-powered content for ${businessInfo.businessName}...`);
     
     const content: SiteContent = {};
+    const failedSections: string[] = [];
 
-    // Generate content for each section
+    // Generate content for each section with validation
     for (const section of structure.sections) {
-      try {
-        content[section.id] = await this.generateSectionContent(
-          section,
-          businessInfo
+      let sectionSuccess = false;
+      let lastError: Error | null = null;
+      
+      // Try up to 3 times for each section
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const sectionContent = await this.generateSectionContent(
+            section,
+            businessInfo,
+            attempt
+          );
+          
+          // Validate the generated content
+          const validation = AIResponseValidator.validateContentSection(
+            sectionContent,
+            section.type
+          );
+          
+          if (!validation.isValid) {
+            throw new Error(`Content validation failed: ${validation.errors.join(', ')}`);
+          }
+          
+          content[section.id] = sectionContent;
+          sectionSuccess = true;
+          break;
+        } catch (error) {
+          lastError = error as Error;
+          this.log(`Attempt ${attempt} failed for section ${section.id}: ${lastError.message}`);
+          
+          if (attempt < 3) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        }
+      }
+      
+      if (!sectionSuccess) {
+        failedSections.push(section.id);
+        this.log(`Failed to generate valid content for section ${section.id} after 3 attempts`);
+      }
+    }
+    
+    // If critical sections failed, attempt to regenerate them collectively
+    if (failedSections.length > 0) {
+      const criticalSections = failedSections.filter(id => 
+        ['hero', 'services', 'contact'].includes(
+          structure.sections.find(s => s.id === id)?.type || ''
+        )
+      );
+      
+      if (criticalSections.length > 0) {
+        throw new Error(
+          `Failed to generate content for critical sections: ${criticalSections.join(', ')}. ` +
+          `Please ensure the AI service is responding with valid content.`
         );
-      } catch (error) {
-        this.log(`Failed to generate content for section ${section.id}: ${error}`);
-        content[section.id] = this.generateFallbackContent(section, businessInfo);
       }
     }
 
     return content;
   }
 
-  private async generateSectionContent(
+  async generateSectionContent(
     section: any,
-    businessInfo: any
+    businessInfo: any,
+    attemptNumber: number = 1
   ): Promise<any> {
     const contentPrompt = `Generate compelling website content for the ${section.type} section.
 
@@ -100,7 +149,11 @@ Important guidelines:
 - Write in a tone appropriate for the industry
 - Include power words and action verbs
 - Keep it concise but impactful
-- Address the target audience directly`;
+- Address the target audience directly
+- ALL required fields MUST be populated with meaningful content
+- Ensure JSON is valid and properly formatted${
+  attemptNumber > 1 ? `\n\nNOTE: This is attempt ${attemptNumber}. Please ensure all required fields are properly filled.` : ''
+}`;
 
     try {
       const response = await this.generateWithAI({
@@ -109,11 +162,11 @@ Important guidelines:
         formatJson: true
       });
 
-      const content = this.parseAIJson(response, this.getDefaultContent(section.type));
-      return this.enhanceContent(content, section.type, businessInfo);
+      const content = this.parseAIJson(response, {});
+      return content;
     } catch (error) {
-      this.log(`AI generation failed for ${section.type}, using enhanced fallback`);
-      return this.generateEnhancedFallback(section, businessInfo);
+      this.log(`AI generation failed for ${section.type}`);
+      throw error;
     }
   }
 
@@ -190,258 +243,12 @@ Important guidelines:
 }`;
   }
 
-  private getDefaultContent(type: string): any {
-    const defaults: Record<string, any> = {
-      hero: {
-        headline: "Welcome to Excellence",
-        subheadline: "Discover our exceptional services",
-        cta: "Get Started",
-        secondaryCta: "Learn More"
-      },
-      services: {
-        items: [
-          {
-            name: "Premium Service",
-            description: "High-quality solutions tailored to your needs",
-            features: ["Professional", "Reliable", "Efficient"]
-          }
-        ]
-      },
-      about: {
-        headline: "Our Story",
-        story: "Dedicated to excellence and innovation",
-        mission: "Delivering exceptional value to our clients",
-        values: ["Quality", "Innovation", "Trust"]
-      }
-    };
-    
-    return defaults[type] || { content: "Quality content coming soon" };
-  }
 
-  private enhanceContent(content: any, sectionType: string, businessInfo: any): any {
-    // Add industry-specific enhancements
-    if (sectionType === "hero" && businessInfo.industry) {
-      content.industryTag = this.getIndustryTag(businessInfo.industry);
-    }
 
-    // Ensure CTAs are action-oriented
-    if (content.cta) {
-      content.cta = this.enhanceCTA(content.cta, businessInfo.industry);
-    }
 
-    return content;
-  }
 
-  private getIndustryTag(industry: string): string {
-    const tags: Record<string, string> = {
-      restaurant: "Award-Winning Dining",
-      ecommerce: "Shop with Confidence",
-      consulting: "Strategic Excellence",
-      health: "Your Health, Our Priority",
-      tech: "Innovation Delivered",
-      education: "Learn & Grow",
-      realestate: "Find Your Dream Home",
-      fitness: "Transform Your Life",
-      beauty: "Radiate Confidence",
-      travel: "Adventure Awaits"
-    };
-    return tags[industry.toLowerCase()] || "Excellence Delivered";
-  }
 
-  private enhanceCTA(cta: string, industry: string): string {
-    // If the CTA is too generic, make it more specific
-    const genericCTAs = ["click here", "submit", "send", "go"];
-    if (genericCTAs.some(generic => cta.toLowerCase().includes(generic))) {
-      const industryCTAs: Record<string, string> = {
-        restaurant: "Reserve Your Table",
-        ecommerce: "Shop Now",
-        consulting: "Schedule Consultation",
-        health: "Book Appointment",
-        tech: "Start Free Trial",
-        education: "Enroll Today",
-        realestate: "View Properties",
-        fitness: "Join Now",
-        beauty: "Book Treatment",
-        travel: "Plan Your Trip"
-      };
-      return industryCTAs[industry.toLowerCase()] || "Get Started Today";
-    }
-    return cta;
-  }
 
-  private generateEnhancedFallback(section: any, businessInfo: any): any {
-    const fallbackGenerators: Record<string, () => any> = {
-      hero: () => ({
-        headline: `Transform Your ${businessInfo.industry} Experience with ${businessInfo.businessName}`,
-        subheadline: `${businessInfo.description || "Discover excellence, innovation, and unmatched service"}`,
-        cta: this.generateIndustryCTA(businessInfo.industry),
-        secondaryCta: "Explore Our Services"
-      }),
-      
-      services: () => ({
-        items: this.generateIndustryServices(businessInfo.industry, businessInfo.businessName)
-      }),
-      
-      about: () => ({
-        headline: `The ${businessInfo.businessName} Difference`,
-        story: `Founded on principles of excellence and innovation, ${businessInfo.businessName} has become a trusted name in the ${businessInfo.industry} industry. We combine expertise with passion to deliver exceptional results.`,
-        mission: `Our mission is to provide unparalleled ${businessInfo.industry} solutions that exceed expectations and create lasting value for our clients.`,
-        values: ["Excellence", "Innovation", "Integrity", "Customer Focus"],
-        cta: "Discover Our Story"
-      }),
-      
-      testimonials: () => ({
-        headline: "What Our Clients Say",
-        items: [
-          {
-            quote: `Working with ${businessInfo.businessName} has been transformative for our business. Their expertise and dedication are unmatched.`,
-            author: "Sarah Johnson",
-            role: "CEO, Success Corp",
-            rating: 5
-          },
-          {
-            quote: "Professional, reliable, and always exceeding expectations. Highly recommended!",
-            author: "Michael Chen",
-            role: "Director of Operations",
-            rating: 5
-          },
-          {
-            quote: "The best decision we made was choosing them as our partner. Outstanding results!",
-            author: "Emily Rodriguez",
-            role: "Business Owner",
-            rating: 5
-          }
-        ]
-      }),
-      
-      contact: () => ({
-        headline: "Let's Start a Conversation",
-        subheadline: "Ready to take the next step? We're here to help you succeed.",
-        cta: "Send Message",
-        info: {
-          phone: "(555) 123-4567",
-          email: `info@${businessInfo.businessName.toLowerCase().replace(/\s+/g, '')}.com`,
-          address: "123 Business Ave, Suite 100, Your City, ST 12345",
-          hours: "Monday - Friday: 9:00 AM - 6:00 PM"
-        }
-      })
-    };
 
-    const generator = fallbackGenerators[section.type];
-    return generator ? generator() : this.generateGenericContent(section, businessInfo);
-  }
 
-  private generateIndustryCTA(industry: string): string {
-    const ctas: Record<string, string> = {
-      restaurant: "Reserve Your Table",
-      ecommerce: "Start Shopping",
-      consulting: "Get Your Free Consultation",
-      health: "Book Your Appointment",
-      tech: "See It In Action",
-      education: "Start Learning Today",
-      realestate: "Find Your Dream Property",
-      fitness: "Start Your Journey",
-      beauty: "Book Your Session",
-      travel: "Plan Your Adventure"
-    };
-    return ctas[industry.toLowerCase()] || "Get Started Today";
-  }
-
-  private generateIndustryServices(industry: string, businessName: string): any[] {
-    const serviceTemplates: Record<string, any[]> = {
-      restaurant: [
-        {
-          name: "Fine Dining Experience",
-          description: "Savor exquisite cuisine crafted by our award-winning chefs in an elegant atmosphere",
-          features: ["Seasonal menus", "Wine pairing", "Private dining"],
-          cta: "View Menu"
-        },
-        {
-          name: "Express Takeout",
-          description: "Enjoy restaurant-quality meals at home with our convenient takeout service",
-          features: ["Online ordering", "Quick pickup", "Special packaging"],
-          cta: "Order Now"
-        },
-        {
-          name: "Event Catering",
-          description: "Make your special occasions unforgettable with our professional catering",
-          features: ["Custom menus", "Full service", "Event planning"],
-          cta: "Plan Your Event"
-        }
-      ],
-      consulting: [
-        {
-          name: "Strategic Planning",
-          description: "Develop winning strategies that drive growth and competitive advantage",
-          features: ["Market analysis", "Goal setting", "Implementation roadmap"],
-          cta: "Learn More"
-        },
-        {
-          name: "Business Transformation",
-          description: "Modernize operations and unlock new opportunities for success",
-          features: ["Process optimization", "Digital adoption", "Change management"],
-          cta: "Transform Now"
-        },
-        {
-          name: "Performance Improvement",
-          description: "Maximize efficiency and profitability with data-driven insights",
-          features: ["KPI development", "Analytics", "Continuous improvement"],
-          cta: "Boost Performance"
-        }
-      ],
-      ecommerce: [
-        {
-          name: "Premium Selection",
-          description: "Discover carefully curated products from trusted brands worldwide",
-          features: ["Quality guarantee", "Exclusive items", "New arrivals daily"],
-          cta: "Shop Collection"
-        },
-        {
-          name: "Fast Shipping",
-          description: "Get your orders delivered quickly with our reliable shipping partners",
-          features: ["Same-day options", "Track orders", "Free shipping available"],
-          cta: "Learn More"
-        },
-        {
-          name: "Easy Returns",
-          description: "Shop with confidence knowing returns are simple and hassle-free",
-          features: ["30-day policy", "Free returns", "Instant refunds"],
-          cta: "Return Policy"
-        }
-      ]
-    };
-
-    return serviceTemplates[industry.toLowerCase()] || [
-      {
-        name: "Professional Excellence",
-        description: `Experience the ${businessName} difference with our commitment to quality`,
-        features: ["Expert team", "Proven results", "Personalized service"],
-        cta: "Get Started"
-      },
-      {
-        name: "Innovative Solutions",
-        description: "Stay ahead with our cutting-edge approaches and technologies",
-        features: ["Modern methods", "Custom solutions", "Continuous innovation"],
-        cta: "Learn More"
-      },
-      {
-        name: "Dedicated Support",
-        description: "Count on our team for ongoing guidance and assistance",
-        features: ["24/7 availability", "Expert advice", "Long-term partnership"],
-        cta: "Contact Us"
-      }
-    ];
-  }
-
-  private generateGenericContent(section: any, businessInfo: any): any {
-    return {
-      headline: section.title,
-      content: `Welcome to the ${section.title} section of ${businessInfo.businessName}. We're dedicated to providing exceptional ${businessInfo.industry} services.`,
-      cta: "Learn More"
-    };
-  }
-
-  private generateFallbackContent(section: any, businessInfo: any): any {
-    return this.generateEnhancedFallback(section, businessInfo);
-  }
 }
