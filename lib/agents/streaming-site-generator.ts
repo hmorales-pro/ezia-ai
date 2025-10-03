@@ -28,12 +28,23 @@ export class StreamingSiteGenerator extends AIBaseAgent {
   private currentPage: SitePage | null = null;
   private currentBlockIndex = 0;
 
-  constructor(hfToken?: string) {
-    super('StreamingSiteGenerator', hfToken);
+  constructor() {
+    super({
+      name: 'StreamingSiteGenerator',
+      role: 'Web Design Expert',
+      capabilities: ['website_generation', 'theme_design', 'content_creation', 'ux_design'],
+      systemPrompt: 'You are an expert web designer and developer specializing in creating modern, responsive websites. You generate complete website structures with themes, content, and navigation.',
+      temperature: 0.7,
+      maxTokens: 4000
+    });
     this.siteId = `site_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  async *generateSite(config: SiteGenerationConfig): AsyncGenerator<StreamingEvent, never, unknown> {
+  protected getDefaultSystemPrompt(): string {
+    return 'You are an expert web designer and developer specializing in creating modern, responsive websites. You generate complete website structures with themes, content, and navigation.';
+  }
+
+  async *generateSite(config: SiteGenerationConfig): AsyncGenerator<StreamingEvent, void, unknown> {
     try {
       // Initialize site structure
       this.siteStructure = {
@@ -187,9 +198,8 @@ Consider:
 `;
 
     const theme = await this.generateWithAI({
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-      jsonMode: true
+      prompt: prompt,
+      formatJson: true
     });
 
     // Validate theme
@@ -275,9 +285,8 @@ Include 3-7 blocks per page depending on complexity.
 `;
 
     const structure = await this.generateWithAI({
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-      jsonMode: true
+      prompt: prompt,
+      formatJson: true
     });
 
     try {
@@ -377,9 +386,8 @@ Generate 3-6 relevant features.
 `;
 
       const content = await this.generateWithAI({
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.8,
-        jsonMode: true
+        prompt: prompt,
+        formatJson: true
       });
 
       try {

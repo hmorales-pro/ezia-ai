@@ -183,22 +183,70 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Phase 4: Website Building with comprehensive error handling
-      console.log("\n🔨 PHASE 4: Website Building");
+      // Phase 4: Blog Content Generation (Optional but recommended)
+      console.log("\n📝 PHASE 4: Blog Content Generation");
+      let blogArticles: any[] = [];
+
+      try {
+        // Check if site has blog section
+        const hasBlogSection = siteStructure.sections.some((s: any) => s.type === "blog");
+
+        if (hasBlogSection) {
+          console.log("Blog section detected, generating initial articles...");
+
+          const { BlogWriterDeepSeek } = await import("@/lib/agents/blog-writer-deepseek");
+          const blogWriter = new BlogWriterDeepSeek();
+
+          const articles = await blogWriter.generateInitialArticles({
+            businessContext: {
+              name: context.businessName,
+              industry: context.industry,
+              description: context.description || ""
+            },
+            count: 3 // Generate 3 initial articles
+          });
+
+          blogArticles = articles.map(article => ({
+            title: article.title,
+            excerpt: article.excerpt,
+            slug: article.slug,
+            tags: article.tags,
+            readTime: article.readTime,
+            publishedAt: new Date().toISOString(),
+            date: new Date().toLocaleDateString("fr-FR")
+          }));
+
+          // Add articles to blog section content
+          const blogSection = siteStructure.sections.find((s: any) => s.type === "blog");
+          if (blogSection && content[blogSection.id]) {
+            content[blogSection.id].articles = blogArticles;
+          }
+
+          console.log(`✅ Generated ${blogArticles.length} initial blog articles`);
+        } else {
+          console.log("No blog section in structure, skipping blog generation");
+        }
+      } catch (blogError) {
+        console.error("⚠️ Blog generation failed (non-critical):", blogError);
+        // Continue without blog - it's not critical
+      }
+
+      // Phase 5: Website Building with comprehensive error handling
+      console.log("\n🔨 PHASE 5: Website Building");
       try {
         generatedSite = await lexBuilder.buildSite(
           siteStructure,
           designSystem,
           content
         );
-        
+
         // Final validation
         const htmlValidation = AIResponseValidator.validateHTML(generatedSite.html);
         if (!htmlValidation.isValid) {
           console.warn("⚠️ HTML validation warnings:", htmlValidation.errors);
           // Continue anyway as minor issues can be fixed client-side
         }
-        
+
         console.log("✅ Website built successfully");
       } catch (buildError) {
         console.error("❌ Website building failed:", buildError);
@@ -218,14 +266,20 @@ export async function POST(request: NextRequest) {
             architect: "Mistral AI",
             designer: "Mistral AI",
             copywriter: "Mistral AI",
-            builder: "GLM-4.5",
+            blogWriter: blogArticles.length > 0 ? "DeepSeek V3" : "Not generated",
+            builder: "DeepSeek V3",
             timestamp: new Date().toISOString()
           },
           structure: {
             sections: generatedSite.sections.length,
             hasNavigation: true,
-            hasFooter: true
-          }
+            hasFooter: true,
+            hasBlog: blogArticles.length > 0
+          },
+          blog: blogArticles.length > 0 ? {
+            articlesGenerated: blogArticles.length,
+            articles: blogArticles
+          } : undefined
         }
       });
 

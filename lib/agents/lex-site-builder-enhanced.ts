@@ -1,41 +1,39 @@
 import { AIBaseAgent } from "./ai-base-agent";
 import { SiteStructure, DesignSystem, GeneratedHTML } from "@/types/agents";
 import { AIResponseValidator } from "./validators/ai-response-validator";
+import { DeepSeekCodeAgent } from "./deepseek-code-agent";
 
 /**
- * Enhanced Lex Site Builder with proper HTML rendering and GLM-4.5 integration
+ * Enhanced Lex Site Builder with DeepSeek integration
+ * Now uses DeepSeek V3 for superior code generation at lower cost
  */
 export class LexSiteBuilderEnhanced extends AIBaseAgent {
-  private hfToken: string;
-  
+  private deepseek: DeepSeekCodeAgent;
+
   constructor() {
     super({
       name: "Lex",
-      role: "Enhanced Site Builder with GLM-4.5",
+      role: "Enhanced Site Builder with DeepSeek V3",
       capabilities: [
         "Building complete multi-section websites",
-        "Using GLM-4.5 for code generation",
+        "Using DeepSeek V3 for code generation",
         "Proper HTML rendering from JSON content",
         "Creating responsive designs",
         "Implementing interactive features",
         "Optimizing for performance and SEO"
       ],
-      temperature: 0.7,
-      maxTokens: 12000
+      temperature: 0.3,
+      maxTokens: 8000
     });
-    
-    const token = process.env.HF_TOKEN || process.env.DEFAULT_HF_TOKEN;
-    if (!token) {
-      throw new Error("HuggingFace token not found for GLM-4.5");
-    }
-    this.hfToken = token;
+
+    this.deepseek = new DeepSeekCodeAgent();
   }
 
   protected getDefaultSystemPrompt(): string {
     return `You are Lex, an expert fullstack web developer and the lead builder in the Ezia multi-agent system.
-    
+
 Your role is to:
-1. Take structured input from other agents and generate complete, production-ready HTML
+1. Coordinate with DeepSeek V3 to generate complete, production-ready HTML
 2. Create visually stunning websites with modern CSS and JavaScript
 3. Ensure all content is properly rendered (never show raw JSON)
 4. Implement responsive designs with smooth animations
@@ -65,30 +63,24 @@ Your role is to:
     
     let lastError: Error | null = null;
     let generatedHTML: GeneratedHTML | null = null;
-    
-    // Try multiple attempts with GLM-4.5
+
+    // Try generation with DeepSeek V3
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        this.log(`Attempting GLM-4.5 generation (attempt ${attempt}/3)...`);
-        
-        const html = await this.generateWithGLM45Enhanced({
+        this.log(`Attempting DeepSeek V3 generation (attempt ${attempt}/3)...`);
+
+        const html = await this.deepseek.generateWebsite({
           structure,
           designSystem,
-          content,
-          businessContext: {
-            name: structure.businessName,
-            industry: structure.industry,
-            description: structure.description
-          },
-          attemptNumber: attempt
+          content
         });
-        
+
         // Validate the generated HTML
         const htmlValidation = AIResponseValidator.validateHTML(html);
         if (!htmlValidation.isValid) {
           throw new Error(`HTML validation failed: ${htmlValidation.errors.join(', ')}`);
         }
-        
+
         generatedHTML = {
           html,
           sections: structure.sections,
@@ -97,7 +89,7 @@ Your role is to:
         break;
       } catch (error) {
         lastError = error as Error;
-        this.log(`GLM-4.5 generation attempt ${attempt} failed: ${lastError.message}`);
+        this.log(`DeepSeek generation attempt ${attempt} failed: ${lastError.message}`);
         
         if (attempt < 3) {
           await new Promise(resolve => setTimeout(resolve, 3000));
@@ -105,10 +97,10 @@ Your role is to:
       }
     }
     
-    // If GLM-4.5 failed, try with AI-assisted template generation
+    // If DeepSeek failed, try with AI-assisted template generation
     if (!generatedHTML) {
-      this.log("GLM-4.5 failed after 3 attempts, using AI-assisted template generation...");
-      
+      this.log("DeepSeek failed after 3 attempts, using AI-assisted template generation...");
+
       try {
         generatedHTML = await this.generateAIAssistedHTML(structure, designSystem, content);
       } catch (templateError) {
@@ -120,111 +112,8 @@ Your role is to:
         );
       }
     }
-    
+
     return generatedHTML;
-  }
-
-  private async generateWithGLM45Enhanced(context: any): Promise<string> {
-    const { structure, designSystem, content, businessContext, attemptNumber = 1 } = context;
-    
-    // Create a more structured prompt
-    const systemPrompt = `You are an expert web developer. Generate a complete, production-ready website.
-IMPORTANT: 
-- Generate ONLY valid HTML code
-- Include ALL content properly formatted in HTML (no JSON strings)
-- Use the exact design system colors and typography
-- Make it fully responsive
-- Include smooth animations`;
-
-    // Format content for better understanding
-    const formattedContent = this.formatContentForPrompt(content);
-    
-    const userPrompt = `Generate a complete website for ${businessContext.name}.
-
-BUSINESS INFO:
-- Name: ${businessContext.name}
-- Industry: ${businessContext.industry}
-- Description: ${businessContext.description}
-
-DESIGN SYSTEM:
-- Primary Color: ${designSystem.colors.primary}
-- Secondary Color: ${designSystem.colors.secondary}
-- Font Family: ${designSystem.typography.bodyFont}
-- Heading Font: ${designSystem.typography.headingFont}
-
-SECTIONS TO CREATE:
-${structure.sections.map((section: any) => `
-- ${section.title} (${section.type}):
-  ${formattedContent[section.id] || 'Generate appropriate content'}
-`).join('')}
-
-Generate a complete HTML document with:
-1. Modern, responsive CSS
-2. Smooth animations
-3. Interactive JavaScript
-4. All content properly formatted
-5. Professional design for ${businessContext.industry} industry
-
-Output ONLY the HTML code, starting with <!DOCTYPE html>${
-      attemptNumber > 1 ? `\n\nIMPORTANT: This is attempt ${attemptNumber}. Ensure the HTML is complete and valid with all sections properly rendered.` : ''
-    }`;
-
-    try {
-      const response = await fetch(
-        "https://router.huggingface.co/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${this.hfToken}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            model: "zai-org/GLM-4.5:novita",
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: userPrompt }
-            ],
-            max_tokens: 16000,
-            temperature: 0.7,
-            stream: false
-          })
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`GLM-4.5 API error: ${error}`);
-      }
-
-      const result = await response.json();
-      return this.extractAndCleanHTML(result.choices[0].message.content);
-      
-    } catch (error) {
-      this.log(`GLM-4.5 enhanced generation error: ${error}`);
-      throw error;
-    }
-  }
-
-  private formatContentForPrompt(content: Record<string, any>): Record<string, string> {
-    const formatted: Record<string, string> = {};
-    
-    for (const [sectionId, sectionContent] of Object.entries(content)) {
-      if (typeof sectionContent === 'object') {
-        // Convert object content to readable format
-        const parts = [];
-        if (sectionContent.headline) parts.push(`Headline: ${sectionContent.headline}`);
-        if (sectionContent.subheadline) parts.push(`Subtitle: ${sectionContent.subheadline}`);
-        if (sectionContent.content) parts.push(`Content: ${sectionContent.content}`);
-        if (sectionContent.items) parts.push(`Items: ${JSON.stringify(sectionContent.items)}`);
-        if (sectionContent.cta) parts.push(`Call to Action: ${sectionContent.cta}`);
-        
-        formatted[sectionId] = parts.join('\n');
-      } else {
-        formatted[sectionId] = String(sectionContent);
-      }
-    }
-    
-    return formatted;
   }
 
   private generateEnhancedHTML(
@@ -361,7 +250,8 @@ Output ONLY the HTML code, starting with <!DOCTYPE html>${
       contact: () => this.generateContactSection(section, content, designSystem),
       reservation: () => this.generateReservationSection(section, content, designSystem),
       'current-season': () => this.generateSeasonSection(section, content, designSystem),
-      'chef-story': () => this.generateChefSection(section, content, designSystem)
+      'chef-story': () => this.generateChefSection(section, content, designSystem),
+      blog: () => this.generateBlogSection(section, content, designSystem)
     };
 
     const generator = sectionGenerators[section.type] || (() => this.generateDefaultSection(section, content, designSystem));
@@ -701,10 +591,63 @@ Output ONLY the HTML code, starting with <!DOCTYPE html>${
     </section>`;
   }
 
+  private generateBlogSection(section: any, content: any, designSystem: DesignSystem): string {
+    const { headline, subheadline, articles, showLatestPosts } = content || {};
+    const displayCount = showLatestPosts || 3;
+    const blogArticles = articles || [];
+
+    return `
+    <section id="${section.id}" class="blog-section section">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">${headline || section.title || 'Notre Blog'}</h2>
+            ${subheadline ? `<p class="section-subtitle animate-on-scroll">${subheadline}</p>` : ''}
+
+            <div class="blog-grid">
+                ${blogArticles.length > 0 ? blogArticles.slice(0, displayCount).map((article: any, index: number) => `
+                    <article class="blog-card animate-on-scroll" style="animation-delay: ${index * 0.1}s">
+                        ${article.image ? `
+                            <div class="blog-card-image">
+                                <img src="${article.image}" alt="${article.title}" loading="lazy">
+                            </div>
+                        ` : ''}
+                        <div class="blog-card-content">
+                            <div class="blog-card-meta">
+                                <span class="blog-date">${article.publishedAt || article.date || new Date().toLocaleDateString('fr-FR')}</span>
+                                ${article.readTime ? `<span class="blog-read-time"><i class="fas fa-clock"></i> ${article.readTime} min</span>` : ''}
+                            </div>
+                            <h3 class="blog-card-title">${article.title}</h3>
+                            <p class="blog-card-excerpt">${article.excerpt || article.description || ''}</p>
+                            ${article.tags && article.tags.length > 0 ? `
+                                <div class="blog-card-tags">
+                                    ${article.tags.slice(0, 3).map((tag: string) => `<span class="blog-tag">${tag}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                            <a href="/blog/${article.slug || '#'}" class="blog-card-link">
+                                Lire l'article <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                `).join('') : `
+                    <div class="blog-placeholder">
+                        <i class="fas fa-blog"></i>
+                        <p>Les premiers articles arrivent bientôt...</p>
+                    </div>
+                `}
+            </div>
+
+            ${blogArticles.length > displayCount ? `
+                <div class="blog-cta">
+                    <a href="/blog" class="btn btn-primary">Voir tous les articles</a>
+                </div>
+            ` : ''}
+        </div>
+    </section>`;
+  }
+
   private generateDefaultSection(section: any, content: any, designSystem: DesignSystem): string {
     // Handle any content type gracefully
     let contentHtml = '';
-    
+
     if (typeof content === 'object' && content !== null) {
       if (content.headline) {
         contentHtml += `<h3>${content.headline}</h3>`;
@@ -730,7 +673,7 @@ Output ONLY the HTML code, starting with <!DOCTYPE html>${
     } else if (content) {
       contentHtml = `<p>${content}</p>`;
     }
-    
+
     return `
     <section id="${section.id}" class="section">
         <div class="container">
@@ -816,7 +759,7 @@ Output ONLY the HTML code, starting with <!DOCTYPE html>${
             
             <div class="footer-bottom">
                 <p>&copy; 2024 ${businessName}. Tous droits réservés.</p>
-                <p class="footer-credit">Propulsé par <strong>Ezia Multi-Agent System</strong> avec GLM-4.5</p>
+                <p class="footer-credit">Propulsé par <strong>Ezia Multi-Agent System</strong> avec DeepSeek V3</p>
             </div>
         </div>
     </footer>`;
@@ -1440,7 +1383,141 @@ Output ONLY the HTML code, starting with <!DOCTYPE html>${
             align-items: center;
             gap: var(--spacing-sm);
         }
-        
+
+        /* Blog Section */
+        .blog-section {
+            background: var(--color-surface);
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--spacing-xl);
+            margin-top: var(--spacing-xl);
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .blog-card-image {
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+        }
+
+        .blog-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .blog-card:hover .blog-card-image img {
+            transform: scale(1.05);
+        }
+
+        .blog-card-content {
+            padding: var(--spacing-lg);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-card-meta {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+        }
+
+        .blog-date {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .blog-read-time {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .blog-card-title {
+            font-size: 1.4rem;
+            margin-bottom: var(--spacing-sm);
+            line-height: 1.3;
+            color: var(--color-text);
+        }
+
+        .blog-card-excerpt {
+            color: var(--color-text-light);
+            line-height: 1.6;
+            margin-bottom: var(--spacing-md);
+            flex: 1;
+        }
+
+        .blog-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .blog-tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--color-surface);
+            color: var(--color-primary);
+            font-size: 0.85rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .blog-card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            color: var(--color-primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .blog-card-link:hover {
+            gap: var(--spacing-sm);
+        }
+
+        .blog-placeholder {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: var(--spacing-xxl);
+            color: var(--color-text-light);
+        }
+
+        .blog-placeholder i {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            color: var(--color-primary);
+        }
+
+        .blog-cta {
+            text-align: center;
+            margin-top: var(--spacing-xl);
+        }
+
         /* Footer */
         .footer {
             background: var(--color-text);
@@ -1676,20 +1753,20 @@ Output ONLY the HTML code, starting with <!DOCTYPE html>${
     if (docTypeIndex > 0) {
       html = html.substring(docTypeIndex);
     }
-    
+
     if (!html.startsWith("<!DOCTYPE")) {
       html = "<!DOCTYPE html>\n" + html;
     }
-    
+
     const htmlEndIndex = html.lastIndexOf("</html>");
     if (htmlEndIndex > 0) {
       html = html.substring(0, htmlEndIndex + 7);
     }
-    
+
     if (!html.includes("</html>")) {
       html += "\n</body>\n</html>";
     }
-    
+
     return html;
   }
 

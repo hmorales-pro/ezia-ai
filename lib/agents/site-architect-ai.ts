@@ -73,7 +73,9 @@ Provide a comprehensive analysis in JSON format with:
   ]
 }
 
-Consider industry best practices and modern web standards.`;
+Consider industry best practices and modern web standards.
+
+IMPORTANT: Always include a blog section in requiredSections for content marketing and SEO.`;
 
     try {
       const response = await this.generateWithAI({
@@ -133,7 +135,14 @@ Generate a complete site structure in JSON format:
   }
 }
 
-Create sections that align with the user journey and business goals. Each section should have a clear purpose and call-to-action.`;
+Create sections that align with the user journey and business goals. Each section should have a clear purpose and call-to-action.
+
+Available section types: hero, about, services, testimonials, gallery, contact, reservation, menu, blog, faq, team, pricing, features
+
+IMPORTANT: Always include a 'blog' section type for content marketing. The blog section should:
+- Have type: "blog"
+- Include content with: headline, subheadline, showLatestPosts (number: 3-6)
+- Priority should be after main sections but before contact (typically 6-8)`;
 
     try {
       const response = await this.generateWithAI({
@@ -186,9 +195,16 @@ Create sections that align with the user journey and business goals. Each sectio
     return structure;
   }
 
-
-
-
+  private generateDefaultNavigation(sections: any[]): any[] {
+    return sections
+      .filter(section => section.priority <= 8) // Only main sections in navigation
+      .map(section => ({
+        label: section.title || this.formatTitle(section.type),
+        href: `#${section.id}`,
+        priority: section.priority
+      }))
+      .sort((a, b) => a.priority - b.priority);
+  }
 
 
 

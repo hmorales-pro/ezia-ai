@@ -57,50 +57,79 @@ Business Context:
 - Industry: ${input.industry}
 - Brand Personality: ${input.brandPersonality?.join(", ") || "professional, modern, trustworthy"}
 
-Generate a complete design system in JSON format:
+Generate a complete design system in JSON format following this EXACT structure:
 {
-  "colors": {
+  "colorPalette": {
     "primary": "#hex",
     "secondary": "#hex",
     "accent": "#hex",
-    "neutral": "#hex",
+    "neutral": {
+      "50": "#hex (lightest)",
+      "100": "#hex",
+      "200": "#hex",
+      "300": "#hex",
+      "400": "#hex",
+      "500": "#hex (base)",
+      "600": "#hex",
+      "700": "#hex",
+      "800": "#hex",
+      "900": "#hex (darkest)"
+    },
     "success": "#hex",
     "warning": "#hex",
     "error": "#hex",
-    "background": "#hex",
-    "text": "#hex"
+    "info": "#hex"
   },
   "typography": {
-    "fontFamily": "Font Name",
-    "headingFont": "Font Name for headings",
-    "baseFontSize": "16px",
-    "fontWeights": {
+    "fontFamily": {
+      "heading": "Font Name for headings (e.g., 'Inter', 'Poppins')",
+      "body": "Font Name for body text (e.g., 'Open Sans', 'Roboto')",
+      "mono": "Monospace font (e.g., 'Fira Code', 'JetBrains Mono')"
+    },
+    "fontSize": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem",
+      "4xl": "2.25rem",
+      "5xl": "3rem"
+    },
+    "fontWeight": {
       "light": 300,
       "regular": 400,
       "medium": 500,
       "semibold": 600,
       "bold": 700
     },
-    "lineHeights": {
-      "tight": 1.2,
-      "normal": 1.6,
-      "relaxed": 1.8
+    "lineHeight": {
+      "tight": 1.25,
+      "normal": 1.5,
+      "relaxed": 1.75
     }
   },
   "spacing": {
-    "base": "8px",
-    "scale": [0, 4, 8, 12, 16, 24, 32, 48, 64, 96]
+    "xs": "0.25rem",
+    "sm": "0.5rem",
+    "md": "1rem",
+    "lg": "1.5rem",
+    "xl": "2rem",
+    "2xl": "3rem",
+    "3xl": "4rem"
   },
   "borderRadius": {
-    "small": "4px",
-    "medium": "8px",
-    "large": "16px",
+    "sm": "0.25rem",
+    "md": "0.5rem",
+    "lg": "1rem",
     "full": "9999px"
   },
   "shadows": {
-    "small": "0 1px 3px rgba(0,0,0,0.1)",
-    "medium": "0 4px 6px rgba(0,0,0,0.1)",
-    "large": "0 10px 25px rgba(0,0,0,0.15)"
+    "sm": "0 1px 3px rgba(0,0,0,0.1)",
+    "md": "0 4px 6px rgba(0,0,0,0.1)",
+    "lg": "0 10px 25px rgba(0,0,0,0.15)",
+    "xl": "0 20px 40px rgba(0,0,0,0.2)"
   }
 }
 
@@ -122,10 +151,10 @@ Ensure all colors have proper contrast ratios for accessibility.`;
       const designData = this.parseAIJson<any>(response, {});
       
       // Build complete design system
-      const designSystem = this.buildDesignSystem(designData, input);
-      
+      const designSystem = this.buildDesignSystem(designData);
+
       // Validate and enhance if needed
-      return this.validateDesignSystem(designSystem, input);
+      return this.validateDesignSystem(designSystem);
 
     } catch (error) {
       this.log(`AI design generation failed: ${error}`);
@@ -133,31 +162,76 @@ Ensure all colors have proper contrast ratios for accessibility.`;
     }
   }
 
-  private buildDesignSystem(data: any, input: any): DesignSystem {
-    // Convert AI response to proper DesignSystem format
-    const colors = data.colors || {};
-    
-    const colorPalette: ColorPalette = {
-      primary: colors.primary,
-      secondary: colors.secondary,
-      accent: colors.accent,
-      neutral: colors.neutral ? this.generateNeutralScale(colors.neutral) : {},
-      success: colors.success,
-      warning: colors.warning,
-      error: colors.error,
-      info: colors.info
+  private buildDesignSystem(data: any): DesignSystem {
+    // AI should return the exact structure, but we validate and ensure completeness
+    const colorPalette: ColorPalette = data.colorPalette || {
+      primary: "#000000",
+      secondary: "#666666",
+      accent: "#0066cc",
+      neutral: {
+        "50": "#fafafa",
+        "100": "#f5f5f5",
+        "200": "#e5e5e5",
+        "300": "#d4d4d4",
+        "400": "#a3a3a3",
+        "500": "#737373",
+        "600": "#525252",
+        "700": "#404040",
+        "800": "#262626",
+        "900": "#171717"
+      },
+      success: "#22c55e",
+      warning: "#f59e0b",
+      error: "#ef4444",
+      info: "#3b82f6"
     };
 
-    const typography: Typography = data.typography || {};
+    const typography: Typography = data.typography || {
+      fontFamily: {
+        heading: "Inter",
+        body: "Open Sans",
+        mono: "Fira Code"
+      },
+      fontSize: {
+        xs: "0.75rem",
+        sm: "0.875rem",
+        base: "1rem",
+        lg: "1.125rem",
+        xl: "1.25rem",
+        "2xl": "1.5rem",
+        "3xl": "1.875rem",
+        "4xl": "2.25rem",
+        "5xl": "3rem"
+      },
+      fontWeight: {
+        light: 300,
+        regular: 400,
+        medium: 500,
+        semibold: 600,
+        bold: 700
+      },
+      lineHeight: {
+        tight: 1.25,
+        normal: 1.5,
+        relaxed: 1.75
+      }
+    };
 
-    const spacing = data.spacing || {};
+    const spacing = data.spacing || {
+      xs: "0.25rem",
+      sm: "0.5rem",
+      md: "1rem",
+      lg: "1.5rem",
+      xl: "2rem",
+      "2xl": "3rem",
+      "3xl": "4rem"
+    };
 
     const components = this.generateComponentStyles(colorPalette, typography);
     const animations = this.generateAnimations();
 
     return {
-      colors: colorPalette,
-      colorPalette, // Legacy support
+      colorPalette,
       typography,
       spacing,
       components,
@@ -167,23 +241,13 @@ Ensure all colors have proper contrast ratios for accessibility.`;
         tablet: "768px",
         desktop: "1024px",
         wide: "1280px"
-      },
-      borderRadius: data.borderRadius || {},
-      shadows: data.shadows || {}
+      }
     };
   }
 
-  private validateDesignSystem(system: DesignSystem, input: any): DesignSystem {
+  private validateDesignSystem(system: DesignSystem): DesignSystem {
     // Return as-is, let AI handle all design decisions
     return system;
-  }
-
-
-
-
-  private generateNeutralScale(base: string): Record<string, string> {
-    // Let AI generate the neutral scale
-    return { "500": base };
   }
 
 
@@ -195,7 +259,7 @@ Ensure all colors have proper contrast ratios for accessibility.`;
           color: "white",
           padding: "12px 24px",
           borderRadius: "8px",
-          fontWeight: typography.fontWeights.semibold
+          fontWeight: typography.fontWeight.semibold
         },
         secondary: {
           background: "transparent",
@@ -203,7 +267,7 @@ Ensure all colors have proper contrast ratios for accessibility.`;
           border: `2px solid ${colors.primary}`,
           padding: "10px 22px",
           borderRadius: "8px",
-          fontWeight: typography.fontWeights.semibold
+          fontWeight: typography.fontWeight.semibold
         }
       },
       card: {
@@ -216,7 +280,7 @@ Ensure all colors have proper contrast ratios for accessibility.`;
         padding: "12px 16px",
         borderRadius: "8px",
         border: "1px solid #E5E5E5",
-        fontSize: typography.baseFontSize
+        fontSize: typography.fontSize.base
       }
     };
   }

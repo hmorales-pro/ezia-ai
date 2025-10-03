@@ -135,14 +135,16 @@ export const EziaSimpleEditor = ({
       
       let response;
       
-      if (!hasGenerated && useEnhancedGeneration) {
-        // Première génération avec Mixtral pour une meilleure qualité
-        console.log("Using enhanced generation with Mixtral");
-        response = await api.post("/api/generate-website-v2", {
+      if (!hasGenerated) {
+        // Première génération avec notre système propriétaire
+        console.log("Using proprietary site generator");
+        response = await api.post("/api/generate-site-proprietary", {
+          prompt: promptToUse,
           businessInfo: {
             name: businessName || "Mon entreprise",
             description: promptToUse,
-            industry: businessId ? "Services professionnels" : undefined
+            industry: businessId ? "Services professionnels" : "General",
+            tone: "Professional"
           }
         });
         
@@ -150,7 +152,7 @@ export const EziaSimpleEditor = ({
           const newHtml = response.data.html;
           setHtml(newHtml);
           setHasGenerated(true);
-          toast.success("Site généré avec succès !");
+          toast.success("Site généré avec notre système propriétaire !");
           
           // Mettre à jour l'historique
           const currentHistory = [...htmlHistory];
@@ -162,10 +164,10 @@ export const EziaSimpleEditor = ({
           setHtmlHistory(currentHistory);
           setPrompts((prev) => [...prev, promptToUse]);
         } else {
-          throw new Error("Erreur dans la génération améliorée");
+          throw new Error("Erreur dans la génération du site");
         }
       } else {
-        // Modifications avec l'API standard
+        // Modifications avec l'API standard (pour l'instant on garde DeepSite V2 pour les modifications)
         response = await api.put("/api/ask-ai", {
           prompt: promptToUse,
           provider: "novita",
@@ -402,7 +404,7 @@ export const EziaSimpleEditor = ({
                 <Alert className="bg-purple-50 border-purple-200">
                   <Info className="h-4 w-4 text-purple-600" />
                   <AlertDescription className="text-purple-800">
-                    <strong>Votre équipe :</strong> Vera (contenu), Kiko (code), Milo (design) et Yuna (UX) travailleront ensemble pour créer votre site.
+                    <strong>Notre système propriétaire :</strong> Création de sites web avec génération de thèmes, design responsive et contenu optimisé. Utilise notre architecture avancée avec Mistral AI.
                   </AlertDescription>
                 </Alert>
 
