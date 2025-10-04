@@ -10,7 +10,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# Next.js build output
+# Next.js build output (will be rebuilt in container)
 .next
 out
 build
@@ -19,6 +19,10 @@ dist
 # Testing
 coverage
 .nyc_output
+__tests__
+__mocks__
+*.test.*
+*.spec.*
 
 # Misc
 .DS_Store
@@ -26,29 +30,25 @@ coverage
 .vscode
 .idea
 
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Local env files
+# Local env files (use .env.production for deployment)
 .env
-.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 !.env.example
+!.env.production.example
 
 # Vercel
 .vercel
 
 # Typescript
 *.tsbuildinfo
+next-env.d.ts
 
-# Docker
-Dockerfile
-docker-compose.yml
-.dockerignore
-
-# Documentation
+# Documentation (keep only essential docs)
 *.md
+!README.md
 docs
 
 # Local data
@@ -72,17 +72,16 @@ Thumbs.db
 tmp/
 temp/
 
-# Scripts
-scripts/
+# Scripts (not needed in production)
+scripts/*.js
+!scripts/fix-tailwind.js
 *.sh
-
-# Tests
-__tests__
-__mocks__
-*.test.*
-*.spec.*
 
 # Backups
 *.backup
 *.bak
 backup/
+
+# Images (will be served via public/)
+Capture*
+Screenshot*

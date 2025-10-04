@@ -1,22 +1,29 @@
 version: '3.8'
 
 services:
-  ezia:
+  app:
     build:
       context: .
-      dockerfile: Dockerfile.dokploy
-    # Port géré par Dokploy/Traefik - décommentez pour dev local
-    # ports:
-    #   - "${EXTERNAL_PORT:-3001}:3000"
+      dockerfile: Dockerfile
+    container_name: ezia-vbeta
+    ports:
+      - "${PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - MONGODB_URI=${MONGODB_URI}
-      - HF_TOKEN=${HF_TOKEN}
-      - DEFAULT_HF_TOKEN=${DEFAULT_HF_TOKEN}
-      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      - JWT_SECRET=${JWT_SECRET}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
-      - NEXT_APP_API_URL=${NEXT_APP_API_URL}
+      - HOSTNAME=0.0.0.0
+    env_file:
+      - .env.production
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ezia-network
+
+networks:
+  ezia-network:
+    driver: bridge

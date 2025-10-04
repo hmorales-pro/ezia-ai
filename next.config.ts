@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // output: 'standalone', // Désactivé pour compatibilité
-  
+  output: 'standalone', // Activé pour Docker optimisé
+
   // Configuration pour Dokploy et CORS
   async headers() {
     return [
