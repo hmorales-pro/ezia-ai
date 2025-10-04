@@ -232,8 +232,26 @@ Ensure all colors have proper contrast ratios for accessibility.`;
 
     return {
       colorPalette,
-      typography,
+      colors: {
+        primary: colorPalette.primary,
+        secondary: colorPalette.secondary,
+        accent: colorPalette.accent,
+        neutral: colorPalette.neutral,
+        success: colorPalette.success,
+        warning: colorPalette.warning,
+        error: colorPalette.error,
+        info: colorPalette.info
+      },
+      typography: {
+        ...typography,
+        headingFont: typography.fontFamily.heading,
+        bodyFont: typography.fontFamily.body
+      },
       spacing,
+      layout: {
+        maxWidth: "1280px",
+        containerPadding: "1rem"
+      },
       components,
       animations,
       breakpoints: {

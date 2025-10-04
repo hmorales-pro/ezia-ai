@@ -220,8 +220,8 @@ Return ONLY the complete HTML code, nothing else. No markdown, no explanations.`
                 content: prompt
               }
             ],
-            max_tokens: this.config.maxTokens,
-            temperature: this.config.temperature,
+            max_tokens: 8000,
+            temperature: 0.3,
             stream: false
           })
         });
