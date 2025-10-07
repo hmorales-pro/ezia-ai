@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
       );
 
       // Extract HTML from the generated site object
-      const finalHtml = generatedSite.html || generatedSite.fullHtml || '';
+      let finalHtml = generatedSite.html || generatedSite.fullHtml || '';
 
       await sendEvent('html_chunk', { html: finalHtml });
 
@@ -225,7 +225,56 @@ export async function GET(request: NextRequest) {
 
           publicUrl = `/${projectId}`;
 
+          // Fix blog links in HTML to use correct projectId
+          if (hasBlogSection && finalHtml.includes('/blog/')) {
+            finalHtml = finalHtml.replace(/href="\/blog\//g, `href="/${projectId}/blog/`);
+            finalHtml = finalHtml.replace(/href="#"/g, `href="/${projectId}/blog"`);
+            console.log(`[Multi-Agent] Fixed blog links to use projectId: ${projectId}`);
+          }
+
+          // Update project with corrected HTML
+          await UserProject.findOneAndUpdate(
+            { projectId },
+            { html: finalHtml }
+          );
+
           console.log(`[Multi-Agent] Saved project ${projectId} to MongoDB`);
+
+          // Save blog articles to MongoDB if they exist
+          if (hasBlogSection && content[siteStructure.sections.find((s: any) => s.type === "blog")?.id]?.articles) {
+            const blogSectionId = siteStructure.sections.find((s: any) => s.type === "blog")?.id;
+            const generatedArticles = content[blogSectionId]?.articles || [];
+
+            console.log(`[Multi-Agent] Saving ${generatedArticles.length} blog articles to MongoDB`);
+
+            for (const article of generatedArticles) {
+              try {
+                await BlogPost.create({
+                  businessId: businessId || 'anonymous',
+                  projectId,
+                  userId,
+                  title: article.title,
+                  slug: article.slug,
+                  content: article.content,
+                  excerpt: article.excerpt,
+                  status: 'published',
+                  publishedAt: new Date(),
+                  author: 'Ezia AI',
+                  tags: article.tags || [],
+                  keywords: article.keywords || [],
+                  tone: article.tone || 'professional',
+                  seoTitle: article.seoTitle,
+                  seoDescription: article.seoDescription,
+                  wordCount: article.wordCount,
+                  readTime: article.readTime,
+                  aiGenerated: true
+                });
+                console.log(`[Multi-Agent] Saved article: ${article.title}`);
+              } catch (articleError) {
+                console.error(`[Multi-Agent] Failed to save article ${article.title}:`, articleError);
+              }
+            }
+          }
 
           await sendEvent('saved', {
             projectId,
