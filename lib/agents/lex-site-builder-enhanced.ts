@@ -1,22 +1,20 @@
 import { AIBaseAgent } from "./ai-base-agent";
 import { SiteStructure, DesignSystem, GeneratedHTML } from "@/types/agents";
 import { AIResponseValidator } from "./validators/ai-response-validator";
-import { DeepSeekCodeAgent } from "./deepseek-code-agent";
 
 /**
- * Enhanced Lex Site Builder with DeepSeek integration
- * Now uses DeepSeek V3 for superior code generation at lower cost
+ * Enhanced Lex Site Builder with Mistral AI
+ * Uses Mistral for fast, reliable code generation
  */
 export class LexSiteBuilderEnhanced extends AIBaseAgent {
-  private deepseek: DeepSeekCodeAgent;
 
   constructor() {
     super({
       name: "Lex",
-      role: "Enhanced Site Builder with DeepSeek V3",
+      role: "Enhanced Site Builder with Mistral AI",
       capabilities: [
         "Building complete multi-section websites",
-        "Using DeepSeek V3 for code generation",
+        "Using Mistral AI for code generation",
         "Proper HTML rendering from JSON content",
         "Creating responsive designs",
         "Implementing interactive features",
@@ -25,20 +23,20 @@ export class LexSiteBuilderEnhanced extends AIBaseAgent {
       temperature: 0.3,
       maxTokens: 8000
     });
-
-    this.deepseek = new DeepSeekCodeAgent();
   }
 
   protected getDefaultSystemPrompt(): string {
     return `You are Lex, an expert fullstack web developer and the lead builder in the Ezia multi-agent system.
 
 Your role is to:
-1. Coordinate with DeepSeek V3 to generate complete, production-ready HTML
-2. Create visually stunning websites with modern CSS and JavaScript
+1. Generate complete, production-ready HTML with modern CSS and JavaScript
+2. Create visually stunning websites with professional styling
 3. Ensure all content is properly rendered (never show raw JSON)
 4. Implement responsive designs with smooth animations
 5. Generate semantic HTML5 with accessibility in mind
-6. Include all interactive features and forms`;
+6. Include all interactive features and forms
+
+IMPORTANT: Generate ONLY valid HTML. No markdown, no explanations, just pure HTML code.`;
   }
 
   async buildSite(
@@ -61,59 +59,18 @@ Your role is to:
       designSystem = await this.requestCompleteDesignSystem(designSystem, designValidation);
     }
     
-    let lastError: Error | null = null;
-    let generatedHTML: GeneratedHTML | null = null;
+    // Generate with Mistral AI
+    this.log("Generating HTML with Mistral AI...");
 
-    // Try generation with DeepSeek V3
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        this.log(`Attempting DeepSeek V3 generation (attempt ${attempt}/3)...`);
-
-        const html = await this.deepseek.generateWebsite({
-          structure,
-          designSystem,
-          content
-        });
-
-        // Validate the generated HTML
-        const htmlValidation = AIResponseValidator.validateHTML(html);
-        if (!htmlValidation.isValid) {
-          throw new Error(`HTML validation failed: ${htmlValidation.errors.join(', ')}`);
-        }
-
-        generatedHTML = {
-          html,
-          sections: structure.sections,
-          metadata: structure.metadata,
-        };
-        break;
-      } catch (error) {
-        lastError = error as Error;
-        this.log(`DeepSeek generation attempt ${attempt} failed: ${lastError.message}`);
-        
-        if (attempt < 3) {
-          await new Promise(resolve => setTimeout(resolve, 3000));
-        }
-      }
+    try {
+      const generatedHTML = await this.generateAIAssistedHTML(structure, designSystem, content);
+      return generatedHTML;
+    } catch (error) {
+      this.log(`Mistral generation failed: ${error}`);
+      throw new Error(
+        `Failed to generate website: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
-    
-    // If DeepSeek failed, try with AI-assisted template generation
-    if (!generatedHTML) {
-      this.log("DeepSeek failed after 3 attempts, using AI-assisted template generation...");
-
-      try {
-        generatedHTML = await this.generateAIAssistedHTML(structure, designSystem, content);
-      } catch (templateError) {
-        this.log(`AI-assisted template generation also failed: ${templateError}`);
-        throw new Error(
-          `Failed to generate website after multiple attempts. ` +
-          `Last error: ${lastError?.message || 'Unknown error'}. ` +
-          `Please check AI service availability.`
-        );
-      }
-    }
-
-    return generatedHTML;
   }
 
   private generateEnhancedHTML(
@@ -1749,6 +1706,60 @@ Your role is to:
 
   private extractAndCleanHTML(content: string): string {
     let html = content;
+
+    // STEP 1: Remove markdown code blocks if present
+    // Mistral sometimes wraps HTML in ```html ... ``` despite instructions
+    html = html.replace(/```html\s*/gi, '');
+    html = html.replace(/```\s*$/gi, '');
+    html = html.trim();
+
+    // STEP 2: Unescape the HTML if it's JSON-escaped
+    // Mistral sometimes returns HTML as a JSON string with escaped characters
+    try {
+      // If the content looks like a JSON string (starts with "), parse it
+      if (html.trim().startsWith('"') && html.trim().endsWith('"')) {
+        html = JSON.parse(html);
+      }
+      // Also handle case where it's in a JSON object like {"html": "..."}
+      if (html.trim().startsWith('{')) {
+        const parsed = JSON.parse(html);
+        if (parsed.html) {
+          html = parsed.html;
+        }
+      }
+    } catch (e) {
+      // Not JSON, continue with the string as-is
+    }
+
+    // Replace ALL escaped characters (order matters!)
+    html = html.replace(/\\\\/g, '\\');      // Escaped backslashes first
+    html = html.replace(/\\"/g, '"');         // Escaped quotes
+    html = html.replace(/\\'/g, "'");         // Escaped single quotes
+    html = html.replace(/\\n/g, '\n');        // Escaped newlines
+    html = html.replace(/\\t/g, '\t');        // Escaped tabs
+    html = html.replace(/\\r/g, '\r');        // Escaped carriage returns
+    html = html.replace(/\\f/g, '\f');        // Escaped form feeds
+    html = html.replace(/\\b/g, '\b');        // Escaped backspaces
+
+    // Remove any remaining backslashes that shouldn't be there
+    // This will fix URLs like \"https:/ to "https://
+    html = html.replace(/\\/g, '');
+
+    // CRITICAL: Fix malformed URLs in attributes (src, href)
+    // Pattern: Fix "https:/ or https:/ to https://
+    html = html.replace(/(?:"|')https?:\/{1}(?!\/)/g, (match) => {
+      const quote = match[0]; // Preserve the opening quote
+      return `${quote}https://`;
+    });
+
+    // Fix Unsplash URLs that use source.unsplash.com/random (deprecated)
+    // Replace with placeholder images or remove
+    html = html.replace(/(?:src|href)=["']https?:\/\/source\.unsplash\.com\/random[^"']*["']/gi, (match) => {
+      // Use a solid color placeholder instead
+      const quote = match.includes('"') ? '"' : "'";
+      return `src=${quote}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect fill='%23e0e0e0' width='800' height='600'/%3E%3C/svg%3E${quote}`;
+    });
+
     const docTypeIndex = html.indexOf("<!DOCTYPE");
     if (docTypeIndex > 0) {
       html = html.substring(docTypeIndex);
@@ -1823,9 +1834,9 @@ Generate a complete design system in JSON format with all required fields proper
     content: Record<string, any>
   ): Promise<GeneratedHTML> {
     this.log("Generating HTML with AI assistance...");
-    
+
     // Instead of using hardcoded templates, request AI to generate HTML
-    const prompt = `Generate a complete, modern website HTML based on the following specifications.
+    const prompt = `Generate a complete, modern, professional website HTML based on the following specifications.
 
 Business Information:
 - Name: ${structure.businessName}
@@ -1841,23 +1852,149 @@ ${structure.sections.map(s => `- ${s.title} (${s.type})`).join('\n')}
 Content for sections:
 ${JSON.stringify(content, null, 2)}
 
-Requirements:
-1. Generate complete, valid HTML5 document
-2. Include all sections with proper content
-3. Apply the design system colors and typography
-4. Make it fully responsive
-5. Include smooth animations and interactions
-6. Add proper navigation and footer
-7. Ensure all content is rendered (no JSON strings in output)
+CRITICAL REQUIREMENTS:
 
-Output ONLY the complete HTML code.`;
+1. **HTML Structure**:
+   - Complete, valid HTML5 document with proper DOCTYPE
+   - Semantic HTML5 tags (header, nav, main, section, article, footer)
+   - Proper meta tags for SEO and responsive design
+   - Clean, indented code structure
+
+2. **Design Excellence**:
+   - Apply the design system colors EXACTLY as specified
+   - Use modern gradients, shadows, and visual effects
+   - Smooth transitions on hover states (0.3s ease)
+   - Professional typography hierarchy with the specified fonts
+   - Consistent spacing using the design system spacing values
+
+3. **Responsive Design**:
+   - Mobile-first approach with proper media queries
+   - Breakpoints: 768px (tablet), 1024px (desktop)
+   - Flexible layouts using CSS Grid and Flexbox
+   - Touch-friendly buttons and interactive elements (min 44px height)
+
+4. **Images**:
+   - Use high-quality Unsplash images with proper keywords
+   - Format: https://images.unsplash.com/photo-[ID]?w=800&q=80
+   - Provide alt text for all images
+   - Use object-fit: cover for proper image display
+   - Include lazy loading: loading="lazy"
+
+5. **Navigation**:
+   - Fixed header with smooth scroll behavior
+   - Mobile hamburger menu (with CSS-only toggle if possible)
+   - Smooth scroll to anchor links
+   - Active state for current section
+
+6. **Animations & Interactions**:
+   - Fade-in animations on scroll (intersection observer in JS)
+   - Hover effects on cards and buttons
+   - Smooth scroll behavior for anchor links
+   - Professional micro-interactions
+
+7. **Content Rendering**:
+   - NO JSON strings in the output - all content must be properly rendered as HTML
+   - Use the actual content from the sections
+   - Ensure all text is readable and properly formatted
+   - Include CTAs (Call-to-Actions) with prominent buttons
+
+8. **Footer**:
+   - Professional footer with multiple columns
+   - Social media links
+   - Copyright notice with current year
+   - Links to privacy policy and terms
+
+9. **JavaScript**:
+   - Include vanilla JavaScript for:
+     * Mobile menu toggle
+     * Smooth scroll to sections
+     * Scroll animations (IntersectionObserver)
+     * Form validation if forms are present
+   - Modern ES6+ syntax
+   - No external dependencies
+
+10. **Performance**:
+    - Inline critical CSS in <style> tag
+    - Optimize CSS with CSS variables for colors/spacing
+    - Minimize HTTP requests
+    - Use system fonts fallback if web fonts fail
+
+11. **CRITICAL - Images**:
+    - ALWAYS use inline SVG data URIs (100% reliable, never fails):
+      Example: src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect fill='%23e0e0e0' width='800' height='600'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='24'%3EImage%3C/text%3E%3C/svg%3E"
+    - Use design system colors in SVG fills (e.g., fill='%23${designSystem.colorPalette?.primary?.replace('#', '')}')
+    - NEVER use external URLs (via.placeholder.com, source.unsplash.com, etc.)
+    - Always include alt text and loading="lazy"
+
+EXAMPLE STRUCTURE (adapt to the business):
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${structure.businessName}</title>
+  <style>
+    :root {
+      --primary: ${designSystem.colorPalette?.primary || '#007bff'};
+      --secondary: ${designSystem.colorPalette?.secondary || '#6c757d'};
+      --accent: ${designSystem.colorPalette?.accent || '#28a745'};
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 2rem;
+      --spacing-xl: 4rem;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; }
+    header { position: fixed; top: 0; width: 100%; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; max-width: 1200px; margin: 0 auto; }
+    .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; text-align: center; padding: 2rem; }
+    .section { padding: var(--spacing-xl) 2rem; max-width: 1200px; margin: 0 auto; }
+    .card { background: white; padding: var(--spacing-lg); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
+    .card:hover { transform: translateY(-5px); }
+    .btn { display: inline-block; padding: 1rem 2rem; background: var(--primary); color: white; text-decoration: none; border-radius: 50px; transition: all 0.3s ease; }
+    .btn:hover { background: var(--accent); transform: scale(1.05); }
+    @media (max-width: 768px) { .hero { min-height: 80vh; } .section { padding: 2rem 1rem; } }
+  </style>
+</head>
+<body>
+  <header><nav><div class="logo">${structure.businessName}</div><ul><li><a href="#home">Accueil</a></li></ul></nav></header>
+  <section class="hero" id="home"><div><h1>Welcome to ${structure.businessName}</h1><p>Your tagline here</p><a href="#contact" class="btn">Get Started</a></div></section>
+  <section class="section" id="services"><h2>Our Services</h2><div class="grid"><div class="card"><h3>Service 1</h3><p>Description</p></div></div></section>
+  <footer><p>&copy; ${new Date().getFullYear()} ${structure.businessName}. All rights reserved.</p></footer>
+  <script>
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>
+
+OUTPUT FORMAT:
+You MUST return ONLY valid HTML code. Requirements:
+1. Start with <!DOCTYPE html>
+2. Include complete <html>, <head>, and <body> tags
+3. NO markdown code blocks (no \`\`\`html)
+4. NO explanations or comments outside the HTML
+5. NO JSON wrapping
+6. Follow the example structure above EXACTLY
+7. The HTML MUST be complete and valid (pass HTML5 validation)
+
+Generate a COMPLETE, FUNCTIONAL, VALID HTML5 website now:`;
+
     
     try {
       const html = await this.generateWithAI({
         prompt,
         maxRetries: 2
       });
-      
+
+      // DEBUG: Log first 500 chars of raw response to understand what Mistral returns
+      console.log('[Lex] RAW Mistral response (first 500 chars):', html.substring(0, 500));
+
       const cleanedHTML = this.extractAndCleanHTML(html);
       
       // Validate the HTML

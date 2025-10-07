@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const blogPostSchema = new mongoose.Schema({
   businessId: { type: String, required: true },
+  projectId: { type: String, required: true }, // Lien vers le site UserProject
   title: { type: String, required: true },
   content: { type: String, required: true },
   excerpt: { type: String },
@@ -39,6 +40,7 @@ const blogPostSchema = new mongoose.Schema({
 
 // Index pour améliorer les performances
 blogPostSchema.index({ businessId: 1, status: 1 });
+blogPostSchema.index({ projectId: 1, status: 1 }); // Pour récupérer articles d'un site
 blogPostSchema.index({ slug: 1 });
 blogPostSchema.index({ publishedAt: -1 });
 

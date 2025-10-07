@@ -157,9 +157,9 @@ Generate a JSON theme object with this structure:
         "bold": 700
       },
       "lineHeight": {
-        "tight": 1.25,
-        "normal": 1.5,
-        "relaxed": 1.75
+        "tight": "1.25",
+        "normal": "1.5",
+        "relaxed": "1.75"
       }
     },
     "spacing": {

@@ -2,18 +2,31 @@ import { notFound } from 'next/navigation';
 import dbConnect from '@/lib/mongodb';
 import UserProjectMultipage from '@/models/UserProjectMultipage';
 
-// Page pour servir les sous-pages d'un site multipage
-export default async function SubdomainPageRoute({ 
-  params 
-}: { 
-  params: Promise<{ subdomain: string; slug: string }> 
-}) {
-  const { subdomain, slug } = await params;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+interface PageSlugProps {
+  params: {
+    projectId: string;
+    slug: string;
+  };
+}
+
+/**
+ * Page pour servir les sous-pages d'un site multipage
+ * URL: /{projectId}/{slug}
+ */
+export default async function ProjectPageRoute({ params }: PageSlugProps) {
   await dbConnect();
 
-  // Rechercher le projet par sous-domaine
-  const project = await UserProjectMultipage.findOne({ 
-    subdomain: subdomain,
+  // Le slug "blog" est réservé pour les articles de blog
+  if (params.slug === 'blog') {
+    notFound();
+  }
+
+  // Rechercher le projet multipage par subdomain
+  const project = await UserProjectMultipage.findOne({
+    subdomain: params.projectId,
     status: 'published'
   }).lean();
 
@@ -22,19 +35,19 @@ export default async function SubdomainPageRoute({
   }
 
   // Trouver la page par slug
-  const currentPage = project.pages.find((p: any) => p.slug === slug);
+  const currentPage = project.pages.find((p: any) => p.slug === params.slug);
   if (!currentPage) {
     notFound();
   }
 
   // Générer la navigation
   const navItems = project.navigation?.items
-    .sort((a: any, b: any) => a.order - b.order)
+    ?.sort((a: any, b: any) => a.order - b.order)
     .map((item: any) => {
       const page = project.pages.find((p: any) => p.id === item.pageId);
       if (!page) return '';
-      const isActive = page.slug === slug;
-      return `<a href="/${page.slug}" class="nav-link ${isActive ? 'active' : ''}">${item.label}</a>`;
+      const isActive = page.slug === params.slug;
+      return `<a href="/${params.projectId}/${page.slug}" class="nav-link ${isActive ? 'active' : ''}">${item.label}</a>`;
     })
     .join('') || '';
 
@@ -42,7 +55,7 @@ export default async function SubdomainPageRoute({
     <nav class="site-navigation ${project.navigation?.type || 'horizontal'} bg-white shadow-md p-4">
       <div class="container mx-auto flex items-center justify-between">
         <div class="font-bold text-xl">
-          <a href="/">${project.name}</a>
+          <a href="/${params.projectId}">${project.name}</a>
         </div>
         <div class="flex space-x-6">
           ${navItems}
@@ -66,7 +79,7 @@ export default async function SubdomainPageRoute({
             color: ${project.theme?.primaryColor || '#6D3FC8'};
             font-weight: 600;
         }
-        
+
         ${project.globalCss || ''}
         ${currentPage.css || ''}
     </style>

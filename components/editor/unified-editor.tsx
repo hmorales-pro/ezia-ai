@@ -5,9 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   Code, Layers, Sparkles, Globe, Settings,
-  ArrowRight, Zap, Eye
+  ArrowRight, Zap, Eye, Download
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
@@ -18,6 +18,7 @@ import { EziaSimpleEditor } from "./ezia-simple-editor";
 import { MultipageEditor } from "./multipage-editor";
 import { EziaEcosystemPanel } from "./ezia-ecosystem-panel";
 import { ResponsivePreview } from "./responsive-preview";
+import { CompleteSiteExportModal } from "./complete-site-export-modal";
 
 interface UnifiedEditorProps {
   projectId?: string;
@@ -43,7 +44,8 @@ export function UnifiedEditor({
   const [isLoading, setIsLoading] = useState(true);
   const [html, setHtml] = useState<string>('');
   const [subdomain, setSubdomain] = useState<string>('');
-  
+  const [showExportModal, setShowExportModal] = useState(false);
+
   // Vérifier si l'écosystème est désactivé
   const isEcosystemDisabled = process.env.NEXT_PUBLIC_DISABLE_ECOSYSTEM_FEATURE === 'true';
 
@@ -198,6 +200,19 @@ export function UnifiedEditor({
                 </Button>
               )}
 
+              {/* Bouton Télécharger ZIP complet */}
+              {businessName && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowExportModal(true)}
+                  className="border-purple-200 hover:bg-purple-50"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Télécharger ZIP
+                </Button>
+              )}
+
               {subdomain && projectData?.status === 'published' && (
                 <Button
                   variant="outline"
@@ -292,6 +307,15 @@ export function UnifiedEditor({
           </div>
         )}
       </div>
+
+      {/* Modal de téléchargement ZIP complet */}
+      <CompleteSiteExportModal
+        open={showExportModal}
+        onOpenChange={setShowExportModal}
+        businessName={businessName || projectData?.name || "Mon Business"}
+        industry={projectData?.industry || "Services professionnels"}
+        description={projectData?.description}
+      />
     </div>
   );
 

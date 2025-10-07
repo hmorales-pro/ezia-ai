@@ -12,8 +12,8 @@ import { AIBaseAgent } from "./ai-base-agent";
  */
 export class DeepSeekCodeAgent extends AIBaseAgent {
   private readonly hfToken: string;
-  private readonly model = "deepseek-ai/DeepSeek-V3";
-  private readonly apiUrl = "https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-V3/v1/chat/completions";
+  private readonly model = "Qwen/Qwen2.5-Coder-32B-Instruct";
+  private readonly apiUrl = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct";
 
   constructor() {
     super({
@@ -202,6 +202,8 @@ Return ONLY the complete HTML code, nothing else. No markdown, no explanations.`
       try {
         this.log(`DeepSeek API call attempt ${attempt}/${maxRetries}...`);
 
+        const fullPrompt = `${this.getDefaultSystemPrompt()}\n\n${prompt}`;
+
         const response = await fetch(this.apiUrl, {
           method: "POST",
           headers: {
@@ -209,20 +211,12 @@ Return ONLY the complete HTML code, nothing else. No markdown, no explanations.`
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: this.model,
-            messages: [
-              {
-                role: "system",
-                content: this.getDefaultSystemPrompt()
-              },
-              {
-                role: "user",
-                content: prompt
-              }
-            ],
-            max_tokens: 8000,
-            temperature: 0.3,
-            stream: false
+            inputs: fullPrompt,
+            parameters: {
+              max_new_tokens: 8000,
+              temperature: 0.3,
+              return_full_text: false
+            }
           })
         });
 
@@ -232,7 +226,7 @@ Return ONLY the complete HTML code, nothing else. No markdown, no explanations.`
         }
 
         const data = await response.json();
-        const content = data.choices?.[0]?.message?.content;
+        const content = Array.isArray(data) ? data[0]?.generated_text : data.generated_text;
 
         if (!content) {
           throw new Error("No content in DeepSeek response");

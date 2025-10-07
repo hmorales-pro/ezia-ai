@@ -163,24 +163,24 @@ export class AIResponseValidator {
    * Validate content section
    */
   static validateContentSection(content: any, sectionType: string): ValidationResult {
-    // Define rules based on section type
+    // Define rules based on section type (RELAXED for better UX)
     const rulesByType: Record<string, ValidationRule[]> = {
       hero: [
-        { field: 'headline', required: true, type: 'string', minLength: 10, maxLength: 100 },
-        { field: 'subheadline', required: false, type: 'string', minLength: 20, maxLength: 200 },
-        { field: 'cta', required: true, type: 'string', minLength: 3, maxLength: 30 }
+        { field: 'headline', required: true, type: 'string', minLength: 5, maxLength: 150 },
+        { field: 'subheadline', required: false, type: 'string', maxLength: 300 },
+        { field: 'cta', required: false, type: 'string', maxLength: 50 }
       ],
       services: [
         { field: 'items', required: true, type: 'object', custom: Array.isArray },
         { field: 'items', custom: (items) => Array.isArray(items) && items.length > 0 }
       ],
       about: [
-        { field: 'headline', required: true, type: 'string', minLength: 10 },
-        { field: 'story', required: true, type: 'string', minLength: 100 }
+        { field: 'headline', required: true, type: 'string', minLength: 5 },
+        { field: 'story', required: false, type: 'string', minLength: 50 }
       ],
       contact: [
-        { field: 'headline', required: true, type: 'string' },
-        { field: 'info', required: true, type: 'object' },
+        { field: 'headline', required: false, type: 'string' },
+        { field: 'info', required: false, type: 'object' },
         { field: 'info.email', required: false, type: 'string', pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ }
       ],
       menu: [
@@ -189,6 +189,11 @@ export class AIResponseValidator {
       ],
       testimonials: [
         { field: 'items', required: true, type: 'object', custom: Array.isArray },
+        { field: 'headline', required: false, type: 'string' }
+      ],
+      // Generic relaxed validation for custom sections
+      'current-theme': [
+        { field: 'items', required: false, type: 'object' },
         { field: 'headline', required: false, type: 'string' }
       ]
     };

@@ -27,11 +27,18 @@ export async function generateWithMistralAPI(
   console.log("[Mistral] Appel à l'API Mistral avec le modèle:", MISTRAL_MODEL);
 
   // Déterminer les paramètres de génération basés sur le contexte
-  const isComplexGeneration = systemContext.toLowerCase().includes("json") ||
-                               systemContext.toLowerCase().includes("structure") ||
-                               prompt.toLowerCase().includes("json");
+  // IMPORTANT: Ne pas forcer JSON mode si on génère du HTML
+  const isHTMLGeneration = prompt.toLowerCase().includes("html") ||
+                           prompt.toLowerCase().includes("<!doctype") ||
+                           systemContext.toLowerCase().includes("html");
 
-  const maxTokens = isComplexGeneration ? 8000 : 4000;
+  const isComplexGeneration = !isHTMLGeneration && (
+    systemContext.toLowerCase().includes("json") ||
+    systemContext.toLowerCase().includes("structure") ||
+    prompt.toLowerCase().includes("json")
+  );
+
+  const maxTokens = isComplexGeneration ? 8000 : (isHTMLGeneration ? 16000 : 4000);
 
   try {
     const response = await fetch(MISTRAL_API_URL, {

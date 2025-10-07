@@ -152,7 +152,44 @@ export function ResponsivePreview({
               border: "none",
               overflow: "auto"
             }}
-            sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
+            onLoad={(e) => {
+              // Empêcher la navigation dans l'iframe pour éviter l'effet "inception"
+              const iframe = e.currentTarget;
+              try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                if (iframeDoc) {
+                  // Intercepter tous les clics sur les liens
+                  iframeDoc.addEventListener('click', (event) => {
+                    const target = event.target as HTMLElement;
+                    const link = target.closest('a');
+                    if (link && link.getAttribute('href')) {
+                      const href = link.getAttribute('href');
+                      // Empêcher la navigation pour les liens internes et #
+                      if (href?.startsWith('#') || href?.startsWith('/') || !href?.startsWith('http')) {
+                        event.preventDefault();
+                        // Si c'est une ancre, faire défiler vers l'élément
+                        if (href?.startsWith('#')) {
+                          const targetId = href.slice(1);
+                          const targetElement = iframeDoc.getElementById(targetId);
+                          if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }
+                      }
+                    }
+                  });
+
+                  // Empêcher la soumission de formulaires
+                  iframeDoc.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                  });
+                }
+              } catch (err) {
+                // Ignore les erreurs de same-origin policy
+                console.warn('Cannot access iframe content:', err);
+              }
+            }}
           />
         </div>
       </div>

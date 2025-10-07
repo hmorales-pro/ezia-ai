@@ -35,7 +35,7 @@ Tu génères un site web complet et structuré en JSON valide avec cette structu
         "fontFamily": { "heading": "Font", "body": "Font", "mono": "Font" },
         "fontSize": { "xs": "0.75rem", "sm": "0.875rem", "base": "1rem", "lg": "1.125rem", "xl": "1.25rem", "2xl": "1.5rem", "3xl": "1.875rem", "4xl": "2.25rem" },
         "fontWeight": { "light": 300, "normal": 400, "medium": 500, "semibold": 600, "bold": 700 },
-        "lineHeight": { "tight": 1.25, "normal": 1.5, "relaxed": 1.75 }
+        "lineHeight": { "tight": "1.25", "normal": "1.5", "relaxed": "1.75" }
       },
       "spacing": { "xs": "0.5rem", "sm": "0.75rem", "md": "1rem", "lg": "1.5rem", "xl": "2rem", "2xl": "3rem", "3xl": "4rem", "4xl": "6rem" },
       "borderRadius": { "none": "0", "sm": "0.125rem", "md": "0.375rem", "lg": "0.5rem", "full": "9999px" },
@@ -225,6 +225,22 @@ Le site doit être complet, fonctionnel et esthétique.`;
       console.error('Failed to parse generated JSON:', parseError);
       console.log('Raw response:', siteJson);
       throw new Error('Le format JSON généré est invalide');
+    }
+
+    // Post-process: Normalize data to match schema requirements
+    if (siteData.theme?.tokens) {
+      // Convert numeric lineHeight values to strings (AI sometimes ignores format)
+      if (siteData.theme.tokens.typography?.lineHeight) {
+        const lh = siteData.theme.tokens.typography.lineHeight;
+        if (typeof lh.tight === 'number') lh.tight = String(lh.tight);
+        if (typeof lh.normal === 'number') lh.normal = String(lh.normal);
+        if (typeof lh.relaxed === 'number') lh.relaxed = String(lh.relaxed);
+      }
+
+      // Ensure spacing.px exists (required by schema)
+      if (siteData.theme.tokens.spacing && !siteData.theme.tokens.spacing.px) {
+        siteData.theme.tokens.spacing.px = '1px';
+      }
     }
 
     // Validate site structure

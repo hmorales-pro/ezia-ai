@@ -136,36 +136,67 @@ export const EziaSimpleEditor = ({
       let response;
       
       if (!hasGenerated) {
-        // Première génération avec notre système propriétaire
-        console.log("Using proprietary site generator");
-        response = await api.post("/api/generate-site-proprietary", {
-          prompt: promptToUse,
-          businessInfo: {
+        // Première génération avec système multi-agents (SSE streaming)
+        console.log("Using multi-agent site generator with streaming");
+
+        // Utiliser EventSource pour le streaming SSE
+        const eventSource = new EventSource(
+          `/api/sites/generate-multi-agent-stream?` + new URLSearchParams({
             name: businessName || "Mon entreprise",
-            description: promptToUse,
-            industry: businessId ? "Services professionnels" : "General",
-            tone: "Professional"
+            industry: "Services professionnels",
+            description: promptToUse
+          }).toString()
+        );
+
+        let accumulatedHtml = '';
+        let currentPhase = '';
+
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+
+            if (data.type === 'phase_start') {
+              currentPhase = data.payload.phase;
+              toast.info(`Phase: ${data.payload.description || currentPhase}`);
+            } else if (data.type === 'phase_complete') {
+              toast.success(`✓ ${data.payload.phase} terminé`);
+            } else if (data.type === 'html_chunk') {
+              accumulatedHtml = data.payload.html;
+              setHtml(accumulatedHtml);
+            } else if (data.type === 'complete') {
+              eventSource.close();
+              setHasGenerated(true);
+              toast.success("Site généré avec succès par le système multi-agents !");
+
+              // Mettre à jour l'historique
+              const currentHistory = [...htmlHistory];
+              currentHistory.unshift({
+                html: accumulatedHtml,
+                createdAt: new Date(),
+                prompt: promptToUse,
+              });
+              setHtmlHistory(currentHistory);
+              setPrompts((prev) => [...prev, promptToUse]);
+              setIsGenerating(false);
+            } else if (data.type === 'error') {
+              eventSource.close();
+              toast.error(`Erreur: ${data.payload.message}`);
+              setIsGenerating(false);
+            }
+          } catch (err) {
+            console.error('Error parsing SSE event:', err);
           }
-        });
-        
-        if (response.data.ok && response.data.html) {
-          const newHtml = response.data.html;
-          setHtml(newHtml);
-          setHasGenerated(true);
-          toast.success("Site généré avec notre système propriétaire !");
-          
-          // Mettre à jour l'historique
-          const currentHistory = [...htmlHistory];
-          currentHistory.unshift({
-            html: newHtml,
-            createdAt: new Date(),
-            prompt: promptToUse,
-          });
-          setHtmlHistory(currentHistory);
-          setPrompts((prev) => [...prev, promptToUse]);
-        } else {
-          throw new Error("Erreur dans la génération du site");
-        }
+        };
+
+        eventSource.onerror = (error) => {
+          console.error('EventSource error:', error);
+          eventSource.close();
+          toast.error("Erreur lors de la génération du site");
+          setIsGenerating(false);
+        };
+
+        // Sortir de la fonction pour éviter d'exécuter le code après
+        return;
       } else {
         // Modifications avec l'API standard (pour l'instant on garde DeepSite V2 pour les modifications)
         response = await api.put("/api/ask-ai", {

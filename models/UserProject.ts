@@ -82,7 +82,28 @@ const UserProjectSchema = new mongoose.Schema({
     features: [String],
     tags: [String]
   },
-  
+
+  // Blog configuration
+  hasBlog: {
+    type: Boolean,
+    default: false
+  },
+  blogConfig: {
+    enabled: {
+      type: Boolean,
+      default: false
+    },
+    layout: {
+      type: String,
+      enum: ['grid', 'list'],
+      default: 'grid'
+    },
+    postsPerPage: {
+      type: Number,
+      default: 9
+    }
+  },
+
   // URLs
   previewUrl: String,
   deployUrl: String,
