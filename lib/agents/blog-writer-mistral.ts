@@ -75,8 +75,17 @@ export class BlogWriterMistral extends AIBaseAgent {
       const readTime = Math.ceil(wordCount / 200); // Average reading speed
       const actualWordCount = this.countWords(cleanedHTML);
 
+      // Generate slug from title
+      const slug = input.topic.title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
       const article: GeneratedBlogArticle = {
         title: input.topic.title,
+        slug,
         content: cleanedHTML,
         excerpt,
         keywords: input.topic.keywords,
@@ -415,6 +424,7 @@ Génère maintenant l'article complet:`;
 // Types
 export interface GeneratedBlogArticle {
   title: string;
+  slug: string;
   content: string; // HTML
   excerpt: string;
   keywords: string[];

@@ -46,7 +46,7 @@ interface CalendarArticle {
   slug: string;
   status: 'draft' | 'published' | 'scheduled';
   publishedAt?: Date;
-  scheduledFor?: Date;
+  scheduledAt?: Date;
 }
 
 interface AITopicSuggestion {
@@ -148,7 +148,7 @@ export function ContentCalendar({ projectId, onArticleCreated }: ContentCalendar
         tone: scheduleForm.tone,
         length: scheduleForm.length,
         status: 'scheduled',
-        scheduledFor: selectedDate.toISOString()
+        scheduledAt: selectedDate.toISOString()
       });
 
       if (response.data.success) {
@@ -224,8 +224,8 @@ export function ContentCalendar({ projectId, onArticleCreated }: ContentCalendar
     if (!date) return [];
 
     return articles.filter(article => {
-      const articleDate = article.scheduledFor
-        ? new Date(article.scheduledFor)
+      const articleDate = article.scheduledAt
+        ? new Date(article.scheduledAt)
         : article.publishedAt
         ? new Date(article.publishedAt)
         : null;
