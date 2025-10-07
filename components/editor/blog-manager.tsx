@@ -31,7 +31,8 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
-  List
+  List,
+  ExternalLink
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
@@ -197,10 +198,28 @@ export function BlogManager({ projectId, onEditPost, onCreateNew }: BlogManagerP
               Créez et gérez vos articles de blog
             </p>
           </div>
-          <Button onClick={onCreateNew} size="lg">
-            <PlusCircle className="w-5 h-5 mr-2" />
-            Nouvel Article
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => window.open(`/${projectId}`, '_blank')}
+              variant="outline"
+              size="lg"
+            >
+              <ExternalLink className="w-5 h-5 mr-2" />
+              Voir le site
+            </Button>
+            <Button
+              onClick={() => window.open(`/${projectId}/blog`, '_blank')}
+              variant="outline"
+              size="lg"
+            >
+              <Eye className="w-5 h-5 mr-2" />
+              Prévisualiser
+            </Button>
+            <Button onClick={onCreateNew} size="lg">
+              <PlusCircle className="w-5 h-5 mr-2" />
+              Nouvel Article
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="list" className="space-y-6">
