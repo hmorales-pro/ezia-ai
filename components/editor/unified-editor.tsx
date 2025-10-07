@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Code, Layers, Sparkles, Globe, Settings,
-  ArrowRight, Zap, Eye, Download
+  ArrowRight, Zap, Eye, Download, FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
@@ -19,6 +19,8 @@ import { MultipageEditor } from "./multipage-editor";
 import { EziaEcosystemPanel } from "./ezia-ecosystem-panel";
 import { ResponsivePreview } from "./responsive-preview";
 import { CompleteSiteExportModal } from "./complete-site-export-modal";
+import { BlogManager } from "./blog-manager";
+import { BlogEditor } from "./blog-editor";
 
 interface UnifiedEditorProps {
   projectId?: string;
@@ -29,7 +31,7 @@ interface UnifiedEditorProps {
 }
 
 type ProjectType = 'simple' | 'multipage';
-type EditorView = 'editor' | 'ecosystem' | 'preview';
+type EditorView = 'editor' | 'ecosystem' | 'preview' | 'blog';
 
 export function UnifiedEditor({
   projectId,
@@ -45,6 +47,9 @@ export function UnifiedEditor({
   const [html, setHtml] = useState<string>('');
   const [subdomain, setSubdomain] = useState<string>('');
   const [showExportModal, setShowExportModal] = useState(false);
+  const [hasBlog, setHasBlog] = useState(false);
+  const [blogEditorPost, setBlogEditorPost] = useState<any>(null);
+  const [showBlogEditor, setShowBlogEditor] = useState(false);
 
   // Vérifier si l'écosystème est désactivé
   const isEcosystemDisabled = process.env.NEXT_PUBLIC_DISABLE_ECOSYSTEM_FEATURE === 'true';
@@ -66,6 +71,7 @@ export function UnifiedEditor({
         setProjectData(multipageResponse.data.project);
         setProjectType('multipage');
         setSubdomain(multipageResponse.data.project.subdomain || '');
+        setHasBlog(multipageResponse.data.project.hasBlog || false);
         setIsLoading(false);
         return;
       }
@@ -77,6 +83,7 @@ export function UnifiedEditor({
           setProjectData(simpleResponse.data.project);
           setProjectType('simple');
           setHtml(simpleResponse.data.project.html || '');
+          setHasBlog(simpleResponse.data.project.hasBlog || false);
           setIsLoading(false);
           return;
         }
@@ -169,6 +176,16 @@ export function UnifiedEditor({
                   <Code className="w-4 h-4 mr-2" />
                   Éditeur
                 </Button>
+                {hasBlog && (
+                  <Button
+                    size="sm"
+                    variant={currentView === 'blog' ? 'default' : 'ghost'}
+                    onClick={() => setCurrentView('blog')}
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Blog
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant={currentView === 'ecosystem' ? 'default' : 'ghost'}
@@ -301,10 +318,42 @@ export function UnifiedEditor({
         {/* Vue Aperçu */}
         {currentView === 'preview' && (
           <div className="h-[calc(100vh-64px)]">
-            <ResponsivePreview 
-              html={projectType === 'simple' ? html : getMultipageHtml()} 
+            <ResponsivePreview
+              html={projectType === 'simple' ? html : getMultipageHtml()}
             />
           </div>
+        )}
+
+        {/* Vue Blog */}
+        {currentView === 'blog' && hasBlog && (
+          <>
+            {showBlogEditor ? (
+              <BlogEditor
+                projectId={projectId || ''}
+                post={blogEditorPost}
+                onBack={() => {
+                  setShowBlogEditor(false);
+                  setBlogEditorPost(null);
+                }}
+                onSaved={() => {
+                  setShowBlogEditor(false);
+                  setBlogEditorPost(null);
+                }}
+              />
+            ) : (
+              <BlogManager
+                projectId={projectId || ''}
+                onEditPost={(post) => {
+                  setBlogEditorPost(post);
+                  setShowBlogEditor(true);
+                }}
+                onCreateNew={() => {
+                  setBlogEditorPost(null);
+                  setShowBlogEditor(true);
+                }}
+              />
+            )}
+          </>
         )}
       </div>
 

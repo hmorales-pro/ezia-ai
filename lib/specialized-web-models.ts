@@ -25,9 +25,9 @@ export const SPECIALIZED_WEB_MODELS = {
 
   // Modèles pour contenu web
   contentGeneration: {
-    'seo-content': 'google/flan-ul2', // Excellent pour contenu SEO
-    'marketing-copy': 'EleutherAI/gpt-j-6b', // Pour copy marketing
-    'blog-writer': 'bigscience/bloom-7b1', // Pour articles de blog
+    'seo-content': 'mistralai/Mistral-7B-Instruct-v0.3', // Excellent pour contenu SEO
+    'marketing-copy': 'mistralai/Mistral-7B-Instruct-v0.3', // Pour copy marketing
+    'blog-writer': 'mistralai/Mistral-7B-Instruct-v0.3', // Pour articles de blog - utilise Mistral
   },
 
   // Modèles multimodaux (future)
