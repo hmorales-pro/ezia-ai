@@ -3,6 +3,9 @@ import { isAuthenticated } from "@/lib/auth-simple";
 import { nanoid } from "nanoid";
 import { generateWithMistralAPI } from "@/lib/mistral-ai-service";
 import { getDB } from "@/lib/database";
+import { getStorage } from "@/lib/storage/unified-storage";
+import { runRealMarketAnalysisAgent } from "@/lib/agents/market-analysis-agent";
+import { runRealMarketingStrategyAgent } from "@/lib/agents/marketing-strategy-agent";
 
 export async function POST(request: NextRequest) {
   const user = await isAuthenticated();
@@ -570,77 +573,102 @@ ${html}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function updateMarketAnalysis(businessId: string, aiResponse: string, _business: { name: string; description: string }) {
+async function updateMarketAnalysis(businessId: string, _aiResponse: string, business: { name: string; description: string; industry: string; stage: string }) {
   try {
-    // Extraire les informations clés de la réponse
-    const analysis = {
-      target_audience: extractSection(aiResponse, "audience cible", "public cible"),
-      value_proposition: extractSection(aiResponse, "proposition de valeur", "valeur unique"),
-      market_size: extractSection(aiResponse, "taille du marché", "marché potentiel"),
-      competitors: extractList(aiResponse, "concurrents"),
-      opportunities: extractList(aiResponse, "opportunités"),
-      threats: extractList(aiResponse, "menaces", "risques"),
-      last_updated: new Date()
+    console.log(`[updateMarketAnalysis] Génération de l'analyse de marché pour ${business.name}`);
+
+    // Utiliser le vrai agent IA pour générer l'analyse
+    const analysis = await runRealMarketAnalysisAgent({
+      name: business.name,
+      description: business.description,
+      industry: business.industry,
+      stage: business.stage
+    });
+
+    if (!analysis) {
+      throw new Error("L'agent n'a pas réussi à générer l'analyse");
+    }
+
+    // Sauvegarder dans le fichier storage
+    const storage = getStorage();
+    const businessData = await storage.getBusinessById(businessId);
+
+    if (!businessData) {
+      throw new Error("Business not found");
+    }
+
+    businessData.market_analysis = {
+      ...analysis,
+      last_updated: new Date().toISOString()
     };
 
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      await memoryDB.update(
-        { business_id: businessId },
-        { market_analysis: analysis }
-      );
-    } else {
-      await Business.findOneAndUpdate(
-        { business_id: businessId },
-        { market_analysis: analysis }
-      );
-    }
+    await storage.updateBusiness(businessId, businessData);
+
+    console.log(`[updateMarketAnalysis] Analyse sauvegardée avec succès`);
 
     return {
       type: "market_analysis_updated",
-      message: "Analyse de marché mise à jour avec succès"
+      message: "Analyse de marché mise à jour avec succès",
+      analysis
     };
   } catch (error) {
     console.error("Error updating market analysis:", error);
     return {
       type: "error",
-      message: "Erreur lors de la mise à jour de l'analyse"
+      message: "Erreur lors de la mise à jour de l'analyse",
+      details: error instanceof Error ? error.message : "Unknown error"
     };
   }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function updateMarketingStrategy(businessId: string, aiResponse: string, _business: { name: string; description: string }) {
+async function updateMarketingStrategy(businessId: string, _aiResponse: string, business: { name: string; description: string; industry: string; stage: string }) {
   try {
-    const strategy = {
-      positioning: extractSection(aiResponse, "positionnement"),
-      key_messages: extractList(aiResponse, "messages clés"),
-      channels: extractList(aiResponse, "canaux"),
-      last_updated: new Date()
+    console.log(`[updateMarketingStrategy] Génération de la stratégie marketing pour ${business.name}`);
+
+    // Récupérer l'analyse de marché existante (requis par l'agent)
+    const storage = getStorage();
+    const businessData = await storage.getBusinessById(businessId);
+
+    if (!businessData) {
+      throw new Error("Business not found");
+    }
+
+    const marketAnalysis = businessData.market_analysis || null;
+
+    // Utiliser le vrai agent IA pour générer la stratégie
+    const strategy = await runRealMarketingStrategyAgent({
+      name: business.name,
+      description: business.description,
+      industry: business.industry,
+      stage: business.stage
+    }, marketAnalysis);
+
+    if (!strategy) {
+      throw new Error("L'agent n'a pas réussi à générer la stratégie");
+    }
+
+    // Sauvegarder dans le fichier storage
+    businessData.marketing_strategy = {
+      ...strategy,
+      last_updated: new Date().toISOString()
     };
 
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      await memoryDB.update(
-        { business_id: businessId },
-        { marketing_strategy: strategy }
-      );
-    } else {
-      await Business.findOneAndUpdate(
-        { business_id: businessId },
-        { marketing_strategy: strategy }
-      );
-    }
+    await storage.updateBusiness(businessId, businessData);
+
+    console.log(`[updateMarketingStrategy] Stratégie sauvegardée avec succès`);
 
     return {
       type: "marketing_strategy_updated",
-      message: "Stratégie marketing mise à jour"
+      message: "Stratégie marketing mise à jour avec succès",
+      strategy
     };
   } catch (error) {
     console.error("Error updating marketing strategy:", error);
     return {
       type: "error",
-      message: "Erreur lors de la mise à jour"
+      message: "Erreur lors de la mise à jour de la stratégie",
+      details: error instanceof Error ? error.message : "Unknown error"
     };
   }
 }
@@ -785,30 +813,7 @@ async function saveInteraction(businessId: string, actionType: string, summary: 
   }
 }
 
-// Fonctions utilitaires pour extraire des informations
-function extractSection(text: string, ...keywords: string[]): string {
-  for (const keyword of keywords) {
-    const regex = new RegExp(`${keyword}[:\s]*([^.!?\n]+[.!?])`, 'i');
-    const match = text.match(regex);
-    if (match) return match[1].trim();
-  }
-  return "";
-}
-
-function extractList(text: string, ...keywords: string[]): string[] {
-  for (const keyword of keywords) {
-    const regex = new RegExp(`${keyword}[:\s]*([^.]+)`, 'i');
-    const match = text.match(regex);
-    if (match) {
-      return match[1]
-        .split(/[,;•\-\n]/)
-        .map(item => item.trim())
-        .filter(item => item.length > 0);
-    }
-  }
-  return [];
-}
-
+// Fonction utilitaire pour extraire des éléments de calendrier (utilisée par createContentCalendar)
 function extractCalendarItems(text: string): Array<{
   date: Date;
   type: string;
@@ -823,7 +828,7 @@ function extractCalendarItems(text: string): Array<{
   }> = [];
   const dateRegex = /(\d{1,2}[\s/\-]\w+[\s/\-]?\d{0,4})/g;
   const lines = text.split('\n');
-  
+
   lines.forEach(line => {
     const dateMatch = line.match(dateRegex);
     if (dateMatch) {
@@ -838,6 +843,6 @@ function extractCalendarItems(text: string): Array<{
       }
     }
   });
-  
+
   return items.slice(0, 30); // Max 30 items
 }

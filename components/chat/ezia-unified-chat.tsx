@@ -271,6 +271,8 @@ export default function EziaUnifiedChat({
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let accumulatedContent = '';
+      let actionCompleted = false;
+      let actionResult = null;
 
       if (reader) {
         while (true) {
@@ -286,13 +288,18 @@ export default function EziaUnifiedChat({
                 const data = JSON.parse(line.slice(6));
                 if (data.content) {
                   accumulatedContent += data.content;
-                  setMessages(prev => 
-                    prev.map(m => 
-                      m.id === 'loading' 
+                  setMessages(prev =>
+                    prev.map(m =>
+                      m.id === 'loading'
                         ? { ...m, content: accumulatedContent, isStreaming: true }
                         : m
                     )
                   );
+                }
+                // Détecter le signal de fin
+                if (data.done === true) {
+                  actionCompleted = true;
+                  actionResult = data.result;
                 }
               } catch (e) {
                 // Ignorer les erreurs de parsing
@@ -307,9 +314,9 @@ export default function EziaUnifiedChat({
 
       // Vérifier si la réponse semble complète
       const lastChar = accumulatedContent.trim().slice(-1);
-      const seemsTruncated = accumulatedContent.length > 100 && 
+      const seemsTruncated = accumulatedContent.length > 100 &&
         !['.', '!', '?', '`', '}', ']', ')', '"', "'"].includes(lastChar);
-      
+
       if (seemsTruncated) {
         console.warn('La réponse semble tronquée:', {
           length: accumulatedContent.length,
@@ -328,9 +335,9 @@ export default function EziaUnifiedChat({
         metadata: { agent: 'Ezia' }
       };
 
-      setMessages(prev => 
-        prev.map(m => 
-          m.id === 'loading' 
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === 'loading'
             ? assistantMessage
             : m
         )
@@ -339,9 +346,9 @@ export default function EziaUnifiedChat({
       // Sauvegarder dans l'historique
       await saveChatHistory([userMessage, assistantMessage]);
 
-      // Callback si action complétée
-      if (onActionComplete && accumulatedContent.includes('[ACTION_COMPLETE]')) {
-        onActionComplete({ success: true });
+      // Callback si action complétée (détection via signal SSE done: true)
+      if (onActionComplete && actionCompleted) {
+        onActionComplete({ success: true, result: actionResult });
       }
 
     } catch (error) {
