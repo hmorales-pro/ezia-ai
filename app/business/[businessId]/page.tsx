@@ -8,24 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Building2, 
-  Globe, 
-  Target, 
-  TrendingUp, 
+import {
+  Target,
+  TrendingUp,
   Calendar,
-  MessageSquare,
   ArrowLeft,
   Edit,
   Trash2,
-  BarChart3,
   Sparkles,
   Loader2,
   Lightbulb,
   Package,
   Users,
-  Brain,
-  FileText
+  RefreshCw,
+  Zap
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -33,14 +29,12 @@ import { fr } from "date-fns/locale";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { EziaChatModal, useEziaChatModal } from "@/components/chat/ezia-chat-modal";
 import { toast } from "sonner";
-import { DynamicEziaChat, DynamicContentCalendar, DynamicSocialMediaSettings, DynamicAgentStatus } from "@/components/utils/dynamic-loader";
+import { DynamicContentCalendar, DynamicAgentStatus } from "@/components/utils/dynamic-loader";
 import { EditBusinessModal } from "@/components/modals/edit-business-modal";
 import { DeleteBusinessModal } from "@/components/modals/delete-business-modal";
 import { MarketAnalysisDisplay } from "@/components/business/market-analysis-display";
 import { MarketingStrategyDisplay } from "@/components/business/marketing-strategy-display";
-import { EziaNaturalChat } from "@/components/business/ezia-natural-chat";
-import { EziaMemoryView } from "@/components/business/ezia-memory-view";
-import { WebsiteSection } from "@/components/business/website-section";
+import { AnalysisSkeleton } from "@/components/business/analysis-skeleton";
 
 interface Business {
   _id: string;
@@ -249,25 +243,44 @@ function BusinessDetailPage() {
   }, [businessId, isPollingActive]); // Dépend de isPollingActive pour éviter les re-créations
 
   const handleDeepen = async (section: string, analysisType: string) => {
+    // Toast de début avec animation
+    const loadingToastId = toast.loading(
+      `🔍 Approfondissement en cours...`,
+      {
+        description: `Analyse détaillée de la section ${section}`,
+        duration: Infinity
+      }
+    );
+
     try {
-      const response = await api.post(`/api/businesses/${businessId}/deepen-section`, {
+      const response = await api.post(`/api/me/business/${businessId}/deepen-section`, {
         section,
         analysisType
       });
-      
+
       if (response.data.success) {
-        toast.success('Section approfondie avec succès', {
-          description: `La section a été enrichie avec plus de détails`
-        });
-        
+        toast.success(
+          '✅ Section approfondie avec succès !',
+          {
+            id: loadingToastId,
+            description: `La section a été enrichie avec plus de détails`,
+            duration: 5000
+          }
+        );
+
         // Rafraîchir les données
         await fetchBusiness();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur approfondissement:', error);
-      toast.error('Échec de l\'approfondissement', {
-        description: 'Impossible d\'approfondir cette section pour le moment'
-      });
+      toast.error(
+        '❌ Erreur lors de l\'approfondissement',
+        {
+          id: loadingToastId,
+          description: error.response?.data?.details || 'Impossible d\'approfondir cette section pour le moment',
+          duration: 5000
+        }
+      );
     }
   };
 
@@ -396,17 +409,9 @@ function BusinessDetailPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-            <TabsTrigger value="market">Marché</TabsTrigger>
-            <TabsTrigger value="marketing">Marketing</TabsTrigger>
-            <TabsTrigger value="content">Contenu</TabsTrigger>
-            <TabsTrigger value="calendar">Calendrier de contenu</TabsTrigger>
-            <TabsTrigger value="social">Réseaux sociaux</TabsTrigger>
-            <TabsTrigger value="goals">Objectifs</TabsTrigger>
-            <TabsTrigger value="interactions">Interactions</TabsTrigger>
-            <TabsTrigger value="memory">
-              <Brain className="w-4 h-4 mr-1" />
-              Mémoire
-            </TabsTrigger>
+            <TabsTrigger value="market">Analyse de marché</TabsTrigger>
+            <TabsTrigger value="marketing">Stratégie marketing</TabsTrigger>
+            <TabsTrigger value="calendar">Calendrier & Contenu</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -422,6 +427,10 @@ function BusinessDetailPage() {
                       <p className="mt-1 text-[#666666]">{business.description}</p>
                     </div>
                     <div>
+                      <h3 className="font-medium text-[#444444]">Industrie</h3>
+                      <p className="mt-1 text-[#666666]">{business.industry}</p>
+                    </div>
+                    <div>
                       <h3 className="font-medium text-[#444444]">Créé le</h3>
                       <p className="mt-1 text-[#666666]">
                         {format(new Date(business._createdAt), "d MMMM yyyy", { locale: fr })}
@@ -429,9 +438,6 @@ function BusinessDetailPage() {
                     </div>
                   </CardContent>
                 </Card>
-                
-                {/* Section Site Web */}
-                <WebsiteSection business={business} onRefresh={fetchBusiness} />
               </div>
               
               <div>
@@ -496,28 +502,61 @@ function BusinessDetailPage() {
               </Card>
             )}
 
-            <h3 className="text-lg font-semibold mb-4">Actions rapides</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {business.hasWebsite !== 'yes' && (
-                <Card 
-                  className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
-                  onClick={() => {
-                    const prompt = business.website_prompt?.prompt || `Crée un site web moderne et professionnel pour ${business.name}.`;
-                    const encodedPrompt = encodeURIComponent(prompt);
-                    router.push(`/projects/new?prompt=${encodedPrompt}&businessId=${businessId}`);
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Actions rapides</h3>
+              {(business.market_analysis || business.marketing_strategy) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    const confirmed = window.confirm(
+                      "Voulez-vous vraiment régénérer toutes les analyses ? Les analyses existantes seront conservées et enrichies."
+                    );
+                    if (!confirmed) return;
+
+                    toast.loading("Régénération de toutes les analyses en cours...", {
+                      id: "regenerate-all",
+                      description: "Cela peut prendre 30-60 secondes"
+                    });
+
+                    try {
+                      // Lancer analyse de marché
+                      openChat({
+                        businessId,
+                        businessName: business.name,
+                        mode: 'analysis',
+                        initialContext: 'L\'utilisateur souhaite régénérer l\'analyse de marché complète',
+                        onActionComplete: async (result) => {
+                          // Lancer stratégie marketing
+                          openChat({
+                            businessId,
+                            businessName: business.name,
+                            mode: 'strategy',
+                            initialContext: 'L\'utilisateur souhaite régénérer la stratégie marketing complète',
+                            onActionComplete: (result) => {
+                              fetchBusiness();
+                              toast.success("Toutes les analyses ont été régénérées !", {
+                                id: "regenerate-all",
+                                description: "Vos analyses sont maintenant à jour"
+                              });
+                            }
+                          });
+                        }
+                      });
+                    } catch (error) {
+                      toast.error("Erreur lors de la régénération", { id: "regenerate-all" });
+                    }
                   }}
+                  className="gap-2"
                 >
-                  <CardContent className="p-6">
-                    <Building2 className="w-8 h-8 text-[#6D3FC8] mb-2" />
-                    <h3 className="font-medium">Créer un site web</h3>
-                    <p className="text-sm text-[#666666] mt-1">
-                      Lancez votre présence en ligne avec DeepSite
-                    </p>
-                  </CardContent>
-                </Card>
+                  <RefreshCw className="w-4 h-4" />
+                  Tout régénérer
+                </Button>
               )}
-              <Card 
-                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200"
                 onClick={() => {
                   openChat({
                     businessId,
@@ -532,15 +571,16 @@ function BusinessDetailPage() {
                 }}
               >
                 <CardContent className="p-6">
-                  <Target className="w-8 h-8 text-[#6D3FC8] mb-2" />
+                  <Target className="w-8 h-8 text-blue-600 mb-2" />
                   <h3 className="font-medium">Analyse de marché</h3>
                   <p className="text-sm text-[#666666] mt-1">
                     Comprenez votre marché et vos clients
                   </p>
                 </CardContent>
               </Card>
-              <Card 
-                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-white"
+
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200"
                 onClick={() => {
                   openChat({
                     businessId,
@@ -562,6 +602,19 @@ function BusinessDetailPage() {
                   </p>
                 </CardContent>
               </Card>
+
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-all shadow-md bg-gradient-to-br from-green-50 to-emerald-50 border-green-200"
+                onClick={() => setActiveTab("calendar")}
+              >
+                <CardContent className="p-6">
+                  <Calendar className="w-8 h-8 text-green-600 mb-2" />
+                  <h3 className="font-medium">Calendrier de contenu</h3>
+                  <p className="text-sm text-[#666666] mt-1">
+                    Planifiez et générez votre contenu
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
           
@@ -573,25 +626,46 @@ function BusinessDetailPage() {
                 onDeepen={handleDeepen}
               />
             ) : (
-              <Card>
+              <Card className="border-2 border-dashed border-blue-200 bg-gradient-to-br from-blue-50/50 to-cyan-50/50">
                 <CardHeader>
-                  <CardTitle>Analyse de marché</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="w-6 h-6 text-blue-600" />
+                    Analyse de marché
+                  </CardTitle>
                   <CardDescription>
                     Comprenez votre marché cible et identifiez les opportunités
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8">
-                    <Target className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Aucune analyse de marché disponible</p>
-                    <Button 
-                      className="mt-4"
+                  <div className="text-center py-12">
+                    <div className="relative inline-block mb-6">
+                      <div className="absolute inset-0 bg-blue-100 rounded-full blur-2xl opacity-50 animate-pulse"></div>
+                      <Target className="relative w-16 h-16 text-blue-600 mx-auto" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      Découvrez votre marché
+                    </h3>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                      Obtenez une analyse complète de votre marché avec PESTEL, Porter, SWOT et recommandations stratégiques.
+                    </p>
+                    <Button
+                      size="lg"
+                      className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white gap-2"
                       onClick={() => {
-                        setChatAction("market_analysis");
-                        setChatOpen(true);
+                        openChat({
+                          businessId,
+                          businessName: business.name,
+                          mode: 'analysis',
+                          initialContext: 'L\'utilisateur souhaite une analyse de marché',
+                          onActionComplete: (result) => {
+                            fetchBusiness();
+                            setActiveTab("market");
+                          }
+                        });
                       }}
                     >
-                      Lancer l'analyse
+                      <Sparkles className="w-5 h-5" />
+                      Lancer l'analyse IA
                     </Button>
                   </div>
                 </CardContent>
@@ -603,25 +677,46 @@ function BusinessDetailPage() {
             {business.marketing_strategy ? (
               <MarketingStrategyDisplay strategy={business.marketing_strategy} />
             ) : (
-              <Card>
+              <Card className="border-2 border-dashed border-purple-200 bg-gradient-to-br from-purple-50/50 to-pink-50/50">
                 <CardHeader>
-                  <CardTitle>Stratégie marketing</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-6 h-6 text-purple-600" />
+                    Stratégie marketing
+                  </CardTitle>
                   <CardDescription>
                     Votre plan marketing pour atteindre vos objectifs
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8">
-                    <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Aucune stratégie marketing définie</p>
-                    <Button 
-                      className="mt-4"
+                  <div className="text-center py-12">
+                    <div className="relative inline-block mb-6">
+                      <div className="absolute inset-0 bg-purple-100 rounded-full blur-2xl opacity-50 animate-pulse"></div>
+                      <TrendingUp className="relative w-16 h-16 text-purple-600 mx-auto" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      Créez votre stratégie de croissance
+                    </h3>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                      Définissez votre positionnement, vos segments cibles, votre mix marketing et votre roadmap d'implémentation.
+                    </p>
+                    <Button
+                      size="lg"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white gap-2"
                       onClick={() => {
-                        setChatAction("marketing_strategy");
-                        setChatOpen(true);
+                        openChat({
+                          businessId,
+                          businessName: business.name,
+                          mode: 'strategy',
+                          initialContext: 'L\'utilisateur souhaite développer une stratégie marketing',
+                          onActionComplete: (result) => {
+                            fetchBusiness();
+                            setActiveTab("marketing");
+                          }
+                        });
                       }}
                     >
-                      Créer la stratégie
+                      <Zap className="w-5 h-5" />
+                      Créer ma stratégie IA
                     </Button>
                   </div>
                 </CardContent>
@@ -641,157 +736,6 @@ function BusinessDetailPage() {
             />
           </TabsContent>
           
-          <TabsContent value="social" className="space-y-4">
-            <DynamicSocialMediaSettings businessId={businessId} />
-          </TabsContent>
-          
-          <TabsContent value="goals" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Objectifs</CardTitle>
-                <CardDescription>
-                  Suivez vos objectifs et votre progression
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {business.goals && business.goals.length > 0 ? (
-                  <div className="space-y-4">
-                    {business.goals.map((goal, index) => (
-                      <div key={index} className="p-4 border rounded-lg space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-medium">{goal.title}</h3>
-                          <Badge 
-                            variant={goal.status === 'completed' ? 'default' : 'secondary'}
-                            className={
-                              goal.status === 'completed' ? 'bg-green-100 text-green-800' :
-                              goal.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                              'bg-gray-100 text-gray-800'
-                            }
-                          >
-                            {goal.status}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600">{goal.description}</p>
-                        {goal.progress !== undefined && (
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-sm">
-                              <span>Progression</span>
-                              <span>{goal.progress}%</span>
-                            </div>
-                            <Progress value={goal.progress} className="h-2" />
-                          </div>
-                        )}
-                        <p className="text-xs text-gray-500">
-                          Échéance: {format(new Date(goal.target_date), "d MMMM yyyy", { locale: fr })}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Aucun objectif défini</p>
-                    <Button className="mt-4">
-                      Définir des objectifs
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="interactions" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Historique des interactions</CardTitle>
-                <CardDescription>
-                  Toutes les interactions avec l'équipe Ezia
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {business.ezia_interactions && business.ezia_interactions.length > 0 ? (
-                  <div className="space-y-4">
-                    {business.ezia_interactions.map((interaction, index) => (
-                      <div key={index} className="p-4 border rounded-lg space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">{interaction.agent}</Badge>
-                            <span className="text-sm text-gray-600">{interaction.interaction_type}</span>
-                          </div>
-                          <span className="text-xs text-gray-500">
-                            {format(new Date(interaction.timestamp), "d MMM yyyy HH:mm", { locale: fr })}
-                          </span>
-                        </div>
-                        <p className="text-sm">{interaction.summary}</p>
-                        {interaction.recommendations && interaction.recommendations.length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-xs font-medium text-gray-600 mb-1">Recommandations:</p>
-                            <ul className="list-disc list-inside text-xs text-gray-600 space-y-0.5">
-                              {interaction.recommendations.map((rec, idx) => (
-                                <li key={idx}>{rec}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Aucune interaction enregistrée</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="memory" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="w-5 h-5 text-[#6D3FC8]" />
-                  Mémoire d'Ezia
-                </CardTitle>
-                <CardDescription>
-                  Toutes les données, analyses et apprentissages collectés pour {business.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <EziaMemoryView businessId={businessId} businessName={business.name} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="content" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-2xl font-bold">Gestion du contenu</h2>
-                <p className="text-muted-foreground">Créez et gérez vos articles de blog</p>
-              </div>
-              <Button onClick={() => router.push(`/space/${businessId}/content`)}>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Ouvrir l'éditeur de contenu
-              </Button>
-            </div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Articles de blog</CardTitle>
-                <CardDescription>
-                  Générez du contenu optimisé pour votre audience avec l'aide de modèles spécialisés
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <FileText className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500 mb-4">Commencez à créer du contenu engageant</p>
-                  <Button variant="outline" onClick={() => router.push(`/space/${businessId}/content`)}>
-                    Créer votre premier article
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
       

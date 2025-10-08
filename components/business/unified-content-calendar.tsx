@@ -473,13 +473,22 @@ export function UnifiedContentCalendar({
     if (item.status === "generating" || item.status === "generated") {
       return;
     }
-    
+
     setLoading(true);
-    const updated = contentItems.map(c => 
+    const updated = contentItems.map(c =>
       c.id === item.id ? { ...c, status: "generating" as const } : c
     );
     setContentItems(updated); // Mise à jour locale immédiate
-    
+
+    // Toast de début avec animation
+    const loadingToastId = toast.loading(
+      `✨ ${item.agent_emoji || "🤖"} Génération en cours...`,
+      {
+        description: `${item.agent || "L'IA"} travaille sur "${item.title}"`,
+        duration: Infinity
+      }
+    );
+
     try {
       // Appel à l'API pour générer le contenu réel
       const response = await api.post(`/api/me/business/${businessId}/generate-content`, {
@@ -492,32 +501,49 @@ export function UnifiedContentCalendar({
           marketingStrategy
         }
       });
-      
+
       if (response.data.success) {
         const generatedContent = response.data.content;
         // Mettre à jour avec le contenu généré
-        const finalUpdated = contentItems.map(c => 
-          c.id === item.id 
-            ? { 
-                ...c, 
+        const finalUpdated = contentItems.map(c =>
+          c.id === item.id
+            ? {
+                ...c,
                 status: "generated" as const,
                 content: generatedContent
-              } 
+              }
             : c
         );
         await saveContentItems(finalUpdated);
-        toast.success(`Contenu généré avec succès !`);
+
+        // Toast de succès avec animation
+        toast.success(
+          `✅ Contenu généré avec succès !`,
+          {
+            id: loadingToastId,
+            description: `"${item.title}" est prêt à être publié`,
+            duration: 5000
+          }
+        );
       } else {
         throw new Error("Failed to generate content");
       }
     } catch (error) {
       console.error("Error generating content:", error);
       // Réinitialiser le statut en cas d'erreur
-      const errorUpdated = contentItems.map(c => 
+      const errorUpdated = contentItems.map(c =>
         c.id === item.id ? { ...c, status: "suggested" as const } : c
       );
       await saveContentItems(errorUpdated);
-      toast.error("Erreur lors de la génération du contenu");
+
+      toast.error(
+        "❌ Erreur lors de la génération",
+        {
+          id: loadingToastId,
+          description: "Veuillez réessayer dans quelques instants",
+          duration: 5000
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -528,33 +554,97 @@ export function UnifiedContentCalendar({
       toast.error("Veuillez sélectionner au moins un contenu");
       return;
     }
-    
+
     setLoading(true);
-    
+
+    // Toast de progression
+    const bulkToastId = toast.loading(
+      `🚀 Génération en masse lancée...`,
+      {
+        description: `0/${selectedItems.length} contenus générés`,
+        duration: Infinity
+      }
+    );
+
     try {
       // Mettre à jour le statut de tous les éléments sélectionnés
-      const updated = contentItems.map(item => 
-        selectedItems.includes(item.id) 
-          ? { ...item, status: "generating" as const } 
+      const updated = contentItems.map(item =>
+        selectedItems.includes(item.id)
+          ? { ...item, status: "generating" as const }
           : item
       );
       await saveContentItems(updated);
-      
+
+      let completedCount = 0;
+
       // Générer le contenu pour chaque élément sélectionné
       for (const itemId of selectedItems) {
         const item = contentItems.find(c => c.id === itemId);
         if (item) {
-          // Utiliser la même fonction de génération que pour un seul contenu
-          await handleGenerateSingleContent(item);
+          try {
+            // Appel direct à l'API sans utiliser handleGenerateSingleContent pour éviter les toasts multiples
+            const response = await api.post(`/api/me/business/${businessId}/generate-content`, {
+              contentItem: item,
+              businessInfo: {
+                name: businessName,
+                description: businessDescription,
+                industry: businessIndustry,
+                marketAnalysis,
+                marketingStrategy
+              }
+            });
+
+            if (response.data.success) {
+              completedCount++;
+              const generatedContent = response.data.content;
+              const finalUpdated = contentItems.map(c =>
+                c.id === item.id
+                  ? {
+                      ...c,
+                      status: "generated" as const,
+                      content: generatedContent
+                    }
+                  : c
+              );
+              await saveContentItems(finalUpdated);
+
+              // Mise à jour du toast de progression
+              toast.loading(
+                `🚀 Génération en masse en cours...`,
+                {
+                  id: bulkToastId,
+                  description: `${completedCount}/${selectedItems.length} contenus générés`,
+                  duration: Infinity
+                }
+              );
+            }
+          } catch (error) {
+            console.error(`Error generating content for ${item.id}:`, error);
+          }
         }
       }
-      
-      toast.success(`${selectedItems.length} contenus générés avec succès !`);
+
+      // Toast de succès final
+      toast.success(
+        `✅ Génération terminée !`,
+        {
+          id: bulkToastId,
+          description: `${completedCount}/${selectedItems.length} contenus générés avec succès`,
+          duration: 5000
+        }
+      );
+
       setSelectedItems([]);
       setShowBulkGenerateDialog(false);
-      
+
     } catch (error) {
-      toast.error("Erreur lors de la génération en masse");
+      toast.error(
+        "❌ Erreur lors de la génération en masse",
+        {
+          id: bulkToastId,
+          duration: 5000
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -638,11 +728,19 @@ export function UnifiedContentCalendar({
   };
 
   const handlePublishContent = async (item: ContentItem) => {
-    const updated = contentItems.map(c => 
+    const updated = contentItems.map(c =>
       c.id === item.id ? { ...c, status: "published" as const } : c
     );
     saveContentItems(updated);
-    toast.success("Contenu publié avec succès !");
+
+    // Toast de succès avec animation
+    toast.success(
+      `🎉 Contenu publié !`,
+      {
+        description: `"${item.title}" est maintenant en ligne`,
+        duration: 4000
+      }
+    );
   };
 
   const handleOpenBlogEditor = (item: ContentItem) => {
@@ -772,11 +870,12 @@ export function UnifiedContentCalendar({
                 size="sm"
                 onClick={() => generateAISuggestions(false)}
                 disabled={generatingCalendar}
+                className="hover:scale-105 transition-transform"
               >
                 {generatingCalendar ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
+                  <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
                 )}
                 Suggestions IA
               </Button>
@@ -797,10 +896,10 @@ export function UnifiedContentCalendar({
         
         {/* Indicateur de personnalisation */}
         {hasAICalendar && (
-          <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+          <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg animate-in fade-in slide-in-from-top duration-500">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-full shadow-sm">
+                <div className="p-2 bg-white rounded-full shadow-sm animate-pulse">
                   <Sparkles className="w-5 h-5 text-purple-600" />
                 </div>
                 <div className="flex-1">
@@ -813,7 +912,7 @@ export function UnifiedContentCalendar({
                 </div>
               </div>
               <Badge variant="outline" className="bg-white">
-                <CheckCircle className="w-3 h-3 mr-1 text-green-600" />
+                <CheckCircle className="w-3 h-3 mr-1 text-green-600 animate-bounce" />
                 Sauvegardé
               </Badge>
             </div>
@@ -971,8 +1070,9 @@ export function UnifiedContentCalendar({
                               {item.agent_emoji && <span className="text-xs">{item.agent_emoji}</span>}
                               <Icon className="w-3 h-3 flex-shrink-0" />
                               <span className="truncate">{item.title}</span>
-                              {item.ai_generated && <Sparkles className="w-3 h-3 ml-auto" />}
-                              {item.status === "generated" && <CheckCircle className="w-3 h-3 text-green-600" />}
+                              {item.ai_generated && <Sparkles className="w-3 h-3 ml-auto animate-pulse" />}
+                              {item.status === "generating" && <Loader2 className="w-3 h-3 text-orange-600 animate-spin" />}
+                              {item.status === "generated" && <CheckCircle className="w-3 h-3 text-green-600 animate-bounce" />}
                             </div>
                           );
                         })}
@@ -1093,16 +1193,30 @@ export function UnifiedContentCalendar({
                           <Eye className="w-4 h-4" />
                         </Button>
                         
+                        {item.status === "generating" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled
+                            className="cursor-not-allowed"
+                          >
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Génération...
+                          </Button>
+                        )}
+
                         {item.status === "suggested" && (
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleGenerateSingleContent(item)}
+                            className="hover:scale-105 transition-transform"
                           >
+                            <Sparkles className="w-4 h-4 mr-1" />
                             Générer
                           </Button>
                         )}
-                        
+
                         {item.status === "generated" && (
                           <>
                             <Button
@@ -1245,6 +1359,13 @@ export function UnifiedContentCalendar({
                               </div>
                             </div>
                             
+                            {status === "generating" && (
+                              <div className="flex items-center gap-2 text-sm text-orange-600">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span className="animate-pulse">En cours...</span>
+                              </div>
+                            )}
+
                             {status === "suggested" && (
                               <Button
                                 size="sm"
@@ -1253,11 +1374,13 @@ export function UnifiedContentCalendar({
                                   e.stopPropagation();
                                   handleGenerateSingleContent(item);
                                 }}
+                                className="hover:scale-105 transition-transform"
                               >
+                                <Sparkles className="w-4 h-4 mr-1" />
                                 Générer
                               </Button>
                             )}
-                            
+
                             {status === "generated" && (
                               <Button
                                 size="sm"
@@ -1265,7 +1388,9 @@ export function UnifiedContentCalendar({
                                   e.stopPropagation();
                                   handlePublishContent(item);
                                 }}
+                                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white hover:scale-105 transition-transform"
                               >
+                                <Send className="w-4 h-4 mr-1" />
                                 Publier
                               </Button>
                             )}
