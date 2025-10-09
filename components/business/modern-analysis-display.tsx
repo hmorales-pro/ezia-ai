@@ -35,6 +35,13 @@ const getValue = (value: any): string => {
   return String(value);
 };
 
+// Fonction utilitaire pour assurer qu'une valeur est un tableau
+const ensureArray = (value: any): any[] => {
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+  return [value];
+};
+
 export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: ModernAnalysisDisplayProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'pestel' | 'swot' | 'target'>('overview');
 
@@ -210,7 +217,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
                       <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                         <h4 className="font-medium mb-2 text-blue-900">Découvertes clés</h4>
                         <ul className="space-y-2">
-                          {analysis.executive_summary.key_findings.map((finding: any, idx: number) => (
+                          {ensureArray(analysis.executive_summary.key_findings).map((finding: any, idx: number) => (
                             <li key={idx} className="flex items-start gap-2 text-sm text-blue-800">
                               <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
                               <span>{getValue(finding)}</span>
@@ -228,7 +235,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
                 <div>
                   <h3 className="font-semibold text-lg mb-3">Segments de marché</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {analysis.market_overview.market_segments.map((segment: any, idx: number) => (
+                    {ensureArray(analysis.market_overview.market_segments).map((segment: any, idx: number) => (
                       <Card key={idx}>
                         <CardContent className="pt-6">
                           <div className="flex justify-between items-start mb-3">
@@ -242,7 +249,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
                           </p>
                           {segment.characteristics && (
                             <div className="flex flex-wrap gap-1">
-                              {segment.characteristics.map((char: any, charIdx: number) => (
+                              {ensureArray(segment.characteristics).map((char: any, charIdx: number) => (
                                 <Badge key={charIdx} variant="outline" className="text-xs">
                                   {getValue(char)}
                                 </Badge>
@@ -261,7 +268,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
                 <div>
                   <h3 className="font-semibold text-lg mb-3">Concurrents principaux</h3>
                   <div className="flex flex-wrap gap-2">
-                    {analysis.market_overview.key_players.map((player: any, idx: number) => (
+                    {ensureArray(analysis.market_overview.key_players).map((player: any, idx: number) => (
                       <Badge key={idx} variant="outline" className="px-3 py-1.5">
                         {getValue(player)}
                       </Badge>
@@ -324,7 +331,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {analysis.target_audience.pain_points.map((point: any, idx: number) => (
+                      {ensureArray(analysis.target_audience.pain_points).map((point: any, idx: number) => (
                         <li key={idx} className="flex items-start gap-2 text-sm">
                           <AlertCircle className="w-4 h-4 mt-0.5 text-orange-500 flex-shrink-0" />
                           <span>{getValue(point)}</span>
@@ -376,7 +383,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2 mb-3">
-                        {factors.map((factor: any, idx: number) => (
+                        {ensureArray(factors).map((factor: any, idx: number) => (
                           <li key={idx} className="text-sm flex items-start gap-2">
                             <span className="text-muted-foreground">•</span>
                             <span>{getValue(factor)}</span>
@@ -405,7 +412,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {analysis.swot_analysis.strengths.map((item: any, idx: number) => (
+                      {ensureArray(analysis.swot_analysis.strengths).map((item: any, idx: number) => (
                         <li key={idx} className="flex items-start gap-2 text-sm text-green-800">
                           <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
                           <span>{getValue(item)}</span>
@@ -424,7 +431,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {analysis.swot_analysis.weaknesses.map((item: any, idx: number) => (
+                      {ensureArray(analysis.swot_analysis.weaknesses).map((item: any, idx: number) => (
                         <li key={idx} className="flex items-start gap-2 text-sm text-red-800">
                           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                           <span>{getValue(item)}</span>
@@ -443,7 +450,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {analysis.swot_analysis.opportunities.map((item: any, idx: number) => (
+                      {ensureArray(analysis.swot_analysis.opportunities).map((item: any, idx: number) => (
                         <li key={idx} className="flex items-start gap-2 text-sm text-blue-800">
                           <TrendingUp className="w-4 h-4 mt-0.5 flex-shrink-0" />
                           <span>{getValue(item)}</span>
@@ -462,7 +469,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {analysis.swot_analysis.threats.map((item: any, idx: number) => (
+                      {ensureArray(analysis.swot_analysis.threats).map((item: any, idx: number) => (
                         <li key={idx} className="flex items-start gap-2 text-sm text-orange-800">
                           <ShieldAlert className="w-4 h-4 mt-0.5 flex-shrink-0" />
                           <span>{getValue(item)}</span>
@@ -488,7 +495,7 @@ export function ModernAnalysisDisplay({ analysis, onRefresh, isLoading }: Modern
           </CardHeader>
           <CardContent>
             <ul className="space-y-3">
-              {analysis.strategic_recommendations.map((rec: any, idx: number) => (
+              {ensureArray(analysis.strategic_recommendations).map((rec: any, idx: number) => (
                 <li key={idx} className="flex items-start gap-3 p-3 bg-white rounded-lg border">
                   <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-xs font-bold text-purple-600">{idx + 1}</span>

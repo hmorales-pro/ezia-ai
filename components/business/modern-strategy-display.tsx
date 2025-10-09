@@ -33,6 +33,13 @@ const getValue = (value: any): string => {
   return String(value);
 };
 
+// Fonction utilitaire pour assurer qu'une valeur est un tableau
+const ensureArray = (value: any): any[] => {
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+  return [value];
+};
+
 export function ModernStrategyDisplay({ strategy, onRefresh, isLoading }: ModernStrategyDisplayProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'channels' | 'content' | 'roadmap'>('overview');
 
@@ -228,13 +235,13 @@ export function ModernStrategyDisplay({ strategy, onRefresh, isLoading }: Modern
                 <div>
                   <h3 className="font-semibold text-lg mb-3">Segments cibles</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {(strategy.target_segments || strategy.segments).map((segment: any, idx: number) => (
+                    {ensureArray(strategy.target_segments || strategy.segments).map((segment: any, idx: number) => (
                       <Card key={idx}>
                         <CardContent className="pt-6">
                           <h4 className="font-medium mb-2">{getValue(segment.name || segment)}</h4>
                           {segment.characteristics && (
                             <div className="flex flex-wrap gap-1 mt-2">
-                              {segment.characteristics.map((char: any, charIdx: number) => (
+                              {ensureArray(segment.characteristics).map((char: any, charIdx: number) => (
                                 <Badge key={charIdx} variant="outline" className="text-xs">
                                   {getValue(char)}
                                 </Badge>
@@ -252,7 +259,7 @@ export function ModernStrategyDisplay({ strategy, onRefresh, isLoading }: Modern
 
           {activeTab === 'channels' && (
             <div className="space-y-4">
-              {(strategy.marketing_channels || strategy.channels || []).map((channel: any, idx: number) => (
+              {ensureArray(strategy.marketing_channels || strategy.channels).map((channel: any, idx: number) => (
                 <Card key={idx}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -272,7 +279,7 @@ export function ModernStrategyDisplay({ strategy, onRefresh, isLoading }: Modern
                       <div>
                         <p className="text-sm font-medium mb-2">Tactiques:</p>
                         <ul className="space-y-1">
-                          {channel.tactics.map((tactic: any, tacticIdx: number) => (
+                          {ensureArray(channel.tactics).map((tactic: any, tacticIdx: number) => (
                             <li key={tacticIdx} className="text-sm flex items-start gap-2">
                               <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                               <span>{getValue(tactic)}</span>
@@ -304,7 +311,7 @@ export function ModernStrategyDisplay({ strategy, onRefresh, isLoading }: Modern
                       <div className="mb-4">
                         <p className="text-sm font-medium mb-2">Thèmes principaux:</p>
                         <div className="flex flex-wrap gap-2">
-                          {strategy.content_strategy.themes.map((theme: any, idx: number) => (
+                          {ensureArray(strategy.content_strategy.themes).map((theme: any, idx: number) => (
                             <Badge key={idx} variant="secondary">{getValue(theme)}</Badge>
                           ))}
                         </div>
@@ -314,7 +321,7 @@ export function ModernStrategyDisplay({ strategy, onRefresh, isLoading }: Modern
                       <div>
                         <p className="text-sm font-medium mb-2">Types de contenu:</p>
                         <ul className="space-y-1">
-                          {strategy.content_strategy.content_types.map((type: any, idx: number) => (
+                          {ensureArray(strategy.content_strategy.content_types).map((type: any, idx: number) => (
                             <li key={idx} className="text-sm flex items-center gap-2">
                               <ArrowRight className="w-4 h-4 text-blue-600" />
                               {getValue(type)}
@@ -331,7 +338,7 @@ export function ModernStrategyDisplay({ strategy, onRefresh, isLoading }: Modern
 
           {activeTab === 'roadmap' && (
             <div className="space-y-4">
-              {(strategy.action_plan || strategy.quarterly_plan || []).map((action: any, idx: number) => (
+              {ensureArray(strategy.action_plan || strategy.quarterly_plan).map((action: any, idx: number) => (
                 <Card key={idx} className="border-l-4 border-l-blue-500">
                   <CardContent className="pt-6">
                     <div className="flex justify-between items-start mb-2">
@@ -347,7 +354,7 @@ export function ModernStrategyDisplay({ strategy, onRefresh, isLoading }: Modern
                       <div className="mt-3 pt-3 border-t">
                         <p className="text-sm font-medium mb-1">KPIs:</p>
                         <div className="flex flex-wrap gap-1">
-                          {action.kpis.map((kpi: any, kpiIdx: number) => (
+                          {ensureArray(action.kpis).map((kpi: any, kpiIdx: number) => (
                             <Badge key={kpiIdx} variant="secondary" className="text-xs">
                               {getValue(kpi)}
                             </Badge>
@@ -374,7 +381,7 @@ export function ModernStrategyDisplay({ strategy, onRefresh, isLoading }: Modern
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {strategy.success_metrics.map((metric: any, idx: number) => (
+              {ensureArray(strategy.success_metrics).map((metric: any, idx: number) => (
                 <div key={idx} className="p-4 bg-white rounded-lg border">
                   <p className="font-medium mb-1">{getValue(metric.name || metric.metric || metric)}</p>
                   {metric.target && (
