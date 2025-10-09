@@ -243,19 +243,19 @@ async function executeAction(
   switch (actionType) {
     case "create_website":
       return await createWebsiteProject(businessId, businessName, aiResponse, user, business, request);
-    
+
     case "market_analysis":
-      return await updateMarketAnalysis(businessId, aiResponse, business);
-    
+      return await updateMarketAnalysis(businessId, aiResponse, business, user.id);
+
     case "marketing_strategy":
-      return await updateMarketingStrategy(businessId, aiResponse, business);
-    
+      return await updateMarketingStrategy(businessId, aiResponse, business, user.id);
+
     case "content_calendar":
       return await createContentCalendar(businessId, aiResponse, business);
-    
+
     case "competitor_analysis":
       return await updateCompetitorAnalysis(businessId, aiResponse, business);
-    
+
     default:
       return null;
   }
@@ -590,7 +590,7 @@ ${html}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function updateMarketAnalysis(businessId: string, _aiResponse: string, business: { name: string; description: string; industry: string; stage: string }) {
+async function updateMarketAnalysis(businessId: string, _aiResponse: string, business: { name: string; description: string; industry: string; stage: string }, userId: string) {
   try {
     console.log(`[updateMarketAnalysis] Génération de l'analyse de marché pour ${business.name}`);
 
@@ -608,7 +608,7 @@ async function updateMarketAnalysis(businessId: string, _aiResponse: string, bus
 
     // Sauvegarder dans le fichier storage
     const storage = getStorage();
-    const businessData = await storage.getBusinessById(businessId);
+    const businessData = await storage.getBusinessById(businessId, userId);
 
     if (!businessData) {
       throw new Error("Business not found");
@@ -618,6 +618,12 @@ async function updateMarketAnalysis(businessId: string, _aiResponse: string, bus
       ...analysis,
       last_updated: new Date().toISOString()
     };
+
+    // Mettre à jour le statut de l'agent
+    if (!businessData.agents_status) {
+      businessData.agents_status = {};
+    }
+    businessData.agents_status.market_analysis = 'completed';
 
     await storage.updateBusiness(businessId, businessData);
 
@@ -639,13 +645,13 @@ async function updateMarketAnalysis(businessId: string, _aiResponse: string, bus
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function updateMarketingStrategy(businessId: string, _aiResponse: string, business: { name: string; description: string; industry: string; stage: string }) {
+async function updateMarketingStrategy(businessId: string, _aiResponse: string, business: { name: string; description: string; industry: string; stage: string }, userId: string) {
   try {
     console.log(`[updateMarketingStrategy] Génération de la stratégie marketing pour ${business.name}`);
 
     // Récupérer l'analyse de marché existante (requis par l'agent)
     const storage = getStorage();
-    const businessData = await storage.getBusinessById(businessId);
+    const businessData = await storage.getBusinessById(businessId, userId);
 
     if (!businessData) {
       throw new Error("Business not found");
@@ -670,6 +676,12 @@ async function updateMarketingStrategy(businessId: string, _aiResponse: string, 
       ...strategy,
       last_updated: new Date().toISOString()
     };
+
+    // Mettre à jour le statut de l'agent
+    if (!businessData.agents_status) {
+      businessData.agents_status = {};
+    }
+    businessData.agents_status.marketing_strategy = 'completed';
 
     await storage.updateBusiness(businessId, businessData);
 
