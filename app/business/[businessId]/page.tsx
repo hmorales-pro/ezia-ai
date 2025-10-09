@@ -32,8 +32,8 @@ import { toast } from "sonner";
 import { DynamicContentCalendar, DynamicAgentStatus } from "@/components/utils/dynamic-loader";
 import { EditBusinessModal } from "@/components/modals/edit-business-modal";
 import { DeleteBusinessModal } from "@/components/modals/delete-business-modal";
-import { MarketAnalysisDisplay } from "@/components/business/market-analysis-display";
-import { MarketingStrategyDisplay } from "@/components/business/marketing-strategy-display";
+import { ModernAnalysisDisplay } from "@/components/business/modern-analysis-display";
+import { ModernStrategyDisplay } from "@/components/business/modern-strategy-display";
 import { AnalysisSkeleton } from "@/components/business/analysis-skeleton";
 
 interface Business {
@@ -620,10 +620,19 @@ function BusinessDetailPage() {
           
           <TabsContent value="market" className="space-y-4">
             {business.market_analysis ? (
-              <MarketAnalysisDisplay 
-                analysis={business.market_analysis} 
-                businessId={businessId}
-                onDeepen={handleDeepen}
+              <ModernAnalysisDisplay
+                analysis={business.market_analysis}
+                onRefresh={() => {
+                  openChat({
+                    businessId,
+                    businessName: business.name,
+                    mode: 'analysis',
+                    initialContext: 'L\'utilisateur souhaite régénérer l\'analyse de marché complète',
+                    onActionComplete: (result) => {
+                      fetchBusiness();
+                    }
+                  });
+                }}
               />
             ) : (
               <Card className="border-2 border-dashed border-blue-200 bg-gradient-to-br from-blue-50/50 to-cyan-50/50">
@@ -675,7 +684,20 @@ function BusinessDetailPage() {
           
           <TabsContent value="marketing" className="space-y-4">
             {business.marketing_strategy ? (
-              <MarketingStrategyDisplay strategy={business.marketing_strategy} />
+              <ModernStrategyDisplay
+                strategy={business.marketing_strategy}
+                onRefresh={() => {
+                  openChat({
+                    businessId,
+                    businessName: business.name,
+                    mode: 'strategy',
+                    initialContext: 'L\'utilisateur souhaite régénérer la stratégie marketing complète',
+                    onActionComplete: (result) => {
+                      fetchBusiness();
+                    }
+                  });
+                }}
+              />
             ) : (
               <Card className="border-2 border-dashed border-purple-200 bg-gradient-to-br from-purple-50/50 to-pink-50/50">
                 <CardHeader>
