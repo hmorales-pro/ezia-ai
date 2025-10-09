@@ -757,7 +757,11 @@ export function MarketAnalysisDisplay({ analysis, businessId, onDeepen }: Market
                   {Object.entries(analysis.pestel_analysis).map(([category, data]) => {
                     // Gérer les deux formats : array simple ou objet avec factors/impact/risk_level
                     const factors = Array.isArray(data) ? data : (data as any).factors || [];
-                    const impact = !Array.isArray(data) ? (data as any).impact : null;
+                    const rawImpact = !Array.isArray(data) ? (data as any).impact : null;
+                    // Si impact est un objet {level, details}, extraire les details
+                    const impact = rawImpact && typeof rawImpact === 'object' && 'details' in rawImpact
+                      ? rawImpact.details
+                      : rawImpact;
                     const riskLevel = !Array.isArray(data) ? (data as any).risk_level : null;
                     
                     return (
