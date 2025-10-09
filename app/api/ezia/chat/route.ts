@@ -14,12 +14,29 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { messages, businessId, businessName, actionType, context } = await request.json();
+    const { messages, businessId, businessName, actionType: legacyActionType, mode, context } = await request.json();
+
+    // Support à la fois 'mode' (nouveau) et 'actionType' (legacy)
+    const rawActionType = mode || legacyActionType || 'general';
+
+    // Mapper les modes vers les actionTypes
+    const actionTypeMap: Record<string, string> = {
+      'analysis': 'market_analysis',
+      'strategy': 'marketing_strategy',
+      'content': 'content_calendar',
+      'website': 'create_website',
+      'onboarding': 'general',
+      'general': 'general'
+    };
+
+    const actionType = actionTypeMap[rawActionType] || rawActionType;
+
+    console.log(`[Ezia Chat] mode=${mode}, actionType=${actionType}`);
 
     // Vérifier que le business appartient à l'utilisateur
     const db = getDB();
     const business = await db.findBusinessById(businessId);
-    
+
     if (!business || business.user_id !== user.id || !business.is_active) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
