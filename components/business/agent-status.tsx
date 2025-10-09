@@ -124,42 +124,19 @@ export function AgentStatus({ business, onRefresh }: AgentStatusProps) {
       await api.post(`/api/me/business/${business.business_id}/rerun-analysis`, {
         analysisType
       });
-      
-      toast.success(`Analyse ${agentConfigs[analysisType as keyof typeof agentConfigs]?.label} relancée`);
-      
-      // Polling pour vérifier le statut
-      let attempts = 0;
-      const maxAttempts = 15; // 30 secondes max
-      
-      const pollInterval = setInterval(async () => {
-        attempts++;
-        try {
-          const response = await api.get(`/api/me/business/${business.business_id}/rerun-analysis`);
-          const { agents_status } = response.data;
-          
-          if (agents_status[analysisType] === 'completed' || attempts >= maxAttempts) {
-            clearInterval(pollInterval);
-            setRerunningAnalysis(null);
-            // Actualiser les données
-            if (onRefresh) {
-              onRefresh();
-            } else {
-              window.location.reload();
-            }
-          } else if (agents_status[analysisType] === 'error') {
-            clearInterval(pollInterval);
-            setRerunningAnalysis(null);
-            toast.error("Erreur lors de l'analyse");
-          }
-        } catch (error) {
-          console.error("Erreur lors du polling:", error);
-          if (attempts >= maxAttempts) {
-            clearInterval(pollInterval);
-            setRerunningAnalysis(null);
-          }
-        }
-      }, 2000); // Vérifier toutes les 2 secondes
-      
+
+      toast.success(`Analyse ${agentConfigs[analysisType as keyof typeof agentConfigs]?.label} relancée`, {
+        description: "L'analyse va se mettre à jour automatiquement"
+      });
+
+      // Rafraîchir immédiatement pour que la page détecte le changement de statut
+      // et démarre son propre système de polling
+      if (onRefresh) {
+        await onRefresh();
+      }
+
+      setRerunningAnalysis(null);
+
     } catch (error) {
       console.error("Erreur lors de la relance de l'analyse:", error);
       toast.error("Erreur lors de la relance de l'analyse");
@@ -174,19 +151,18 @@ export function AgentStatus({ business, onRefresh }: AgentStatusProps) {
       await api.post(`/api/me/business/${business.business_id}/rerun-analysis`, {
         analysisType: 'all'
       });
-      
-      toast.success("Toutes les analyses ont été relancées");
-      
-      // Attendre un peu puis rafraîchir
-      setTimeout(() => {
-        if (onRefresh) {
-          onRefresh();
-        } else {
-          window.location.reload();
-        }
-        setRerunningAll(false);
-      }, 3000);
-      
+
+      toast.success("Toutes les analyses ont été relancées", {
+        description: "Les analyses vont se mettre à jour automatiquement"
+      });
+
+      // Rafraîchir immédiatement pour que la page détecte le changement de statut
+      if (onRefresh) {
+        await onRefresh();
+      }
+
+      setRerunningAll(false);
+
     } catch (error) {
       console.error("Erreur lors de la relance de toutes les analyses:", error);
       toast.error("Erreur lors de la relance des analyses");
