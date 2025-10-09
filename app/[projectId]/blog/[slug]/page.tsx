@@ -8,10 +8,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 interface BlogArticlePageProps {
-  params: {
+  params: Promise<{
     projectId: string;
     slug: string;
-  };
+  }>;
 }
 
 /**
@@ -21,12 +21,13 @@ interface BlogArticlePageProps {
 export default async function BlogArticlePage({
   params
 }: BlogArticlePageProps) {
+  const { projectId, slug } = await params;
   await dbConnect();
 
   // Récupérer l'article
   const post = await BlogPost.findOne({
-    projectId: params.projectId,
-    slug: params.slug,
+    projectId: projectId,
+    slug: slug,
     status: 'published'
   }).lean();
 
@@ -36,7 +37,7 @@ export default async function BlogArticlePage({
 
   // Récupérer le projet pour le header
   const project = await UserProject.findOne({
-    projectId: params.projectId
+    projectId: projectId
   }).lean();
 
   // Incrémenter les vues
@@ -256,7 +257,7 @@ export default async function BlogArticlePage({
       </head>
       <body>
         <div className="container">
-          <Link href={`/${params.projectId}/blog`} className="back-link">
+          <Link href={`/${projectId}/blog`} className="back-link">
             ← Retour aux articles
           </Link>
 
@@ -327,11 +328,12 @@ export default async function BlogArticlePage({
  * Métadonnées pour le SEO
  */
 export async function generateMetadata({ params }: BlogArticlePageProps) {
+  const { projectId, slug } = await params;
   await dbConnect();
 
   const post = await BlogPost.findOne({
-    projectId: params.projectId,
-    slug: params.slug,
+    projectId: projectId,
+    slug: slug,
     status: 'published'
   }).lean();
 

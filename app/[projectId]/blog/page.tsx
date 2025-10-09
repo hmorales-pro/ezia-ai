@@ -8,9 +8,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 interface BlogListingPageProps {
-  params: {
+  params: Promise<{
     projectId: string;
-  };
+  }>;
 }
 
 /**
@@ -20,11 +20,12 @@ interface BlogListingPageProps {
 export default async function BlogListingPage({
   params
 }: BlogListingPageProps) {
+  const { projectId } = await params;
   await dbConnect();
 
   // Récupérer le projet
   const project = await UserProject.findOne({
-    projectId: params.projectId,
+    projectId: projectId,
     status: 'published'
   }).lean();
 
@@ -34,7 +35,7 @@ export default async function BlogListingPage({
 
   // Récupérer les articles publiés
   const posts = await BlogPost.find({
-    projectId: params.projectId,
+    projectId: projectId,
     status: 'published'
   })
     .sort({ publishedAt: -1 })
@@ -193,7 +194,7 @@ export default async function BlogListingPage({
       </head>
       <body>
         <div className="container">
-          <Link href={`/${params.projectId}`} className="back-link">
+          <Link href={`/${projectId}`} className="back-link">
             ← Retour au site
           </Link>
 
@@ -207,7 +208,7 @@ export default async function BlogListingPage({
               {posts.map((post: any) => (
                 <Link
                   key={post.slug}
-                  href={`/${params.projectId}/blog/${post.slug}`}
+                  href={`/${projectId}/blog/${post.slug}`}
                   className="blog-card"
                 >
                   <div className="blog-card-content">
@@ -251,10 +252,11 @@ export default async function BlogListingPage({
  * Métadonnées pour le SEO
  */
 export async function generateMetadata({ params }: BlogListingPageProps) {
+  const { projectId } = await params;
   await dbConnect();
 
   const project = await UserProject.findOne({
-    projectId: params.projectId,
+    projectId: projectId,
     status: 'published'
   }).lean();
 

@@ -136,10 +136,24 @@ export default function EziaUnifiedChat({
     }
   }, [messages]);
 
-  // Charger l'historique des sessions
+  // Auto-send initial context when provided
+  const initialContextSentRef = useRef(false);
   useEffect(() => {
-    loadChatHistory();
-  }, [businessId]);
+    if (initialContext && !initialContextSentRef.current && !isLoading) {
+      initialContextSentRef.current = true;
+      // Petit délai pour laisser le composant s'initialiser
+      setTimeout(() => {
+        sendMessage(initialContext);
+      }, 500);
+    }
+  }, [initialContext, isLoading]);
+
+  // Charger l'historique des sessions (seulement si pas de initialContext)
+  useEffect(() => {
+    if (!initialContext) {
+      loadChatHistory();
+    }
+  }, [businessId, initialContext]);
 
   const loadChatHistory = async () => {
     try {

@@ -15,6 +15,7 @@ const blogPostSchema = new mongoose.Schema({
   publishedAt: { type: Date },
   scheduledAt: { type: Date },
   author: { type: String },
+  category: { type: mongoose.Schema.Types.ObjectId, ref: 'BlogCategory' },
   tags: [{ type: String }],
   keywords: [{ type: String }],
   tone: { 
@@ -43,5 +44,6 @@ blogPostSchema.index({ businessId: 1, status: 1 });
 blogPostSchema.index({ projectId: 1, status: 1 }); // Pour récupérer articles d'un site
 blogPostSchema.index({ slug: 1 });
 blogPostSchema.index({ publishedAt: -1 });
+blogPostSchema.index({ category: 1, status: 1 });
 
 export default mongoose.models.BlogPost || mongoose.model('BlogPost', blogPostSchema);

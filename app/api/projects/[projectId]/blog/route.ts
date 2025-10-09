@@ -12,9 +12,10 @@ export const runtime = "nodejs";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const { projectId } = await params;
     await dbConnect();
 
     const searchParams = request.nextUrl.searchParams;
@@ -23,7 +24,7 @@ export async function GET(
     const offset = parseInt(searchParams.get('offset') || '0');
 
     // Vérifier que le projet existe
-    const project = await UserProject.findOne({ projectId: params.projectId });
+    const project = await UserProject.findOne({ projectId: projectId });
     if (!project) {
       return NextResponse.json(
         { success: false, error: 'Project not found' },
@@ -32,7 +33,7 @@ export async function GET(
     }
 
     // Construire le filtre
-    const filter: any = { projectId: params.projectId };
+    const filter: any = { projectId: projectId };
     if (status) {
       filter.status = status;
     }
@@ -71,15 +72,16 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const { projectId } = await params;
     await dbConnect();
 
     const body = await request.json();
 
     // Vérifier que le projet existe
-    const project = await UserProject.findOne({ projectId: params.projectId });
+    const project = await UserProject.findOne({ projectId: projectId });
     if (!project) {
       return NextResponse.json(
         { success: false, error: 'Project not found' },
@@ -114,7 +116,7 @@ export async function POST(
       });
 
       postData = {
-        projectId: params.projectId,
+        projectId: projectId,
         businessId: project.businessId,
         userId: project.userId,
         title: generatedArticle.title,
@@ -144,7 +146,7 @@ export async function POST(
         `article-${Date.now()}`;
 
       postData = {
-        projectId: params.projectId,
+        projectId: projectId,
         businessId: project.businessId,
         userId: project.userId,
         title: body.title,
@@ -168,7 +170,7 @@ export async function POST(
 
     const post = await BlogPost.create(postData);
 
-    console.log(`[API Blog POST] Created article ${post.slug} for project ${params.projectId}`);
+    console.log(`[API Blog POST] Created article ${post.slug} for project ${projectId}`);
 
     return NextResponse.json({
       success: true,

@@ -10,14 +10,15 @@ export const runtime = "nodejs";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { projectId: string; slug: string } }
+  { params }: { params: Promise<{ projectId: string; slug: string }> }
 ) {
   try {
+    const { projectId, slug } = await params;
     await dbConnect();
 
     const post = await BlogPost.findOne({
-      projectId: params.projectId,
-      slug: params.slug
+      projectId: projectId,
+      slug: slug
     }).lean();
 
     if (!post) {
@@ -56,9 +57,10 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { projectId: string; slug: string } }
+  { params }: { params: Promise<{ projectId: string; slug: string }> }
 ) {
   try {
+    const { projectId, slug } = await params;
     await dbConnect();
 
     const body = await request.json();
@@ -74,8 +76,8 @@ export async function PUT(
 
     const post = await BlogPost.findOneAndUpdate(
       {
-        projectId: params.projectId,
-        slug: params.slug
+        projectId: projectId,
+        slug: slug
       },
       { $set: body },
       { new: true, runValidators: true }
@@ -88,7 +90,7 @@ export async function PUT(
       );
     }
 
-    console.log(`[API Blog PUT] Updated article ${params.slug} for project ${params.projectId}`);
+    console.log(`[API Blog PUT] Updated article ${slug} for project ${projectId}`);
 
     return NextResponse.json({
       success: true,
@@ -113,14 +115,15 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { projectId: string; slug: string } }
+  { params }: { params: Promise<{ projectId: string; slug: string }> }
 ) {
   try {
+    const { projectId, slug } = await params;
     await dbConnect();
 
     const post = await BlogPost.findOneAndDelete({
-      projectId: params.projectId,
-      slug: params.slug
+      projectId: projectId,
+      slug: slug
     });
 
     if (!post) {

@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
 
   // Helper function to send SSE event
   const sendEvent = async (type: string, payload: any) => {
-    const data = `data: ${JSON.stringify({ type, payload })}\n\n`;
-    await writer.write(encoder.encode(data));
+    const eventData = `event: ${type}\ndata: ${JSON.stringify(payload)}\n\n`;
+    await writer.write(encoder.encode(eventData));
   };
 
   // Start generation in background
