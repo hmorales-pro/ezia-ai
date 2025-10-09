@@ -185,15 +185,27 @@ export function MarketAnalysisDisplay({ analysis, businessId, onDeepen }: Market
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div>
                         <p className="text-sm text-gray-500">Valeur totale</p>
-                        <p className="font-semibold">{analysis.market_study.market_size.total_value}</p>
+                        <p className="font-semibold">
+                          {typeof analysis.market_study.market_size.total_value === 'object' && analysis.market_study.market_size.total_value !== null
+                            ? (analysis.market_study.market_size.total_value.value || JSON.stringify(analysis.market_study.market_size.total_value))
+                            : analysis.market_study.market_size.total_value}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Taux de croissance</p>
-                        <p className="font-semibold">{analysis.market_study.market_size.growth_rate}</p>
+                        <p className="font-semibold">
+                          {typeof analysis.market_study.market_size.growth_rate === 'object' && analysis.market_study.market_size.growth_rate !== null
+                            ? (analysis.market_study.market_size.growth_rate.value || JSON.stringify(analysis.market_study.market_size.growth_rate))
+                            : analysis.market_study.market_size.growth_rate}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Portée géographique</p>
-                        <p className="font-semibold">{analysis.market_study.geographic_scope}</p>
+                        <p className="font-semibold">
+                          {typeof analysis.market_study.geographic_scope === 'object' && analysis.market_study.geographic_scope !== null
+                            ? (analysis.market_study.geographic_scope.value || JSON.stringify(analysis.market_study.geographic_scope))
+                            : analysis.market_study.geographic_scope}
+                        </p>
                       </div>
                     </div>
                     
@@ -205,11 +217,23 @@ export function MarketAnalysisDisplay({ analysis, businessId, onDeepen }: Market
                           <div key={key} className="border rounded-lg p-3">
                             <div className="flex justify-between items-start mb-2">
                               <h6 className="font-medium capitalize">{key.replace(/_/g, ' ')}</h6>
-                              <Badge className="bg-green-100 text-green-700">+{segment.growth}</Badge>
+                              <Badge className="bg-green-100 text-green-700">
+                                +{typeof segment.growth === 'object' && segment.growth !== null
+                                  ? (segment.growth.value || JSON.stringify(segment.growth))
+                                  : segment.growth}
+                              </Badge>
                             </div>
-                            <p className="text-sm text-gray-600">Valeur: {segment.value}</p>
+                            <p className="text-sm text-gray-600">
+                              Valeur: {typeof segment.value === 'object' && segment.value !== null
+                                ? (segment.value.value || JSON.stringify(segment.value))
+                                : segment.value}
+                            </p>
                             {segment.market_share && (
-                              <p className="text-sm text-gray-600">Part de marché: {segment.market_share}</p>
+                              <p className="text-sm text-gray-600">
+                                Part de marché: {typeof segment.market_share === 'object' && segment.market_share !== null
+                                  ? (segment.market_share.value || JSON.stringify(segment.market_share))
+                                  : segment.market_share}
+                              </p>
                             )}
                           </div>
                         ))}
@@ -386,9 +410,17 @@ export function MarketAnalysisDisplay({ analysis, businessId, onDeepen }: Market
                       <div key={idx} className="border rounded-lg p-3">
                         <div className="flex justify-between items-start mb-2">
                           <h5 className="font-medium">{segment.name}</h5>
-                          <Badge className="bg-green-100 text-green-700">+{segment.growth}</Badge>
+                          <Badge className="bg-green-100 text-green-700">
+                            +{typeof segment.growth === 'object' && segment.growth !== null
+                              ? (segment.growth.value || JSON.stringify(segment.growth))
+                              : segment.growth}
+                          </Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">Taille: {segment.size}</p>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Taille: {typeof segment.size === 'object' && segment.size !== null
+                            ? (segment.size.value || JSON.stringify(segment.size))
+                            : segment.size}
+                        </p>
                         <div className="flex flex-wrap gap-1">
                           {segment.characteristics?.map((char: string, charIdx: number) => (
                             <Badge key={charIdx} variant="secondary" className="text-xs">{char}</Badge>
