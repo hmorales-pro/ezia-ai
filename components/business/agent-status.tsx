@@ -129,13 +129,14 @@ export function AgentStatus({ business, onRefresh }: AgentStatusProps) {
         description: "L'analyse va se mettre à jour automatiquement"
       });
 
-      // Rafraîchir immédiatement pour que la page détecte le changement de statut
-      // et démarre son propre système de polling
-      if (onRefresh) {
-        await onRefresh();
-      }
-
-      setRerunningAnalysis(null);
+      // L'API retourne immédiatement mais les analyses démarrent via setTimeout(100ms)
+      // Attendre 500ms pour que les statuts passent à "in_progress", puis refresh
+      setTimeout(async () => {
+        if (onRefresh) {
+          await onRefresh();
+        }
+        setRerunningAnalysis(null);
+      }, 500);
 
     } catch (error) {
       console.error("Erreur lors de la relance de l'analyse:", error);
@@ -156,12 +157,14 @@ export function AgentStatus({ business, onRefresh }: AgentStatusProps) {
         description: "Les analyses vont se mettre à jour automatiquement"
       });
 
-      // Rafraîchir immédiatement pour que la page détecte le changement de statut
-      if (onRefresh) {
-        await onRefresh();
-      }
-
-      setRerunningAll(false);
+      // L'API retourne immédiatement mais les analyses démarrent via setTimeout(100ms)
+      // Attendre 500ms pour que les statuts passent à "in_progress", puis refresh
+      setTimeout(async () => {
+        if (onRefresh) {
+          await onRefresh();
+        }
+        setRerunningAll(false);
+      }, 500);
 
     } catch (error) {
       console.error("Erreur lors de la relance de toutes les analyses:", error);
