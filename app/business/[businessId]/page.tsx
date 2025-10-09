@@ -240,7 +240,7 @@ function BusinessDetailPage() {
         pollingInterval.current = null;
       }
     };
-  }, [businessId, isPollingActive]); // Dépend de isPollingActive pour éviter les re-créations
+  }, [businessId, business?.agents_status, isPollingActive]); // Inclure agents_status pour détecter les changements
 
   const handleDeepen = async (section: string, analysisType: string) => {
     // Toast de début avec animation
