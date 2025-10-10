@@ -161,21 +161,33 @@ function BusinessDetailPage() {
 
   // Auto-refresh si des analyses sont en cours
   useEffect(() => {
+    console.log('[Auto-refresh] useEffect déclenché', {
+      hasAgentsStatus: !!business?.agents_status,
+      agentsStatus: business?.agents_status,
+      isPollingActive
+    });
+
     // Nettoyer l'interval précédent s'il existe
     if (pollingInterval.current) {
       clearInterval(pollingInterval.current);
       pollingInterval.current = null;
     }
-    
+
     if (!business?.agents_status) {
+      console.log('[Auto-refresh] Pas de agents_status, arrêt');
       setIsPollingActive(false);
       return;
     }
-    
+
     const hasActiveAnalysis = Object.values(business.agents_status).some(
       status => status === 'pending' || status === 'in_progress'
     );
-    
+
+    console.log('[Auto-refresh] Vérification analyses actives:', {
+      hasActiveAnalysis,
+      statuses: business.agents_status
+    });
+
     // Ne démarrer le polling que s'il y a des analyses actives ET qu'il n'est pas déjà actif
     if (hasActiveAnalysis && !isPollingActive) {
       console.log('[Auto-refresh] Démarrage du polling pour les analyses');
@@ -291,15 +303,21 @@ function BusinessDetailPage() {
         setLoadingMessage("Récupération des informations du business...");
       }
       const response = await api.get(`/api/me/business/${businessId}/simple`);
-      
+
       if (!response.data || !response.data.business) {
         throw new Error("Format de réponse invalide");
       }
-      
+
+      console.log('[fetchBusiness] Données reçues:', {
+        agents_status: response.data.business.agents_status,
+        hasMarketAnalysis: !!response.data.business.market_analysis,
+        hasMarketingStrategy: !!response.data.business.marketing_strategy
+      });
+
       if (!business) {
         setLoadingMessage("Préparation de l'interface...");
       }
-      
+
       setBusiness(response.data.business);
       
       // Vérifier si des analyses sont en cours
