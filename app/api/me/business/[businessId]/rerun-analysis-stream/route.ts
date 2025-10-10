@@ -2,8 +2,8 @@ import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import jwt from 'jsonwebtoken';
 import { getDB } from '@/lib/database';
-import { runRealMarketAnalysisAgent } from '@/lib/agents/market-analysis-mistral';
-import { runRealMarketingStrategyAgent } from '@/lib/agents/marketing-strategy-mistral';
+import { runRealMarketAnalysisAgent } from '@/lib/agents/market-analysis-agent';
+import { runRealMarketingStrategyAgent } from '@/lib/agents/marketing-strategy-agent';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
