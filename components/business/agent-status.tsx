@@ -147,28 +147,85 @@ export function AgentStatus({ business, onRefresh }: AgentStatusProps) {
 
   const handleRerunAllAnalyses = async () => {
     setRerunningAll(true);
+
     try {
-      // Appeler l'API pour relancer toutes les analyses
-      await api.post(`/api/me/business/${business.business_id}/rerun-analysis`, {
-        analysisType: 'all'
+      // POST pour initier le stream SSE
+      const response = await fetch(`/api/me/business/${business.business_id}/rerun-analysis-stream`, {
+        method: 'POST',
+        credentials: 'include'
       });
 
-      toast.success("Toutes les analyses ont été relancées", {
-        description: "Les analyses vont se mettre à jour automatiquement"
+      if (!response.ok) {
+        throw new Error('Failed to start analysis stream');
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      toast.loading("Génération des analyses en cours...", {
+        id: "rerun-all",
+        description: "Cela peut prendre 30-60 secondes"
       });
 
-      // L'API retourne immédiatement mais les analyses démarrent via setTimeout(100ms)
-      // Attendre 500ms pour que les statuts passent à "in_progress", puis refresh
-      setTimeout(async () => {
-        if (onRefresh) {
-          await onRefresh();
+      // Lire le stream
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('event:')) {
+            const eventType = line.substring(7).trim();
+            continue;
+          }
+
+          if (line.startsWith('data:')) {
+            try {
+              const data = JSON.parse(line.substring(5).trim());
+              console.log(`[SSE] ${data.type || 'event'}:`, data);
+
+              // Mettre à jour l'UI selon l'event
+              if (data.type === 'market_analysis' || data.type === 'marketing_strategy') {
+                toast.loading(data.message, {
+                  id: "rerun-all"
+                });
+              }
+
+              if (data.agents_status) {
+                // Refresh pour mettre à jour les statuts
+                if (onRefresh) {
+                  onRefresh();
+                }
+              }
+
+              if (data.message === 'Toutes les analyses sont terminées !') {
+                toast.success(data.message, {
+                  id: "rerun-all",
+                  description: "Les résultats sont maintenant disponibles"
+                });
+                if (onRefresh) {
+                  await onRefresh();
+                }
+                setRerunningAll(false);
+              }
+            } catch (e) {
+              // Ignorer les erreurs de parsing
+            }
+          }
         }
-        setRerunningAll(false);
-      }, 500);
+      }
 
     } catch (error) {
       console.error("Erreur lors de la relance de toutes les analyses:", error);
-      toast.error("Erreur lors de la relance des analyses");
+      toast.error("Erreur lors de la relance des analyses", {
+        id: "rerun-all"
+      });
       setRerunningAll(false);
     }
   };
