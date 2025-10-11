@@ -89,11 +89,18 @@ async function sendBrevoEmail(payload: any): Promise<boolean> {
   const apiKey = process.env.BREVO_API_KEY;
 
   if (!apiKey) {
-    console.warn('⚠️ BREVO_API_KEY non configurée - email non envoyé');
+    console.error('❌ BREVO_API_KEY non configurée - email non envoyé');
+    console.error('Variables disponibles:', {
+      hasBrevoKey: !!process.env.BREVO_API_KEY,
+      hasSenderEmail: !!process.env.BREVO_SENDER_EMAIL,
+      hasAdminEmail: !!process.env.ADMIN_NOTIFICATION_EMAIL
+    });
     return false;
   }
 
   try {
+    console.log('📤 Envoi email via Brevo à:', payload.to?.[0]?.email);
+
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
@@ -106,13 +113,16 @@ async function sendBrevoEmail(payload: any): Promise<boolean> {
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('❌ Erreur Brevo API:', error);
+      console.error('❌ Erreur Brevo API (status ' + response.status + '):', error);
       return false;
     }
 
+    const result = await response.json();
+    console.log('✅ Email envoyé avec succès, messageId:', result.messageId);
     return true;
   } catch (error) {
     console.error('❌ Erreur lors de l\'appel à Brevo:', error);
+    console.error('Stack:', error instanceof Error ? error.stack : 'N/A');
     return false;
   }
 }
