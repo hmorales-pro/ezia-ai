@@ -108,65 +108,89 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Endpoint pour récupérer les statistiques (admin uniquement)
+// Endpoint pour récupérer les inscriptions (admin uniquement)
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const secret = searchParams.get('secret');
+    // Vérifier l'authentification admin (même mot de passe que admin-simple)
+    const authHeader = req.headers.get('Authorization');
+    const ADMIN_PASSWORD = 'ezia2025admin';
 
-    // Protection simple pour l'admin
-    if (secret !== process.env.ADMIN_SECRET) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+
+    const token = authHeader.substring(7);
+    if (token !== ADMIN_PASSWORD) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     await dbConnect();
 
-    const totalRegistrations = await WebinarRegistration.countDocuments();
-    const confirmedRegistrations = await WebinarRegistration.countDocuments({ confirmed: true });
-    const attendedCount = await WebinarRegistration.countDocuments({ attended: true });
+    // Récupérer toutes les inscriptions
+    const registrations = await WebinarRegistration.find()
+      .sort({ registeredAt: -1 })
+      .select('firstName lastName email company position phone interests mainChallenge projectDescription expectations source registeredAt confirmed attended');
 
-    // Statistiques par source
-    const bySource = await WebinarRegistration.aggregate([
-      {
-        $group: {
-          _id: '$source',
-          count: { $sum: 1 }
-        }
+    // Statistiques
+    const totalRegistrations = registrations.length;
+    const confirmedRegistrations = registrations.filter(r => r.confirmed).length;
+    const attendedCount = registrations.filter(r => r.attended).length;
+
+    // Statistiques par défi principal
+    const challengeCounts: Record<string, number> = {};
+    registrations.forEach(r => {
+      if (r.mainChallenge) {
+        challengeCounts[r.mainChallenge] = (challengeCounts[r.mainChallenge] || 0) + 1;
       }
-    ]);
+    });
 
     // Statistiques par intérêt
-    const byInterest = await WebinarRegistration.aggregate([
-      { $unwind: '$interests' },
-      {
-        $group: {
-          _id: '$interests',
-          count: { $sum: 1 }
-        }
+    const interestCounts: Record<string, number> = {};
+    registrations.forEach(r => {
+      if (r.interests && r.interests.length > 0) {
+        r.interests.forEach(interest => {
+          interestCounts[interest] = (interestCounts[interest] || 0) + 1;
+        });
       }
-    ]);
-
-    // Dernières inscriptions
-    const recentRegistrations = await WebinarRegistration.find()
-      .sort({ registeredAt: -1 })
-      .limit(10)
-      .select('firstName lastName email company registeredAt confirmed');
+    });
 
     return NextResponse.json({
+      success: true,
+      registrations: registrations.map(r => ({
+        firstName: r.firstName,
+        lastName: r.lastName,
+        email: r.email,
+        company: r.company,
+        position: r.position,
+        phone: r.phone,
+        interests: r.interests || [],
+        mainChallenge: r.mainChallenge,
+        projectDescription: r.projectDescription,
+        expectations: r.expectations,
+        source: r.source,
+        registeredAt: r.registeredAt,
+        confirmed: r.confirmed,
+        attended: r.attended
+      })),
       statistics: {
         total: totalRegistrations,
         confirmed: confirmedRegistrations,
         attended: attendedCount,
-        bySource,
-        byInterest
-      },
-      recentRegistrations
+        byChallenges: Object.entries(challengeCounts).map(([challenge, count]) => ({
+          _id: challenge,
+          count
+        })),
+        byInterests: Object.entries(interestCounts).map(([interest, count]) => ({
+          _id: interest,
+          count
+        }))
+      }
     });
 
   } catch (error) {
-    console.error('Error fetching webinar stats:', error);
+    console.error('Error fetching webinar registrations:', error);
     return NextResponse.json(
-      { error: 'Erreur lors de la récupération des statistiques' },
+      { error: 'Erreur lors de la récupération des inscriptions' },
       { status: 500 }
     );
   }
