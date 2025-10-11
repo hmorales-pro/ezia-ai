@@ -1,3 +1,5 @@
+import { getBrevoApiKey, getBrevoSenderEmail, getAdminNotificationEmail } from './env-loader';
+
 interface WebinarRegistrationData {
   firstName: string;
   lastName: string;
@@ -18,7 +20,7 @@ export function generateICSFile(): string {
     end: '2025-11-04T21:00:00',
     organizer: {
       name: 'Hugo Morales - Ezia.ai',
-      email: process.env.BREVO_SENDER_EMAIL || 'noreply@ezia.ai'
+      email: getBrevoSenderEmail() || 'noreply@ezia.ai'
     }
   };
 
@@ -86,14 +88,14 @@ export function generateGoogleCalendarLink(): string {
  * Envoie un email via l'API Brevo
  */
 async function sendBrevoEmail(payload: any): Promise<boolean> {
-  const apiKey = process.env.BREVO_API_KEY;
+  const apiKey = getBrevoApiKey();
 
   if (!apiKey) {
     console.error('❌ BREVO_API_KEY non configurée - email non envoyé');
     console.error('Variables disponibles:', {
-      hasBrevoKey: !!process.env.BREVO_API_KEY,
-      hasSenderEmail: !!process.env.BREVO_SENDER_EMAIL,
-      hasAdminEmail: !!process.env.ADMIN_NOTIFICATION_EMAIL
+      hasBrevoKey: !!getBrevoApiKey(),
+      hasSenderEmail: !!getBrevoSenderEmail(),
+      hasAdminEmail: !!getAdminNotificationEmail()
     });
     return false;
   }
@@ -335,7 +337,7 @@ export async function sendWebinarConfirmationEmail(data: WebinarRegistrationData
     const payload = {
       to: [{ email: data.email, name: `${data.firstName} ${data.lastName}` }],
       sender: {
-        email: process.env.BREVO_SENDER_EMAIL || 'noreply@ezia.ai',
+        email: getBrevoSenderEmail() || 'noreply@ezia.ai',
         name: 'Ezia.ai'
       },
       subject: '✅ Inscription confirmée - Webinaire Ezia.ai le 4 novembre',
@@ -367,7 +369,7 @@ export async function sendAdminNotification(data: WebinarRegistrationData & {
   interests?: string[];
 }): Promise<boolean> {
   try {
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'hugo.morales.pro+waitlist@gmail.com';
+    const adminEmail = getAdminNotificationEmail() || 'hugo.morales.pro+waitlist@gmail.com';
 
     const challengeLabels: Record<string, string> = {
       time: 'Manque de temps',
@@ -422,7 +424,7 @@ export async function sendAdminNotification(data: WebinarRegistrationData & {
     const payload = {
       to: [{ email: adminEmail }],
       sender: {
-        email: process.env.BREVO_SENDER_EMAIL || 'noreply@ezia.ai',
+        email: getBrevoSenderEmail() || 'noreply@ezia.ai',
         name: 'Ezia Webinar System'
       },
       subject: `🎯 Nouvelle inscription : ${data.firstName} ${data.lastName}`,

@@ -57,9 +57,19 @@ export async function POST(req: NextRequest) {
       registeredAt: new Date()
     });
 
+    // Debug: Vérifier les variables d'environnement
+    console.log('🔍 Variables env dans API route:', {
+      hasBrevoKey: !!process.env.BREVO_API_KEY,
+      brevoKeyLength: process.env.BREVO_API_KEY?.length,
+      hasSenderEmail: !!process.env.BREVO_SENDER_EMAIL,
+      senderEmail: process.env.BREVO_SENDER_EMAIL,
+      hasAdminEmail: !!process.env.ADMIN_NOTIFICATION_EMAIL,
+      adminEmail: process.env.ADMIN_NOTIFICATION_EMAIL
+    });
+
     // Envoyer l'email de confirmation avec le fichier .ics
     try {
-      await sendWebinarConfirmationEmail({
+      const emailSent = await sendWebinarConfirmationEmail({
         firstName: registration.firstName,
         lastName: registration.lastName,
         email: registration.email,
@@ -67,8 +77,10 @@ export async function POST(req: NextRequest) {
         position: registration.position
       });
 
+      console.log('📧 Résultat envoi email confirmation:', emailSent);
+
       // Envoyer la notification admin
-      await sendAdminNotification({
+      const adminNotifSent = await sendAdminNotification({
         firstName: registration.firstName,
         lastName: registration.lastName,
         email: registration.email,
@@ -80,11 +92,17 @@ export async function POST(req: NextRequest) {
         interests: registration.interests
       });
 
-      // Marquer comme confirmé après envoi de l'email
-      registration.confirmed = true;
-      await registration.save();
+      console.log('📧 Résultat notification admin:', adminNotifSent);
+
+      // Marquer comme confirmé seulement si l'email a été envoyé
+      if (emailSent) {
+        registration.confirmed = true;
+        await registration.save();
+        console.log('✅ Inscription confirmée dans la DB');
+      }
     } catch (emailError) {
-      console.error('Erreur lors de l\'envoi de l\'email:', emailError);
+      console.error('❌ Erreur lors de l\'envoi de l\'email:', emailError);
+      console.error('Stack:', emailError instanceof Error ? emailError.stack : 'N/A');
       // On ne bloque pas l'inscription si l'email échoue
     }
 
