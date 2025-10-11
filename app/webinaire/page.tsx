@@ -35,6 +35,9 @@ export default function WebinairePage() {
     position: "",
     phone: "",
     interests: [] as string[],
+    mainChallenge: "",
+    projectDescription: "",
+    expectations: "",
   });
 
   const webinarDate = new Date("2025-11-04T19:30:00");
@@ -168,9 +171,7 @@ export default function WebinairePage() {
                 height={40}
                 className="w-10 h-10"
               />
-              <span className="text-2xl font-bold bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] bg-clip-text text-transparent">
-                Ezia.ai
-              </span>
+              <span className="text-2xl font-semibold text-[#1E1E1E] group-hover:text-[#6D3FC8] transition-colors">Ezia</span>
             </Link>
             <Button variant="outline" asChild>
               <Link href="/auth/login">Se connecter</Link>
@@ -189,13 +190,16 @@ export default function WebinairePage() {
                 Webinaire gratuit
               </div>
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Découvrez Ezia.ai : <br />
-                <span className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] bg-clip-text text-transparent">
-                  L'IA qui transforme votre business
-                </span>
+                Entrepreneur, combien d'heures passez-vous chaque semaine sur des tâches qui ne font pas vraiment grandir votre business ?
               </h1>
-              <p className="text-xl text-gray-600">
-                Rejoignez-nous pour une démonstration en direct et apprenez comment Ezia.ai peut automatiser et accélérer votre croissance.
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Selon une étude récente, <strong>68% des entrepreneurs passent plus de 15h par semaine</strong> sur des tâches administratives, de la création de contenu et de l'analyse de marché… du temps précieux qui pourrait être consacré à l'essentiel : développer leur activité.
+              </p>
+              <p className="text-lg text-gray-700 leading-relaxed">
+                🚀 Et pourtant, certains entrepreneurs réussissent à scaler : ils automatisent intelligemment, prennent des décisions basées sur des données réelles, et libèrent leur temps pour ce qui compte vraiment.
+              </p>
+              <p className="text-xl font-semibold bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] bg-clip-text text-transparent">
+                Quelle est leur clé ? L'intelligence artificielle au service du business.
               </p>
             </div>
 
@@ -225,37 +229,66 @@ export default function WebinairePage() {
                     <Users className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Places</p>
-                    <p className="text-xl font-bold">Limitées - Inscrivez-vous maintenant</p>
+                    <p className="text-sm text-gray-600">Durée</p>
+                    <p className="text-xl font-bold">45 minutes à 1h30</p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Présentation de l'intervenant */}
+            <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+              <CardContent className="p-6">
+                <h2 className="text-xl font-bold mb-3">Votre intervenant</h2>
+                <div className="space-y-3">
+                  <p className="text-gray-700">
+                    Ce webinaire sera animé par <strong className="text-[#6D3FC8]">Hugo Morales</strong>, fondateur d'Eziom et concepteur d'Ezia.ai.
+                  </p>
+                  <p className="text-gray-700">
+                    Hugo accompagne les entreprises et les porteurs de projet depuis plus de <strong>10 ans</strong> dans leur transformation digitale, l'automatisation, le gain de temps, et depuis <strong>3 ans</strong> l'intégration de l'IA dans leurs process.
+                  </p>
+                  <p className="text-gray-700">
+                    Face aux défis récurrents des entrepreneurs (manque de temps, besoin d'analyses fiables, production de contenu chronophage), il a développé <strong className="text-[#6D3FC8]">Ezia : votre copilote IA qui transforme votre façon de travailler</strong>.
+                  </p>
                 </div>
               </CardContent>
             </Card>
 
             {/* Ce que vous allez découvrir */}
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold">Au programme</h2>
+              <h2 className="text-2xl font-bold">Ce que vous allez découvrir</h2>
+              <p className="text-gray-600">Ce webinaire interactif de <strong>45 minutes à 1h30</strong> vous permettra de :</p>
               <div className="space-y-3">
                 {[
                   {
-                    icon: Zap,
-                    title: "Démonstration en direct",
-                    description: "Voyez Ezia.ai en action : génération de sites web, analyses de marché, stratégies marketing"
+                    icon: CheckCircle2,
+                    title: "Voir Ezia en action",
+                    description: "Démonstration en direct des fonctionnalités clés"
                   },
                   {
                     icon: Target,
-                    title: "Automatisation intelligente",
-                    description: "Comment l'IA peut gérer vos tâches répétitives et libérer votre temps"
+                    title: "Créer et structurer un projet business",
+                    description: "En quelques minutes avec l'IA"
                   },
                   {
                     icon: TrendingUp,
-                    title: "Cas d'usage concrets",
-                    description: "Des exemples réels de transformation business avec Ezia.ai"
+                    title: "Générer une analyse de marché complète",
+                    description: "Automatiquement : concurrence, tendances, opportunités"
+                  },
+                  {
+                    icon: Sparkles,
+                    title: "Concevoir une stratégie marketing",
+                    description: "Personnalisée et actionnable pour votre business"
+                  },
+                  {
+                    icon: Zap,
+                    title: "Produire un mois de contenu",
+                    description: "Newsletters, articles de blog, posts réseaux sociaux, scripts vidéo"
                   },
                   {
                     icon: Globe,
-                    title: "Session Q&A",
-                    description: "Posez vos questions en direct et obtenez des réponses personnalisées"
+                    title: "Poser vos questions",
+                    description: "Session Q&A et découvrez comment Ezia peut s'adapter à votre activité"
                   }
                 ].map((item, idx) => (
                   <div key={idx} className="flex gap-4 p-4 bg-white rounded-lg border">
@@ -372,6 +405,47 @@ export default function WebinairePage() {
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="mainChallenge">Quel est votre principal défi entrepreneurial ?</Label>
+                    <select
+                      id="mainChallenge"
+                      value={formData.mainChallenge}
+                      onChange={(e) => setFormData({ ...formData, mainChallenge: e.target.value })}
+                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="">Sélectionnez une option</option>
+                      <option value="time">Manque de temps</option>
+                      <option value="content">Création de contenu</option>
+                      <option value="market_analysis">Analyse de marché</option>
+                      <option value="marketing_strategy">Stratégie marketing</option>
+                      <option value="other">Autre</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="projectDescription">Décrivez votre projet en quelques mots (optionnel)</Label>
+                    <textarea
+                      id="projectDescription"
+                      value={formData.projectDescription}
+                      onChange={(e) => setFormData({ ...formData, projectDescription: e.target.value })}
+                      placeholder="Ex: Agence de marketing digital spécialisée dans les startups..."
+                      rows={3}
+                      className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="expectations">Qu'espérez-vous découvrir lors de ce webinaire ? (optionnel)</Label>
+                    <textarea
+                      id="expectations"
+                      value={formData.expectations}
+                      onChange={(e) => setFormData({ ...formData, expectations: e.target.value })}
+                      placeholder="Ex: Comment automatiser ma création de contenu..."
+                      rows={3}
+                      className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </div>
+
                   <Button
                     type="submit"
                     className="w-full bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white h-12 text-lg"
@@ -401,8 +475,17 @@ export default function WebinairePage() {
         </div>
       </div>
 
+      {/* CTA Final */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+        <p className="text-2xl font-bold bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] bg-clip-text text-transparent">
+          Parce que votre projet mérite les meilleurs outils,
+          <br />
+          offrez-vous l'IA qui fait grandir votre business !
+        </p>
+      </div>
+
       {/* Footer */}
-      <footer className="border-t bg-white/80 backdrop-blur-sm mt-16">
+      <footer className="border-t bg-white/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-sm text-gray-600">
             <p>© 2025 Ezia.ai - Tous droits réservés</p>

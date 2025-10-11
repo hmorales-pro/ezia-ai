@@ -5,7 +5,7 @@ import { WebinarRegistration } from '@/models/WebinarRegistration';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { firstName, lastName, email, company, position, phone, interests, source } = body;
+    const { firstName, lastName, email, company, position, phone, interests, mainChallenge, projectDescription, expectations, source } = body;
 
     // Validation
     if (!firstName || !lastName || !email) {
@@ -48,6 +48,9 @@ export async function POST(req: NextRequest) {
       position: position?.trim(),
       phone: phone?.trim(),
       interests: interests || [],
+      mainChallenge: mainChallenge?.trim(),
+      projectDescription: projectDescription?.trim(),
+      expectations: expectations?.trim(),
       source: source || 'website',
       confirmed: false,
       registeredAt: new Date()

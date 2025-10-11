@@ -8,6 +8,9 @@ export interface IWebinarRegistration extends Document {
   position?: string;
   phone?: string;
   interests?: string[];
+  mainChallenge?: string;
+  projectDescription?: string;
+  expectations?: string;
   source?: string;
   registeredAt: Date;
   confirmed: boolean;
@@ -58,6 +61,19 @@ const WebinarRegistrationSchema: Schema = new Schema({
       'other'
     ]
   }],
+  mainChallenge: {
+    type: String,
+    enum: ['time', 'content', 'market_analysis', 'marketing_strategy', 'other'],
+    trim: true
+  },
+  projectDescription: {
+    type: String,
+    trim: true
+  },
+  expectations: {
+    type: String,
+    trim: true
+  },
   source: {
     type: String,
     enum: ['website', 'social_media', 'email', 'referral', 'other'],
