@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function WebinairePage() {
   const [loading, setLoading] = useState(false);
@@ -160,9 +161,13 @@ export default function WebinairePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#6D3FC8] to-[#5A35A5] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">E</span>
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Ezia Logo"
+                width={40}
+                height={40}
+                className="w-10 h-10"
+              />
               <span className="text-2xl font-bold bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] bg-clip-text text-transparent">
                 Ezia.ai
               </span>
