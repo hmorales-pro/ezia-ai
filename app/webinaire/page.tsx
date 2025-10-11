@@ -189,9 +189,12 @@ export default function WebinairePage() {
                 <Sparkles className="w-4 h-4" />
                 Webinaire gratuit
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Entrepreneur, combien d'heures passez-vous chaque semaine sur des tâches qui ne font pas vraiment grandir votre business ?
+              <h1 className="text-3xl md:text-4xl font-bold leading-tight">
+                Webinaire Gratuit : Automatisez votre Business avec l'IA
               </h1>
+              <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 leading-tight">
+                Entrepreneur, combien d'heures passez-vous chaque semaine sur des tâches qui ne font pas vraiment grandir votre business ?
+              </h2>
               <p className="text-lg text-gray-700 leading-relaxed">
                 Selon une étude récente, <strong>68% des entrepreneurs passent plus de 15h par semaine</strong> sur des tâches administratives, de la création de contenu et de l'analyse de marché… du temps précieux qui pourrait être consacré à l'essentiel : développer leur activité.
               </p>

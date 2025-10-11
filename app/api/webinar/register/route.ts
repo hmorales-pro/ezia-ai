@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import { WebinarRegistration } from '@/models/WebinarRegistration';
+import { sendWebinarConfirmationEmail, sendAdminNotification } from '@/lib/webinar-email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -56,8 +57,36 @@ export async function POST(req: NextRequest) {
       registeredAt: new Date()
     });
 
-    // TODO: Envoyer un email de confirmation
-    // await sendConfirmationEmail(registration);
+    // Envoyer l'email de confirmation avec le fichier .ics
+    try {
+      await sendWebinarConfirmationEmail({
+        firstName: registration.firstName,
+        lastName: registration.lastName,
+        email: registration.email,
+        company: registration.company,
+        position: registration.position
+      });
+
+      // Envoyer la notification admin
+      await sendAdminNotification({
+        firstName: registration.firstName,
+        lastName: registration.lastName,
+        email: registration.email,
+        company: registration.company,
+        position: registration.position,
+        mainChallenge: registration.mainChallenge,
+        projectDescription: registration.projectDescription,
+        expectations: registration.expectations,
+        interests: registration.interests
+      });
+
+      // Marquer comme confirmé après envoi de l'email
+      registration.confirmed = true;
+      await registration.save();
+    } catch (emailError) {
+      console.error('Erreur lors de l\'envoi de l\'email:', emailError);
+      // On ne bloque pas l'inscription si l'email échoue
+    }
 
     return NextResponse.json({
       success: true,
