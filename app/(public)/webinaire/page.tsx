@@ -1,0 +1,414 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Calendar,
+  Clock,
+  Users,
+  Sparkles,
+  CheckCircle2,
+  ArrowRight,
+  Video,
+  Zap,
+  Target,
+  TrendingUp,
+  Globe,
+  Loader2
+} from "lucide-react";
+import { toast } from "sonner";
+import Link from "next/link";
+
+export default function WebinairePage() {
+  const [loading, setLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    company: "",
+    position: "",
+    phone: "",
+    interests: [] as string[],
+  });
+
+  const webinarDate = new Date("2025-11-04T19:30:00");
+  const interestOptions = [
+    { id: "ai_business_automation", label: "Automatisation Business avec IA" },
+    { id: "website_creation", label: "Création de site web" },
+    { id: "marketing_strategy", label: "Stratégie marketing" },
+    { id: "market_analysis", label: "Analyse de marché" },
+    { id: "content_generation", label: "Génération de contenu" },
+    { id: "other", label: "Autre" }
+  ];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/webinar/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          source: "website"
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setRegistered(true);
+        toast.success("Inscription réussie !", {
+          description: "Un email de confirmation vous a été envoyé."
+        });
+      } else {
+        if (data.alreadyRegistered) {
+          toast.info("Déjà inscrit", {
+            description: "Cet email est déjà enregistré pour le webinaire."
+          });
+        } else {
+          toast.error("Erreur", {
+            description: data.error || "Une erreur est survenue lors de l'inscription."
+          });
+        }
+      }
+    } catch (error) {
+      toast.error("Erreur", {
+        description: "Impossible de s'inscrire pour le moment."
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInterestChange = (interestId: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      interests: checked
+        ? [...prev.interests, interestId]
+        : prev.interests.filter(id => id !== interestId)
+    }));
+  };
+
+  if (registered) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center p-4">
+        <Card className="max-w-2xl w-full">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-10 h-10 text-green-600" />
+            </div>
+            <CardTitle className="text-3xl">Inscription confirmée !</CardTitle>
+            <CardDescription className="text-lg mt-2">
+              Vous êtes inscrit au webinaire Ezia.ai
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 space-y-3">
+              <div className="flex items-center gap-3">
+                <Calendar className="w-5 h-5 text-purple-600" />
+                <div>
+                  <p className="font-semibold">4 novembre 2025</p>
+                  <p className="text-sm text-gray-600">Mardi</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Clock className="w-5 h-5 text-purple-600" />
+                <div>
+                  <p className="font-semibold">19h30 (heure de Paris)</p>
+                  <p className="text-sm text-gray-600">Durée: 1h30</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Video className="w-5 h-5 text-purple-600" />
+                <div>
+                  <p className="font-semibold">Webinaire en ligne</p>
+                  <p className="text-sm text-gray-600">Lien envoyé par email</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center space-y-4">
+              <p className="text-gray-600">
+                Un email de confirmation avec le lien de connexion vous a été envoyé à <strong>{formData.email}</strong>
+              </p>
+              <div className="flex gap-3 justify-center">
+                <Button variant="outline" asChild>
+                  <Link href="/">Retour à l'accueil</Link>
+                </Button>
+                <Button asChild className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5]">
+                  <Link href="/dashboard">Essayer Ezia</Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#6D3FC8] to-[#5A35A5] rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">E</span>
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] bg-clip-text text-transparent">
+                Ezia.ai
+              </span>
+            </Link>
+            <Button variant="outline" asChild>
+              <Link href="/auth/login">Se connecter</Link>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          {/* Partie gauche - Informations du webinaire */}
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                <Sparkles className="w-4 h-4" />
+                Webinaire gratuit
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+                Découvrez Ezia.ai : <br />
+                <span className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] bg-clip-text text-transparent">
+                  L'IA qui transforme votre business
+                </span>
+              </h1>
+              <p className="text-xl text-gray-600">
+                Rejoignez-nous pour une démonstration en direct et apprenez comment Ezia.ai peut automatiser et accélérer votre croissance.
+              </p>
+            </div>
+
+            {/* Date et heure */}
+            <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Calendar className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Mardi</p>
+                    <p className="text-xl font-bold">4 novembre 2025</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Clock className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Début à</p>
+                    <p className="text-xl font-bold">19h30 (heure de Paris)</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Users className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Places</p>
+                    <p className="text-xl font-bold">Limitées - Inscrivez-vous maintenant</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Ce que vous allez découvrir */}
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Au programme</h2>
+              <div className="space-y-3">
+                {[
+                  {
+                    icon: Zap,
+                    title: "Démonstration en direct",
+                    description: "Voyez Ezia.ai en action : génération de sites web, analyses de marché, stratégies marketing"
+                  },
+                  {
+                    icon: Target,
+                    title: "Automatisation intelligente",
+                    description: "Comment l'IA peut gérer vos tâches répétitives et libérer votre temps"
+                  },
+                  {
+                    icon: TrendingUp,
+                    title: "Cas d'usage concrets",
+                    description: "Des exemples réels de transformation business avec Ezia.ai"
+                  },
+                  {
+                    icon: Globe,
+                    title: "Session Q&A",
+                    description: "Posez vos questions en direct et obtenez des réponses personnalisées"
+                  }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex gap-4 p-4 bg-white rounded-lg border">
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <item.icon className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">{item.title}</h3>
+                      <p className="text-sm text-gray-600">{item.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Partie droite - Formulaire d'inscription */}
+          <div className="lg:sticky lg:top-24">
+            <Card className="border-2 border-purple-200 shadow-xl">
+              <CardHeader>
+                <CardTitle className="text-2xl">Inscription gratuite</CardTitle>
+                <CardDescription>
+                  Réservez votre place dès maintenant
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">Prénom *</Label>
+                      <Input
+                        id="firstName"
+                        value={formData.firstName}
+                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                        required
+                        placeholder="Jean"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Nom *</Label>
+                      <Input
+                        id="lastName"
+                        value={formData.lastName}
+                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                        required
+                        placeholder="Dupont"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email professionnel *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                      placeholder="jean.dupont@entreprise.com"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Entreprise</Label>
+                    <Input
+                      id="company"
+                      value={formData.company}
+                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                      placeholder="Nom de votre entreprise"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="position">Fonction</Label>
+                    <Input
+                      id="position"
+                      value={formData.position}
+                      onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                      placeholder="Directeur, Chef de projet, etc."
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Téléphone</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="+33 6 12 34 56 78"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label>Vos centres d'intérêt</Label>
+                    <div className="space-y-2">
+                      {interestOptions.map((option) => (
+                        <div key={option.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={option.id}
+                            checked={formData.interests.includes(option.id)}
+                            onCheckedChange={(checked) =>
+                              handleInterestChange(option.id, checked as boolean)
+                            }
+                          />
+                          <label
+                            htmlFor={option.id}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {option.label}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white h-12 text-lg"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Inscription en cours...
+                      </>
+                    ) : (
+                      <>
+                        Réserver ma place gratuite
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </>
+                    )}
+                  </Button>
+
+                  <p className="text-xs text-gray-500 text-center">
+                    En vous inscrivant, vous acceptez de recevoir des communications de Ezia.ai.
+                    Vous pouvez vous désabonner à tout moment.
+                  </p>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t bg-white/80 backdrop-blur-sm mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center text-sm text-gray-600">
+            <p>© 2025 Ezia.ai - Tous droits réservés</p>
+            <div className="flex justify-center gap-4 mt-2">
+              <Link href="/privacy" className="hover:text-purple-600">Confidentialité</Link>
+              <Link href="/terms" className="hover:text-purple-600">Conditions</Link>
+              <Link href="/contact" className="hover:text-purple-600">Contact</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
