@@ -9,10 +9,18 @@ export async function runSimplifiedMarketingStrategyAgent(business: any, marketA
   
   // Structure JSON simplifiée mais professionnelle
   const exampleJson = {
-    vision: "Devenir la référence des expériences gastronomiques éphémères en Europe d'ici 2028",
-    mission: "Réinventer la haute gastronomie avec une rotation mensuelle de chefs étoilés",
-    unique_value_proposition: "Le seul restaurant où chaque mois est une première mondiale culinaire",
-    positioning: "Premium exclusif - Entre tradition gastronomique et innovation expérientielle",
+    executive_summary: {
+      vision: "Devenir la référence des expériences gastronomiques éphémères en Europe d'ici 2028",
+      mission: "Réinventer la haute gastronomie avec une rotation mensuelle de chefs étoilés",
+      unique_value_proposition: "Le seul restaurant où chaque mois est une première mondiale culinaire",
+      target_roi: "15% marge nette dès la fin de l'année 2"
+    },
+    brand_positioning: {
+      brand_essence: "L'éphémère éternel - Collectionner l'inoubliable",
+      positioning: "Premium exclusif - Entre tradition gastronomique et innovation expérientielle",
+      personality: ["Exclusif", "Audacieux", "Raffiné", "Éphémère"],
+      tone_of_voice: "Luxe accessible, mystère révélé, urgence élégante"
+    },
     target_segments: [
       {
         name: "Gastronomes Collectionneurs CSP++",
@@ -33,7 +41,7 @@ export async function runSimplifiedMarketingStrategyAgent(business: any, marketA
       "Une collection d'expériences gastronomiques irrépétables",
       "Réservez maintenant ou regrettez pour toujours"
     ],
-    channels: [
+    marketing_channels: [
       {
         name: "PR & Relations Presse Premium",
         priority: "high",
@@ -145,16 +153,27 @@ export async function runSimplifiedMarketingStrategyAgent(business: any, marketA
         frequency: "Mensuel"
       }
     ],
-    budget_summary: {
-      year_1_total: "600,000€",
-      breakdown: {
-        "PR & Influence": "25%",
-        "Direct Marketing": "30%",
-        "Digital & Content": "20%",
-        "Partenariats": "15%",
-        "Events & Activations": "10%"
+    budget_allocation: {
+      total_budget: "600,000€ année 1",
+      by_channel: {
+        "PR & Relations Presse": 150000,
+        "Marketing Direct": 180000,
+        "Digital & Social Media": 120000,
+        "Partenariats Luxe": 90000,
+        "Events & Activations": 60000
       },
-      expected_roi: "350% sur 24 mois"
+      by_objective: {
+        "Awareness & Brand Building": 40,
+        "Acquisition Clients": 35,
+        "Rétention & Fidélisation": 15,
+        "Research & Innovation": 10
+      },
+      by_quarter: {
+        "Q1": 25,
+        "Q2": 30,
+        "Q3": 25,
+        "Q4": 20
+      }
     }
   };
   
@@ -205,7 +224,37 @@ ${JSON.stringify(exampleJson, null, 2)}`;
         // Parser directement le JSON (devrait être valide grâce à response_format)
         const strategy = JSON.parse(response.content);
         console.log('[Agent Marketing Simplifié] JSON parsé avec succès');
-        return strategy;
+
+        // Normaliser la structure de Mistral vers le format attendu
+        const normalizedStrategy = {
+          ...strategy,
+          // S'assurer que marketing_channels existe
+          marketing_channels: strategy.marketing_channels ||
+            strategy.channel_strategy?.map((ch: any) => ({
+              name: ch.channel || ch.name,
+              priority: ch.priority || 'medium',
+              description: ch.objectives?.join(', ') || '',
+              tactics: ch.objectives || [],
+              budget: `${ch.budget_allocation || 0}% du budget total`
+            })) ||
+            strategy.marketing_mix?.promotion?.promotional_tactics?.map((tactic: string, idx: number) => ({
+              name: `Canal ${idx + 1}`,
+              priority: idx === 0 ? 'high' : 'medium',
+              description: tactic,
+              tactics: [tactic],
+              budget: '15-20% du budget'
+            })) ||
+            [],
+          // S'assurer que budget_allocation existe avec la bonne structure
+          budget_allocation: strategy.budget_allocation || {
+            total_budget: strategy.budget_summary?.year_1_total || "Budget à définir",
+            by_channel: strategy.budget_allocation?.by_channel || {},
+            by_objective: strategy.budget_allocation?.by_objective || {},
+            by_quarter: strategy.budget_allocation?.by_quarter || {}
+          }
+        };
+
+        return normalizedStrategy;
       } catch (parseError) {
         console.error('[Agent Marketing Simplifié] Erreur parsing:', parseError);
         // Fallback basique

@@ -79,11 +79,18 @@ export async function POST(
           
           // Utiliser la fonction qui lance toutes les analyses en parallèle
           const analysisResults = await runAllAgentsForBusiness(business);
-          
+
           console.log(`[Rerun Analysis] Toutes les analyses terminées pour ${business.name}`);
-          
+          console.log(`[Rerun Analysis] Résultats obtenus:`, {
+            hasMarketAnalysis: !!analysisResults.market_analysis,
+            hasMarketingStrategy: !!analysisResults.marketing_strategy,
+            hasCompetitorAnalysis: !!analysisResults.competitor_analysis,
+            hasWebsitePrompt: !!analysisResults.website_prompt,
+            keys: Object.keys(analysisResults)
+          });
+
           // Sauvegarder tous les résultats
-          await db.updateBusiness(businessId, {
+          const updateData = {
             ...analysisResults,
             agents_status: {
               market_analysis: 'completed',
@@ -91,8 +98,16 @@ export async function POST(
               marketing_strategy: 'completed',
               website_prompt: 'completed'
             }
+          };
+
+          console.log(`[Rerun Analysis] Données à sauvegarder:`, {
+            hasMarketAnalysis: !!updateData.market_analysis,
+            hasMarketingStrategy: !!updateData.marketing_strategy,
+            agentsStatus: updateData.agents_status
           });
-          
+
+          await db.updateBusiness(businessId, updateData);
+
           console.log(`[Rerun Analysis] Résultats sauvegardés pour ${business.name}`);
           
         } catch (error) {

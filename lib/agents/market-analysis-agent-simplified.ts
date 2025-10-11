@@ -15,15 +15,41 @@ export async function runSimplifiedMarketAnalysisAgent(business: any): Promise<a
   // Structure JSON professionnelle pour l'analyse de marché
   const exampleJson = {
     executive_summary: {
-      market_opportunity: "Marché de la restauration gastronomique parisienne en pleine transformation",
-      key_insight: "Forte demande pour des expériences culinaires uniques et exclusives post-COVID",
-      recommendation: "Lancer rapidement pour capturer la demande croissante d'expériences éphémères"
+      key_findings: [
+        "Marché de la restauration gastronomique parisienne en pleine transformation",
+        "Forte demande pour des expériences culinaires uniques post-COVID",
+        "Segment éphémère premium en croissance de 12% annuel"
+      ],
+      market_opportunity: "15-20 millions € de marché disponible sur le segment éphémère premium à Paris",
+      strategic_positioning: "Premier restaurant où chaque mois est une expérience gastronomique unique",
+      growth_forecast: "Croissance de 12% annuel sur le segment des expériences culinaires exclusives"
     },
-    market_size: {
-      total_addressable_market: "2.8 milliards € (restauration gastronomique France)",
-      serviceable_addressable_market: "450 millions € (gastronomique Paris)",
-      serviceable_obtainable_market: "15-20 millions € (segment éphémère premium)",
-      growth_rate: "12% annuel (segment expériences uniques)"
+    market_overview: {
+      market_size: "2.8 milliards € (restauration gastronomique France)",
+      market_value: "450 millions € (gastronomique Paris)",
+      growth_rate: "12% annuel",
+      market_maturity: "Marché mature en réinvention via concepts innovants",
+      key_players: [
+        "Le Meurice Alain Ducasse",
+        "Arpège (Alain Passard)",
+        "Guy Savoy",
+        "L'Astrance",
+        "Le Cinq"
+      ],
+      market_segments: [
+        {
+          name: "Gastronomie traditionnelle",
+          size: "60% du marché",
+          growth: "5% annuel",
+          characteristics: ["Clientèle établie", "Expérience classique", "Fidélité élevée"]
+        },
+        {
+          name: "Concepts innovants et éphémères",
+          size: "40% du marché",
+          growth: "12% annuel",
+          characteristics: ["Clientèle jeune CSP++", "Recherche de nouveauté", "Social media driven"]
+        }
+      ]
     },
     market_dynamics: {
       key_drivers: [
@@ -361,13 +387,52 @@ ${JSON.stringify(exampleJson, null, 2)}`;
     if (response.success && response.content) {
       try {
         const analysis = parseAIGeneratedJson(response.content);
-        
-        // Transformer pour correspondre au schéma MongoDB avec toutes les données
+
+        // Normaliser la structure de Mistral vers le format attendu par les composants
         const transformedAnalysis = {
           ...analysis,
-          // Garder target_audience comme objet si c'est déjà un objet, sinon créer une structure compatible
-          target_audience: analysis.target_audience && typeof analysis.target_audience === 'object' ? 
-            analysis.target_audience : 
+          // Ajouter executive_summary si manquant
+          executive_summary: analysis.executive_summary || {
+            key_findings: analysis.strategic_recommendations?.slice(0, 3).map((r: any) => r.recommendation || r) || [
+              `Marché ${business.industry} en croissance`,
+              "Opportunités de digitalisation",
+              "Concurrence modérée"
+            ],
+            market_opportunity: analysis.industry_overview?.market_size?.value
+              ? `Marché de ${analysis.industry_overview.market_size.value} ${analysis.industry_overview.market_size.currency || 'milliards €'}`
+              : `Marché ${business.industry} en expansion`,
+            strategic_positioning: analysis.competitive_landscape?.major_players?.length
+              ? "Positionnement différencié face aux leaders établis"
+              : "Positionnement innovant sur le marché",
+            growth_forecast: analysis.industry_overview?.growth_rate?.value
+              ? `Croissance de ${analysis.industry_overview.growth_rate.value}% annuel`
+              : "Croissance stable prévue"
+          },
+          // Ajouter market_overview en normalisant industry_overview
+          market_overview: analysis.market_overview || {
+            market_size: analysis.industry_overview?.market_size?.value
+              ? `${analysis.industry_overview.market_size.value} ${analysis.industry_overview.market_size.currency || 'milliards €'} (${analysis.industry_overview.market_size.year || 2024})`
+              : "Marché en expansion",
+            market_value: analysis.industry_overview?.market_size?.value
+              ? `${analysis.industry_overview.market_size.value} ${analysis.industry_overview.market_size.currency || 'milliards €'}`
+              : "Données à collecter",
+            growth_rate: analysis.industry_overview?.growth_rate?.value
+              ? `${analysis.industry_overview.growth_rate.value}% par an`
+              : "Croissance stable",
+            market_maturity: analysis.competitive_landscape?.market_maturity || "Marché en développement",
+            key_players: analysis.competitive_landscape?.major_players?.map((p: any) => p.name) ||
+                        analysis.competitive_landscape?.emerging_players?.map((p: any) => p.name) ||
+                        ["Leader du marché", "Challenger principal", "Acteurs locaux"],
+            market_segments: analysis.industry_overview?.key_segments?.map((s: any) => ({
+              name: s.name,
+              size: `${s.size} ${s.currency || 'milliards €'}`,
+              growth: `${s.growth}${s.unit || '%'}`,
+              characteristics: [s.description || "Segment en croissance"]
+            })) || []
+          },
+          // Garder target_audience comme objet si c'est déjà un objet
+          target_audience: analysis.target_audience && typeof analysis.target_audience === 'object' ?
+            analysis.target_audience :
             {
               primary: {
                 description: analysis.target_audience || "Cible principale du secteur",
@@ -378,9 +443,9 @@ ${JSON.stringify(exampleJson, null, 2)}`;
           // Pour la compatibilité MongoDB, on ajoute aussi target_audience_str
           target_audience_str: analysis.target_audience?.primary?.description || analysis.target_audience || "Cible principale du secteur",
           value_proposition: analysis.executive_summary?.key_insight || `Solution innovante pour ${business.industry}`,
-          competitors: analysis.competitive_landscape?.key_success_factors?.slice(0, 3) || ["Leader marché", "Challenger digital", "Spécialiste niche"],
-          opportunities: analysis.opportunities || ["Digitalisation", "Nouveaux besoins", "Expansion"],
-          threats: analysis.risks || ["Concurrence", "Réglementation", "Évolution marché"],
+          competitors: analysis.competitive_landscape?.major_players?.map((p: any) => p.name)?.slice(0, 5) || ["Leader marché", "Challenger digital", "Spécialiste niche"],
+          opportunities: analysis.opportunities || analysis.swot_analysis?.opportunities || ["Digitalisation", "Nouveaux besoins", "Expansion"],
+          threats: analysis.risks || analysis.swot_analysis?.threats || ["Concurrence", "Réglementation", "Évolution marché"],
           swot_analysis: analysis.swot_analysis || {
             strengths: ["Innovation", "Agilité", "Vision claire"],
             weaknesses: ["Ressources limitées", "Marque nouvelle", "Réseau à construire"],
