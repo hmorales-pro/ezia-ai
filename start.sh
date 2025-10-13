@@ -1,10 +1,19 @@
 #!/bin/sh
-# Script de démarrage pour Next.js standalone avec variables d'environnement Dokploy
+# Script de démarrage pour Next.js standalone avec variables d'environnement
 
 echo "🚀 Starting Ezia.ai..."
 
 # Forcer le mode production
 export NODE_ENV=production
+
+# Charger les variables depuis .env.production s'il existe (volume monté)
+if [ -f "/app/.env.production" ]; then
+  echo "📄 Loading variables from /app/.env.production..."
+  set -a
+  . /app/.env.production
+  set +a
+  echo "✅ Variables loaded from .env.production"
+fi
 
 # Debug: Afficher quelles variables sont disponibles (sans valeurs sensibles)
 echo "📋 Environment variables status:"
@@ -15,7 +24,7 @@ echo "  - BREVO_API_KEY: $([ -n "$BREVO_API_KEY" ] && echo '✅' || echo '❌')"
 echo "  - BREVO_SENDER_EMAIL: $([ -n "$BREVO_SENDER_EMAIL" ] && echo '✅' || echo '❌')"
 echo "  - ADMIN_NOTIFICATION_EMAIL: $([ -n "$ADMIN_NOTIFICATION_EMAIL" ] && echo '✅' || echo '❌')"
 
-# Exporter explicitement toutes les variables d'environnement Dokploy
+# Exporter explicitement toutes les variables d'environnement
 # pour qu'elles soient accessibles par Node.js
 export MONGODB_URI
 export HF_TOKEN
