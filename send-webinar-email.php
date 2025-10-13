@@ -170,12 +170,26 @@ function sendBrevoEmail($payload) {
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
 
+    $success = $httpCode >= 200 && $httpCode < 300;
+    $responseData = json_decode($response, true);
+
+    // Log les erreurs pour debug
+    if (!$success) {
+        error_log("Brevo API Error - HTTP $httpCode: " . $response);
+        if ($curlError) {
+            error_log("cURL Error: " . $curlError);
+        }
+    }
+
     return [
-        'success' => $httpCode >= 200 && $httpCode < 300,
+        'success' => $success,
         'httpCode' => $httpCode,
-        'response' => json_decode($response, true)
+        'response' => $responseData,
+        'error' => !$success ? $response : null,
+        'curlError' => $curlError ?: null
     ];
 }
 
@@ -199,7 +213,30 @@ if ($type === 'confirmation') {
         'dates' => '20251104T183000Z/20251104T200000Z'
     ]);
 
-    $htmlContent = file_get_contents(__DIR__ . '/email-template-confirmation.html');
+    $templatePath = __DIR__ . '/email-template-confirmation.html';
+
+    // Vérifier que le template existe
+    if (!file_exists($templatePath)) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Template email manquant',
+            'path' => $templatePath,
+            'files_in_dir' => scandir(__DIR__)
+        ]);
+        exit;
+    }
+
+    $htmlContent = file_get_contents($templatePath);
+
+    if ($htmlContent === false) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Impossible de lire le template email'
+        ]);
+        exit;
+    }
 
     // Remplacer les placeholders
     $htmlContent = str_replace('{{firstName}}', htmlspecialchars($data['firstName']), $htmlContent);
@@ -221,7 +258,16 @@ if ($type === 'confirmation') {
 
     $result = sendBrevoEmail($payload);
     $success = $result['success'];
-    $message = $success ? 'Email de confirmation envoyé' : 'Erreur lors de l\'envoi';
+
+    // Retourner plus de détails sur l'erreur
+    if (!$success) {
+        $message = 'Erreur Brevo API (HTTP ' . $result['httpCode'] . ')';
+        if (isset($result['error'])) {
+            $message .= ': ' . substr($result['error'], 0, 200);
+        }
+    } else {
+        $message = 'Email de confirmation envoyé';
+    }
 
 } elseif ($type === 'admin') {
     // NOTIFICATION ADMIN
