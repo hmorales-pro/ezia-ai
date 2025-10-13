@@ -142,12 +142,9 @@ export default function WebinairePage() {
               <p className="text-gray-600">
                 Un email de confirmation avec le lien de connexion vous a été envoyé à <strong>{formData.email}</strong>
               </p>
-              <div className="flex gap-3 justify-center">
+              <div className="flex justify-center">
                 <Button variant="outline" asChild>
                   <Link href="/">Retour à l'accueil</Link>
-                </Button>
-                <Button asChild className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5]">
-                  <Link href="/dashboard">Essayer Ezia</Link>
                 </Button>
               </div>
             </div>
