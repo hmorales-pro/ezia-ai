@@ -1,4 +1,7 @@
-import { getBrevoApiKey, getBrevoSenderEmail, getAdminNotificationEmail } from './env-loader';
+/**
+ * Solution simplifiée : Appel au script PHP distant qui gère l'envoi d'emails
+ * Le script PHP contient les credentials Brevo et gère toute la logique d'envoi
+ */
 
 interface WebinarRegistrationData {
   firstName: string;
@@ -8,8 +11,13 @@ interface WebinarRegistrationData {
   position?: string;
 }
 
+// URL du script PHP sur votre hébergement (à personnaliser)
+const PHP_ENDPOINT = process.env.PHP_EMAIL_ENDPOINT || 'https://votre-hebergement.com/send-webinar-email.php';
+const SECRET_KEY = process.env.PHP_EMAIL_SECRET || 'ezia-webhook-secret-2025-change-this';
+
 /**
  * Génère un fichier .ics pour ajouter le webinaire au calendrier
+ * (Conservé pour référence, mais maintenant géré côté PHP)
  */
 export function generateICSFile(): string {
   const event = {
@@ -85,45 +93,35 @@ export function generateGoogleCalendarLink(): string {
 }
 
 /**
- * Envoie un email via l'API Brevo
+ * Appelle le script PHP pour envoyer un email
  */
-async function sendBrevoEmail(payload: any): Promise<boolean> {
-  const apiKey = getBrevoApiKey();
-
-  if (!apiKey) {
-    console.error('❌ BREVO_API_KEY non configurée - email non envoyé');
-    console.error('Variables disponibles:', {
-      hasBrevoKey: !!getBrevoApiKey(),
-      hasSenderEmail: !!getBrevoSenderEmail(),
-      hasAdminEmail: !!getAdminNotificationEmail()
-    });
-    return false;
-  }
-
+async function callPHPEmailService(type: 'confirmation' | 'admin', data: any): Promise<boolean> {
   try {
-    console.log('📤 Envoi email via Brevo à:', payload.to?.[0]?.email);
+    console.log(`📤 Envoi ${type} via PHP endpoint:`, PHP_ENDPOINT);
 
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    const response = await fetch(PHP_ENDPOINT, {
       method: 'POST',
       headers: {
-        'accept': 'application/json',
-        'api-key': apiKey,
-        'content-type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SECRET_KEY}`
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        type,
+        ...data
+      })
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('❌ Erreur Brevo API (status ' + response.status + '):', error);
+      console.error(`❌ Erreur PHP endpoint (status ${response.status}):`, error);
       return false;
     }
 
     const result = await response.json();
-    console.log('✅ Email envoyé avec succès, messageId:', result.messageId);
-    return true;
+    console.log(`✅ ${type} envoyé avec succès via PHP:`, result.message);
+    return result.success;
   } catch (error) {
-    console.error('❌ Erreur lors de l\'appel à Brevo:', error);
+    console.error(`❌ Erreur lors de l'appel au PHP endpoint:`, error);
     console.error('Stack:', error instanceof Error ? error.stack : 'N/A');
     return false;
   }
@@ -131,8 +129,34 @@ async function sendBrevoEmail(payload: any): Promise<boolean> {
 
 /**
  * Envoie l'email de confirmation avec le fichier ICS en pièce jointe
+ * Délégué au script PHP
  */
 export async function sendWebinarConfirmationEmail(data: WebinarRegistrationData): Promise<boolean> {
+  return callPHPEmailService('confirmation', data);
+}
+
+/**
+ * Envoie une notification admin pour chaque nouvelle inscription
+ * Délégué au script PHP
+ */
+export async function sendAdminNotification(data: WebinarRegistrationData & {
+  mainChallenge?: string;
+  projectDescription?: string;
+  expectations?: string;
+  interests?: string[];
+}): Promise<boolean> {
+  return callPHPEmailService('admin', data);
+}
+
+// ========================================
+// CODE LEGACY (conservé pour référence)
+// ========================================
+
+/**
+ * @deprecated - Maintenant géré par le script PHP
+ * Envoie l'email de confirmation avec le fichier ICS en pièce jointe (LEGACY)
+ */
+export async function sendWebinarConfirmationEmailLegacy(data: WebinarRegistrationData): Promise<boolean> {
   try {
     const icsContent = generateICSFile();
     const icsBase64 = Buffer.from(icsContent).toString('base64');
@@ -360,16 +384,17 @@ export async function sendWebinarConfirmationEmail(data: WebinarRegistrationData
 }
 
 /**
- * Envoie une notification admin pour chaque nouvelle inscription
+ * @deprecated - Maintenant géré par le script PHP
+ * Envoie une notification admin pour chaque nouvelle inscription (LEGACY)
  */
-export async function sendAdminNotification(data: WebinarRegistrationData & {
+export async function sendAdminNotificationLegacy(data: WebinarRegistrationData & {
   mainChallenge?: string;
   projectDescription?: string;
   expectations?: string;
   interests?: string[];
 }): Promise<boolean> {
   try {
-    const adminEmail = getAdminNotificationEmail() || 'hugo.morales.pro+waitlist@gmail.com';
+    const adminEmail = 'hugo.morales.pro+waitlist@gmail.com';
 
     const challengeLabels: Record<string, string> = {
       time: 'Manque de temps',
@@ -431,13 +456,11 @@ export async function sendAdminNotification(data: WebinarRegistrationData & {
       htmlContent: htmlContent
     };
 
-    const success = await sendBrevoEmail(payload);
-    if (success) {
-      console.log('✅ Notification admin envoyée');
-    }
-    return success;
+    // Cette fonction est deprecated - utiliser callPHPEmailService à la place
+    console.warn('⚠️ sendAdminNotificationLegacy est deprecated - utiliser sendAdminNotification à la place');
+    return false;
   } catch (error) {
-    console.error('❌ Erreur notification admin:', error);
+    console.error('❌ Erreur notification admin (legacy):', error);
     return false;
   }
 }
