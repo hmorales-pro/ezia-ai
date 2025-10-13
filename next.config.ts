@@ -4,13 +4,6 @@ const nextConfig: NextConfig = {
   /* config options here */
   // output: 'standalone', // Désactivé pour compatibilité
 
-  // Exposer les variables d'environnement explicitement pour Dokploy
-  env: {
-    BREVO_API_KEY: process.env.BREVO_API_KEY,
-    BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL,
-    ADMIN_NOTIFICATION_EMAIL: process.env.ADMIN_NOTIFICATION_EMAIL,
-  },
-
   // Configuration pour Dokploy et CORS
   async headers() {
     return [
