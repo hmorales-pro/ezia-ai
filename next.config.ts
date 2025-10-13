@@ -2,7 +2,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // output: 'standalone', // Désactivé pour compatibilité
+  output: 'standalone', // Activé pour Docker/Dokploy
+
+  // Expose environment variables explicitly for standalone mode
+  env: {
+    BREVO_API_KEY: process.env.BREVO_API_KEY,
+    BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL,
+    ADMIN_NOTIFICATION_EMAIL: process.env.ADMIN_NOTIFICATION_EMAIL,
+  },
 
   // Configuration pour Dokploy et CORS
   async headers() {
