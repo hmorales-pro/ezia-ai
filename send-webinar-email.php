@@ -27,15 +27,54 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // ========================================
-// CONFIGURATION BREVO (À PERSONNALISER)
+// CHARGEMENT CONFIGURATION DEPUIS .env
 // ========================================
-define('BREVO_API_KEY', 'VOTRE_CLE_BREVO_API_ICI');
-define('BREVO_SENDER_EMAIL', 'noreply@ezia.ai');
-define('BREVO_SENDER_NAME', 'Ezia.ai');
-define('ADMIN_EMAIL', 'hugo.morales.pro+waitlist@gmail.com');
+function loadEnv($path) {
+    if (!file_exists($path)) {
+        throw new Exception('.env file not found at: ' . $path);
+    }
 
-// Clé de sécurité partagée entre Ezia et ce script
-define('SECRET_KEY', 'ezia-webhook-secret-2025-change-this');
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        // Ignorer les commentaires
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+
+        // Parser KEY=VALUE
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+
+            // Supprimer les guillemets si présents
+            $value = trim($value, '"\'');
+
+            // Définir la constante
+            if (!defined($key)) {
+                define($key, $value);
+            }
+        }
+    }
+}
+
+// Charger le fichier .env (au même emplacement que ce script)
+loadEnv(__DIR__ . '/.env');
+
+// Vérifier que les variables requises sont présentes
+$required = ['BREVO_API_KEY', 'BREVO_SENDER_EMAIL', 'ADMIN_EMAIL', 'SECRET_KEY'];
+foreach ($required as $var) {
+    if (!defined($var) || empty(constant($var))) {
+        http_response_code(500);
+        echo json_encode(['error' => "Configuration error: $var not set"]);
+        exit;
+    }
+}
+
+// Définir les constantes optionnelles avec valeurs par défaut
+if (!defined('BREVO_SENDER_NAME')) {
+    define('BREVO_SENDER_NAME', 'Ezia.ai');
+}
 
 // ========================================
 // VÉRIFICATION DE SÉCURITÉ

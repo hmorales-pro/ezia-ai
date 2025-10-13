@@ -1,0 +1,28 @@
+# Configuration pour le script PHP d'envoi d'emails webinaire
+# Copier ce fichier vers .env et remplir les vraies valeurs
+
+# ========================================
+# BREVO API
+# ========================================
+# Clé API Brevo (https://app.brevo.com/settings/keys/api)
+BREVO_API_KEY=xkeysib-VOTRE_CLE_ICI
+
+# Email expéditeur (doit être vérifié dans Brevo)
+BREVO_SENDER_EMAIL=noreply@ezia.ai
+
+# Nom de l'expéditeur (optionnel)
+BREVO_SENDER_NAME=Ezia.ai
+
+# ========================================
+# NOTIFICATIONS
+# ========================================
+# Email admin pour recevoir les notifications d'inscription
+ADMIN_EMAIL=hugo.morales.pro+waitlist@gmail.com
+
+# ========================================
+# SÉCURITÉ
+# ========================================
+# Clé secrète partagée entre Ezia et ce script PHP
+# IMPORTANT: Doit être identique à PHP_EMAIL_SECRET dans Dokploy
+# Générer une clé aléatoire longue (32+ caractères)
+SECRET_KEY=ezia-webhook-secret-2025-CHANGEZ-CETTE-CLE

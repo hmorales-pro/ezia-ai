@@ -12,43 +12,43 @@
 
 ## 📋 Étape 1 : Déployer le script PHP
 
-### A. Uploader les fichiers sur votre hébergement
+### A. Uploader les fichiers sur https://noreply.eziom.fr
 
-Via FTP, SSH, ou le gestionnaire de fichiers de votre hébergement, uploadez ces 2 fichiers :
+Via FTP, SSH, ou le gestionnaire de fichiers, uploadez ces **3 fichiers** :
 
 ```
-/votre-hebergement/
+/noreply.eziom.fr/
   ├── send-webinar-email.php          (script principal)
-  └── email-template-confirmation.html (template email)
+  ├── email-template-confirmation.html (template email)
+  └── .env                             (configuration - voir étape B)
 ```
 
-**Localisation recommandée** :
-- `https://votre-hebergement.com/webhooks/send-webinar-email.php`
-- ou `https://eziom.com/api/send-webinar-email.php`
-- ou tout autre emplacement accessible par HTTPS
+**URL finale** : `https://noreply.eziom.fr/send-webinar-email.php`
 
-### B. Configurer les credentials dans le PHP
+### B. Créer le fichier .env
 
-Éditez `send-webinar-email.php` ligne 23-27 :
+Crée un fichier `.env` au même emplacement que `send-webinar-email.php` avec ce contenu :
 
-```php
-define('BREVO_API_KEY', 'VOTRE_CLE_BREVO_API_ICI');
-define('BREVO_SENDER_EMAIL', 'noreply@ezia.ai');
-define('BREVO_SENDER_NAME', 'Ezia.ai');
-define('ADMIN_EMAIL', 'hugo.morales.pro+waitlist@gmail.com');
-define('SECRET_KEY', 'ezia-webhook-secret-2025-CHANGEZ-CETTE-CLE');
+```bash
+# Configuration PRODUCTION
+BREVO_API_KEY=VOTRE_CLE_BREVO_API_ICI
+BREVO_SENDER_EMAIL=noreply@ezia.ai
+BREVO_SENDER_NAME=Ezia.ai
+ADMIN_EMAIL=hugo.morales.pro+waitlist@gmail.com
+SECRET_KEY=ezia-webhook-prod-2025-3k9sL2pQm8vN7xR4wY6tU1zA5bC0dE
 ```
 
-⚠️ **IMPORTANT** :
-- Changez `SECRET_KEY` par une valeur aléatoire longue
-- Cette clé doit être la même dans Ezia et dans le PHP
+⚠️ **SÉCURITÉ** :
+- **NE JAMAIS commiter le `.env` dans Git**
+- Permissions recommandées : `chmod 600 .env` (lecture seule propriétaire)
+- Le fichier `php-env-production` contient ces valeurs pour copier-coller
 
 ### C. Tester le script PHP
 
 ```bash
-curl -X POST https://votre-hebergement.com/send-webinar-email.php \
+curl -X POST https://noreply.eziom.fr/send-webinar-email.php \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ezia-webhook-secret-2025-CHANGEZ-CETTE-CLE" \
+  -H "Authorization: Bearer ezia-webhook-prod-2025-3k9sL2pQm8vN7xR4wY6tU1zA5bC0dE" \
   -d '{
     "type": "confirmation",
     "firstName": "Test",
@@ -78,10 +78,10 @@ Dans l'interface Dokploy, ajoute ces 2 variables :
 
 | Variable | Valeur |
 |----------|--------|
-| `PHP_EMAIL_ENDPOINT` | `https://votre-hebergement.com/send-webinar-email.php` |
-| `PHP_EMAIL_SECRET` | `ezia-webhook-secret-2025-CHANGEZ-CETTE-CLE` |
+| `PHP_EMAIL_ENDPOINT` | `https://noreply.eziom.fr/send-webinar-email.php` |
+| `PHP_EMAIL_SECRET` | `ezia-webhook-prod-2025-3k9sL2pQm8vN7xR4wY6tU1zA5bC0dE` |
 
-⚠️ La valeur de `PHP_EMAIL_SECRET` **DOIT** être identique à `SECRET_KEY` dans le PHP.
+⚠️ La valeur de `PHP_EMAIL_SECRET` **DOIT** être identique à `SECRET_KEY` dans le `.env` PHP.
 
 ### B. Redéployer Ezia
 
@@ -114,7 +114,7 @@ docker logs <container-id> | grep "PHP endpoint"
 
 Tu devrais voir :
 ```
-📤 Envoi confirmation via PHP endpoint: https://votre-hebergement.com/send-webinar-email.php
+📤 Envoi confirmation via PHP endpoint: https://noreply.eziom.fr/send-webinar-email.php
 ✅ confirmation envoyé avec succès via PHP: Email de confirmation envoyé
 ```
 

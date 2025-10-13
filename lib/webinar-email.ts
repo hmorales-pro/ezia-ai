@@ -11,9 +11,9 @@ interface WebinarRegistrationData {
   position?: string;
 }
 
-// URL du script PHP sur votre hébergement (à personnaliser)
-const PHP_ENDPOINT = process.env.PHP_EMAIL_ENDPOINT || 'https://votre-hebergement.com/send-webinar-email.php';
-const SECRET_KEY = process.env.PHP_EMAIL_SECRET || 'ezia-webhook-secret-2025-change-this';
+// URL du script PHP sur l'hébergement Eziom
+const PHP_ENDPOINT = process.env.PHP_EMAIL_ENDPOINT || 'https://noreply.eziom.fr/send-webinar-email.php';
+const SECRET_KEY = process.env.PHP_EMAIL_SECRET || 'ezia-webhook-prod-2025-3k9sL2pQm8vN7xR4wY6tU1zA5bC0dE';
 
 /**
  * Génère un fichier .ics pour ajouter le webinaire au calendrier

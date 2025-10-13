@@ -58,3 +58,5 @@ Screenshot*
 # Local data storage
 .data/
 *.json.backup
+php-env-production
+*.bak
