@@ -55,6 +55,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copy startup script
+COPY --chown=nextjs:nodejs start.sh ./start.sh
+RUN chmod +x ./start.sh
+
 # Create .data directory for JSON storage
 RUN mkdir -p .data && chown -R nextjs:nodejs .data
 
@@ -65,5 +69,5 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-# Use node directly for better performance
-CMD ["node", "server.js"]
+# Use startup script to properly load environment variables from Dokploy
+CMD ["./start.sh"]
