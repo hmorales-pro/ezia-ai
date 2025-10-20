@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5 Prompts IA pour Entrepreneurs Pressés - Ezia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2C3E50;
+            background: white;
+        }
+
+        /* Style pour l'impression PDF */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            .no-break {
+                page-break-inside: avoid;
+            }
+        }
+
+        .page {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            background: white;
+        }
+
+        /* Page de couverture */
+        .cover-page {
+            min-height: 297mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+            color: white;
+            padding: 40mm 20mm;
+        }
+
+        .cover-emoji {
+            font-size: 80px;
+            margin-bottom: 30px;
+        }
+
+        .cover-title {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .cover-subtitle {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 40px;
+            opacity: 1;
+        }
+
+        .cover-badge {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 40px;
+            color: #6D3FC8;
+        }
+
+        /* Styles de contenu */
+        h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: #6D3FC8;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #6D3FC8;
+            margin: 40px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2C3E50;
+            margin: 30px 0 15px 0;
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #E8DFF5 0%, #F3EEFF 100%);
+            border-left: 4px solid #6D3FC8;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+
+        .highlight-box strong {
+            color: #2C3E50;
+        }
+
+        .prompt-box {
+            background: #F8F9FA;
+            border: 2px solid #E9ECEF;
+            padding: 30px;
+            border-radius: 16px;
+            margin: 25px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            color: #2C3E50;
+        }
+
+        .gain-badge {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+
+        .intro-box {
+            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+            border-left: 4px solid #FF6B35;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+
+        .intro-box strong {
+            color: #2C3E50;
+        }
+
+        .benefit-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .benefit-list li {
+            padding: 12px 0;
+            font-size: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #2C3E50;
+        }
+
+        .benefit-list li strong {
+            color: #2C3E50;
+        }
+
+        .benefit-list li:before {
+            content: "✅";
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, #FF6B9D 0%, #C084FC 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .cta-box h2 {
+            color: white;
+            justify-content: center;
+            margin-top: 0;
+        }
+
+        .cta-box p {
+            font-size: 18px;
+            margin: 15px 0;
+        }
+
+        .promo-code {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            padding: 25px;
+            border-radius: 16px;
+            margin: 25px 0;
+            font-size: 24px;
+            font-weight: 800;
+            color: #6D3FC8;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0 20px 0;
+            color: #4B5563;
+            font-size: 14px;
+            border-top: 2px solid #E5E7EB;
+            margin-top: 40px;
+        }
+
+        strong {
+            color: #2C3E50;
+            font-weight: 600;
+        }
+
+        /* Strong violet uniquement pour les badges de gain */
+        .gain-badge strong {
+            color: white;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #6D3FC8;
+            padding: 20px 40px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .section-number {
+            background: #6D3FC8;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .tip-card {
+            background: white;
+            border: 2px solid #E8DFF5;
+            padding: 25px;
+            border-radius: 16px;
+        }
+
+        .tip-card h3 {
+            color: #6D3FC8;
+            margin-top: 0;
+        }
+
+        .example {
+            background: #F1F5F9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .example-bad {
+            color: #DC2626;
+        }
+
+        .example-good {
+            color: #10B981;
+        }
+    </style>
+</head>
+<body>
+
+<!-- PAGE DE COUVERTURE -->
+<div class="cover-page">
+    <div class="cover-emoji">🚀</div>
+    <h1 class="cover-title">5 Prompts IA<br/>pour Entrepreneurs Pressés</h1>
+    <p class="cover-subtitle">Gagnez 10h par semaine en automatisant<br/>vos tâches répétitives</p>
+    <div class="cover-badge">
+        🎁 Guide exclusif offert aux participants du webinaire Ezia.ai
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGE INTRODUCTION -->
+<div class="page">
+    <h1>📖 Comment utiliser ce guide ?</h1>
+
+    <p>Chaque prompt est <strong>prêt à l'emploi</strong>. Copiez-collez le dans ChatGPT, Claude ou votre IA préférée, remplacez les parties entre [crochets] par vos informations, et laissez l'IA travailler pour vous.</p>
+
+    <div class="intro-box">
+        <p style="margin: 0;"><strong>💡 Astuce</strong> : Enregistrez ces prompts dans vos favoris ou créez un document de référence pour y accéder rapidement.</p>
+    </div>
+
+    <h2 style="margin-top: 60px;">📊 Ce que vous allez gagner</h2>
+
+    <ul class="benefit-list">
+        <li><strong>2-3h/semaine</strong> sur la rédaction d'emails</li>
+        <li><strong>2-3h/semaine</strong> sur la création de contenu social media</li>
+        <li><strong>1-2h/semaine</strong> sur les comptes-rendus de réunions</li>
+        <li><strong>2-3h/analyse</strong> sur les études de marché</li>
+        <li><strong>1-2h/semaine</strong> sur la planification et l'organisation</li>
+    </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PROMPT 1 -->
+<div class="page no-break">
+    <h1><span class="section-number">1</span> Rédaction d'emails professionnels en 30 secondes</h1>
+
+    <p><strong>Cas d'usage</strong> : Réponses clients, emails de prospection, relances, négociations</p>
+
+    <h3>Le Prompt :</h3>
+    <div class="prompt-box">Je dois envoyer un email professionnel avec le contexte suivant :
+
+Destinataire : [Ex: un prospect intéressé par mes services]
+Objectif : [Ex: le convaincre de réserver un appel découverte]
+Ton souhaité : [Ex: professionnel mais chaleureux]
+Éléments clés à inclure : [Ex: notre expertise depuis 5 ans, témoignage client, disponibilités cette semaine]
+
+Rédige un email de 150-200 mots maximum, avec :
+- Un objet accrocheur
+- Une introduction personnalisée
+- Un call-to-action clair
+- Une signature professionnelle
+
+Propose 2 versions : une plus formelle et une plus décontractée.</div>
+
+    <div class="gain-badge">
+        📈 Gain de temps : 15-20 minutes par email (10 emails/semaine) → <strong>2-3h par semaine</strong>
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PROMPT 2 -->
+<div class="page no-break">
+    <h1><span class="section-number">2</span> Création de posts LinkedIn/réseaux sociaux</h1>
+
+    <p><strong>Cas d'usage</strong> : Visibilité, personal branding, engagement communauté</p>
+
+    <h3>Le Prompt :</h3>
+    <div class="prompt-box">Crée un post LinkedIn engageant sur le sujet suivant :
+
+Thème : [Ex: mon retour d'expérience sur l'automatisation de mon business]
+Message principal : [Ex: j'ai gagné 15h/semaine en automatisant 3 tâches clés]
+Public cible : [Ex: entrepreneurs solo et TPE]
+Ton : [Ex: inspirant mais humble, storytelling]
+
+Structure souhaitée :
+1. Accroche forte (première ligne)
+2. Contexte ou problème (2-3 lignes)
+3. Solution ou action prise (développement)
+4. Résultat concret avec chiffres
+5. Question ou call-to-action pour engager
+
+Longueur : 150-200 mots maximum
+Ajoute 3-5 emojis pertinents mais sans en abuser
+Propose 3 hashtags stratégiques</div>
+
+    <div class="gain-badge">
+        📈 Gain de temps : 30-45 minutes par post (4-5 posts/semaine) → <strong>2-3h par semaine</strong>
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PROMPT 3 -->
+<div class="page no-break">
+    <h1><span class="section-number">3</span> Résumé de réunions et compte-rendus</h1>
+
+    <p><strong>Cas d'usage</strong> : Transformer vos notes de réunion en actions concrètes</p>
+
+    <h3>Le Prompt :</h3>
+    <div class="prompt-box">Voici mes notes brutes d'une réunion :
+
+[Collez vos notes ici, même désorganisées]
+
+Transforme ces notes en compte-rendu structuré avec :
+
+1. **Contexte** (1 phrase) : De quoi parlait cette réunion ?
+2. **Participants** : Liste des personnes présentes
+3. **Décisions prises** : Points validés (bullet points)
+4. **Actions à réaliser** : Format tableau avec 4 colonnes :
+   - Action
+   - Responsable
+   - Deadline
+   - Priorité (Haute/Moyenne/Basse)
+5. **Points en suspens** : Questions restées sans réponse
+6. **Date prochaine réunion** (si mentionnée)
+
+Ton : professionnel et synthétique
+Format : prêt à être envoyé par email ou partagé sur Notion</div>
+
+    <div class="gain-badge">
+        📈 Gain de temps : 20-30 minutes par réunion (3-4 réunions/semaine) → <strong>1-2h par semaine</strong>
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PROMPT 4 -->
+<div class="page no-break">
+    <h1><span class="section-number">4</span> Analyse de marché express</h1>
+
+    <p><strong>Cas d'usage</strong> : Étudier la concurrence, identifier des tendances, valider une idée</p>
+
+    <h3>Le Prompt :</h3>
+    <div class="prompt-box">Je veux analyser le marché suivant :
+
+Secteur : [Ex: coaching business pour entrepreneurs]
+Zone géographique : [Ex: France]
+Mon positionnement : [Ex: coaching + outils IA pour automatiser]
+
+Fournis-moi une analyse structurée avec :
+
+1. **Taille du marché** : Chiffres clés et tendances 2024-2025
+2. **Concurrents principaux** : 5 acteurs majeurs avec leur positionnement
+3. **Opportunités identifiées** : 3 angles d'attaque peu exploités
+4. **Menaces potentielles** : Risques à anticiper
+5. **Tendances émergentes** : Ce qui va exploser en 2025
+6. **Pricing moyen** : Fourchettes de prix pratiquées
+7. **Recommandations** : 3 actions prioritaires pour se différencier
+
+Format : synthétique mais précis, avec sources si possible
+Ton : analytique et orienté action</div>
+
+    <div class="gain-badge">
+        📈 Gain de temps : 2-3h de recherche → <strong>Économie de 2-3h par analyse</strong>
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PROMPT 5 -->
+<div class="page no-break">
+    <h1><span class="section-number">5</span> Planification de semaine optimisée</h1>
+
+    <p><strong>Cas d'usage</strong> : Prioriser, organiser, ne plus se sentir débordé</p>
+
+    <h3>Le Prompt :</h3>
+    <div class="prompt-box">Voici toutes mes tâches et objectifs pour la semaine :
+
+[Listez tout en vrac : tâches urgentes, projets en cours, deadlines, réunions prévues]
+
+Aide-moi à organiser ma semaine de manière optimale :
+
+1. **Priorisation** : Classe ces tâches selon la matrice Eisenhower
+   - Urgent + Important
+   - Important mais pas urgent
+   - Urgent mais pas important
+   - Ni urgent ni important (à déléguer ou supprimer)
+
+2. **Planning jour par jour** : Répartis les tâches sur 5 jours avec :
+   - Maximum 3 tâches prioritaires par jour
+   - Temps estimé pour chaque tâche
+   - Blocs de temps dédiés (Deep Work le matin, Admin l'après-midi)
+
+3. **Recommandations** :
+   - Quelles tâches déléguer ou automatiser ?
+   - Quelles tâches peuvent attendre la semaine prochaine ?
+   - Où bloquer du temps pour l'imprévu ?
+
+Format : tableau clair et actionnable
+Ton : coach bienveillant mais exigeant</div>
+
+    <div class="gain-badge">
+        📈 Gain de temps : 1-2h de planification optimisée → <strong>1-2h économisées par semaine</strong>
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGE BONUS -->
+<div class="page">
+    <h1>🎁 BONUS : Comment personnaliser ces prompts ?</h1>
+
+    <p style="font-size: 18px; margin-bottom: 30px;"><strong>3 astuces pour des résultats encore meilleurs :</strong></p>
+
+    <div class="tips-grid">
+        <div class="tip-card">
+            <h3>1. Soyez hyper-précis</h3>
+            <p>Plus vous donnez de contexte, meilleur sera le résultat.</p>
+            <div class="example example-bad">❌ "Rédige un email"</div>
+            <div class="example example-good">✅ "Rédige un email de relance pour un prospect qui a téléchargé mon lead magnet il y a 3 jours mais n'a pas répondu"</div>
+        </div>
+
+        <div class="tip-card">
+            <h3>2. Ajoutez des exemples</h3>
+            <p>Montrez à l'IA ce que vous aimez.</p>
+            <div class="example">"Voici un email que j'aime : [exemple]. Inspire-toi de ce ton."</div>
+        </div>
+
+        <div class="tip-card">
+            <h3>3. Itérez</h3>
+            <p>Si le premier résultat n'est pas parfait, demandez des ajustements :</p>
+            <div class="example">→ "Rends cette version plus chaleureuse"<br/>
+→ "Ajoute des chiffres concrets"<br/>
+→ "Raccourcis à 100 mots maximum"</div>
+        </div>
+    </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGE CTA -->
+<div class="page">
+    <h1>🚀 Prêt à aller plus loin ?</h1>
+
+    <p style="font-size: 18px;">Ces 5 prompts peuvent vous faire <strong>gagner 10h par semaine</strong>.</p>
+
+    <p style="font-size: 18px;">Mais imaginez si vous aviez un <strong>copilote IA qui connaît votre business par cœur</strong> et automatise ces tâches pour vous, sans même avoir à copier-coller des prompts...</p>
+
+    <div class="highlight-box">
+        <p style="font-size: 20px; margin: 0;"><strong>C'est exactement ce que fait Ezia. 🤖</strong></p>
+    </div>
+
+    <ul class="benefit-list">
+        <li>Analyse votre marché automatiquement</li>
+        <li>Génère votre contenu marketing</li>
+        <li>Planifie votre stratégie semaine par semaine</li>
+        <li>Crée votre site web et vos landing pages</li>
+        <li>Suit vos concurrents et détecte les opportunités</li>
+    </ul>
+
+    <div class="cta-box">
+        <h2>🎯 Offre exclusive participants webinaire</h2>
+
+        <div class="promo-code">
+            Code promo : <strong>EARLYBIRD30</strong>
+        </div>
+
+        <p style="font-size: 22px; font-weight: 600;">-30% sur vos 3 premiers mois d'abonnement</p>
+        <p style="font-size: 16px; font-weight: 500;">Code valable 7 jours après le webinaire</p>
+
+        <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid rgba(255,255,255,0.5);">
+            <p style="font-size: 20px; font-weight: 700; margin-bottom: 25px;"><strong>👉 Rejoignez la waiting list VIP</strong></p>
+            <a href="https://ezia.ai/waitlist" class="cta-button">
+                📝 Accéder à la Waiting List VIP
+            </a>
+            <p style="font-size: 14px; font-weight: 400; margin-top: 15px; opacity: 0.9;">Accès prioritaire au lancement + support dédié</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>Questions ?</strong> Contactez-nous : hello@ezia.ai</p>
+        <p style="margin-top: 20px;">© 2025 Ezia.ai - Votre copilote IA pour entrepreneurs pressés</p>
+    </div>
+</div>
+
+</body>
+</html>
