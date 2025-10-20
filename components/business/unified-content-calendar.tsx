@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { useUser } from "@/hooks/useUser";
 
 interface ContentItem {
   id: string;
@@ -167,15 +168,16 @@ if (!global.unifiedContentItems) {
   global.unifiedContentItems = {};
 }
 
-export function UnifiedContentCalendar({ 
-  businessId, 
-  businessName, 
-  businessIndustry, 
+export function UnifiedContentCalendar({
+  businessId,
+  businessName,
+  businessIndustry,
   businessDescription,
   marketAnalysis,
   marketingStrategy,
   competitorAnalysis
 }: UnifiedContentCalendarProps) {
+  const { user } = useUser();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
@@ -193,6 +195,8 @@ export function UnifiedContentCalendar({
   const [viewMode, setViewMode] = useState<"calendar" | "list" | "pipeline">("calendar");
   const [activeTab, setActiveTab] = useState("overview");
   const [hasAICalendar, setHasAICalendar] = useState(false);
+  const [imageQuota, setImageQuota] = useState({ used: 0, quota: 0, remaining: 0 });
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -208,7 +212,28 @@ export function UnifiedContentCalendar({
   useEffect(() => {
     // Charger le calendrier sauvegardé depuis l'API
     loadSavedCalendar();
-  }, [businessId]);
+    // Charger le quota d'images
+    loadImageQuota();
+  }, [businessId, user]);
+
+  const loadImageQuota = async () => {
+    // Ne charger le quota que si l'utilisateur est authentifié
+    if (!user) {
+      setImageQuota({ used: 0, quota: 0, remaining: 0 });
+      return;
+    }
+
+    try {
+      const response = await api.get('/api/images/generate');
+      if (response.data.usage) {
+        setImageQuota(response.data.usage);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du quota d\'images:', error);
+      // En cas d'erreur, ne pas afficher d'erreur mais initialiser à 0
+      setImageQuota({ used: 0, quota: 0, remaining: 0 });
+    }
+  };
 
   const loadSavedCalendar = async () => {
     try {
@@ -447,17 +472,54 @@ export function UnifiedContentCalendar({
       if (response.data.success) {
         const generatedContent = response.data.content;
         // Mettre à jour avec le contenu généré
-        const finalUpdated = contentItems.map(c => 
-          c.id === item.id 
-            ? { 
-                ...c, 
+        const finalUpdated = contentItems.map(c =>
+          c.id === item.id
+            ? {
+                ...c,
                 status: "generated" as const,
                 content: generatedContent
-              } 
+              }
             : c
         );
         await saveContentItems(finalUpdated);
         toast.success(`Contenu généré avec succès !`);
+
+        // Génération automatique d'image si le type est "image"
+        if (item.type === "image" && imageQuota.remaining > 0) {
+          try {
+            toast.info("Génération automatique de l'image...");
+            const imageResponse = await api.post("/api/images/generate", {
+              prompt: "",
+              contentTitle: item.title,
+              contentDescription: generatedContent,
+              contentType: item.type,
+              width: 1024,
+              height: 1024,
+            });
+
+            if (imageResponse.data.success && imageResponse.data.image) {
+              // Mettre à jour l'item avec l'image générée
+              const updatedWithImage = contentItems.map(c =>
+                c.id === item.id
+                  ? {
+                      ...c,
+                      imageUrl: imageResponse.data.image
+                    }
+                  : c
+              );
+              await saveContentItems(updatedWithImage);
+
+              if (imageResponse.data.usage) {
+                setImageQuota(imageResponse.data.usage);
+              }
+
+              toast.success(`Image générée automatiquement ! (${imageResponse.data.usage.remaining} restantes)`);
+            }
+          } catch (imageError: any) {
+            console.error("Erreur génération auto image:", imageError);
+            toast.warning("Le contenu a été généré mais l'image a échoué. Vous pouvez réessayer manuellement.");
+          }
+        }
       } else {
         throw new Error("Failed to generate content");
       }
@@ -541,43 +603,50 @@ export function UnifiedContentCalendar({
   };
 
   const handleGenerateImage = async () => {
-    if (!formData.imagePrompt) {
-      toast.error("Veuillez décrire l'image à générer");
+    if (!formData.imagePrompt && !formData.title) {
+      toast.error("Veuillez décrire l'image à générer ou fournir un titre");
       return;
     }
-    
+
+    // Vérifier le quota
+    if (imageQuota.remaining <= 0 && imageQuota.quota > 0) {
+      toast.error(`Quota d'images épuisé (${imageQuota.quota}/mois). Revenez le mois prochain !`);
+      return;
+    }
+
     setGeneratingImage(true);
-    
+
     try {
-      // Appeler l'API pour générer l'image avec Mistral AI
-      const response = await api.post("/api/generate-image", {
+      // Appeler l'API pour générer l'image avec Stable Diffusion
+      const response = await api.post("/api/images/generate", {
         prompt: formData.imagePrompt,
-        size: "1024x1024"
+        contentTitle: formData.title,
+        contentDescription: formData.description,
+        contentType: formData.type,
+        width: 1024,
+        height: 1024,
       });
-      
-      if (response.data.success && response.data.data.images.length > 0) {
-        const imageUrl = response.data.data.images[0].url;
-        
-        // Mettre à jour le contenu avec l'image générée
-        if (editingItem) {
-          const updated = contentItems.map(item => 
-            item.id === editingItem.id 
-              ? { ...item, imageUrl } 
-              : item
-          );
-          saveContentItems(updated);
-        } else {
-          setFormData({ ...formData, content: `${formData.content}\n\n![Image générée](${imageUrl})` });
+
+      if (response.data.success && response.data.image) {
+        const imageBase64 = response.data.image;
+
+        // Sauvegarder l'image générée
+        setGeneratedImageUrl(imageBase64);
+
+        // Mettre à jour le quota
+        if (response.data.usage) {
+          setImageQuota(response.data.usage);
         }
-        
-        toast.success("Image générée avec succès !");
+
+        toast.success(`Image générée ! (${response.data.usage.remaining} restantes ce mois)`);
       } else {
         toast.error("Aucune image générée");
       }
-      
-    } catch (error) {
+
+    } catch (error: any) {
       console.error("Erreur génération image:", error);
-      toast.error("Erreur lors de la génération de l'image");
+      const errorMessage = error.response?.data?.error || "Erreur lors de la génération de l'image";
+      toast.error(errorMessage);
     } finally {
       setGeneratingImage(false);
     }
@@ -607,6 +676,7 @@ export function UnifiedContentCalendar({
       content: "",
       imagePrompt: "",
     });
+    setGeneratedImageUrl(null);
   };
 
   const openEditDialog = (item: ContentItem) => {
@@ -796,14 +866,7 @@ export function UnifiedContentCalendar({
       </CardHeader>
       
       <CardContent>
-        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="calendar">Calendrier</TabsTrigger>
-            <TabsTrigger value="list">Liste</TabsTrigger>
-            <TabsTrigger value="pipeline">Pipeline IA</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="calendar" className="space-y-4">
+        <div className="space-y-4">
             {/* Navigation du mois */}
             <div className="flex items-center justify-between">
               <Button
@@ -918,293 +981,7 @@ export function UnifiedContentCalendar({
                 })}
               </div>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="list" className="space-y-4">
-            {/* Actions en masse */}
-            {selectedItems.length > 0 && (
-              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                <span className="text-sm font-medium">
-                  {selectedItems.length} éléments sélectionnés
-                </span>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setSelectedItems([])}
-                  >
-                    Désélectionner tout
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => setShowBulkGenerateDialog(true)}
-                    className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white"
-                  >
-                    <Zap className="w-4 h-4 mr-2" />
-                    Générer en masse
-                  </Button>
-                </div>
-              </div>
-            )}
-            
-            <div className="space-y-2">
-              {contentItems
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                .map((item) => {
-                  const config = contentTypeConfig[item.type] || contentTypeConfig.article;
-                  const Icon = config.icon;
-                  const isSelected = selectedItems.includes(item.id);
-                  
-                  return (
-                    <div 
-                      key={item.id} 
-                      className={cn(
-                        "flex items-center gap-3 p-4 bg-white rounded-lg border hover:shadow-md transition-all",
-                        isSelected && "ring-2 ring-[#6D3FC8] bg-purple-50"
-                      )}
-                    >
-                      {item.status === "suggested" && (
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedItems([...selectedItems, item.id]);
-                            } else {
-                              setSelectedItems(selectedItems.filter(id => id !== item.id));
-                            }
-                          }}
-                        />
-                      )}
-                      
-                      {item.agent_emoji && <span className="text-xl">{item.agent_emoji}</span>}
-                      <div className={cn("p-2 rounded", config.color)}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-medium">{item.title}</h4>
-                          {item.ai_generated && (
-                            <Badge variant="secondary" className="text-xs">
-                              <Sparkles className="w-3 h-3 mr-1" />
-                              IA
-                            </Badge>
-                          )}
-                        </div>
-                        {item.description && (
-                          <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                        )}
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {format(new Date(item.date), "d MMM yyyy", { locale: fr })}
-                          </span>
-                          {item.time && (
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {item.time}
-                            </span>
-                          )}
-                          <Badge className={cn("text-xs", getStatusColor(item.status))}>
-                            {getStatusLabel(item.status)}
-                          </Badge>
-                          {item.platform?.map((platform) => {
-                            const PlatformIcon = platformIcons[platform as keyof typeof platformIcons];
-                            return PlatformIcon ? <PlatformIcon key={platform} className="w-3 h-3" /> : null;
-                          })}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handlePreviewContent(item)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        
-                        {item.status === "suggested" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleGenerateSingleContent(item)}
-                          >
-                            Générer
-                          </Button>
-                        )}
-                        
-                        {item.status === "generated" && (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleGenerateSingleContent(item)}
-                              title="Régénérer le contenu"
-                            >
-                              <RefreshCw className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => handlePublishContent(item)}
-                            >
-                              <Send className="w-4 h-4" />
-                            </Button>
-                          </>
-                        )}
-                        
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openEditDialog(item)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDeleteContent(item.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="pipeline" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Performance globale</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Taux de suggestion → génération</span>
-                        <span className="font-semibold">
-                          {stats.suggested > 0 ? Math.round((stats.generated / stats.suggested) * 100) : 0}%
-                        </span>
-                      </div>
-                      <Progress value={stats.suggested > 0 ? (stats.generated / stats.suggested) * 100 : 0} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Taux de publication</span>
-                        <span className="font-semibold">
-                          {stats.total > 0 ? Math.round((stats.published / stats.total) * 100) : 0}%
-                        </span>
-                      </div>
-                      <Progress value={stats.total > 0 ? (stats.published / stats.total) * 100 : 0} className="h-2" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Contribution des agents</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {stats.byAgent.map((agent) => (
-                      <div key={agent.name} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{agent.emoji}</span>
-                          <span className="text-sm font-medium">{agent.name}</span>
-                        </div>
-                        <Badge variant="secondary">{agent.count}</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            {/* Pipeline par statut */}
-            <div className="space-y-4">
-              {["suggested", "approved", "generating", "generated", "published"].map((status) => {
-                const items = contentItems.filter(item => item.status === status);
-                if (items.length === 0) return null;
-                
-                return (
-                  <div key={status}>
-                    <h4 className="font-medium text-sm text-gray-600 mb-2 flex items-center gap-2">
-                      {getStatusLabel(status)}
-                      <Badge variant="secondary">{items.length}</Badge>
-                    </h4>
-                    <div className="space-y-2">
-                      {items.slice(0, 5).map((item) => {
-                        const config = contentTypeConfig[item.type] || contentTypeConfig.article;
-                        const Icon = config.icon;
-                        
-                        return (
-                          <div
-                            key={item.id}
-                            className="flex items-center gap-3 p-3 bg-white rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
-                            onClick={() => handlePreviewContent(item)}
-                          >
-                            {item.agent_emoji && <span className="text-lg">{item.agent_emoji}</span>}
-                            <div className={cn("p-1.5 rounded", config.color)}>
-                              <Icon className="w-4 h-4" />
-                            </div>
-                            <div className="flex-1">
-                              <h5 className="font-medium text-sm">{item.title}</h5>
-                              <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
-                                <span>{format(new Date(item.date), "d MMM", { locale: fr })}</span>
-                                {item.agent && <span>{item.agent}</span>}
-                                {item.marketingObjective && (
-                                  <Badge variant="outline" className="text-xs scale-90">
-                                    {item.marketingObjective}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                            
-                            {status === "suggested" && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleGenerateSingleContent(item);
-                                }}
-                              >
-                                Générer
-                              </Button>
-                            )}
-                            
-                            {status === "generated" && (
-                              <Button
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handlePublishContent(item);
-                                }}
-                              >
-                                Publier
-                              </Button>
-                            )}
-                          </div>
-                        );
-                      })}
-                      {items.length > 5 && (
-                        <p className="text-xs text-gray-500 text-center py-2">
-                          +{items.length - 5} autres contenus
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </TabsContent>
-        </Tabs>
+        </div>
       </CardContent>
 
       {/* Dialog Ajouter/Éditer contenu */}
@@ -1350,23 +1127,34 @@ export function UnifiedContentCalendar({
               />
             </div>
             
-            {(formData.type === "image" || formData.type === "social") && (
-              <div className="grid gap-2 p-4 border rounded-lg bg-purple-50">
-                <Label htmlFor="imagePrompt" className="flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4" />
-                  Générer une image avec Mistral AI
-                </Label>
+            {(formData.type === "image" || formData.type === "social" || formData.type === "article" || formData.type === "ad" || formData.type === "video") && (
+              <div className="grid gap-3 p-4 border rounded-lg bg-purple-50">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="imagePrompt" className="flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4" />
+                    Générer une image avec Stable Diffusion
+                  </Label>
+                  <span className="text-xs text-gray-600">
+                    {imageQuota.quota > 0 ? (
+                      <span className={imageQuota.remaining > 0 ? "text-green-600" : "text-red-600"}>
+                        {imageQuota.remaining}/{imageQuota.quota} restantes ce mois
+                      </span>
+                    ) : (
+                      <span className="text-orange-600">Plan Creator requis (29€/mois = 50 images)</span>
+                    )}
+                  </span>
+                </div>
                 <div className="flex gap-2">
                   <Input
                     id="imagePrompt"
                     value={formData.imagePrompt}
                     onChange={(e) => setFormData({ ...formData, imagePrompt: e.target.value })}
-                    placeholder="Décrivez l'image à générer..."
+                    placeholder="Décrivez l'image (ou laissez vide pour auto-générer depuis le titre)"
                   />
                   <Button
                     size="sm"
                     onClick={handleGenerateImage}
-                    disabled={generatingImage}
+                    disabled={generatingImage || (imageQuota.quota > 0 && imageQuota.remaining <= 0)}
                   >
                     {generatingImage ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -1375,6 +1163,18 @@ export function UnifiedContentCalendar({
                     )}
                   </Button>
                 </div>
+                {generatedImageUrl && (
+                  <div className="mt-2 border rounded-lg overflow-hidden bg-white">
+                    <img
+                      src={generatedImageUrl}
+                      alt="Image générée"
+                      className="w-full h-auto"
+                    />
+                    <div className="p-2 text-xs text-center text-gray-600">
+                      Image générée avec succès ✓
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1528,8 +1328,8 @@ export function UnifiedContentCalendar({
             <Button variant="outline" onClick={() => setShowPreviewDialog(false)}>
               Fermer
             </Button>
-            {previewItem?.status === "suggested" && (
-              <Button 
+            {(previewItem?.status === "suggested" || previewItem?.status === "scheduled" || previewItem?.status === "draft") && (
+              <Button
                 onClick={() => {
                   handleGenerateSingleContent(previewItem);
                   setShowPreviewDialog(false);

@@ -69,17 +69,17 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-50 p-4 rounded-lg">
+            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
               <h5 className="font-medium text-[#6D3FC8] mb-1">Opportunité de marché</h5>
               <p className="text-sm">{analysis.executive_summary?.market_opportunity}</p>
             </div>
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <h5 className="font-medium text-blue-700 mb-1">Prévision de croissance</h5>
               <p className="text-sm">{analysis.executive_summary?.growth_forecast}</p>
             </div>
           </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h5 className="font-medium mb-1">Positionnement stratégique</h5>
             <p className="text-sm">{analysis.executive_summary?.strategic_positioning}</p>
           </div>
@@ -87,7 +87,7 @@ export function MarketAnalysisDisplay({ analysis }: MarketAnalysisDisplayProps) 
       </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid grid-cols-2 lg:grid-cols-6 gap-2 h-auto p-1">
+        <TabsList className="grid grid-cols-2 lg:grid-cols-6 gap-2 h-auto p-1 bg-white border border-gray-200 shadow-sm">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
           <TabsTrigger value="audience">Public cible</TabsTrigger>
           <TabsTrigger value="pestel">PESTEL</TabsTrigger>

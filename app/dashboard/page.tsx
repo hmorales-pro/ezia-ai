@@ -182,33 +182,11 @@ export default function DashboardPage() {
             <div className="flex items-center gap-4">
               {user ? (
                 <>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{user.fullname || user.name}</p>
-                    <p className="text-xs text-[#666666]">{user.email}</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {/* Pricing disabled */}}
-                    className="text-[#666666] hover:text-[#1E1E1E] border-[#E0E0E0] hover:bg-gray-50"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Abonnement
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => router.push("/sites")}
-                    className="text-[#666666] hover:text-[#1E1E1E] border-[#E0E0E0] hover:bg-gray-50"
-                  >
-                    <Globe className="w-4 h-4 mr-2" />
-                    Projets Web
-                  </Button>
                   <UserMenu />
                 </>
               ) : (
-                <Button 
-                  onClick={() => setShowLoginModal(true)} 
+                <Button
+                  onClick={() => setShowLoginModal(true)}
                   className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white border-0 shadow-md hover:shadow-lg transition-all"
                 >
                   Se connecter
@@ -229,6 +207,7 @@ export default function DashboardPage() {
               icon={Building2}
               iconColor="text-violet-500"
             />
+            {/* Désactivé temporairement
             <StatCard
               title="Sites web créés"
               value={globalStats.activeWebsites}
@@ -237,6 +216,7 @@ export default function DashboardPage() {
               icon={Globe}
               iconColor="text-blue-500"
             />
+            */}
             <StatCard
               title="Score moyen"
               value={`${globalStats.avgCompletionScore}%`}
@@ -272,7 +252,8 @@ export default function DashboardPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Désactivé temporairement
                 <QuickActionCard
                   title="Développer ma présence"
                   description="Site web, réseaux sociaux et plus"
@@ -285,6 +266,7 @@ export default function DashboardPage() {
                   iconColor="text-purple-500"
                   badge="Nouveau"
                 />
+                */}
                 <QuickActionCard
                   title="Analyse de marché"
                   description="Comprenez votre environnement"

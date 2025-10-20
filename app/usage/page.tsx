@@ -104,9 +104,9 @@ export default function UsagePage() {
                   Période : du {new Date(usageData.period.start).toLocaleDateString('fr-FR')} au {new Date(usageData.period.end).toLocaleDateString('fr-FR')}
                 </CardDescription>
               </div>
-              <Button 
+              <Button
                 variant="outline"
-                onClick={() => {/* Tarifs disabled */}}
+                onClick={() => router.push('/pricing')}
                 className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] text-white hover:from-[#5A35A5] hover:to-[#4A2B87]"
               >
                 <Zap className="w-4 h-4 mr-2" />

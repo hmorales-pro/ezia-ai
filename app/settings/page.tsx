@@ -73,7 +73,7 @@ export default function SettingsPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 shadow-sm">
             <TabsTrigger value="profile">Profil</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="security">Sécurité</TabsTrigger>
@@ -270,9 +270,9 @@ export default function SettingsPage() {
                       <p className="font-medium">Plan actuel</p>
                       <p className="text-sm text-[#666666]">Plan Gratuit</p>
                     </div>
-                    <Button 
+                    <Button
                       variant="outline"
-                      onClick={() => {/* Tarifs disabled */}}
+                      onClick={() => router.push('/pricing')}
                     >
                       Changer de plan
                     </Button>

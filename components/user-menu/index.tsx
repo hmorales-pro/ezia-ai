@@ -7,6 +7,7 @@ import {
   User,
   Settings,
   ChevronDown,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -66,6 +67,7 @@ export const UserMenu = ({ className }: { className?: string }) => {
         <DropdownMenuSeparator className="my-3" />
         
         <div className="space-y-1">
+          {/* Désactivé - Pas de page /profile
           <Link href="/profile" className="block">
             <div className="flex items-center gap-3 p-3 rounded-md hover:bg-purple-50 transition-colors group cursor-pointer">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
@@ -81,7 +83,9 @@ export const UserMenu = ({ className }: { className?: string }) => {
               </div>
             </div>
           </Link>
-          
+          */}
+
+          {/* Désactivé - Fonctionnalité workspace désactivée
           <Link href="/workspace/new" className="block">
             <div className="flex items-center gap-3 p-3 rounded-md hover:bg-purple-50 transition-colors group cursor-pointer">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
@@ -97,7 +101,9 @@ export const UserMenu = ({ className }: { className?: string }) => {
               </div>
             </div>
           </Link>
-          
+          */}
+
+          {/* Désactivé - Fonctionnalité workspace désactivée
           <Link href="/workspace" className="block">
             <div className="flex items-center gap-3 p-3 rounded-md hover:bg-purple-50 transition-colors group cursor-pointer">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
@@ -113,7 +119,8 @@ export const UserMenu = ({ className }: { className?: string }) => {
               </div>
             </div>
           </Link>
-          
+          */}
+
           <Link href="/usage" className="block">
             <div className="flex items-center gap-3 p-3 rounded-md hover:bg-purple-50 transition-colors group cursor-pointer">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
@@ -129,7 +136,23 @@ export const UserMenu = ({ className }: { className?: string }) => {
               </div>
             </div>
           </Link>
-          
+
+          {/* Désactivé - Fonctionnalité abonnement désactivée
+          <div className="flex items-center gap-3 p-3 rounded-md hover:bg-purple-50 transition-colors group cursor-pointer">
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+              <Sparkles className="w-5 h-5 text-[#6D3FC8]" />
+            </div>
+            <div>
+              <div className="text-sm font-medium leading-none mb-1 text-[#1E1E1E] group-hover:text-[#6D3FC8] transition-colors">
+                Abonnement
+              </div>
+              <p className="text-sm leading-snug text-[#666666] group-hover:text-[#1E1E1E] transition-colors">
+                Gérer mon abonnement
+              </p>
+            </div>
+          </div>
+          */}
+
           <Link href="/settings" className="block">
             <div className="flex items-center gap-3 p-3 rounded-md hover:bg-purple-50 transition-colors group cursor-pointer">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">

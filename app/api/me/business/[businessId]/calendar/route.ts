@@ -1,47 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from 'jsonwebtoken';
+import dbConnect from '@/lib/db';
+import { Calendar } from '@/models/Calendar';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Stockage temporaire en mémoire (remplacer par MongoDB en production)
-declare global {
-  var businessCalendars: Record<string, any> | undefined;
-}
-
-if (!global.businessCalendars) {
-  global.businessCalendars = {};
-}
-
 export async function GET(
-  request: NextRequest, 
+  request: NextRequest,
   context: { params: Promise<{ businessId: string }> }
 ) {
   try {
     const params = await context.params;
     const { businessId } = params;
-    
+
     // Vérifier l'authentification
     const cookieStore = await cookies();
     const token = cookieStore.get('ezia-auth-token');
-    
+
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Vérifier le JWT
+    let userId;
     try {
-      jwt.verify(token.value, JWT_SECRET);
+      const decoded = jwt.verify(token.value, JWT_SECRET) as any;
+      userId = decoded.userId;
     } catch (error) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // Récupérer le calendrier sauvegardé
-    const calendar = global.businessCalendars[businessId] || null;
-    
-    return NextResponse.json({ 
+    // Connexion à MongoDB
+    await dbConnect();
+
+    // Récupérer le calendrier depuis MongoDB
+    const calendarDoc = await Calendar.findOne({ businessId, userId });
+
+    return NextResponse.json({
       success: true,
-      calendar 
+      calendar: calendarDoc ? {
+        items: calendarDoc.items,
+        updatedAt: calendarDoc.updatedAt,
+        userId: calendarDoc.userId
+      } : null
     });
 
   } catch (error) {
@@ -60,11 +62,11 @@ export async function POST(
   try {
     const params = await context.params;
     const { businessId } = params;
-    
+
     // Vérifier l'authentification
     const cookieStore = await cookies();
     const token = cookieStore.get('ezia-auth-token');
-    
+
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -80,7 +82,7 @@ export async function POST(
 
     // Récupérer les données du calendrier
     const { calendar } = await request.json();
-    
+
     if (!calendar || !Array.isArray(calendar)) {
       return NextResponse.json(
         { error: "Invalid calendar data" },
@@ -88,16 +90,31 @@ export async function POST(
       );
     }
 
-    // Sauvegarder le calendrier
-    global.businessCalendars[businessId] = {
-      items: calendar,
-      updatedAt: new Date().toISOString(),
-      userId
-    };
+    // Connexion à MongoDB
+    await dbConnect();
 
-    return NextResponse.json({ 
+    // Sauvegarder ou mettre à jour le calendrier dans MongoDB
+    const calendarDoc = await Calendar.findOneAndUpdate(
+      { businessId, userId },
+      {
+        businessId,
+        userId,
+        items: calendar,
+        updatedAt: new Date(),
+      },
+      {
+        upsert: true, // Créer si n'existe pas
+        new: true,    // Retourner le document mis à jour
+      }
+    );
+
+    return NextResponse.json({
       success: true,
-      message: "Calendar saved successfully"
+      message: "Calendar saved successfully",
+      calendar: {
+        items: calendarDoc.items,
+        updatedAt: calendarDoc.updatedAt,
+      }
     });
 
   } catch (error) {
@@ -116,26 +133,31 @@ export async function DELETE(
   try {
     const params = await context.params;
     const { businessId } = params;
-    
+
     // Vérifier l'authentification
     const cookieStore = await cookies();
     const token = cookieStore.get('ezia-auth-token');
-    
+
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Vérifier le JWT
+    let userId;
     try {
-      jwt.verify(token.value, JWT_SECRET);
+      const decoded = jwt.verify(token.value, JWT_SECRET) as any;
+      userId = decoded.userId;
     } catch (error) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // Supprimer le calendrier
-    delete global.businessCalendars[businessId];
+    // Connexion à MongoDB
+    await dbConnect();
 
-    return NextResponse.json({ 
+    // Supprimer le calendrier de MongoDB
+    await Calendar.findOneAndDelete({ businessId, userId });
+
+    return NextResponse.json({
       success: true,
       message: "Calendar deleted successfully"
     });

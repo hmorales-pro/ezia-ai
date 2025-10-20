@@ -13,8 +13,15 @@ export interface IUser {
   businesses: string[];
   projects: string[];
   subscription?: {
-    plan: 'free' | 'pro' | 'enterprise';
+    plan: 'free' | 'creator' | 'pro' | 'enterprise';
     validUntil?: Date;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+  };
+  usage?: {
+    imagesGenerated: number;
+    imagesQuota: number;
+    lastImageReset?: Date;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -67,10 +74,23 @@ const userSchema = new mongoose.Schema({
   subscription: {
     plan: {
       type: String,
-      enum: ['free', 'pro', 'enterprise'],
+      enum: ['free', 'creator', 'pro', 'enterprise'],
       default: 'free',
     },
     validUntil: Date,
+    stripeCustomerId: String,
+    stripeSubscriptionId: String,
+  },
+  usage: {
+    imagesGenerated: {
+      type: Number,
+      default: 0,
+    },
+    imagesQuota: {
+      type: Number,
+      default: 0,
+    },
+    lastImageReset: Date,
   },
   lastLoginAt: Date,
 }, {

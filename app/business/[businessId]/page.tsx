@@ -116,7 +116,7 @@ function BusinessDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatAction, setChatAction] = useState<string>("general");
-  const [activeTab, setActiveTab] = useState<string>("overview");
+  const [activeTab, setActiveTab] = useState<string>("market");
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showOnboardingChat, setShowOnboardingChat] = useState(false);
@@ -312,18 +312,18 @@ function BusinessDetailPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+          <TabsList className="bg-white border border-gray-200 shadow-sm">
+            {/* <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger> */}
             <TabsTrigger value="market">Marché</TabsTrigger>
             <TabsTrigger value="marketing">Marketing</TabsTrigger>
             <TabsTrigger value="calendar">Calendrier de contenu</TabsTrigger>
-            <TabsTrigger value="social">Réseaux sociaux</TabsTrigger>
+            {/* <TabsTrigger value="social">Réseaux sociaux</TabsTrigger>
             <TabsTrigger value="goals">Objectifs</TabsTrigger>
             <TabsTrigger value="interactions">Interactions</TabsTrigger>
             <TabsTrigger value="memory">
               <Brain className="w-4 h-4 mr-1" />
               Mémoire
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
