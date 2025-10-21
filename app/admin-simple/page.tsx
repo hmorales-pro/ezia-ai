@@ -52,6 +52,7 @@ export default function SimpleAdminPage() {
   const [webinarRegistrations, setWebinarRegistrations] = useState<WebinarRegistration[]>([]);
   const [webinarSearchTerm, setWebinarSearchTerm] = useState("");
   const [filterChallenge, setFilterChallenge] = useState("all");
+  const [sendingEmail, setSendingEmail] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -110,6 +111,35 @@ export default function SimpleAdminPage() {
     } catch (error) {
       console.error("Erreur:", error);
       toast.error("Erreur lors du chargement des inscriptions webinaire");
+    }
+  };
+
+  const resendEmail = async (email: string) => {
+    setSendingEmail(email);
+    try {
+      const response = await fetch("/api/webinar/resend-email", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ADMIN_PASSWORD}`
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Email renvoyé avec succès !");
+        // Recharger les inscriptions pour voir le statut updated
+        await fetchWebinarRegistrations();
+      } else {
+        toast.error(data.error || "Erreur lors du renvoi de l'email");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Erreur lors du renvoi de l'email");
+    } finally {
+      setSendingEmail(null);
     }
   };
 
@@ -698,6 +728,7 @@ export default function SimpleAdminPage() {
                         <th className="text-left p-4 text-sm font-medium text-[#666666]">Défi principal</th>
                         <th className="text-left p-4 text-sm font-medium text-[#666666]">Centres d'intérêt</th>
                         <th className="text-left p-4 text-sm font-medium text-[#666666]">Statut</th>
+                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -752,12 +783,24 @@ export default function SimpleAdminPage() {
                           <td className="p-4">
                             {reg.confirmed ? (
                               <Badge className="bg-green-100 text-green-700">
-                                <Mail className="w-3 h-3 mr-1" />
+                                <CheckCircle2 className="w-3 h-3 mr-1" />
                                 Confirmé
                               </Badge>
                             ) : (
                               <Badge variant="secondary">En attente</Badge>
                             )}
+                          </td>
+                          <td className="p-4">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => resendEmail(reg.email)}
+                              disabled={sendingEmail === reg.email}
+                              className="gap-2"
+                            >
+                              <Mail className="w-3 h-3" />
+                              {sendingEmail === reg.email ? "Envoi..." : "Renvoyer"}
+                            </Button>
                           </td>
                         </tr>
                       ))}
