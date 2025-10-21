@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f7; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+
+          <!-- Header avec gradient violet -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #6D3FC8 0%, #5A35A5 100%); padding: 40px 30px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">✅ Inscription confirmée !</h1>
+              <p style="margin: 15px 0 0 0; color: #ffffff; font-size: 16px; opacity: 0.95;">Vous êtes inscrit au webinaire Ezia.ai</p>
+            </td>
+          </tr>
+
+          <!-- Corps principal -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <p style="margin: 0 0 20px 0; color: #1e1e1e; font-size: 16px; line-height: 1.6;">
+                Bonjour <strong>{{firstName}}</strong>,
+              </p>
+
+              <p style="margin: 0 0 30px 0; color: #1e1e1e; font-size: 16px; line-height: 1.6;">
+                Merci pour votre inscription au webinaire <strong>"Automatisez et Accélérez votre Business avec l'IA"</strong>. Nous sommes ravis de vous compter parmi nous ! 🚀
+              </p>
+
+              <!-- Encadré date/heure -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #f3e8ff 0%, #e0d4f7 100%); border-radius: 8px; margin-bottom: 30px;">
+                <tr>
+                  <td style="padding: 25px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <span style="color: #6D3FC8; font-size: 18px; margin-right: 10px;">📅</span>
+                          <span style="color: #1e1e1e; font-size: 16px; font-weight: 600;">Mardi 4 novembre 2025</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <span style="color: #6D3FC8; font-size: 18px; margin-right: 10px;">🕐</span>
+                          <span style="color: #1e1e1e; font-size: 16px; font-weight: 600;">19h30 (heure de Paris)</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <span style="color: #6D3FC8; font-size: 18px; margin-right: 10px;">⏱️</span>
+                          <span style="color: #1e1e1e; font-size: 16px; font-weight: 600;">Durée : 1h30</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <span style="color: #6D3FC8; font-size: 18px; margin-right: 10px;">💻</span>
+                          <span style="color: #1e1e1e; font-size: 16px; font-weight: 600;">En ligne (lien envoyé quelques jours avant)</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Boutons Calendrier -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 30px;">
+                <tr>
+                  <td align="center">
+                    <p style="margin: 0 0 15px 0; color: #1e1e1e; font-size: 16px; font-weight: 600;">📆 Ajoutez-le à votre calendrier :</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 0 8px;">
+                          <a href="{{googleCalendarLink}}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #6D3FC8 0%, #5A35A5 100%); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 14px;">
+                            Google Calendar
+                          </a>
+                        </td>
+                        <td style="padding: 0 8px;">
+                          <a href="https://outlook.live.com/calendar/0/deeplink/compose?subject=Webinaire%20Ezia.ai&startdt=2025-11-04T18:30:00Z&enddt=2025-11-04T20:00:00Z" target="_blank" style="display: inline-block; background: #0078d4; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 14px;">
+                            Outlook
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin: 15px 0 0 0; color: #666; font-size: 13px;">Un fichier .ics est également joint à cet email</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Au programme -->
+              <h2 style="margin: 0 0 20px 0; color: #1e1e1e; font-size: 20px; font-weight: 600;">Au programme (90 minutes) :</h2>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding: 10px 0;">
+                    <span style="color: #6D3FC8; margin-right: 10px;">✓</span>
+                    <span style="color: #1e1e1e; font-size: 15px;">Constats & enjeux : Pourquoi l'IA est un levier décisif pour les entrepreneurs</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0;">
+                    <span style="color: #6D3FC8; margin-right: 10px;">✓</span>
+                    <span style="color: #1e1e1e; font-size: 15px;">Démo Ezia en action : Comment créer un projet structuré en quelques minutes</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0;">
+                    <span style="color: #6D3FC8; margin-right: 10px;">✓</span>
+                    <span style="color: #1e1e1e; font-size: 15px;">3 cas concrets : Analyse de marché, stratégie marketing, génération de contenu</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0;">
+                    <span style="color: #6D3FC8; margin-right: 10px;">✓</span>
+                    <span style="color: #1e1e1e; font-size: 15px;">Automatisation business : Comment faire plus avec moins de temps</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0;">
+                    <span style="color: #6D3FC8; margin-right: 10px;">✓</span>
+                    <span style="color: #1e1e1e; font-size: 15px;">L'offre Ezia : Fonctionnalités, tarifs, roadmap 2025</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0 20px 0;">
+                    <span style="color: #6D3FC8; margin-right: 10px;">✓</span>
+                    <span style="color: #1e1e1e; font-size: 15px;">Session Q&A : Posez toutes vos questions en direct</span>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Intervenant -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9f9fb; border-radius: 8px; margin-bottom: 30px;">
+                <tr>
+                  <td style="padding: 20px;">
+                    <h3 style="margin: 0 0 10px 0; color: #1e1e1e; font-size: 16px; font-weight: 600;">🎤 Intervenant : Hugo Morales</h3>
+                    <p style="margin: 0; color: #1e1e1e; font-size: 14px; line-height: 1.6;">
+                      <strong style="color: #6D3FC8;">Fondateur d'EZIA</strong>, la première IA française pensée pour accompagner les entrepreneurs dans leur stratégie, leur communication et leur organisation.<br/><br/>
+                      Expert en transformation digitale et IA appliquée au business depuis plus de 10 ans.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Pack Early Bird -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-radius: 8px; margin-bottom: 30px; border: 2px solid #86efac;">
+                <tr>
+                  <td style="padding: 25px;">
+                    <h3 style="margin: 0 0 15px 0; color: #1e1e1e; font-size: 18px; font-weight: 600;">🎁 Pack Early Bird offert aux participants</h3>
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <span style="color: #16a34a; font-size: 18px; margin-right: 10px;">✅</span>
+                          <span style="color: #1e1e1e; font-size: 15px;"><strong>Guide PDF exclusif</strong> : "5 Prompts IA pour Entrepreneurs Pressés"</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <span style="color: #16a34a; font-size: 18px; margin-right: 10px;">✅</span>
+                          <span style="color: #1e1e1e; font-size: 15px;"><strong>Accès prioritaire VIP</strong> à la waiting list Ezia</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <span style="color: #16a34a; font-size: 18px; margin-right: 10px;">✅</span>
+                          <span style="color: #1e1e1e; font-size: 15px;"><strong>Code promo -30%</strong> sur vos 3 premiers mois</span>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin: 15px 0 0 0; color: #dc2626; font-size: 13px; font-weight: 600;">
+                      🎯 Tous les bonus seront envoyés après le webinaire
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Prochaines étapes -->
+              <p style="margin: 0 0 10px 0; color: #1e1e1e; font-size: 16px; line-height: 1.6;">
+                <strong>Prochaines étapes :</strong>
+              </p>
+              <p style="margin: 0 0 30px 0; color: #666; font-size: 15px; line-height: 1.6;">
+                • Vous recevrez un email de rappel <strong>48h avant</strong> le webinaire<br/>
+                • Le <strong>lien de connexion</strong> vous sera envoyé <strong>quelques jours avant</strong><br/>
+                • Le <strong>Pack Early Bird</strong> vous sera envoyé après le webinaire<br/>
+                • N'hésitez pas à préparer vos questions !
+              </p>
+
+              <!-- CTA Découvrir Ezia -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding: 20px 0;">
+                    <a href="{{appUrl}}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #6D3FC8 0%, #5A35A5 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                      Découvrir Ezia dès maintenant
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 30px 0 0 0; color: #666; font-size: 14px; line-height: 1.6;">
+                À très bientôt,<br/>
+                <strong>L'équipe Ezia.ai</strong>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9f9fb; padding: 30px; text-align: center; border-top: 1px solid #e5e5e7;">
+              <p style="margin: 0 0 10px 0; color: #666; font-size: 13px;">
+                Vous recevez cet email car vous vous êtes inscrit au webinaire Ezia.ai
+              </p>
+              <p style="margin: 0; color: #999; font-size: 12px;">
+                © 2025 Ezia.ai - Tous droits réservés
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
