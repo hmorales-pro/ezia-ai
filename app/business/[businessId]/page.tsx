@@ -272,12 +272,12 @@ function BusinessDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#ebe7e1]">
-      <div className="bg-white shadow-sm border-b border-[#E0E0E0]">
+      <div className="bg-white shadow-sm border-b border-[#E0E0E0] no-print">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/dashboard">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="no-print">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Retour
                 </Button>
@@ -287,19 +287,20 @@ function BusinessDetailPage() {
                 <p className="text-sm text-[#666666]">{business.industry}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
+            <div className="flex items-center gap-2 no-print">
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setShowEditModal(true)}
+                className="no-print"
               >
                 <Edit className="w-4 h-4 mr-2" />
                 Modifier
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-red-600"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-600 no-print"
                 onClick={() => setShowDeleteModal(true)}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
@@ -312,7 +313,7 @@ function BusinessDetailPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-white border border-gray-200 shadow-sm">
+          <TabsList className="bg-white border border-gray-200 shadow-sm no-print">
             {/* <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger> */}
             <TabsTrigger value="market">Marché</TabsTrigger>
             <TabsTrigger value="marketing">Marketing</TabsTrigger>
@@ -457,33 +458,7 @@ function BusinessDetailPage() {
           </TabsContent>
           
           <TabsContent value="market" className="space-y-4">
-            {business.market_analysis ? (
-              <MarketAnalysisDisplay analysis={business.market_analysis} />
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Analyse de marché</CardTitle>
-                  <CardDescription>
-                    Comprenez votre marché cible et identifiez les opportunités
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <Target className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Aucune analyse de marché disponible</p>
-                    <Button 
-                      className="mt-4"
-                      onClick={() => {
-                        setChatAction("market_analysis");
-                        setChatOpen(true);
-                      }}
-                    >
-                      Lancer l'analyse
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <MarketAnalysisDisplay businessId={params.businessId} />
           </TabsContent>
           
           <TabsContent value="marketing" className="space-y-4">
