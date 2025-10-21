@@ -1,15 +1,17 @@
 import Stripe from 'stripe';
 
-// Initialiser Stripe côté serveur
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
-  typescript: true,
-});
+// Initialiser Stripe côté serveur uniquement si la clé est disponible
+export const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2024-12-18.acacia',
+      typescript: true,
+    })
+  : null;
 
 // Prix Stripe (à créer dans le dashboard Stripe)
 export const STRIPE_PRICES = {
-  creator_monthly: process.env.STRIPE_PRICE_CREATOR_MONTHLY!,
-  creator_yearly: process.env.STRIPE_PRICE_CREATOR_YEARLY!,
+  creator_monthly: process.env.STRIPE_PRICE_CREATOR_MONTHLY || '',
+  creator_yearly: process.env.STRIPE_PRICE_CREATOR_YEARLY || '',
 } as const;
 
 // Plans disponibles

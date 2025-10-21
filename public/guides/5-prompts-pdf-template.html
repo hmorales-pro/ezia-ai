@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -32,13 +33,38 @@
             .no-break {
                 page-break-inside: avoid;
             }
+            .page {
+                page-break-after: always;
+            }
+            .page:last-child {
+                page-break-after: auto;
+            }
+            .gain-badge {
+                page-break-inside: avoid;
+                page-break-before: auto;
+            }
+            .cta-box {
+                page-break-inside: avoid;
+                page-break-before: auto;
+                margin-top: 160px;
+            }
+            .tip-card {
+                page-break-inside: avoid;
+            }
+            .tips-grid {
+                margin-top: 160px;
+            }
+            h1 {
+                margin-top: 0;
+            }
         }
 
         .page {
             max-width: 210mm;
             margin: 0 auto;
-            padding: 20mm;
+            padding: 35mm 20mm 25mm 20mm;
             background: white;
+            min-height: 237mm;
         }
 
         /* Page de couverture */
@@ -139,8 +165,8 @@
             border-radius: 16px;
             margin: 25px 0;
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.8;
+            font-size: 13px;
+            line-height: 1.7;
             white-space: pre-wrap;
             color: #2C3E50;
         }
@@ -324,8 +350,6 @@
     </div>
 </div>
 
-<div class="page-break"></div>
-
 <!-- PAGE INTRODUCTION -->
 <div class="page">
     <h1>📖 Comment utiliser ce guide ?</h1>
@@ -346,8 +370,6 @@
         <li><strong>1-2h/semaine</strong> sur la planification et l'organisation</li>
     </ul>
 </div>
-
-<div class="page-break"></div>
 
 <!-- PROMPT 1 -->
 <div class="page no-break">
@@ -375,8 +397,6 @@ Propose 2 versions : une plus formelle et une plus décontractée.</div>
         📈 Gain de temps : 15-20 minutes par email (10 emails/semaine) → <strong>2-3h par semaine</strong>
     </div>
 </div>
-
-<div class="page-break"></div>
 
 <!-- PROMPT 2 -->
 <div class="page no-break">
@@ -407,8 +427,6 @@ Propose 3 hashtags stratégiques</div>
         📈 Gain de temps : 30-45 minutes par post (4-5 posts/semaine) → <strong>2-3h par semaine</strong>
     </div>
 </div>
-
-<div class="page-break"></div>
 
 <!-- PROMPT 3 -->
 <div class="page no-break">
@@ -442,8 +460,6 @@ Format : prêt à être envoyé par email ou partagé sur Notion</div>
     </div>
 </div>
 
-<div class="page-break"></div>
-
 <!-- PROMPT 4 -->
 <div class="page no-break">
     <h1><span class="section-number">4</span> Analyse de marché express</h1>
@@ -474,8 +490,6 @@ Ton : analytique et orienté action</div>
         📈 Gain de temps : 2-3h de recherche → <strong>Économie de 2-3h par analyse</strong>
     </div>
 </div>
-
-<div class="page-break"></div>
 
 <!-- PROMPT 5 -->
 <div class="page no-break">
@@ -514,8 +528,6 @@ Ton : coach bienveillant mais exigeant</div>
     </div>
 </div>
 
-<div class="page-break"></div>
-
 <!-- PAGE BONUS -->
 <div class="page">
     <h1>🎁 BONUS : Comment personnaliser ces prompts ?</h1>
@@ -545,8 +557,6 @@ Ton : coach bienveillant mais exigeant</div>
         </div>
     </div>
 </div>
-
-<div class="page-break"></div>
 
 <!-- PAGE CTA -->
 <div class="page">
