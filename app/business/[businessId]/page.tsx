@@ -462,33 +462,7 @@ function BusinessDetailPage() {
           </TabsContent>
           
           <TabsContent value="marketing" className="space-y-4">
-            {business.marketing_strategy ? (
-              <MarketingStrategyDisplay strategy={business.marketing_strategy} />
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Stratégie marketing</CardTitle>
-                  <CardDescription>
-                    Votre plan marketing pour atteindre vos objectifs
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Aucune stratégie marketing définie</p>
-                    <Button 
-                      className="mt-4"
-                      onClick={() => {
-                        setChatAction("marketing_strategy");
-                        setChatOpen(true);
-                      }}
-                    >
-                      Créer la stratégie
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <MarketingStrategyDisplay businessId={params.businessId} />
           </TabsContent>
           
           <TabsContent value="calendar" className="space-y-4">

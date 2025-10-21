@@ -1,13 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Target, 
-  Users, 
-  Megaphone, 
+import {
+  Target,
+  Users,
+  Megaphone,
   TrendingUp,
   Calendar,
   BarChart3,
@@ -22,15 +24,116 @@ import {
   Eye,
   ShoppingCart,
   UserCheck,
-  Trophy
+  Trophy,
+  Loader2,
+  RefreshCw
 } from "lucide-react";
+import { toast } from "sonner";
+import type { IMarketingStrategy } from "@/models/MarketingStrategy";
 
 interface MarketingStrategyDisplayProps {
-  strategy: any;
+  businessId: string;
 }
 
-export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayProps) {
-  if (!strategy) return null;
+export function MarketingStrategyDisplay({ businessId }: MarketingStrategyDisplayProps) {
+  const [strategy, setStrategy] = useState<IMarketingStrategy | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+
+  useEffect(() => {
+    fetchStrategy();
+  }, [businessId]);
+
+  const fetchStrategy = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/me/business/${businessId}/marketing-strategy`);
+      const data = await response.json();
+
+      if (data.success && data.strategy) {
+        setStrategy(data.strategy);
+      }
+    } catch (error) {
+      console.error("Erreur chargement stratégie:", error);
+      toast.error("Erreur lors du chargement de la stratégie");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateStrategy = async (forceRefresh = false) => {
+    try {
+      setGenerating(true);
+      toast.info("Génération de la stratégie marketing en cours...");
+
+      const response = await fetch(`/api/me/business/${businessId}/marketing-strategy`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ forceRefresh }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setStrategy(data.strategy);
+        toast.success("Stratégie marketing générée avec succès !");
+      } else {
+        toast.error(data.error || "Erreur lors de la génération");
+      }
+    } catch (error) {
+      console.error("Erreur génération:", error);
+      toast.error("Erreur lors de la génération de la stratégie");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-[#6D3FC8]" />
+      </div>
+    );
+  }
+
+  if (!strategy) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5" />
+            Stratégie Marketing
+          </CardTitle>
+          <CardDescription>
+            Générez une stratégie marketing complète avec positionnement de marque, mix marketing et roadmap
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Aucune stratégie marketing n'a encore été générée pour ce business.
+            Cliquez ci-dessous pour lancer une génération automatique.
+          </p>
+          <Button
+            onClick={() => generateStrategy(false)}
+            disabled={generating}
+            className="w-full"
+          >
+            {generating ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Génération en cours...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Générer la stratégie marketing
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
   
   // Check if we have meaningful content
   const hasVisionMission = strategy.executive_summary?.vision || strategy.executive_summary?.mission;
@@ -118,7 +221,7 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
       )}
 
       <Tabs defaultValue={hasPositioning ? "positioning" : hasSegments ? "segments" : hasMarketingMix ? "mix" : hasCustomerJourney ? "journey" : hasCampaigns ? "campaigns" : hasRoadmap ? "roadmap" : "positioning"} className="w-full">
-        <TabsList className="grid grid-cols-2 lg:grid-cols-6 gap-2 h-auto p-1">
+        <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground w-full overflow-x-auto">
           {hasPositioning && <TabsTrigger value="positioning">Positionnement</TabsTrigger>}
           {hasSegments && <TabsTrigger value="segments">Segments</TabsTrigger>}
           {hasMarketingMix && <TabsTrigger value="mix">Mix Marketing</TabsTrigger>}
@@ -209,52 +312,34 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                   <div key={idx} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h4 className="font-semibold text-lg">{segment.name}</h4>
+                        <h4 className="font-semibold text-lg">{segment.segment_name}</h4>
                         <p className="text-sm text-gray-600">{segment.description}</p>
                       </div>
-                      <Badge className="bg-blue-100 text-blue-700">
-                        {segment.size}
-                      </Badge>
+                      <div className="flex flex-col gap-2 items-end">
+                        <Badge className={segment.priority === 'high' ? 'bg-red-100 text-red-700' : segment.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}>
+                          {segment.priority === 'high' ? 'Haute priorité' : segment.priority === 'medium' ? 'Priorité moyenne' : 'Priorité faible'}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {segment.size_estimate}
+                        </Badge>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <h5 className="font-medium mb-2 text-sm">Caractéristiques</h5>
-                        <ul className="space-y-1">
-                          {segment.characteristics?.map((char: string, charIdx: number) => (
-                            <li key={charIdx} className="text-sm text-gray-600 flex items-center gap-1">
-                              <span className="text-gray-400">•</span>
-                              {char}
-                            </li>
-                          ))}
-                        </ul>
+                        <h5 className="font-medium mb-2 text-sm">Démographie</h5>
+                        <p className="text-sm text-gray-600">{segment.demographics}</p>
                       </div>
 
                       <div>
-                        <h5 className="font-medium mb-2 text-sm">Points de douleur</h5>
-                        <ul className="space-y-1">
-                          {segment.pain_points?.map((pain: string, painIdx: number) => (
-                            <li key={painIdx} className="text-sm text-red-600 flex items-center gap-1">
-                              <span>•</span>
-                              {pain}
-                            </li>
-                          ))}
-                        </ul>
+                        <h5 className="font-medium mb-2 text-sm">Psychographie</h5>
+                        <p className="text-sm text-gray-600">{segment.psychographics}</p>
                       </div>
                     </div>
 
                     <div className="mt-3 pt-3 border-t">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <span className="text-sm font-medium">Canaux préférés: </span>
-                          <span className="text-sm text-gray-600">
-                            {segment.preferred_channels?.join(", ")}
-                          </span>
-                        </div>
-                        <Badge variant="outline" className="font-semibold">
-                          Budget: {segment.budget}
-                        </Badge>
-                      </div>
+                      <h5 className="font-medium mb-2 text-sm">Stratégie d'atteinte</h5>
+                      <p className="text-sm text-gray-600">{segment.reach_strategy}</p>
                     </div>
                   </div>
                 ))}
@@ -406,7 +491,7 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                         <h4 className="font-semibold capitalize">{stage}</h4>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <h5 className="text-sm font-medium mb-1">Points de contact</h5>
                           <ul className="space-y-1">
@@ -415,84 +500,39 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                             ))}
                           </ul>
                         </div>
-                        
+
                         <div>
-                          <h5 className="text-sm font-medium mb-1">Types de contenu</h5>
+                          <h5 className="text-sm font-medium mb-1">Objectifs</h5>
                           <ul className="space-y-1">
-                            {data.content_types?.map((type: string, idx: number) => (
-                              <li key={idx} className="text-sm text-gray-600">• {type}</li>
+                            {data.objectives?.map((objective: string, idx: number) => (
+                              <li key={idx} className="text-sm text-gray-600">• {objective}</li>
                             ))}
                           </ul>
                         </div>
-                        
+
                         <div>
-                          <h5 className="text-sm font-medium mb-1">Canaux</h5>
+                          <h5 className="text-sm font-medium mb-1">KPIs</h5>
                           <div className="flex flex-wrap gap-1">
-                            {data.channels?.map((channel: string, idx: number) => (
+                            {data.kpis?.map((kpi: string, idx: number) => (
                               <Badge key={idx} variant="secondary" className="text-xs">
-                                {channel}
+                                {kpi}
                               </Badge>
                             ))}
                           </div>
+                        </div>
+
+                        <div>
+                          <h5 className="text-sm font-medium mb-1">Actions</h5>
+                          <ul className="space-y-1">
+                            {data.actions?.map((action: string, idx: number) => (
+                              <li key={idx} className="text-sm text-gray-600">• {action}</li>
+                            ))}
+                          </ul>
                         </div>
                       </div>
                     </div>
                   );
                 })}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Channel Strategy */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Megaphone className="w-5 h-5" />
-                Stratégie par canal
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {strategy.channel_strategy?.map((channel: any, idx: number) => (
-                  <div key={idx} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-3">
-                      <h4 className="font-semibold">{channel.channel}</h4>
-                      <Badge className={getPriorityColor(channel.priority)}>
-                        Priorité {channel.priority === 'high' ? 'haute' : channel.priority === 'medium' ? 'moyenne' : 'faible'}
-                      </Badge>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <h5 className="text-sm font-medium mb-1">Objectifs</h5>
-                        <ul className="space-y-1">
-                          {channel.objectives?.map((obj: string, objIdx: number) => (
-                            <li key={objIdx} className="text-sm text-gray-600">• {obj}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h5 className="text-sm font-medium mb-1">KPIs</h5>
-                        <ul className="space-y-1">
-                          {channel.kpis?.map((kpi: string, kpiIdx: number) => (
-                            <li key={kpiIdx} className="text-sm text-gray-600">• {kpi}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-3 pt-3 border-t">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Budget allocation</span>
-                        <div className="flex items-center gap-2">
-                          <Progress value={channel.budget_allocation} className="w-24 h-2" />
-                          <span className="text-sm font-semibold">{channel.budget_allocation}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
               </div>
             </CardContent>
           </Card>
@@ -512,92 +552,49 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                   <div key={idx} className="border rounded-lg p-4 bg-gradient-to-r from-purple-50 to-blue-50">
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h4 className="font-semibold text-lg">{campaign.name}</h4>
+                        <h4 className="font-semibold text-lg">{campaign.title}</h4>
                         <p className="text-sm text-gray-600">{campaign.objective}</p>
                       </div>
                       <Badge variant="outline" className="font-semibold">
                         {campaign.budget_estimate}
                       </Badge>
                     </div>
-                    
-                    <div className="bg-white rounded-lg p-3 mb-3">
-                      <p className="text-sm font-medium text-[#6D3FC8] italic">
-                        "{campaign.key_message}"
-                      </p>
-                    </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                       <div>
-                        <span className="font-medium">Cible:</span>
+                        <span className="font-medium">Segment cible:</span>
                         <p className="text-gray-600">{campaign.target_segment}</p>
                       </div>
                       <div>
-                        <span className="font-medium">Durée:</span>
-                        <p className="text-gray-600">{campaign.duration}</p>
+                        <span className="font-medium">Timeline:</span>
+                        <p className="text-gray-600">{campaign.timeline}</p>
                       </div>
                       <div>
                         <span className="font-medium">Canaux:</span>
                         <p className="text-gray-600">{campaign.channels?.join(", ")}</p>
                       </div>
                     </div>
-                    
+
                     <div className="mt-3 pt-3 border-t">
-                      <span className="text-sm font-medium">Résultats attendus:</span>
-                      <p className="text-sm text-green-700">{campaign.expected_results}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <span className="text-sm font-medium">ROI attendu:</span>
+                          <p className="text-sm text-green-700">{campaign.expected_roi}</p>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium">KPIs:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {campaign.kpis?.map((kpi: string, kpiIdx: number) => (
+                              <Badge key={kpiIdx} variant="secondary" className="text-xs">
+                                {kpi}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Content Strategy */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                Stratégie de contenu
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-2">Calendrier éditorial</h4>
-                <p className="text-sm text-gray-600 mb-3">
-                  Fréquence: {strategy.content_strategy?.content_calendar?.frequency}
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {Object.entries(strategy.content_strategy?.content_calendar?.themes_by_month || {}).map(([month, themes]: [string, any]) => (
-                    <div key={month} className="border rounded-lg p-3">
-                      <h5 className="font-medium text-sm mb-2">{month}</h5>
-                      <ul className="space-y-1">
-                        {themes.map((theme: string, idx: number) => (
-                          <li key={idx} className="text-sm text-gray-600">• {theme}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-medium mb-2">Types de contenu</h4>
-                <div className="space-y-3">
-                  {strategy.content_strategy?.content_types?.map((content: any, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <span className="font-medium text-sm">{content.type}</span>
-                        <p className="text-xs text-gray-600">{content.frequency}</p>
-                      </div>
-                      <div className="flex gap-1">
-                        {content.distribution?.map((dist: string, distIdx: number) => (
-                          <Badge key={distIdx} variant="outline" className="text-xs">
-                            {dist}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -626,28 +623,42 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
                       
                       <div className="flex-1 border rounded-lg p-4 mb-4">
                         <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h4 className="font-semibold">{phase.phase}</h4>
-                            <p className="text-sm text-gray-600">{phase.duration}</p>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold">{phase.phase}</h4>
+                              <Badge className={phase.priority === 'high' ? 'bg-red-100 text-red-700' : phase.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}>
+                                {phase.priority === 'high' ? 'Priorité haute' : phase.priority === 'medium' ? 'Priorité moyenne' : 'Priorité faible'}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">{phase.timeline}</p>
                           </div>
-                          <Badge variant="outline">{phase.budget}</Badge>
+                          <Badge variant="outline" className="font-semibold">{phase.budget}</Badge>
                         </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <div>
-                            <h5 className="text-sm font-medium mb-1">Objectifs</h5>
+                            <h5 className="text-sm font-medium mb-1">Actions</h5>
                             <ul className="space-y-1">
-                              {phase.objectives?.map((obj: string, objIdx: number) => (
-                                <li key={objIdx} className="text-sm text-gray-600">• {obj}</li>
+                              {phase.actions?.map((action: string, actionIdx: number) => (
+                                <li key={actionIdx} className="text-sm text-gray-600">• {action}</li>
                               ))}
                             </ul>
                           </div>
-                          
+
                           <div>
-                            <h5 className="text-sm font-medium mb-1">Critères de succès</h5>
+                            <h5 className="text-sm font-medium mb-1">Métriques de succès</h5>
                             <ul className="space-y-1">
-                              {phase.success_criteria?.map((criteria: string, critIdx: number) => (
-                                <li key={critIdx} className="text-sm text-green-600">✓ {criteria}</li>
+                              {phase.success_metrics?.map((metric: string, metricIdx: number) => (
+                                <li key={metricIdx} className="text-sm text-green-600">✓ {metric}</li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div>
+                            <h5 className="text-sm font-medium mb-1">Dépendances</h5>
+                            <ul className="space-y-1">
+                              {phase.dependencies?.map((dep: string, depIdx: number) => (
+                                <li key={depIdx} className="text-sm text-orange-600">→ {dep}</li>
                               ))}
                             </ul>
                           </div>
@@ -661,95 +672,68 @@ export function MarketingStrategyDisplay({ strategy }: MarketingStrategyDisplayP
           </Card>
 
           {/* Budget Allocation */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5" />
-                Allocation budgétaire
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <p className="text-sm text-gray-600">Budget total annuel</p>
-                <p className="text-2xl font-bold text-[#6D3FC8]">
-                  {strategy.budget_allocation?.total_budget}
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <h5 className="text-sm font-medium mb-2">Par canal</h5>
-                  {Object.entries(strategy.budget_allocation?.by_channel || {}).map(([channel, percent]: [string, any]) => (
-                    <div key={channel} className="flex justify-between items-center mb-2">
-                      <span className="text-sm">{channel}</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={percent} className="w-20 h-2" />
-                        <span className="text-sm font-semibold w-10">{percent}%</span>
-                      </div>
-                    </div>
-                  ))}
+          {strategy.total_budget_estimate && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="w-5 h-5" />
+                  Allocation budgétaire (Mix Marketing 4P)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Budget total estimé</p>
+                  <p className="text-2xl font-bold text-[#6D3FC8]">
+                    {strategy.total_budget_estimate}
+                  </p>
                 </div>
-                
-                <div>
-                  <h5 className="text-sm font-medium mb-2">Par objectif</h5>
-                  {Object.entries(strategy.budget_allocation?.by_objective || {}).map(([objective, percent]: [string, any]) => (
-                    <div key={objective} className="flex justify-between items-center mb-2">
-                      <span className="text-sm">{objective}</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={percent} className="w-20 h-2" />
-                        <span className="text-sm font-semibold w-10">{percent}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div>
-                  <h5 className="text-sm font-medium mb-2">Par trimestre</h5>
-                  {Object.entries(strategy.budget_allocation?.by_quarter || {}).map(([quarter, percent]: [string, any]) => (
-                    <div key={quarter} className="flex justify-between items-center mb-2">
-                      <span className="text-sm">{quarter}</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={percent} className="w-20 h-2" />
-                        <span className="text-sm font-semibold w-10">{percent}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Risk Mitigation */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                Gestion des risques
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {strategy.risk_mitigation?.map((risk: any, idx: number) => (
-                  <div key={idx} className="border rounded-lg p-3">
-                    <div className="flex justify-between items-start mb-2">
-                      <h5 className="font-medium text-red-700">{risk.risk}</h5>
-                      <div className="flex gap-2">
-                        <Badge className={risk.probability === 'high' ? 'bg-red-100 text-red-700' : risk.probability === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}>
-                          P: {risk.probability === 'high' ? 'Élevée' : risk.probability === 'medium' ? 'Moyenne' : 'Faible'}
-                        </Badge>
-                        <Badge className={risk.impact === 'high' ? 'bg-red-100 text-red-700' : risk.impact === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}>
-                          I: {risk.impact === 'high' ? 'Élevé' : risk.impact === 'medium' ? 'Moyen' : 'Faible'}
-                        </Badge>
+                {strategy.budget_allocation && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="border rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">Product (Produit)</span>
+                        <div className="flex items-center gap-2">
+                          <Progress value={strategy.budget_allocation.product} className="w-20 h-2" />
+                          <span className="text-sm font-semibold w-10">{strategy.budget_allocation.product}%</span>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-700">
-                      <span className="font-medium">Stratégie d'atténuation:</span> {risk.mitigation_strategy}
-                    </p>
+
+                    <div className="border rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">Price (Prix)</span>
+                        <div className="flex items-center gap-2">
+                          <Progress value={strategy.budget_allocation.price} className="w-20 h-2" />
+                          <span className="text-sm font-semibold w-10">{strategy.budget_allocation.price}%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">Place (Distribution)</span>
+                        <div className="flex items-center gap-2">
+                          <Progress value={strategy.budget_allocation.place} className="w-20 h-2" />
+                          <span className="text-sm font-semibold w-10">{strategy.budget_allocation.place}%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">Promotion (Communication)</span>
+                        <div className="flex items-center gap-2">
+                          <Progress value={strategy.budget_allocation.promotion} className="w-20 h-2" />
+                          <span className="text-sm font-semibold w-10">{strategy.budget_allocation.promotion}%</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>

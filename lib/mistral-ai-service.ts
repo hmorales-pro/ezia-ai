@@ -4,6 +4,13 @@ interface MistralResponse {
   error?: string;
 }
 
+interface MistralOptions {
+  apiKey?: string;
+  model?: string;
+  web_search?: boolean;
+  max_tokens?: number;
+}
+
 // Configuration Mistral AI
 const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
 const MISTRAL_MODEL = "mistral-medium-latest"; // Modèle plus performant pour les contenus complexes
@@ -11,10 +18,17 @@ const MISTRAL_MODEL = "mistral-medium-latest"; // Modèle plus performant pour l
 export async function generateWithMistralAPI(
   prompt: string,
   systemContext: string,
-  apiKey?: string
+  options?: MistralOptions | string // Support ancien format (string) et nouveau (options)
 ): Promise<MistralResponse> {
+  // Compatibilité avec l'ancien format (apiKey en string)
+  const opts: MistralOptions = typeof options === 'string'
+    ? { apiKey: options }
+    : (options || {});
+
+  const { apiKey: optApiKey, model: customModel, web_search, max_tokens: customMaxTokens } = opts;
   // Utiliser la clé API fournie ou celle dans les variables d'environnement
-  const mistralApiKey = apiKey || process.env.MISTRAL_API_KEY;
+  const mistralApiKey = optApiKey || process.env.MISTRAL_API_KEY;
+  const modelToUse = customModel || MISTRAL_MODEL;
   
   console.log("[Mistral] Vérification de la clé API...");
   console.log("[Mistral] Clé présente:", !!mistralApiKey);
@@ -48,26 +62,39 @@ export async function generateWithMistralAPI(
   }
   
   console.log("[Mistral] Clé API détectée, appel à l'API Mistral");
+  console.log(`[Mistral] Modèle: ${modelToUse}`);
+  console.log(`[Mistral] Web Search: ${web_search ? 'Activée' : 'Désactivée'}`);
   console.log(`[Mistral] Type de génération - Website: ${isWebsiteGeneration}, Stratégie complexe: ${isComplexStrategy}`);
-  console.log(`[Mistral] Max tokens: ${isWebsiteGeneration ? 4000 : (isComplexStrategy ? 4000 : 2000)}`);
+
+  // Calculer max_tokens
+  const defaultMaxTokens = isWebsiteGeneration ? 4000 : (isComplexStrategy ? 8000 : 2000);
+  const maxTokens = customMaxTokens || defaultMaxTokens;
+  console.log(`[Mistral] Max tokens: ${maxTokens}`);
 
   try {
+    const requestBody: any = {
+      model: modelToUse,
+      messages: [
+        { role: "system", content: systemContext },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: maxTokens,
+      stream: false
+    };
+
+    // Ajouter web_search si activé
+    if (web_search) {
+      requestBody.web_search = true;
+    }
+
     const response = await fetch(MISTRAL_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${mistralApiKey}`
       },
-      body: JSON.stringify({
-        model: MISTRAL_MODEL,
-        messages: [
-          { role: "system", content: systemContext },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: isWebsiteGeneration ? 4000 : (isComplexStrategy ? 8000 : 2000), // Beaucoup plus de tokens pour les stratégies complexes
-        stream: false
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
