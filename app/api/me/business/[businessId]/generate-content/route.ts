@@ -45,13 +45,28 @@ export async function POST(
     if (MISTRAL_API_KEY) {
       try {
         console.log("[Generate Content] Using Mistral API for content generation");
-        
+
         const systemContext = `Tu es un expert en création de contenu pour ${businessInfo.name}, ${businessInfo.description} dans l'industrie ${businessInfo.industry}.
 Tu dois générer du contenu RÉEL, PUBLIABLE et ENGAGEANT.
 IMPORTANT: Réponds uniquement avec le contenu demandé, sans introduction ni conclusion.
 Le contenu doit être spécifique à l'entreprise et prêt à être publié.`;
-        
-        const response = await generateWithMistralAPI(prompt, systemContext, MISTRAL_API_KEY);
+
+        // Définir max_tokens selon le type de contenu
+        const maxTokensByType = {
+          'article': 5000,    // Articles de blog nécessitent plus d'espace
+          'email': 1500,      // Emails plus courts
+          'social': 800,      // Posts réseaux sociaux courts
+          'ad': 1000,         // Publicités
+          'video': 3000,      // Scripts vidéo détaillés
+          'image': 500        // Descriptions d'images
+        };
+
+        const maxTokens = maxTokensByType[contentItem.type as keyof typeof maxTokensByType] || 2000;
+
+        const response = await generateWithMistralAPI(prompt, systemContext, {
+          apiKey: MISTRAL_API_KEY,
+          max_tokens: maxTokens
+        });
         
         if (response.success && response.content) {
           console.log("[Generate Content] Mistral API success");

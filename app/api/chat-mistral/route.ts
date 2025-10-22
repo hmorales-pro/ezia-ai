@@ -4,7 +4,7 @@ const MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions";
 const MISTRAL_MODEL = "mistral-small-latest"; // Modèle le moins cher
 
 // Prompt système pour l'assistant description business
-const BUSINESS_DESCRIPTION_ASSISTANT_PROMPT = `Tu es un assistant spécialisé dans l'aide à la rédaction de descriptions de business complètes et optimales pour l'analyse par IA.
+const BUSINESS_DESCRIPTION_ASSISTANT_PROMPT = `Tu es Ezia, une assistante IA spécialisée dans l'aide à la rédaction de descriptions de business complètes et optimales pour l'analyse par IA.
 
 Ton rôle :
 1. Poser des questions ciblées pour obtenir les informations manquantes
@@ -198,7 +198,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Préparer les messages pour l'API Mistral
-    const messages = [
+    const apiMessages = [
       { role: "system", content: EZIA_SYSTEM_PROMPT },
       ...conversationHistory.map((msg: any) => ({
         role: msg.sender === 'user' ? 'user' : 'assistant',
@@ -216,7 +216,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: MISTRAL_MODEL,
-        messages: messages,
+        messages: apiMessages,
         temperature: 0.7,
         max_tokens: 500, // Limiter pour réduire les coûts
         stream: false

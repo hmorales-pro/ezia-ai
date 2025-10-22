@@ -204,6 +204,26 @@ export default function NewBusinessPage() {
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="industry" className="text-[#1E1E1E]">Secteur d&apos;activité *</Label>
+                <Select
+                  value={formData.industry}
+                  onValueChange={(value) => setFormData({ ...formData, industry: value })}
+                  disabled={loading}
+                >
+                  <SelectTrigger className="bg-white border-[#E0E0E0] text-[#1E1E1E] hover:border-[#6D3FC8] focus:border-[#6D3FC8] focus:ring-[#6D3FC8]/20">
+                    <SelectValue placeholder="Sélectionnez un secteur" className="text-[#999999]" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-[#E0E0E0]">
+                    {industries.map((industry) => (
+                      <SelectItem key={industry} value={industry} className="text-[#1E1E1E] hover:bg-[#F5F5F5] focus:bg-[#F5F5F5]">
+                        {industry}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
                   <Label htmlFor="description" className="text-[#1E1E1E]">
@@ -268,26 +288,6 @@ export default function NewBusinessPage() {
                     ))}
                   </div>
                 </details>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="industry" className="text-[#1E1E1E]">Secteur d&apos;activité *</Label>
-                <Select
-                  value={formData.industry}
-                  onValueChange={(value) => setFormData({ ...formData, industry: value })}
-                  disabled={loading}
-                >
-                  <SelectTrigger className="bg-white border-[#E0E0E0] text-[#1E1E1E] hover:border-[#6D3FC8] focus:border-[#6D3FC8] focus:ring-[#6D3FC8]/20">
-                    <SelectValue placeholder="Sélectionnez un secteur" className="text-[#999999]" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-[#E0E0E0]">
-                    {industries.map((industry) => (
-                      <SelectItem key={industry} value={industry} className="text-[#1E1E1E] hover:bg-[#F5F5F5] focus:bg-[#F5F5F5]">
-                        {industry}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="space-y-2">

@@ -953,8 +953,9 @@ export function UnifiedContentCalendar({
                             <div
                               key={item.id}
                               className={cn(
-                                "text-xs p-1 rounded flex items-center gap-1 truncate cursor-pointer",
-                                config.color
+                                "text-xs p-1 rounded flex items-center gap-1 truncate cursor-pointer transition-all",
+                                config.color,
+                                item.status === "generating" && "animate-pulse ring-2 ring-[#6D3FC8] ring-opacity-50"
                               )}
                               title={item.title}
                               onClick={(e) => {
@@ -966,7 +967,12 @@ export function UnifiedContentCalendar({
                               <Icon className="w-3 h-3 flex-shrink-0" />
                               <span className="truncate">{item.title}</span>
                               {item.ai_generated && <Sparkles className="w-3 h-3 ml-auto" />}
-                              {item.status === "generated" && <CheckCircle className="w-3 h-3 text-green-600" />}
+                              {item.status === "generating" && (
+                                <Loader2 className="w-3 h-3 ml-auto animate-spin text-[#6D3FC8]" />
+                              )}
+                              {item.status === "generated" && (
+                                <CheckCircle className="w-3 h-3 ml-auto text-green-600" />
+                              )}
                             </div>
                           );
                         })}

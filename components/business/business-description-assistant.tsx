@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send, CheckCircle, Sparkles, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -36,6 +36,7 @@ export function BusinessDescriptionAssistant({
   const [generatedDescription, setGeneratedDescription] = useState("");
   const [isComplete, setIsComplete] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Initialiser la conversation quand le modal s'ouvre
   useEffect(() => {
@@ -49,10 +50,17 @@ export function BusinessDescriptionAssistant({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Auto-focus sur l'input après chaque message
+  useEffect(() => {
+    if (!loading && !isComplete) {
+      inputRef.current?.focus();
+    }
+  }, [loading, isComplete, messages]);
+
   const initConversation = () => {
     const initialMessage: Message = {
       role: "assistant",
-      content: `Bonjour ! 👋 Je suis votre assistant pour créer une description complète de "${businessName}".
+      content: `Bonjour ! 👋 Je suis **Ezia**, votre assistante IA pour vous aider à créer une description complète de "${businessName}".
 
 Je vais vous poser quelques questions pour bien comprendre votre projet dans le secteur ${industry}.
 
@@ -109,7 +117,8 @@ Pour commencer, dites-moi en quelques mots : **quel est votre business et qui so
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Entrée seule = envoyer, Shift+Entrée = nouvelle ligne
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -235,19 +244,30 @@ Pour commencer, dites-moi en quelques mots : **quel est votre business et qui so
         {/* Zone de saisie */}
         {!isComplete && (
           <div className="border-t px-6 py-4">
-            <div className="flex gap-2">
-              <Input
+            <div className="flex gap-2 items-end">
+              <Textarea
+                ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyDown}
                 placeholder="Tapez votre réponse..."
                 disabled={loading}
-                className="flex-1"
+                className="flex-1 resize-none min-h-[44px] max-h-[150px]"
+                rows={1}
+                style={{
+                  height: 'auto',
+                  minHeight: '44px'
+                }}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = `${Math.min(target.scrollHeight, 150)}px`;
+                }}
               />
               <Button
                 onClick={sendMessage}
                 disabled={loading || !input.trim()}
-                className="bg-[#6D3FC8] hover:bg-[#5A35A5]"
+                className="bg-[#6D3FC8] hover:bg-[#5A35A5] h-[44px]"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -257,7 +277,7 @@ Pour commencer, dites-moi en quelques mots : **quel est votre business et qui so
               </Button>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Appuyez sur Entrée pour envoyer
+              Appuyez sur Entrée pour envoyer, Shift+Entrée pour une nouvelle ligne
             </p>
           </div>
         )}
