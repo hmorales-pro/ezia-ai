@@ -33,16 +33,27 @@ import type { IMarketingStrategy } from "@/models/MarketingStrategy";
 
 interface MarketingStrategyDisplayProps {
   businessId: string;
+  autoStart?: boolean; // Déclenche auto la génération si pas de stratégie
 }
 
-export function MarketingStrategyDisplay({ businessId }: MarketingStrategyDisplayProps) {
+export function MarketingStrategyDisplay({ businessId, autoStart = false }: MarketingStrategyDisplayProps) {
   const [strategy, setStrategy] = useState<IMarketingStrategy | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [autoStarted, setAutoStarted] = useState(false);
 
   useEffect(() => {
     fetchStrategy();
   }, [businessId]);
+
+  // Auto-start si activé et pas encore lancé
+  useEffect(() => {
+    if (autoStart && !strategy && !loading && !generating && !autoStarted) {
+      console.log('[MarketingStrategy] Auto-start détecté');
+      setAutoStarted(true);
+      generateStrategy(false);
+    }
+  }, [autoStart, strategy, loading, generating, autoStarted]);
 
   const fetchStrategy = async () => {
     try {

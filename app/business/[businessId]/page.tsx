@@ -121,6 +121,9 @@ function BusinessDetailPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showOnboardingChat, setShowOnboardingChat] = useState(false);
 
+  // Détecte si c'est un nouveau business pour auto-start
+  const isNewBusiness = searchParams.get("new") === "true";
+
   useEffect(() => {
     fetchBusiness();
     
@@ -458,11 +461,11 @@ function BusinessDetailPage() {
           </TabsContent>
           
           <TabsContent value="market" className="space-y-4">
-            <MarketAnalysisDisplay businessId={params.businessId} />
+            <MarketAnalysisDisplay businessId={params.businessId} autoStart={isNewBusiness} />
           </TabsContent>
-          
+
           <TabsContent value="marketing" className="space-y-4">
-            <MarketingStrategyDisplay businessId={params.businessId} />
+            <MarketingStrategyDisplay businessId={params.businessId} autoStart={isNewBusiness} />
           </TabsContent>
           
           <TabsContent value="calendar" className="space-y-4">

@@ -84,9 +84,9 @@ export default function NewBusinessPage() {
           setLoadingMessage("Nos agents commencent l'analyse de votre marché...");
         }, 1000);
         
-        // Redirection après un court délai
+        // Redirection après un court délai avec flag 'new' pour auto-start
         setTimeout(() => {
-          router.push(`/business/${response.data.business.business_id}`);
+          router.push(`/business/${response.data.business.business_id}?new=true`);
         }, 2500);
       } else {
         toast.error(response.data.error || "Erreur lors de la création");

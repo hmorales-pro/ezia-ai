@@ -10,16 +10,27 @@ import type { IMarketAnalysis } from "@/models/MarketAnalysis";
 
 interface MarketAnalysisDisplayProps {
   businessId: string;
+  autoStart?: boolean; // Déclenche auto la génération si pas d'analyse
 }
 
-export function MarketAnalysisDisplay({ businessId }: MarketAnalysisDisplayProps) {
+export function MarketAnalysisDisplay({ businessId, autoStart = false }: MarketAnalysisDisplayProps) {
   const [analysis, setAnalysis] = useState<IMarketAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [autoStarted, setAutoStarted] = useState(false);
 
   useEffect(() => {
     fetchAnalysis();
   }, [businessId]);
+
+  // Auto-start si activé et pas encore lancé
+  useEffect(() => {
+    if (autoStart && !analysis && !loading && !generating && !autoStarted) {
+      console.log('[MarketAnalysis] Auto-start détecté');
+      setAutoStarted(true);
+      generateAnalysis(false);
+    }
+  }, [autoStart, analysis, loading, generating, autoStarted]);
 
   const fetchAnalysis = async () => {
     try {
