@@ -10,15 +10,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Building2, Loader2, Sparkles, Globe, Rocket } from "lucide-react";
+import { ArrowLeft, Building2, Loader2, Sparkles, Globe, Rocket, MessageSquare, Lightbulb } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { BusinessDescriptionAssistant } from "@/components/business/business-description-assistant";
 
 export default function NewBusinessPage() {
   const { user } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [showAssistant, setShowAssistant] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -211,14 +213,27 @@ export default function NewBusinessPage() {
                     Plus c'est détaillé, meilleure sera l'analyse IA
                   </span>
                 </div>
-                <Textarea
-                  id="description"
-                  placeholder="Décrivez votre business en détail : zone géographique, public cible, offre unique, ce qui vous différencie..."
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="bg-white border-[#E0E0E0] text-[#1E1E1E] placeholder:text-[#999999] min-h-[120px] focus:border-[#6D3FC8] focus:ring-[#6D3FC8]/20"
-                  disabled={loading}
-                />
+                <div className="relative">
+                  <Textarea
+                    id="description"
+                    placeholder="Décrivez votre business en détail : zone géographique, public cible, offre unique, ce qui vous différencie..."
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="bg-white border-[#E0E0E0] text-[#1E1E1E] placeholder:text-[#999999] min-h-[120px] focus:border-[#6D3FC8] focus:ring-[#6D3FC8]/20 pr-12"
+                    disabled={loading}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setShowAssistant(true)}
+                    className="absolute top-2 right-2 text-[#6D3FC8] hover:text-[#5A35A5] hover:bg-[#6D3FC8]/10"
+                    disabled={loading || !formData.name || !formData.industry}
+                    title={!formData.name || !formData.industry ? "Remplissez d'abord le nom et le secteur" : "Aide IA pour rédiger"}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                  </Button>
+                </div>
 
                 {/* Exemple contextuel basé sur l'industrie sélectionnée */}
                 {formData.industry && (
@@ -417,12 +432,25 @@ export default function NewBusinessPage() {
 
         <div className="mt-6 p-4 bg-[#6D3FC8]/10 rounded-lg border border-[#6D3FC8]/30">
           <p className="text-sm text-[#6D3FC8]">
-            <strong>💡 Astuce :</strong> Plus vous donnez d&apos;informations précises, 
-            mieux Ezia pourra vous accompagner. Vous pourrez toujours modifier 
+            <strong>💡 Astuce :</strong> Plus vous donnez d&apos;informations précises,
+            mieux Ezia pourra vous accompagner. Vous pourrez toujours modifier
             ces informations plus tard.
           </p>
         </div>
       </main>
+
+      {/* Assistant IA pour la description */}
+      <BusinessDescriptionAssistant
+        open={showAssistant}
+        onClose={() => setShowAssistant(false)}
+        onComplete={(description) => {
+          setFormData({ ...formData, description });
+          setShowAssistant(false);
+        }}
+        businessName={formData.name}
+        industry={formData.industry}
+        currentDescription={formData.description}
+      />
     </div>
   );
 }
