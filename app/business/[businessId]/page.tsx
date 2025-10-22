@@ -123,6 +123,13 @@ function BusinessDetailPage() {
 
   // Détecte si c'est un nouveau business pour auto-start
   const isNewBusiness = searchParams.get("new") === "true";
+  const [shouldStartStrategy, setShouldStartStrategy] = useState(false);
+
+  // Handler appelé quand l'analyse de marché est terminée
+  const handleMarketAnalysisComplete = () => {
+    console.log('[BusinessPage] Analyse de marché terminée, activation de la stratégie marketing');
+    setShouldStartStrategy(true);
+  };
 
   useEffect(() => {
     fetchBusiness();
@@ -461,11 +468,18 @@ function BusinessDetailPage() {
           </TabsContent>
           
           <TabsContent value="market" className="space-y-4">
-            <MarketAnalysisDisplay businessId={params.businessId} autoStart={isNewBusiness} />
+            <MarketAnalysisDisplay
+              businessId={params.businessId}
+              autoStart={isNewBusiness}
+              onAnalysisComplete={handleMarketAnalysisComplete}
+            />
           </TabsContent>
 
           <TabsContent value="marketing" className="space-y-4">
-            <MarketingStrategyDisplay businessId={params.businessId} autoStart={isNewBusiness} />
+            <MarketingStrategyDisplay
+              businessId={params.businessId}
+              autoStart={shouldStartStrategy}
+            />
           </TabsContent>
           
           <TabsContent value="calendar" className="space-y-4">

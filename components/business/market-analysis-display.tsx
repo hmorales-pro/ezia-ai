@@ -11,9 +11,10 @@ import type { IMarketAnalysis } from "@/models/MarketAnalysis";
 interface MarketAnalysisDisplayProps {
   businessId: string;
   autoStart?: boolean; // Déclenche auto la génération si pas d'analyse
+  onAnalysisComplete?: () => void; // Callback quand l'analyse est terminée
 }
 
-export function MarketAnalysisDisplay({ businessId, autoStart = false }: MarketAnalysisDisplayProps) {
+export function MarketAnalysisDisplay({ businessId, autoStart = false, onAnalysisComplete }: MarketAnalysisDisplayProps) {
   const [analysis, setAnalysis] = useState<IMarketAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -65,6 +66,12 @@ export function MarketAnalysisDisplay({ businessId, autoStart = false }: MarketA
       if (data.success) {
         setAnalysis(data.analysis);
         toast.success(`Analyse générée ! MOI: ${data.moi}/100`);
+
+        // Notifier que l'analyse est terminée (pour lancer la stratégie marketing)
+        if (onAnalysisComplete) {
+          console.log('[MarketAnalysis] Analyse terminée, notification du parent');
+          onAnalysisComplete();
+        }
       } else {
         toast.error(data.error || "Erreur lors de la génération");
       }
