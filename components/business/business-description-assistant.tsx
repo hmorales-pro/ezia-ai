@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Send, CheckCircle, Sparkles, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "assistant";
@@ -172,9 +173,16 @@ Pour commencer, dites-moi en quelques mots : **quel est votre business et qui so
                     : "bg-gray-100 text-gray-900"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                  {message.content}
-                </p>
+                <div className="text-sm leading-relaxed prose prose-sm max-w-none prose-p:my-1 prose-strong:font-semibold">
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => <p className="my-1">{children}</p>,
+                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
               </div>
             </div>
           ))}
