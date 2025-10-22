@@ -51,6 +51,31 @@ export default function NewBusinessPage() {
     { value: "established", label: "Établi", description: "Mon business est mature" }
   ];
 
+  // Exemples contextuels par industrie
+  const descriptionExamples: Record<string, string> = {
+    "Technology": "Plateforme SaaS de gestion de projet pour PME françaises, avec IA intégrée pour automatiser les tâches répétitives. Public cible : équipes de 5-50 personnes dans le secteur tech. Notre différenciation : interface en français, support local et tarification transparente.",
+    "E-commerce": "Boutique en ligne de vêtements éco-responsables pour femmes 25-40 ans, basée à Lyon. Nous proposons des collections capsules de créateurs locaux, avec livraison 48h en France métropolitaine. Notre mission : démocratiser la mode durable et éthique.",
+    "Services": "Agence de conseil en transformation digitale pour TPE/PME en région PACA. Nous accompagnons les entreprises traditionnelles dans leur digitalisation : création de sites web, stratégie réseaux sociaux, formation des équipes. Notre force : proximité et suivi personnalisé.",
+    "Santé": "Cabinet de téléconsultation médicale spécialisé en médecine générale, couvrant toute la France. Consultations vidéo 7j/7 de 8h à 22h, prescriptions électroniques, suivi patient via application mobile. Public cible : actifs 25-55 ans en zone urbaine.",
+    "Education": "Plateforme de cours en ligne pour entrepreneurs débutants, avec accompagnement personnalisé par des mentors. Programme de 3 mois couvrant : business plan, marketing digital, comptabilité, juridique. Notre différence : communauté active et suivi individuel.",
+    "Finance": "Application mobile de gestion de budget et d'investissement pour jeunes actifs 25-35 ans. Agrégation de comptes bancaires, conseils personnalisés par IA, parcours d'investissement gamifié. Mission : démocratiser l'éducation financière en France.",
+    "Immobilier": "Agence immobilière digitale spécialisée dans les premiers achats pour jeunes couples à Marseille et alentours. Service clé en main : recherche personnalisée, négociation, accompagnement bancaire et juridique. Notre plus : transparence totale et pas de frais cachés.",
+    "Restauration": "Restaurant gastronomique moderne à Bordeaux, cuisine fusion franco-asiatique, produits locaux et de saison. Capacité 40 couverts, service midi et soir, privatisation possible. Public cible : CSP+ 30-60 ans, touristes gastronomiques. Chef étoilé au parcours international.",
+    "Art & Culture": "Galerie d'art contemporain et espace événementiel à Paris 11ème, spécialisée dans les artistes émergents français. Expositions mensuelles, vente d'œuvres, ateliers créatifs le week-end. Public : amateurs d'art 30-55 ans, collectionneurs débutants, entreprises pour art corporate.",
+    "Sport & Bien-être": "Salle de sport nouvelle génération à Toulouse avec coaching personnalisé et cours collectifs innovants (HIIT, yoga, boxe). 500m², équipements premium, application de suivi. Cible : urbains actifs 25-45 ans cherchant flexibilité et accompagnement qualité.",
+    "Consulting": "Cabinet de conseil RH spécialisé en recrutement tech pour startups et scale-ups françaises. Services : chasse de têtes, assessment, marque employeur. Réseau de 10 000+ candidats qualifiés. Notre expertise : profils rares (DevOps, Data Scientists, Product Managers).",
+    "Autre": "Décrivez votre activité en détaillant : votre zone géographique, votre cible précise (âge, profil, besoins), votre offre unique, ce qui vous différencie de la concurrence, et vos objectifs principaux."
+  };
+
+  // Conseils de rédaction qui s'affichent sous la description
+  const getDescriptionTips = () => [
+    "📍 Localisation : Précisez votre zone géographique (ville, région, national, international)",
+    "🎯 Cible : Décrivez précisément vos clients idéaux (âge, profession, besoins)",
+    "💡 Différenciation : Qu'est-ce qui vous rend unique par rapport à la concurrence ?",
+    "🎨 Offre : Détaillez vos produits/services principaux et leur valeur ajoutée",
+    "🚀 Objectif : Quel problème résolvez-vous ? Quelle est votre mission ?"
+  ];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -177,16 +202,57 @@ export default function NewBusinessPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-[#1E1E1E]">Description *</Label>
+              <div className="space-y-3">
+                <div className="flex items-start justify-between">
+                  <Label htmlFor="description" className="text-[#1E1E1E]">
+                    Description détaillée *
+                  </Label>
+                  <span className="text-xs text-[#6D3FC8] font-medium">
+                    Plus c'est détaillé, meilleure sera l'analyse IA
+                  </span>
+                </div>
                 <Textarea
                   id="description"
-                  placeholder="Décrivez votre business en quelques phrases..."
+                  placeholder="Décrivez votre business en détail : zone géographique, public cible, offre unique, ce qui vous différencie..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="bg-white border-[#E0E0E0] text-[#1E1E1E] placeholder:text-[#999999] min-h-[100px] focus:border-[#6D3FC8] focus:ring-[#6D3FC8]/20"
+                  className="bg-white border-[#E0E0E0] text-[#1E1E1E] placeholder:text-[#999999] min-h-[120px] focus:border-[#6D3FC8] focus:ring-[#6D3FC8]/20"
                   disabled={loading}
                 />
+
+                {/* Exemple contextuel basé sur l'industrie sélectionnée */}
+                {formData.industry && (
+                  <div className="p-3 bg-[#6D3FC8]/5 rounded-lg border border-[#6D3FC8]/20">
+                    <div className="flex items-start gap-2">
+                      <Lightbulb className="w-4 h-4 text-[#6D3FC8] mt-0.5 flex-shrink-0" />
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-[#6D3FC8]">
+                          Exemple pour {formData.industry} :
+                        </p>
+                        <p className="text-xs text-[#666666] leading-relaxed">
+                          {descriptionExamples[formData.industry] || descriptionExamples["Autre"]}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Conseils de rédaction */}
+                <details className="group">
+                  <summary className="cursor-pointer text-xs font-medium text-[#6D3FC8] hover:text-[#5A35A5] flex items-center gap-2">
+                    <svg className="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    Conseils pour une description complète
+                  </summary>
+                  <div className="mt-2 ml-6 space-y-1.5">
+                    {getDescriptionTips().map((tip, idx) => (
+                      <p key={idx} className="text-xs text-[#666666] leading-relaxed">
+                        {tip}
+                      </p>
+                    ))}
+                  </div>
+                </details>
               </div>
 
               <div className="space-y-2">
