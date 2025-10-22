@@ -325,44 +325,122 @@ Retourne SEULEMENT le JSON valide, sans texte autour.`;
   }
 
   /**
-   * Mappe les données JSON vers le schéma MongoDB
+   * Valide que tous les champs requis sont présents dans les données générées
+   */
+  private validateRequiredFields(data: any): void {
+    const errors: string[] = [];
+
+    // Validation executive_summary (champs requis)
+    if (!data.executive_summary?.vision) errors.push('executive_summary.vision');
+    if (!data.executive_summary?.mission) errors.push('executive_summary.mission');
+    if (!data.executive_summary?.unique_value_proposition) errors.push('executive_summary.unique_value_proposition');
+
+    // Validation brand_positioning (champs requis)
+    if (!data.brand_positioning?.brand_essence) errors.push('brand_positioning.brand_essence');
+    if (!data.brand_positioning?.brand_promise) errors.push('brand_positioning.brand_promise');
+    if (!data.brand_positioning?.positioning_statement) errors.push('brand_positioning.positioning_statement');
+
+    // Validation target_segments (au moins 1 segment requis)
+    if (!Array.isArray(data.target_segments) || data.target_segments.length === 0) {
+      errors.push('target_segments (au moins 1 segment requis)');
+    } else {
+      // Valider que chaque segment a les champs requis
+      data.target_segments.forEach((s: any, i: number) => {
+        if (!s.segment_name) errors.push(`target_segments[${i}].segment_name`);
+        if (!s.description) errors.push(`target_segments[${i}].description`);
+      });
+    }
+
+    // Validation marketing_mix.product
+    if (!data.marketing_mix?.product?.differentiation) errors.push('marketing_mix.product.differentiation');
+
+    // Validation marketing_mix.price
+    if (!data.marketing_mix?.price?.strategy) errors.push('marketing_mix.price.strategy');
+    if (!data.marketing_mix?.price?.positioning) errors.push('marketing_mix.price.positioning');
+
+    // Validation marketing_mix.promotion
+    if (!data.marketing_mix?.promotion?.content_strategy) errors.push('marketing_mix.promotion.content_strategy');
+
+    // Validation customer_journey (toutes les étapes requises)
+    if (!data.customer_journey?.awareness) errors.push('customer_journey.awareness');
+    if (!data.customer_journey?.consideration) errors.push('customer_journey.consideration');
+    if (!data.customer_journey?.decision) errors.push('customer_journey.decision');
+    if (!data.customer_journey?.retention) errors.push('customer_journey.retention');
+
+    // Validation campaign_ideas (au moins 1 campagne requise)
+    if (!Array.isArray(data.campaign_ideas) || data.campaign_ideas.length === 0) {
+      errors.push('campaign_ideas (au moins 1 campagne requise)');
+    } else {
+      // Valider que chaque campagne a les champs requis
+      data.campaign_ideas.forEach((c: any, i: number) => {
+        if (!c.title) errors.push(`campaign_ideas[${i}].title`);
+        if (!c.objective) errors.push(`campaign_ideas[${i}].objective`);
+      });
+    }
+
+    // Validation implementation_roadmap (au moins 1 phase requise)
+    if (!Array.isArray(data.implementation_roadmap) || data.implementation_roadmap.length === 0) {
+      errors.push('implementation_roadmap (au moins 1 phase requise)');
+    } else {
+      // Valider que chaque phase a les champs requis
+      data.implementation_roadmap.forEach((p: any, i: number) => {
+        if (!p.phase) errors.push(`implementation_roadmap[${i}].phase`);
+        if (!p.timeline) errors.push(`implementation_roadmap[${i}].timeline`);
+      });
+    }
+
+    // Si des erreurs sont trouvées, lever une exception
+    if (errors.length > 0) {
+      const errorMsg = `🚨 Champs manquants dans la réponse IA (${errors.length}): ${errors.join(', ')}`;
+      console.error('❌ [Validation]', errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    console.log('✅ [Validation] Tous les champs requis sont présents');
+  }
+
+  /**
+   * Mappe les données JSON vers le schéma MongoDB avec validation stricte
    */
   private mapToMongoSchema(data: any, input: MarketingStrategyInput): any {
     console.log('🗺️ [Phase 2] Mapping vers schéma MongoDB...');
 
+    // Validation stricte des champs requis
+    this.validateRequiredFields(data);
+
     return {
-      executive_summary: data.executive_summary || {
-        vision: 'Vision à définir',
-        mission: 'Mission à définir',
-        unique_value_proposition: 'Proposition de valeur à définir',
-        target_roi: 'ROI à définir'
+      executive_summary: {
+        vision: data.executive_summary?.vision,
+        mission: data.executive_summary?.mission,
+        unique_value_proposition: data.executive_summary?.unique_value_proposition,
+        target_roi: data.executive_summary?.target_roi
       },
       brand_positioning: {
-        brand_essence: data.brand_positioning?.brand_essence || 'Essence à définir',
-        brand_promise: data.brand_positioning?.brand_promise || 'Promesse à définir',
+        brand_essence: data.brand_positioning?.brand_essence,
+        brand_promise: data.brand_positioning?.brand_promise,
         brand_personality: Array.isArray(data.brand_positioning?.brand_personality) ? data.brand_positioning.brand_personality : [],
         brand_values: Array.isArray(data.brand_positioning?.brand_values) ? data.brand_positioning.brand_values : [],
-        positioning_statement: data.brand_positioning?.positioning_statement || 'Statement à définir',
+        positioning_statement: data.brand_positioning?.positioning_statement,
         competitive_advantages: Array.isArray(data.brand_positioning?.competitive_advantages) ? data.brand_positioning.competitive_advantages : []
       },
       target_segments: (Array.isArray(data.target_segments) ? data.target_segments : []).map((s: any) => ({
-        segment_name: s.segment_name || 'Segment',
-        description: s.description || '',
-        demographics: s.demographics || '',
-        psychographics: s.psychographics || '',
-        size_estimate: s.size_estimate || '',
+        segment_name: s.segment_name,
+        description: s.description,
+        demographics: s.demographics,
+        psychographics: s.psychographics,
+        size_estimate: s.size_estimate,
         priority: this.normalizePriority(s.priority),
-        reach_strategy: s.reach_strategy || ''
+        reach_strategy: s.reach_strategy
       })),
       marketing_mix: {
         product: {
           core_offerings: Array.isArray(data.marketing_mix?.product?.core_offerings) ? data.marketing_mix.product.core_offerings : [],
           unique_features: Array.isArray(data.marketing_mix?.product?.unique_features) ? data.marketing_mix.product.unique_features : [],
-          differentiation: data.marketing_mix?.product?.differentiation || ''
+          differentiation: data.marketing_mix?.product?.differentiation
         },
         price: {
-          strategy: data.marketing_mix?.price?.strategy || '',
-          positioning: data.marketing_mix?.price?.positioning || '',
+          strategy: data.marketing_mix?.price?.strategy,
+          positioning: data.marketing_mix?.price?.positioning,
           tactics: Array.isArray(data.marketing_mix?.price?.tactics) ? data.marketing_mix.price.tactics : []
         },
         place: {
@@ -373,7 +451,7 @@ Retourne SEULEMENT le JSON valide, sans texte autour.`;
         promotion: {
           key_messages: Array.isArray(data.marketing_mix?.promotion?.key_messages) ? data.marketing_mix.promotion.key_messages : [],
           communication_channels: Array.isArray(data.marketing_mix?.promotion?.communication_channels) ? data.marketing_mix.promotion.communication_channels : [],
-          content_strategy: data.marketing_mix?.promotion?.content_strategy || ''
+          content_strategy: data.marketing_mix?.promotion?.content_strategy
         }
       },
       customer_journey: {
@@ -383,31 +461,26 @@ Retourne SEULEMENT le JSON valide, sans texte autour.`;
         retention: this.mapJourneyStage(data.customer_journey?.retention)
       },
       campaign_ideas: (Array.isArray(data.campaign_ideas) ? data.campaign_ideas : []).map((c: any) => ({
-        title: c.title || 'Campagne',
-        objective: c.objective || '',
-        target_segment: c.target_segment || '',
+        title: c.title,
+        objective: c.objective,
+        target_segment: c.target_segment,
         channels: Array.isArray(c.channels) ? c.channels : [],
-        budget_estimate: c.budget_estimate || '',
-        expected_roi: c.expected_roi || '',
-        timeline: c.timeline || '',
+        budget_estimate: c.budget_estimate,
+        expected_roi: c.expected_roi,
+        timeline: c.timeline,
         kpis: Array.isArray(c.kpis) ? c.kpis : []
       })),
       implementation_roadmap: (Array.isArray(data.implementation_roadmap) ? data.implementation_roadmap : []).map((p: any) => ({
-        phase: p.phase || 'Phase',
-        timeline: p.timeline || '',
+        phase: p.phase,
+        timeline: p.timeline,
         priority: this.normalizePriority(p.priority),
         actions: Array.isArray(p.actions) ? p.actions : [],
-        budget: p.budget || '',
+        budget: p.budget,
         success_metrics: Array.isArray(p.success_metrics) ? p.success_metrics : [],
         dependencies: Array.isArray(p.dependencies) ? p.dependencies : []
       })),
-      total_budget_estimate: data.total_budget_estimate || 'À définir',
-      budget_allocation: data.budget_allocation || {
-        product: 25,
-        price: 10,
-        place: 30,
-        promotion: 35
-      }
+      total_budget_estimate: data.total_budget_estimate,
+      budget_allocation: data.budget_allocation
     };
   }
 

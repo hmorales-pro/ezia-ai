@@ -280,16 +280,18 @@ export function MarketAnalysisDisplay({ businessId }: MarketAnalysisDisplayProps
             </div>
           </div>
 
-          <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-2">Tendances clés</h4>
-            <div className="flex flex-wrap gap-2">
-              {market_overview.trends.map((trend, idx) => (
-                <Badge key={idx} variant="secondary">
-                  {trend}
-                </Badge>
-              ))}
+          {market_overview.trends && market_overview.trends.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground mb-2">Tendances clés</h4>
+              <div className="flex flex-wrap gap-2">
+                {market_overview.trends.map((trend, idx) => (
+                  <Badge key={idx} variant="secondary">
+                    {trend}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {market_overview.segments && market_overview.segments.length > 0 && (
             <div>
