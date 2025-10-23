@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import { useUser } from "@/hooks";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, BarChart3, Globe, MessageSquare, FileText, Zap, TrendingUp } from "lucide-react";
+import { UserMenu } from "@/components/user-menu";
+import { BarChart3, Globe, MessageSquare, FileText, Zap, TrendingUp } from "lucide-react";
 import { api } from "@/lib/api";
 
 interface UsageData {
@@ -82,26 +85,32 @@ export default function UsagePage() {
 
   return (
     <div className="min-h-screen bg-[#ebe7e1]">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#E0E0E0]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push("/dashboard")}
-              className="text-[#666666] hover:text-[#6D3FC8] hover:bg-purple-50 font-medium"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Retour
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-[#1E1E1E]">Utilisation</h1>
-              <p className="text-sm text-[#666666]">Suivez votre consommation et vos quotas</p>
+      {/* Header avec navbar */}
+      <header className="bg-white shadow-sm border-b border-[#E0E0E0] sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="relative w-10 h-10">
+                <Image
+                  src="/logo.png"
+                  alt="Ezia"
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold">Ezia</h1>
+                <p className="text-xs text-[#666666]">Utilisation</p>
+              </div>
+            </Link>
+            <div className="flex items-center gap-4">
+              <UserMenu />
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Plan actuel */}
