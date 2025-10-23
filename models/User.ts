@@ -8,7 +8,7 @@ export interface IUser {
   password: string;
   fullName?: string;
   avatarUrl?: string;
-  role: 'user' | 'admin' | 'pro';
+  role: 'user' | 'admin' | 'pro' | 'beta';
   isEmailVerified: boolean;
   businesses: string[];
   projects: string[];
@@ -22,6 +22,13 @@ export interface IUser {
     imagesGenerated: number;
     imagesQuota: number;
     lastImageReset?: Date;
+  };
+  betaTester?: {
+    isBetaTester: boolean;
+    invitedAt?: Date;
+    invitedBy?: string;
+    hasUnlimitedAccess: boolean;
+    notes?: string;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -56,7 +63,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'pro'],
+    enum: ['user', 'admin', 'pro', 'beta'],
     default: 'user',
   },
   isEmailVerified: {
@@ -91,6 +98,19 @@ const userSchema = new mongoose.Schema({
       default: 0,
     },
     lastImageReset: Date,
+  },
+  betaTester: {
+    isBetaTester: {
+      type: Boolean,
+      default: false,
+    },
+    invitedAt: Date,
+    invitedBy: String,
+    hasUnlimitedAccess: {
+      type: Boolean,
+      default: false,
+    },
+    notes: String,
   },
   lastLoginAt: Date,
 }, {

@@ -37,10 +37,29 @@ interface WebinarRegistration {
   attended?: boolean;
 }
 
+interface BetaTester {
+  _id: string;
+  email: string;
+  fullName?: string;
+  role: string;
+  betaTester?: {
+    isBetaTester: boolean;
+    invitedAt?: string;
+    invitedBy?: string;
+    hasUnlimitedAccess: boolean;
+    notes?: string;
+  };
+  createdAt: string;
+  subscription?: {
+    plan: string;
+    validUntil?: string;
+  };
+}
+
 export default function SimpleAdminPage() {
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<"waitlist" | "webinar">("waitlist");
+  const [activeTab, setActiveTab] = useState<"waitlist" | "webinar" | "beta">("waitlist");
 
   // Waitlist state
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
@@ -54,6 +73,18 @@ export default function SimpleAdminPage() {
   const [filterChallenge, setFilterChallenge] = useState("all");
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
 
+  // Beta testers state
+  const [betaTesters, setBetaTesters] = useState<BetaTester[]>([]);
+  const [showBetaForm, setShowBetaForm] = useState(false);
+  const [betaFormData, setBetaFormData] = useState({
+    email: "",
+    fullName: "",
+    notes: "",
+    hasUnlimitedAccess: true
+  });
+  const [creatingBeta, setCreatingBeta] = useState(false);
+  const [sendingInvitation, setSendingInvitation] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
 
   // Mot de passe simple (à changer)
@@ -64,7 +95,7 @@ export default function SimpleAdminPage() {
     if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       setLoading(true);
-      Promise.all([fetchWaitlist(), fetchWebinarRegistrations()])
+      Promise.all([fetchWaitlist(), fetchWebinarRegistrations(), fetchBetaTesters()])
         .finally(() => {
           setLoading(false);
           toast.success("Données chargées avec succès");
@@ -140,6 +171,97 @@ export default function SimpleAdminPage() {
       toast.error("Erreur lors du renvoi de l'email");
     } finally {
       setSendingEmail(null);
+    }
+  };
+
+  const fetchBetaTesters = async () => {
+    try {
+      const response = await fetch("/api/admin/beta-testers", {
+        headers: {
+          'Authorization': `Bearer ${ADMIN_PASSWORD}`
+        }
+      });
+      const data = await response.json();
+
+      if (data.success && data.betaTesters) {
+        setBetaTesters(data.betaTesters);
+      } else {
+        toast.error("Impossible de charger les beta-testeurs");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Erreur lors du chargement des beta-testeurs");
+    }
+  };
+
+  const createBetaTester = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingBeta(true);
+
+    try {
+      const response = await fetch("/api/admin/beta-testers", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ADMIN_PASSWORD}`
+        },
+        body: JSON.stringify(betaFormData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Beta-testeur créé avec succès !");
+
+        // Send invitation email automatically
+        await sendBetaInvitation(data.betaTester._id, data.betaTester.password);
+
+        // Reset form
+        setBetaFormData({
+          email: "",
+          fullName: "",
+          notes: "",
+          hasUnlimitedAccess: true
+        });
+        setShowBetaForm(false);
+
+        // Reload beta testers
+        await fetchBetaTesters();
+      } else {
+        toast.error(data.error || "Erreur lors de la création");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Erreur lors de la création du beta-testeur");
+    } finally {
+      setCreatingBeta(false);
+    }
+  };
+
+  const sendBetaInvitation = async (userId: string, password: string) => {
+    setSendingInvitation(userId);
+    try {
+      const response = await fetch("/api/admin/beta-testers/send-invitation", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ADMIN_PASSWORD}`
+        },
+        body: JSON.stringify({ userId, password })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Invitation envoyée avec succès !");
+      } else {
+        toast.error(data.error || "Erreur lors de l'envoi de l'invitation");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Erreur lors de l'envoi de l'invitation");
+    } finally {
+      setSendingInvitation(null);
     }
   };
 
@@ -382,6 +504,19 @@ export default function SimpleAdminPage() {
               <div className="flex items-center gap-2">
                 <Video className="w-4 h-4" />
                 Webinaire ({webinarRegistrations.length})
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("beta")}
+              className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+                activeTab === "beta"
+                  ? "border-[#6D3FC8] text-[#6D3FC8]"
+                  : "border-transparent text-[#666666] hover:text-[#1E1E1E]"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Beta-Testeurs ({betaTesters.length})
               </div>
             </button>
           </div>
@@ -810,6 +945,172 @@ export default function SimpleAdminPage() {
                   {filteredWebinarRegistrations.length === 0 && (
                     <div className="text-center py-12">
                       <p className="text-[#666666]">Aucune inscription trouvée</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
+
+        {/* Content for Beta Testers Tab */}
+        {activeTab === "beta" && (
+          <>
+            {/* Header with Add Button */}
+            <div className="mb-6 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-[#1E1E1E]">Gestion des Beta-Testeurs</h2>
+              <Button
+                onClick={() => setShowBetaForm(!showBetaForm)}
+                className="gap-2"
+              >
+                <Users className="w-4 h-4" />
+                {showBetaForm ? "Annuler" : "Nouveau Beta-Testeur"}
+              </Button>
+            </div>
+
+            {/* Create Beta Tester Form */}
+            {showBetaForm && (
+              <Card className="mb-6 border-[#6D3FC8]">
+                <CardHeader>
+                  <CardTitle>Créer un nouveau Beta-Testeur</CardTitle>
+                  <CardDescription>
+                    Un compte sera créé avec accès illimité et un email d'invitation sera envoyé automatiquement
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={createBetaTester} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm text-[#666666] mb-1 block">Email *</label>
+                        <Input
+                          type="email"
+                          placeholder="email@example.com"
+                          value={betaFormData.email}
+                          onChange={(e) => setBetaFormData({ ...betaFormData, email: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-[#666666] mb-1 block">Nom complet *</label>
+                        <Input
+                          type="text"
+                          placeholder="Jean Dupont"
+                          value={betaFormData.fullName}
+                          onChange={(e) => setBetaFormData({ ...betaFormData, fullName: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm text-[#666666] mb-1 block">Notes (optionnel)</label>
+                      <Input
+                        type="text"
+                        placeholder="Source, raison de l'invitation..."
+                        value={betaFormData.notes}
+                        onChange={(e) => setBetaFormData({ ...betaFormData, notes: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="unlimitedAccess"
+                        checked={betaFormData.hasUnlimitedAccess}
+                        onChange={(e) => setBetaFormData({ ...betaFormData, hasUnlimitedAccess: e.target.checked })}
+                        className="rounded"
+                      />
+                      <label htmlFor="unlimitedAccess" className="text-sm text-[#666666]">
+                        Accès illimité (recommandé pour les beta-testeurs)
+                      </label>
+                    </div>
+                    <Button type="submit" disabled={creatingBeta} className="w-full">
+                      {creatingBeta ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Création en cours...
+                        </>
+                      ) : (
+                        "Créer et envoyer l'invitation"
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Beta Testers List */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Beta-Testeurs ({betaTesters.length})</CardTitle>
+                <CardDescription>
+                  Liste de tous les utilisateurs avec un accès beta
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Date création</th>
+                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Nom</th>
+                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Email</th>
+                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Plan</th>
+                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Accès</th>
+                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Date invitation</th>
+                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {betaTesters.map((tester) => (
+                        <tr key={tester._id} className="border-b hover:bg-gray-50">
+                          <td className="p-4 text-sm">
+                            {new Date(tester.createdAt).toLocaleDateString("fr-FR")}
+                          </td>
+                          <td className="p-4">
+                            <p className="font-medium text-[#1E1E1E]">{tester.fullName || "-"}</p>
+                          </td>
+                          <td className="p-4 text-sm text-[#666666]">
+                            <a href={`mailto:${tester.email}`} className="hover:text-[#6D3FC8]">
+                              {tester.email}
+                            </a>
+                          </td>
+                          <td className="p-4">
+                            <Badge className="bg-purple-100 text-purple-700">
+                              {tester.subscription?.plan || "free"}
+                            </Badge>
+                          </td>
+                          <td className="p-4">
+                            {tester.betaTester?.hasUnlimitedAccess ? (
+                              <Badge className="bg-green-100 text-green-700">
+                                ♾️ Illimité
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary">Standard</Badge>
+                            )}
+                          </td>
+                          <td className="p-4 text-sm">
+                            {tester.betaTester?.invitedAt
+                              ? new Date(tester.betaTester.invitedAt).toLocaleDateString("fr-FR")
+                              : "-"}
+                          </td>
+                          <td className="p-4 text-sm text-[#666666]">
+                            {tester.betaTester?.notes || "-"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {betaTesters.length === 0 && (
+                    <div className="text-center py-12">
+                      <p className="text-[#666666]">Aucun beta-testeur pour le moment</p>
+                      <Button
+                        onClick={() => setShowBetaForm(true)}
+                        className="mt-4 gap-2"
+                        variant="outline"
+                      >
+                        <Users className="w-4 h-4" />
+                        Créer le premier beta-testeur
+                      </Button>
                     </div>
                   )}
                 </div>
