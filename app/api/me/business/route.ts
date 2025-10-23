@@ -79,6 +79,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
+  // CRITICAL: Verify MongoDB is configured
+  if (!process.env.MONGODB_URI) {
+    console.error('❌ CRITICAL: Attempted to create business without MONGODB_URI configured!');
+    return NextResponse.json(
+      { ok: false, error: "Database not configured. Business cannot be saved." },
+      { status: 500 }
+    );
+  }
+
+  console.log(`📝 Creating business for user: ${user.email} (${user.id})`);
+  console.log(`🗄️  Database: ${isUsingMemoryDB() ? 'MEMORY (temporary)' : 'MongoDB (persistent)'}`);
+
   try {
     const body = await request.json();
     const { name, description, industry, stage } = body;
@@ -164,15 +176,22 @@ export async function POST(request: NextRequest) {
     };
 
     let createdBusiness;
-    
+
     if (isUsingMemoryDB()) {
+      console.warn('⚠️  Using in-memory database - business will NOT be persisted!');
       const memoryDB = getMemoryDB();
       createdBusiness = await memoryDB.create(businessData);
     } else {
+      await dbConnect();
       const business = await Business.create(businessData);
       createdBusiness = await Business.findById(business._id)
         .select('-__v')
         .lean();
+
+      console.log(`✅ Business "${name}" successfully saved to MongoDB`);
+      console.log(`   - Business ID: ${businessData.business_id}`);
+      console.log(`   - MongoDB _id: ${business._id}`);
+      console.log(`   - User: ${user.email} (${user.id})`);
     }
 
     return NextResponse.json({

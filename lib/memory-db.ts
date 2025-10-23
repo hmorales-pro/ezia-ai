@@ -272,4 +272,18 @@ export function getMemoryDB(): MemoryDB {
   return memoryDB;
 }
 
-export const isUsingMemoryDB = () => !process.env.MONGODB_URI || process.env.MONGODB_URI.trim() === '';
+// NEVER use memory DB in production - always require MongoDB
+export const isUsingMemoryDB = () => {
+  // Force MongoDB if MONGODB_URI is configured
+  if (process.env.MONGODB_URI && process.env.MONGODB_URI.trim() !== '') {
+    return false;
+  }
+
+  // Only allow memory DB in development for testing purposes
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('MONGODB_URI is required in production. Memory DB is not allowed.');
+  }
+
+  console.warn('⚠️  WARNING: Using in-memory database. Data will be lost on restart!');
+  return true;
+};
