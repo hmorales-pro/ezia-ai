@@ -451,77 +451,143 @@ export function UnifiedContentCalendar({
 
   const handleGenerateSingleContent = async (item: ContentItem) => {
     setLoading(true);
-    const updated = contentItems.map(c => 
-      c.id === item.id ? { ...c, status: "generating" as const } : c
+    const updated = contentItems.map(c =>
+      c.id === item.id ? { ...c, status: "generating" as const, content: "" } : c
     );
     await saveContentItems(updated);
-    
+
     try {
-      // Appel à l'API pour générer le contenu réel
-      const response = await api.post(`/api/me/business/${businessId}/generate-content`, {
-        contentItem: item,
-        businessInfo: {
-          name: businessName,
-          description: businessDescription,
-          industry: businessIndustry,
-          marketAnalysis,
-          marketingStrategy
-        }
+      console.log("[Streaming] Démarrage génération pour:", item.title);
+
+      // Appel à l'API streaming
+      const response = await fetch(`/api/me/business/${businessId}/generate-content-stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contentItem: item,
+          businessInfo: {
+            name: businessName,
+            description: businessDescription,
+            industry: businessIndustry,
+            marketAnalysis,
+            marketingStrategy
+          }
+        })
       });
-      
-      if (response.data.success) {
-        const generatedContent = response.data.content;
-        // Mettre à jour avec le contenu généré
-        const finalUpdated = contentItems.map(c =>
-          c.id === item.id
-            ? {
-                ...c,
-                status: "generated" as const,
-                content: generatedContent
-              }
-            : c
-        );
-        await saveContentItems(finalUpdated);
-        toast.success(`Contenu généré avec succès !`);
 
-        // Génération automatique d'image si le type est "image"
-        if (item.type === "image" && imageQuota.remaining > 0) {
-          try {
-            toast.info("Génération automatique de l'image...");
-            const imageResponse = await api.post("/api/images/generate", {
-              prompt: "",
-              contentTitle: item.title,
-              contentDescription: generatedContent,
-              contentType: item.type,
-              width: 1024,
-              height: 1024,
-            });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-            if (imageResponse.data.success && imageResponse.data.image) {
-              // Mettre à jour l'item avec l'image générée
-              const updatedWithImage = contentItems.map(c =>
-                c.id === item.id
-                  ? {
-                      ...c,
-                      imageUrl: imageResponse.data.image
-                    }
-                  : c
-              );
-              await saveContentItems(updatedWithImage);
+      if (!response.body) {
+        throw new Error('No response body');
+      }
 
-              if (imageResponse.data.usage) {
-                setImageQuota(imageResponse.data.usage);
+      // Lire le stream SSE
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedContent = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          console.log("[Streaming] ✅ Génération terminée");
+          break;
+        }
+
+        // Décoder le chunk
+        buffer += decoder.decode(value, { stream: true });
+
+        // Traiter les lignes SSE
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6).trim();
+
+            try {
+              const json = JSON.parse(data);
+
+              if (json.error) {
+                throw new Error(json.error);
               }
 
-              toast.success(`Image générée automatiquement ! (${imageResponse.data.usage.remaining} restantes)`);
+              if (json.content) {
+                // Accumuler le contenu
+                accumulatedContent += json.content;
+
+                // Mise à jour en temps réel de l'UI ⚡
+                const streamUpdated = contentItems.map(c =>
+                  c.id === item.id
+                    ? {
+                        ...c,
+                        status: "generating" as const,
+                        content: accumulatedContent
+                      }
+                    : c
+                );
+                setContentItems(streamUpdated);
+              }
+            } catch (e) {
+              console.debug("[Streaming] Parse error:", e);
             }
-          } catch (imageError: any) {
-            console.error("Erreur génération auto image:", imageError);
-            toast.warning("Le contenu a été généré mais l'image a échoué. Vous pouvez réessayer manuellement.");
           }
         }
-      } else {
-        throw new Error("Failed to generate content");
+      }
+
+      // Marquer comme généré
+      const finalUpdated = contentItems.map(c =>
+        c.id === item.id
+          ? {
+              ...c,
+              status: "generated" as const,
+              content: accumulatedContent
+            }
+          : c
+      );
+      await saveContentItems(finalUpdated);
+      toast.success(`Contenu généré avec succès !`);
+
+      // Génération automatique d'image si le type est "image"
+      if (item.type === "image" && imageQuota.remaining > 0) {
+        try {
+          toast.info("Génération automatique de l'image...");
+          const imageResponse = await api.post("/api/images/generate", {
+            prompt: "",
+            contentTitle: item.title,
+            contentDescription: accumulatedContent,
+            contentType: item.type,
+            width: 1024,
+            height: 1024,
+          });
+
+          if (imageResponse.data.success && imageResponse.data.image) {
+            // Mettre à jour l'item avec l'image générée
+            const updatedWithImage = contentItems.map(c =>
+              c.id === item.id
+                ? {
+                    ...c,
+                    imageUrl: imageResponse.data.image
+                  }
+                : c
+            );
+            await saveContentItems(updatedWithImage);
+
+            if (imageResponse.data.usage) {
+              setImageQuota(imageResponse.data.usage);
+            }
+
+            toast.success(`Image générée automatiquement ! (${imageResponse.data.usage.remaining} restantes)`);
+          }
+        } catch (imageError: any) {
+          console.error("Erreur génération auto image:", imageError);
+          toast.warning("Le contenu a été généré mais l'image a échoué. Vous pouvez réessayer manuellement.");
+        }
       }
     } catch (error) {
       console.error("Error generating content:", error);

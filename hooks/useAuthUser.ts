@@ -29,7 +29,7 @@ export function useAuthUser() {
   const errCode = data?.errCode || null;
 
   const openLoginWindow = () => {
-    router.push("/auth/ezia");
+    router.push("/auth/login");
   };
 
   const logout = async () => {

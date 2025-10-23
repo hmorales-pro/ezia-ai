@@ -49,7 +49,7 @@ export default function WaitlistAdminPage() {
     } catch (error: any) {
       if (error.response?.status === 401) {
         toast.error("Non autorisé");
-        router.push("/auth/ezia");
+        router.push("/auth/login");
       } else if (error.response?.status === 403) {
         toast.error("Accès réservé aux administrateurs");
         router.push("/workspace");

@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 
 export default async function Auth() {
   // Redirect to Ezia auth page instead of HuggingFace
-  redirect('/auth/ezia');
+  redirect('/auth/login');
 }

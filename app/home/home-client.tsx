@@ -474,7 +474,7 @@ export default function HomePage() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/ezia">
+            <Link href="/auth/login">
               <Button size="lg" className="bg-white text-[#6D3FC8] hover:bg-gray-100 shadow-lg">
                 Commencer gratuitement
                 <ArrowRight className="ml-2 w-5 h-5" />

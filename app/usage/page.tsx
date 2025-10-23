@@ -66,7 +66,7 @@ export default function UsagePage() {
   };
 
   if (!user) {
-    router.push("/auth/ezia");
+    router.push("/auth/login");
     return null;
   }
 

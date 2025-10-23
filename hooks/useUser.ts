@@ -48,7 +48,7 @@ function useUser(initialData?: {
 
   const openLoginWindow = async () => {
     setCurrentRoute(window.location.pathname);
-    return router.push("/auth/ezia");
+    return router.push("/auth/login");
   };
 
   const loginFromCode = async (code: string) => {

@@ -153,12 +153,12 @@ export default function LandingNavbar() {
               </>
             ) : (
               <>
-                <Link href={isEnterprisePage ? "/auth/ezia?from=enterprise" : "/auth/ezia"}>
+                <Link href={isEnterprisePage ? "/auth/login?from=enterprise" : "/auth/login"}>
                   <Button variant="ghost" className="text-[#666666] hover:text-[#6D3FC8] hover:bg-purple-50 font-medium">
                     Se connecter
                   </Button>
                 </Link>
-                <Link href={isEnterprisePage ? "/auth/ezia?from=enterprise" : "/auth/ezia"}>
+                <Link href={isEnterprisePage ? "/auth/login?from=enterprise" : "/auth/login"}>
                   <Button className="bg-[#6D3FC8] hover:bg-[#5A35A5] text-white shadow-md hover:shadow-lg transition-all">
                     Commencer gratuitement
                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -253,12 +253,12 @@ export default function LandingNavbar() {
                 </>
               ) : (
                 <>
-                  <Link href={isEnterprisePage ? "/auth/ezia?from=enterprise" : "/auth/ezia"} className="block">
+                  <Link href={isEnterprisePage ? "/auth/login?from=enterprise" : "/auth/login"} className="block">
                     <Button variant="outline" className="w-full">
                       Se connecter
                     </Button>
                   </Link>
-                  <Link href={isEnterprisePage ? "/auth/ezia?from=enterprise" : "/auth/ezia"} className="block">
+                  <Link href={isEnterprisePage ? "/auth/login?from=enterprise" : "/auth/login"} className="block">
                     <Button className="w-full bg-[#6D3FC8] hover:bg-[#5A35A5] text-white">
                       Commencer gratuitement
                       <ArrowRight className="ml-2 w-4 h-4" />

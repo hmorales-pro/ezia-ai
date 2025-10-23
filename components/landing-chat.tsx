@@ -237,7 +237,7 @@ export default function LandingChat() {
 
   const handleOptionClick = (option: { value: string }) => {
     if (option.value === 'signup') {
-      router.push('/auth/ezia?mode=register');
+      router.push('/auth/login?mode=register');
     }
   };
 
@@ -412,7 +412,7 @@ export default function LandingChat() {
               <Sparkles className="w-4 h-4 text-[#6D3FC8]" />
               <span className="text-sm text-[#6D3FC8] font-medium">Prêt à commencer ?</span>
               <Button
-                onClick={() => router.push('/auth/ezia?mode=register')}
+                onClick={() => router.push('/auth/login?mode=register')}
                 size="sm"
                 variant="ghost"
                 className="text-[#6D3FC8] hover:bg-[#6D3FC8]/10 px-3 py-1 h-auto"

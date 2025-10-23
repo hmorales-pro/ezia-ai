@@ -126,7 +126,7 @@ export default function ForgotPasswordPage() {
 
               <div className="mt-6 text-center">
                 <Link 
-                  href="/auth/ezia" 
+                  href="/auth/login" 
                   className="inline-flex items-center text-sm text-[#6D3FC8] hover:underline font-medium"
                 >
                   <ArrowLeft className="w-4 h-4 mr-1" />
@@ -159,7 +159,7 @@ export default function ForgotPasswordPage() {
                   réessayez
                 </button>
               </p>
-              <Link href="/auth/ezia">
+              <Link href="/auth/login">
                 <Button className="w-full h-12 bg-gradient-to-r from-[#6D3FC8] to-[#8B5CF6] hover:from-[#5A35A5] hover:to-[#7A4FD3] text-white font-semibold">
                   Retour à la connexion
                 </Button>

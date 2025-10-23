@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       </div>
 
       <div style="text-align: center;">
-        <a href="https://ezia.ai/auth/ezia" class="button">🚀 Accéder à Ezia</a>
+        <a href="https://ezia.ai/auth/login" class="button">🚀 Accéder à Ezia</a>
       </div>
 
       <h3>✨ Ce qui vous attend :</h3>

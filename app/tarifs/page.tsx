@@ -125,7 +125,7 @@ function TarifsPageContent() {
 
   const handleUpgrade = async (planKey: string) => {
     if (!user) {
-      router.push('/auth/ezia');
+      router.push('/auth/login');
       return;
     }
 

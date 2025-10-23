@@ -44,7 +44,7 @@ export default function SettingsPage() {
   };
 
   if (!user) {
-    router.push("/auth/ezia");
+    router.push("/auth/login");
     return null;
   }
 

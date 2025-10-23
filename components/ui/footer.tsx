@@ -65,7 +65,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link 
-                  href="/auth/ezia" 
+                  href="/auth/login" 
                   className="text-sm text-[#666666] hover:text-[#6D3FC8] transition-colors flex items-center gap-1"
                 >
                   Commencer gratuitement

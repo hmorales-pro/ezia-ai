@@ -478,7 +478,7 @@ export default function WaitlistPageV2() {
               <Link href="/home" className="text-sm text-[#666666] hover:text-[#6D3FC8] transition-colors hidden sm:inline">
                 Retour à l'accueil
               </Link>
-              <Link href="/auth/ezia">
+              <Link href="/auth/login">
                 <Button size="sm" className="bg-[#6D3FC8] hover:bg-[#5A35A5] text-white">
                   Se connecter
                 </Button>
