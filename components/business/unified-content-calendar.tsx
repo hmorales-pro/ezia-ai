@@ -168,43 +168,60 @@ if (!global.unifiedContentItems) {
   global.unifiedContentItems = {};
 }
 
-// Helper function to generate personalized content titles
-function generatePersonalizedTitle(
-  type: string,
-  topic: string,
+// Helper function to generate AI-powered content suggestions
+async function generateAIContentSuggestion(
   businessName: string,
-  industry: string
-): string {
-  const templates = {
-    article: [
-      `${topic} : Guide complet pour ${industry}`,
-      `Comment ${businessName} révolutionne ${topic}`,
-      `Top 5 tendances ${topic} en ${industry}`,
-      `${topic} : Notre vision chez ${businessName}`,
-      `Les secrets de ${topic} dans le ${industry}`
-    ],
-    video: [
-      `${businessName} présente : ${topic}`,
-      `${topic} expliqué en 2 minutes`,
-      `Découvrez ${topic} avec ${businessName}`,
-      `${topic} : Tutoriel ${industry}`
-    ],
-    social: [
-      `💡 ${topic} : Notre expertise ${industry}`,
-      `🚀 ${businessName} et ${topic}`,
-      `✨ Astuce ${topic} pour ${industry}`,
-      `🎯 ${topic} : Focus ${businessName}`
-    ],
-    email: [
-      `Newsletter ${businessName} : ${topic}`,
-      `${topic} - Édition spéciale ${industry}`,
-      `Votre dose de ${topic} par ${businessName}`
-    ]
-  };
+  businessDescription: string,
+  businessIndustry: string,
+  marketAnalysis: any,
+  marketingStrategy: any
+): Promise<{ title: string; description: string; type: string; platform: string[] }> {
+  try {
+    const prompt = `Tu es un expert en marketing de contenu. Génère UNE suggestion de contenu pertinente pour ce business :
 
-  const categoryTemplates = templates[type as keyof typeof templates] || templates.article;
-  const randomIndex = Math.floor(Math.random() * categoryTemplates.length);
-  return categoryTemplates[randomIndex];
+Business : ${businessName}
+Secteur : ${businessIndustry}
+Description : ${businessDescription}
+
+${marketAnalysis ? `Analyse de marché : ${JSON.stringify(marketAnalysis).substring(0, 500)}` : ''}
+${marketingStrategy ? `Stratégie marketing : ${JSON.stringify(marketingStrategy).substring(0, 500)}` : ''}
+
+Génère une suggestion de contenu qui :
+1. Est alignée avec le business et son secteur
+2. Répond aux besoins de la cible
+3. Est créative et engageante
+4. Utilise les insights de l'analyse de marché si disponible
+
+Réponds UNIQUEMENT avec un JSON valide (sans markdown, sans \`\`\`json) au format :
+{
+  "title": "Titre accrocheur et spécifique au business",
+  "description": "Description détaillée du contenu (2-3 phrases)",
+  "type": "article|video|social|email",
+  "platform": ["website", "linkedin", "instagram", etc.]
+}`;
+
+    const response = await api.post('/api/ask-ai', {
+      message: prompt,
+      provider: 'fireworks',
+      streaming: false
+    });
+
+    const content = response.data.content || response.data.message;
+
+    // Nettoyer la réponse pour extraire le JSON
+    let jsonStr = content.trim();
+    if (jsonStr.includes('```json')) {
+      jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
+    } else if (jsonStr.includes('```')) {
+      jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
+    }
+
+    const suggestion = JSON.parse(jsonStr);
+    return suggestion;
+  } catch (error) {
+    console.error('Error generating AI suggestion:', error);
+    throw error;
+  }
 }
 
 export function UnifiedContentCalendar({
@@ -1122,20 +1139,46 @@ export function UnifiedContentCalendar({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => {
-                  // Générer une suggestion IA pour le formulaire
-                  const suggestion = generatePersonalizedTitle("article", "innovation", businessName, businessIndustry);
-                  setFormData({
-                    ...formData,
-                    title: suggestion,
-                    description: "Article généré par l'IA sur les dernières tendances",
-                    type: "article",
-                    platform: ["website", "linkedin"],
-                  });
+                disabled={generatingAI}
+                onClick={async () => {
+                  setGeneratingAI(true);
+                  try {
+                    const suggestion = await generateAIContentSuggestion(
+                      businessName,
+                      businessDescription,
+                      businessIndustry,
+                      marketAnalysis,
+                      marketingStrategy
+                    );
+
+                    setFormData({
+                      ...formData,
+                      title: suggestion.title,
+                      description: suggestion.description,
+                      type: suggestion.type as ContentItem["type"],
+                      platform: suggestion.platform,
+                    });
+
+                    toast.success("Suggestion générée avec succès !");
+                  } catch (error) {
+                    console.error("Error generating suggestion:", error);
+                    toast.error("Erreur lors de la génération de la suggestion");
+                  } finally {
+                    setGeneratingAI(false);
+                  }
                 }}
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Suggestion IA
+                {generatingAI ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Génération...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Suggestion IA
+                  </>
+                )}
               </Button>
             </div>
             
