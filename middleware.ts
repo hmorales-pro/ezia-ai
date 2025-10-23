@@ -19,18 +19,22 @@ const publicRoutes = [
   '/pricing',
   '/tarifs',
   '/help',
-  '/gallery'
+  '/gallery',
+  '/dashboard',
+  '/usage',
+  '/settings',
+  '/home'
 ];
 
 export function middleware(request: NextRequest) {
   const headers = new Headers(request.headers);
   headers.set("x-current-host", request.nextUrl.host);
-  
+
   const pathname = request.nextUrl.pathname;
   const authToken = request.cookies.get(AUTH_COOKIE_NAME);
   const hostname = request.headers.get('host') || '';
   const subdomain = extractSubdomain(hostname);
-  
+
   // Gérer les sous-domaines personnalisés
   if (subdomain && subdomain !== 'www' && subdomain !== 'app') {
     // Si c'est un sous-domaine personnalisé, rediriger vers la route de site
@@ -40,14 +44,14 @@ export function middleware(request: NextRequest) {
         { headers }
       );
     }
-    
+
     // Pour les autres pages du site
     return NextResponse.rewrite(
       new URL(`/${subdomain}${pathname}`, request.url),
       { headers }
     );
   }
-  
+
   // Check if the route is protected
   const isProtectedRoute = protectedRoutes.some(route => {
     // Convert route pattern to regex
@@ -55,13 +59,13 @@ export function middleware(request: NextRequest) {
     const regex = new RegExp(`^${pattern}$`);
     return regex.test(pathname);
   });
-  
+
   // If it's a protected route and user is not authenticated, redirect to dashboard
   // Dashboard will show the appropriate UI for non-authenticated users
   if (isProtectedRoute && !authToken) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
-  
+
   return NextResponse.next({ headers });
 }
 
