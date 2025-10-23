@@ -168,6 +168,45 @@ if (!global.unifiedContentItems) {
   global.unifiedContentItems = {};
 }
 
+// Helper function to generate personalized content titles
+function generatePersonalizedTitle(
+  type: string,
+  topic: string,
+  businessName: string,
+  industry: string
+): string {
+  const templates = {
+    article: [
+      `${topic} : Guide complet pour ${industry}`,
+      `Comment ${businessName} révolutionne ${topic}`,
+      `Top 5 tendances ${topic} en ${industry}`,
+      `${topic} : Notre vision chez ${businessName}`,
+      `Les secrets de ${topic} dans le ${industry}`
+    ],
+    video: [
+      `${businessName} présente : ${topic}`,
+      `${topic} expliqué en 2 minutes`,
+      `Découvrez ${topic} avec ${businessName}`,
+      `${topic} : Tutoriel ${industry}`
+    ],
+    social: [
+      `💡 ${topic} : Notre expertise ${industry}`,
+      `🚀 ${businessName} et ${topic}`,
+      `✨ Astuce ${topic} pour ${industry}`,
+      `🎯 ${topic} : Focus ${businessName}`
+    ],
+    email: [
+      `Newsletter ${businessName} : ${topic}`,
+      `${topic} - Édition spéciale ${industry}`,
+      `Votre dose de ${topic} par ${businessName}`
+    ]
+  };
+
+  const categoryTemplates = templates[type as keyof typeof templates] || templates.article;
+  const randomIndex = Math.floor(Math.random() * categoryTemplates.length);
+  return categoryTemplates[randomIndex];
+}
+
 export function UnifiedContentCalendar({
   businessId,
   businessName,
