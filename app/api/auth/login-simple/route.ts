@@ -1,23 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-import bcrypt from 'bcryptjs';
+import dbConnect from '@/lib/mongodb';
+import { User } from '@/models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-// Utilisateur test en mémoire avec un ID stable
-const testUser = {
-  _id: 'test_user_ezia_001', // ID stable pour l'utilisateur test
-  email: 'test@ezia.ai',
-  username: 'testuser',
-  password: '$2a$10$YourHashedPasswordHere', // Will be set below
-  fullName: 'Test User',
-  avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=testuser',
-  role: 'user',
-  subscription: { plan: 'free' }
-};
-
-// Password will be hashed on first use
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,36 +17,44 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if it's our test user
-    if (email !== testUser.email) {
+    // Connect to MongoDB
+    await dbConnect();
+
+    // Find user by email (including password field)
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+
+    if (!user) {
+      console.log('[Login] User not found:', email);
       return NextResponse.json(
         { error: 'Email ou mot de passe incorrect' },
         { status: 401 }
       );
     }
 
-    // Hash password on first use
-    if (!testUser.password || testUser.password === '$2a$10$YourHashedPasswordHere') {
-      testUser.password = await bcrypt.hash('test123', 10);
-    }
-    
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, testUser.password);
-    
+    // Verify password using the comparePassword method from User model
+    const isValidPassword = await user.comparePassword(password);
+
     if (!isValidPassword) {
+      console.log('[Login] Invalid password for:', email);
       return NextResponse.json(
         { error: 'Email ou mot de passe incorrect' },
         { status: 401 }
       );
     }
+
+    console.log('[Login] Successful login:', email, '- Role:', user.role);
+
+    // Update last login
+    user.lastLoginAt = new Date();
+    await user.save();
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        userId: testUser._id,
-        email: testUser.email,
-        username: testUser.username,
-        role: testUser.role 
+      {
+        userId: user._id.toString(),
+        email: user.email,
+        username: user.username,
+        role: user.role
       },
       JWT_SECRET,
       { expiresIn: '7d' }
@@ -68,7 +63,7 @@ export async function POST(req: NextRequest) {
     // Set cookie
     const cookieStore = await cookies();
     cookieStore.set('ezia-auth-token', token, {
-      httpOnly: false, // Permettre l'accès depuis JavaScript
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
@@ -78,22 +73,23 @@ export async function POST(req: NextRequest) {
     // Return user data (without password)
     return NextResponse.json({
       user: {
-        id: testUser._id,
-        email: testUser.email,
-        username: testUser.username,
-        fullName: testUser.fullName,
-        avatarUrl: testUser.avatarUrl,
-        role: testUser.role,
-        subscription: testUser.subscription,
+        id: user._id.toString(),
+        email: user.email,
+        username: user.username,
+        fullName: user.fullName,
+        avatarUrl: user.avatarUrl,
+        role: user.role,
+        subscription: user.subscription,
+        betaTester: user.betaTester,
       },
       token,
-      message: 'Connexion réussie (mode simplifié)'
+      message: 'Connexion réussie'
     });
 
   } catch (error: any) {
-    console.error('Login error:', error);
+    console.error('[Login] Error:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Erreur de connexion',
         details: error.message
       },
