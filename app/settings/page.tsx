@@ -2,21 +2,24 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import { useUser } from "@/hooks";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, User, Bell, Shield, CreditCard, Loader2 } from "lucide-react";
+import { UserMenu } from "@/components/user-menu";
 import { Switch } from "@/components/ui/switch";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
   const router = useRouter();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
-  
+
   const [profile, setProfile] = useState({
     fullname: user?.fullname || "",
     email: user?.email || "",
@@ -50,34 +53,48 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-[#ebe7e1]">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-[#E0E0E0]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push("/dashboard")}
-              className="text-[#666666] hover:text-[#6D3FC8] hover:bg-purple-50 font-medium"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Retour
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-[#1E1E1E]">Paramètres</h1>
-              <p className="text-sm text-[#666666]">Gérez votre compte et vos préférences</p>
+      {/* Header avec navbar */}
+      <header className="bg-white shadow-sm border-b border-[#E0E0E0] sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="relative w-10 h-10">
+                <Image
+                  src="/ezia-logo-transparent.png"
+                  alt="Ezia"
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold">Ezia</h1>
+                <p className="text-xs text-[#666666]">Paramètres</p>
+              </div>
+            </Link>
+            <div className="flex items-center gap-4">
+              <UserMenu />
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 shadow-sm">
-            <TabsTrigger value="profile">Profil</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="security">Sécurité</TabsTrigger>
-            <TabsTrigger value="billing">Facturation</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 h-11 bg-white border border-gray-200 shadow-sm p-1 rounded-lg">
+            <TabsTrigger value="profile" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#6D3FC8] data-[state=active]:to-[#5A35A5] data-[state=active]:text-white data-[state=active]:shadow-sm">
+              Profil
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#6D3FC8] data-[state=active]:to-[#5A35A5] data-[state=active]:text-white data-[state=active]:shadow-sm">
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger value="security" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#6D3FC8] data-[state=active]:to-[#5A35A5] data-[state=active]:text-white data-[state=active]:shadow-sm">
+              Sécurité
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#6D3FC8] data-[state=active]:to-[#5A35A5] data-[state=active]:text-white data-[state=active]:shadow-sm">
+              Facturation
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
@@ -99,7 +116,7 @@ export default function SettingsPage() {
                       placeholder="Jean Dupont"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -113,7 +130,7 @@ export default function SettingsPage() {
                       L'email ne peut pas être modifié
                     </p>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="username">Nom d'utilisateur</Label>
                     <Input
@@ -123,8 +140,8 @@ export default function SettingsPage() {
                       placeholder="jeandupont"
                     />
                   </div>
-                  
-                  <Button type="submit" disabled={loading}>
+
+                  <Button type="submit" disabled={loading} className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white">
                     {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     Enregistrer les modifications
                   </Button>
@@ -151,12 +168,12 @@ export default function SettingsPage() {
                   </div>
                   <Switch
                     checked={notifications.emailUpdates}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setNotifications({ ...notifications, emailUpdates: checked })
                     }
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Emails marketing</Label>
@@ -166,12 +183,12 @@ export default function SettingsPage() {
                   </div>
                   <Switch
                     checked={notifications.marketingEmails}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setNotifications({ ...notifications, marketingEmails: checked })
                     }
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Mises à jour des projets</Label>
@@ -181,12 +198,12 @@ export default function SettingsPage() {
                   </div>
                   <Switch
                     checked={notifications.projectUpdates}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setNotifications({ ...notifications, projectUpdates: checked })
                     }
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Rapport hebdomadaire</Label>
@@ -196,13 +213,13 @@ export default function SettingsPage() {
                   </div>
                   <Switch
                     checked={notifications.weeklyReport}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setNotifications({ ...notifications, weeklyReport: checked })
                     }
                   />
                 </div>
-                
-                <Button>
+
+                <Button className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white">
                   Enregistrer les préférences
                 </Button>
               </CardContent>
@@ -223,22 +240,22 @@ export default function SettingsPage() {
                     <Label>Mot de passe actuel</Label>
                     <Input type="password" placeholder="••••••••" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label>Nouveau mot de passe</Label>
                     <Input type="password" placeholder="••••••••" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label>Confirmer le nouveau mot de passe</Label>
                     <Input type="password" placeholder="••••••••" />
                   </div>
-                  
-                  <Button>
+
+                  <Button className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white">
                     Mettre à jour le mot de passe
                   </Button>
                 </div>
-                
+
                 <div className="pt-6 border-t">
                   <h3 className="font-medium mb-4">Sessions actives</h3>
                   <div className="space-y-3">
@@ -264,21 +281,25 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="p-4 bg-purple-50 rounded-lg">
+                <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">Plan actuel</p>
-                      <p className="text-sm text-[#666666]">Plan Gratuit</p>
+                      <p className="text-sm text-[#666666]">
+                        {user.type === 'beta' ? 'Beta Tester - Accès Illimité ✨' : 'Plan Gratuit'}
+                      </p>
                     </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => router.push('/pricing')}
-                    >
-                      Changer de plan
-                    </Button>
+                    {user.type !== 'beta' && (
+                      <Button
+                        variant="outline"
+                        onClick={() => router.push('/pricing')}
+                      >
+                        Changer de plan
+                      </Button>
+                    )}
                   </div>
                 </div>
-                
+
                 <div>
                   <h3 className="font-medium mb-4">Historique de facturation</h3>
                   <p className="text-sm text-[#666666]">
