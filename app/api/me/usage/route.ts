@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import { verifyAuthSimple } from "@/lib/auth-simple";
+import { isAuthenticated } from "@/lib/auth-simple";
 import dbConnect from "@/lib/mongodb";
-import User from "@/models/User";
+import { User } from "@/models/User";
 import { Business } from "@/models/Business";
 
 export async function GET() {
   try {
-    const authResult = await verifyAuthSimple();
+    const authUser = await isAuthenticated();
 
-    if (!authResult) {
+    if (!authUser) {
       return NextResponse.json(
         { error: "Non autorisé" },
         { status: 401 }
@@ -16,7 +16,7 @@ export async function GET() {
     }
 
     await dbConnect();
-    const user = await User.findById(authResult.userId);
+    const user = await User.findById(authUser.id);
 
     if (!user) {
       return NextResponse.json(
