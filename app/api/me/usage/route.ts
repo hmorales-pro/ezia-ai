@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { verifyAuthSimple } from "@/lib/auth-simple";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
-import Business from "@/models/Business";
+import { Business } from "@/models/Business";
 
 export async function GET() {
   try {
@@ -26,8 +26,9 @@ export async function GET() {
     }
 
     // Compter les business créés par l'utilisateur
+    // Note: Le modèle Business utilise user_id (HuggingFace ID) pas userId (MongoDB ID)
     const businessCount = await Business.countDocuments({
-      userId: user._id
+      user_id: user.hfUserId || user.email || user._id.toString()
     });
 
     // Déterminer le plan et les limites
