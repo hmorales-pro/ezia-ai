@@ -561,7 +561,7 @@ export function MarketAnalysisDisplay({ businessId, autoStart = false, onAnalysi
                 })}
               </div>
               <p className="text-xs text-muted-foreground">
-                Il y a {Math.floor((Date.now() - new Date(analysis.meta.generated_at).getTime()) / (1000 * 60 * 60 * 24))} jour(s)
+                Il y a {Math.max(0, Math.round((Date.now() - new Date(analysis.meta.generated_at).getTime()) / (1000 * 60 * 60 * 24)))} jour(s)
               </p>
             </div>
 
@@ -583,7 +583,7 @@ export function MarketAnalysisDisplay({ businessId, autoStart = false, onAnalysi
                 })}
               </div>
               <p className="text-xs text-muted-foreground">
-                Dans {Math.ceil((new Date(analysis.meta.next_refresh_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} jour(s)
+                Dans {Math.max(0, Math.round((new Date(analysis.meta.next_refresh_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} jour(s)
               </p>
             </div>
 
