@@ -638,7 +638,7 @@ function BusinessDetailPage() {
       </Dialog>
 
       <Button
-        className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg"
+        className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2A8F] text-white border-0"
         onClick={() => {
           setChatAction("general");
           setChatOpen(true);
