@@ -309,9 +309,10 @@ Réponds UNIQUEMENT avec un JSON valide (sans markdown, sans \`\`\`json) au form
 }`;
 
     const response = await api.post('/api/ask-ai', {
-      message: prompt,
+      prompt: prompt,
+      model: 'Qwen/Qwen2.5-72B-Instruct',
       provider: 'fireworks',
-      streaming: false
+      stream: false
     });
 
     const content = response.data.content || response.data.message;
