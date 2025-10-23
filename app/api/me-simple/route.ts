@@ -27,13 +27,17 @@ export async function GET() {
       return NextResponse.json({ user: null, errCode: 401 }, { status: 200 });
     }
 
+    // Generate avatar URL with user's name
+    const displayName = user.fullName || user.username;
+    const avatarUrl = user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6D3FC8&color=fff&bold=true&size=128`;
+
     // Return real user data from MongoDB
     const userData = {
       id: user._id.toString(),
       name: user.username,
-      fullname: user.fullName || user.username,
+      fullname: displayName,
       email: user.email,
-      avatarUrl: user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${user.username}`,
+      avatarUrl,
       isPro: user.role === 'pro' || user.role === 'beta',
       subscription: user.subscription || { plan: 'free' },
       type: user.role,

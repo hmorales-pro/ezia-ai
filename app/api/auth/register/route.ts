@@ -59,12 +59,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Create new user
+    const displayName = fullName || username;
     const user = new User({
       email,
       username,
       password,
-      fullName: fullName || username,
-      avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${username}`,
+      fullName: displayName,
+      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6D3FC8&color=fff&bold=true&size=128`,
       role: 'user',
       subscription: {
         plan: 'free',
