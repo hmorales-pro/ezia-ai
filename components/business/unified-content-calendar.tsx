@@ -35,6 +35,7 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { useUser } from "@/hooks/useUser";
+import { DynamicContentForm } from "./dynamic-content-form";
 
 interface ContentItem {
   id: string;
@@ -103,6 +104,113 @@ const platformOptions = [
   { value: "twitter", label: "Twitter" },
   { value: "youtube", label: "YouTube" },
 ];
+
+// Configuration des formulaires selon le type de contenu
+const contentFormConfig = {
+  article: {
+    titlePlaceholder: "Ex: Comment optimiser votre stratégie marketing en 2024",
+    descriptionPlaceholder: "Résumé de l'article, points clés abordés...",
+    contentPlaceholder: "Rédigez votre article complet ici... (introduction, développement, conclusion)",
+    contentLabel: "Contenu de l'article",
+    contentRows: 12,
+    suggestedPlatforms: ["website", "linkedin"],
+    fields: {
+      showKeywords: true,
+      showTone: true,
+      showTargetAudience: true,
+      showWordCount: true,
+    },
+    toneOptions: ["Professionnel", "Éducatif", "Inspirant", "Technique", "Conversationnel"],
+    icon: "📝",
+    tip: "Les articles longs (1000+ mots) performent mieux en SEO"
+  },
+  video: {
+    titlePlaceholder: "Ex: Tutoriel : Créer votre première campagne publicitaire",
+    descriptionPlaceholder: "Scénario, points clés, durée estimée...",
+    contentPlaceholder: "Script de la vidéo :\n\n[INTRO] (0:00-0:15)\n- Accroche\n\n[DÉVELOPPEMENT] (0:15-2:00)\n- Point 1\n- Point 2\n\n[CONCLUSION] (2:00-2:30)\n- Call-to-action",
+    contentLabel: "Script vidéo",
+    contentRows: 10,
+    suggestedPlatforms: ["youtube", "instagram", "facebook"],
+    fields: {
+      showDuration: true,
+      showTone: true,
+      showTargetAudience: true,
+      showFormat: true,
+    },
+    toneOptions: ["Dynamique", "Éducatif", "Humoristique", "Professionnel", "Inspirant"],
+    formatOptions: ["Courte (< 1 min)", "Moyenne (1-3 min)", "Longue (3-10 min)", "Longue format (10+ min)"],
+    icon: "🎥",
+    tip: "Les vidéos courtes (< 60s) génèrent plus d'engagement sur les réseaux sociaux"
+  },
+  social: {
+    titlePlaceholder: "Ex: Lancement de notre nouvelle fonctionnalité !",
+    descriptionPlaceholder: "Objectif du post, cible, message clé...",
+    contentPlaceholder: "Texte du post (pensez aux emojis et hashtags) 🚀\n\n#Marketing #Business #Innovation",
+    contentLabel: "Texte du post",
+    contentRows: 6,
+    suggestedPlatforms: ["linkedin", "instagram", "facebook", "twitter"],
+    fields: {
+      showHashtags: true,
+      showTone: true,
+      showCallToAction: true,
+      showCharCount: true,
+    },
+    toneOptions: ["Engageant", "Informatif", "Inspirant", "Humoristique", "Urgence"],
+    icon: "📱",
+    tip: "Limitez à 3-5 hashtags pertinents pour maximiser l'engagement"
+  },
+  email: {
+    titlePlaceholder: "Ex: Newsletter Janvier - Les tendances 2024",
+    descriptionPlaceholder: "Objet de l'email, segments ciblés, objectif...",
+    contentPlaceholder: "Objet : [Écrivez un objet accrocheur]\n\nPrévisualisation : [Texte visible dans la boîte de réception]\n\n---\n\nBonjour [Prénom],\n\n[Corps de l'email]\n\n[Call-to-action]\n\nCordialement,\n[Signature]",
+    contentLabel: "Contenu de l'email",
+    contentRows: 10,
+    suggestedPlatforms: ["email"],
+    fields: {
+      showSubject: true,
+      showPreheader: true,
+      showSegment: true,
+      showCallToAction: true,
+    },
+    icon: "📧",
+    tip: "Les emails avec objets personnalisés ont 26% plus de chances d'être ouverts"
+  },
+  image: {
+    titlePlaceholder: "Ex: Infographie : Les chiffres clés 2024",
+    descriptionPlaceholder: "Type d'image, message visuel, éléments à inclure...",
+    contentPlaceholder: "Description de l'image à créer :\n- Style : [moderne, minimaliste, coloré...]\n- Éléments : [texte, graphiques, icônes...]\n- Couleurs : [palette de couleurs]\n- Dimensions : [format carré, portrait, paysage...]",
+    contentLabel: "Brief créatif",
+    contentRows: 8,
+    suggestedPlatforms: ["instagram", "facebook", "linkedin", "website"],
+    fields: {
+      showImageType: true,
+      showDimensions: true,
+      showColorScheme: true,
+    },
+    imageTypeOptions: ["Post simple", "Carrousel", "Story", "Infographie", "Citation", "Promotion"],
+    dimensionsOptions: ["Carré (1:1)", "Portrait (4:5)", "Paysage (16:9)", "Story (9:16)"],
+    icon: "🎨",
+    tip: "Les images avec visages génèrent 38% plus d'engagement"
+  },
+  ad: {
+    titlePlaceholder: "Ex: Campagne Black Friday - Réduction 30%",
+    descriptionPlaceholder: "Objectif publicitaire, audience, budget...",
+    contentPlaceholder: "Accroche : [Titre principal percutant]\n\nDescription : [Détails de l'offre]\n\nCall-to-action : [Bouton d'action]\n\nTexte d'annonce : [Message complet]\n\nOffre : [Détails, conditions]",
+    contentLabel: "Copy publicitaire",
+    contentRows: 10,
+    suggestedPlatforms: ["facebook", "instagram", "linkedin", "google"],
+    fields: {
+      showObjective: true,
+      showBudget: true,
+      showTargetAudience: true,
+      showCallToAction: true,
+      showDuration: true,
+    },
+    objectiveOptions: ["Trafic", "Conversions", "Notoriété", "Engagement", "Génération de leads"],
+    icon: "📢",
+    tip: "Testez toujours 3-5 variantes de copies pour optimiser les performances"
+  }
+};
 
 // Agents et leurs capacités
 const CONTENT_AGENTS = {
@@ -263,6 +371,22 @@ export function UnifiedContentCalendar({
     tags: [] as string[],
     content: "",
     imagePrompt: "",
+    // Champs dynamiques selon le type
+    tone: "",
+    targetAudience: "",
+    keywords: "",
+    duration: "",
+    format: "",
+    hashtags: "",
+    callToAction: "",
+    subject: "",
+    preheader: "",
+    segment: "",
+    imageType: "",
+    dimensions: "",
+    colorScheme: "",
+    objective: "",
+    budget: "",
   });
 
   useEffect(() => {
@@ -1181,106 +1305,10 @@ export function UnifiedContentCalendar({
                 )}
               </Button>
             </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="title">Titre</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Ex: Article sur les tendances 2024"
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="type">Type de contenu</Label>
-              <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value as ContentItem["type"] })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="article">Article</SelectItem>
-                  <SelectItem value="video">Vidéo</SelectItem>
-                  <SelectItem value="image">Image</SelectItem>
-                  <SelectItem value="social">Post social</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="ad">Publicité</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Décrivez le contenu..."
-                rows={3}
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="time">Heure de publication</Label>
-                <Input
-                  id="time"
-                  type="time"
-                  value={formData.time}
-                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label>Plateformes</Label>
-                <Select 
-                  value={formData.platform[0] || ""} 
-                  onValueChange={(value) => {
-                    if (!formData.platform.includes(value)) {
-                      setFormData({ ...formData, platform: [...formData.platform, value] });
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {platformOptions.map((platform) => (
-                      <SelectItem key={platform.value} value={platform.value}>
-                        {platform.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {formData.platform.map((p) => (
-                    <Badge 
-                      key={p} 
-                      variant="secondary" 
-                      className="text-xs cursor-pointer"
-                      onClick={() => setFormData({ 
-                        ...formData, 
-                        platform: formData.platform.filter(pl => pl !== p) 
-                      })}
-                    >
-                      {platformOptions.find(opt => opt.value === p)?.label} ×
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="content">Contenu</Label>
-              <Textarea
-                id="content"
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="Rédigez votre contenu ici..."
-                rows={6}
-              />
-            </div>
-            
+
+            {/* Formulaire dynamique selon le type de contenu */}
+            <DynamicContentForm formData={formData} setFormData={setFormData} />
+
             {(formData.type === "image" || formData.type === "social" || formData.type === "article" || formData.type === "ad" || formData.type === "video") && (
               <div className="grid gap-3 p-4 border rounded-lg bg-purple-50">
                 <div className="flex items-center justify-between">
