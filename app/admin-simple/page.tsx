@@ -265,6 +265,65 @@ export default function SimpleAdminPage() {
     }
   };
 
+  const toggleBetaStatus = async (userId: string, currentStatus: boolean) => {
+    const action = currentStatus ? 'deactivate' : 'activate';
+    const confirmMsg = currentStatus
+      ? 'Désactiver ce beta-testeur ? Il perdra ses accès illimités.'
+      : 'Réactiver ce beta-testeur ? Il retrouvera ses accès illimités.';
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const response = await fetch(`/api/admin/beta-testers/${userId}`, {
+        method: "PATCH",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ADMIN_PASSWORD}`
+        },
+        body: JSON.stringify({ action })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(`Beta-testeur ${action === 'activate' ? 'activé' : 'désactivé'} avec succès !`);
+        await fetchBetaTesters();
+      } else {
+        toast.error(data.error || "Erreur lors de la modification");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Erreur lors de la modification du statut");
+    }
+  };
+
+  const deleteBetaTester = async (userId: string, email: string) => {
+    if (!confirm(`⚠️ ATTENTION : Supprimer définitivement ${email} ?\n\nCette action est IRRÉVERSIBLE et supprimera:\n- Le compte utilisateur\n- Tous ses business\n- Toutes ses données\n\nÊtes-vous absolument sûr ?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/beta-testers/${userId}`, {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${ADMIN_PASSWORD}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Beta-testeur supprimé définitivement");
+        await fetchBetaTesters();
+      } else {
+        toast.error(data.error || "Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
   const exportToCSV = () => {
     if (activeTab === "waitlist") {
       const headers = ["Date", "Nom", "Email", "Profil", "Besoins", "Urgence", "Entreprise", "Source"];
@@ -1053,10 +1112,11 @@ export default function SimpleAdminPage() {
                         <th className="text-left p-4 text-sm font-medium text-[#666666]">Date création</th>
                         <th className="text-left p-4 text-sm font-medium text-[#666666]">Nom</th>
                         <th className="text-left p-4 text-sm font-medium text-[#666666]">Email</th>
+                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Statut</th>
                         <th className="text-left p-4 text-sm font-medium text-[#666666]">Plan</th>
                         <th className="text-left p-4 text-sm font-medium text-[#666666]">Accès</th>
-                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Date invitation</th>
                         <th className="text-left p-4 text-sm font-medium text-[#666666]">Notes</th>
+                        <th className="text-left p-4 text-sm font-medium text-[#666666]">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1074,6 +1134,17 @@ export default function SimpleAdminPage() {
                             </a>
                           </td>
                           <td className="p-4">
+                            {tester.betaTester?.isBetaTester ? (
+                              <Badge className="bg-green-100 text-green-700">
+                                ✓ Actif
+                              </Badge>
+                            ) : (
+                              <Badge variant="secondary">
+                                ⏸ Désactivé
+                              </Badge>
+                            )}
+                          </td>
+                          <td className="p-4">
                             <Badge className="bg-purple-100 text-purple-700">
                               {tester.subscription?.plan || "free"}
                             </Badge>
@@ -1087,13 +1158,28 @@ export default function SimpleAdminPage() {
                               <Badge variant="secondary">Standard</Badge>
                             )}
                           </td>
-                          <td className="p-4 text-sm">
-                            {tester.betaTester?.invitedAt
-                              ? new Date(tester.betaTester.invitedAt).toLocaleDateString("fr-FR")
-                              : "-"}
-                          </td>
                           <td className="p-4 text-sm text-[#666666]">
                             {tester.betaTester?.notes || "-"}
+                          </td>
+                          <td className="p-4">
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant={tester.betaTester?.isBetaTester ? "outline" : "default"}
+                                onClick={() => toggleBetaStatus(tester._id, tester.betaTester?.isBetaTester || false)}
+                                className="text-xs"
+                              >
+                                {tester.betaTester?.isBetaTester ? "⏸ Désactiver" : "▶ Activer"}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => deleteBetaTester(tester._id, tester.email)}
+                                className="text-xs"
+                              >
+                                🗑️ Supprimer
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}
