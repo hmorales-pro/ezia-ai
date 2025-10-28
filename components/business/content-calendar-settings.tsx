@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Sparkles, Settings2 } from "lucide-react";
+import { Plus, Trash2, Sparkles, Settings2, Edit2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface PublicationRule {
@@ -57,6 +57,7 @@ export function ContentCalendarSettings({ businessId, onSettingsSaved, existingR
     existingRules.length > 0 ? existingRules : []
   );
   const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newRule, setNewRule] = useState<Partial<PublicationRule>>({
     platform: "",
     contentType: "",
@@ -87,6 +88,46 @@ export function ContentCalendarSettings({ businessId, onSettingsSaved, existingR
   const removeRule = (id: string) => {
     setRules(rules.filter(r => r.id !== id));
     toast.success("Règle supprimée");
+  };
+
+  const startEditing = (rule: PublicationRule) => {
+    setEditingId(rule.id);
+    setNewRule({
+      platform: rule.platform,
+      contentType: rule.contentType,
+      frequency: rule.frequency,
+      period: rule.period,
+    });
+    setIsAdding(false);
+  };
+
+  const updateRule = () => {
+    if (!newRule.platform || !newRule.contentType || !newRule.frequency || !editingId) {
+      toast.error("Veuillez remplir tous les champs");
+      return;
+    }
+
+    setRules(rules.map(r =>
+      r.id === editingId
+        ? {
+            ...r,
+            platform: newRule.platform!,
+            contentType: newRule.contentType!,
+            frequency: newRule.frequency!,
+            period: newRule.period as "day" | "week" | "month",
+          }
+        : r
+    ));
+
+    setNewRule({ platform: "", contentType: "", frequency: 1, period: "week" });
+    setEditingId(null);
+    toast.success("Règle modifiée !");
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setIsAdding(false);
+    setNewRule({ platform: "", contentType: "", frequency: 1, period: "week" });
   };
 
   const saveSettings = () => {
@@ -178,14 +219,24 @@ export function ContentCalendarSettings({ businessId, onSettingsSaved, existingR
                     </p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeRule(rule.id)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => startEditing(rule)}
+                    className="text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeRule(rule.id)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             ))}
 
@@ -203,8 +254,8 @@ export function ContentCalendarSettings({ businessId, onSettingsSaved, existingR
           </div>
         )}
 
-        {/* Formulaire d'ajout */}
-        {!isAdding && (
+        {/* Formulaire d'ajout ou d'édition */}
+        {!isAdding && !editingId && (
           <Button
             variant="outline"
             onClick={() => setIsAdding(true)}
@@ -215,9 +266,11 @@ export function ContentCalendarSettings({ businessId, onSettingsSaved, existingR
           </Button>
         )}
 
-        {isAdding && (
+        {(isAdding || editingId) && (
           <div className="p-4 border-2 border-dashed border-purple-300 rounded-lg bg-purple-50/50 space-y-4">
-            <h3 className="text-sm font-medium text-gray-700">Nouvelle règle :</h3>
+            <h3 className="text-sm font-medium text-gray-700">
+              {editingId ? "Modifier la règle :" : "Nouvelle règle :"}
+            </h3>
 
             <div className="grid grid-cols-2 gap-4">
               {/* Plateforme */}
@@ -295,17 +348,18 @@ export function ContentCalendarSettings({ businessId, onSettingsSaved, existingR
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={addRule} className="flex-1 bg-purple-600 hover:bg-purple-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Ajouter
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsAdding(false);
-                  setNewRule({ platform: "", contentType: "", frequency: 1, period: "week" });
-                }}
-              >
+              {editingId ? (
+                <Button onClick={updateRule} className="flex-1 bg-purple-600 hover:bg-purple-700">
+                  <Edit2 className="w-4 h-4 mr-2" />
+                  Modifier
+                </Button>
+              ) : (
+                <Button onClick={addRule} className="flex-1 bg-purple-600 hover:bg-purple-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter
+                </Button>
+              )}
+              <Button variant="outline" onClick={cancelEdit}>
                 Annuler
               </Button>
             </div>
