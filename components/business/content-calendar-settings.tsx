@@ -187,7 +187,7 @@ export function ContentCalendarSettings({ businessId, onSettingsSaved, existingR
             </CardDescription>
           </div>
           {rules.length > 0 && (
-            <Button onClick={saveSettings} className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5]">
+            <Button onClick={saveSettings} className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] text-white">
               <Sparkles className="w-4 h-4 mr-2" />
               Générer le Calendrier
             </Button>
@@ -349,12 +349,12 @@ export function ContentCalendarSettings({ businessId, onSettingsSaved, existingR
 
             <div className="flex gap-2">
               {editingId ? (
-                <Button onClick={updateRule} className="flex-1 bg-purple-600 hover:bg-purple-700">
+                <Button onClick={updateRule} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white">
                   <Edit2 className="w-4 h-4 mr-2" />
                   Modifier
                 </Button>
               ) : (
-                <Button onClick={addRule} className="flex-1 bg-purple-600 hover:bg-purple-700">
+                <Button onClick={addRule} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Ajouter
                 </Button>
