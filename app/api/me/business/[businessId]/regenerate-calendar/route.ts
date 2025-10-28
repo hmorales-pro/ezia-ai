@@ -29,10 +29,10 @@ export async function POST(
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const { businessInfo, existingItems, keepExisting } = await request.json();
-    
+    const { businessInfo, publicationRules, existingItems, keepExisting } = await request.json();
+
     // Construire le prompt pour générer un calendrier complet
-    const prompt = buildCalendarPrompt(businessInfo);
+    const prompt = buildCalendarPrompt(businessInfo, publicationRules);
     
     console.log("[Calendar AI] Generating calendar with AI for", businessInfo.name);
     
@@ -88,18 +88,45 @@ IMPORTANT: Réponds uniquement avec les suggestions de contenu dans le format de
   }
 }
 
-function buildCalendarPrompt(businessInfo: any) {
+function buildCalendarPrompt(businessInfo: any, publicationRules?: any[]) {
   const { name, description, industry, marketAnalysis, marketingStrategy } = businessInfo;
-  
+
   let prompt = `Tu es un expert en stratégie de contenu pour ${name}, ${description} dans l'industrie ${industry}.\n\n`;
-  
+
   prompt += `MISSION: Génère un calendrier de contenu RÉEL et PUBLIABLE pour les 30 prochains jours.\n\n`;
-  
+
   prompt += `CONTEXTE BUSINESS:\n`;
   prompt += `- Entreprise: ${name}\n`;
   prompt += `- Description: ${description}\n`;
   prompt += `- Industrie: ${industry}\n\n`;
-  
+
+  // Ajouter les règles de publication si disponibles
+  if (publicationRules && publicationRules.length > 0) {
+    prompt += `RÈGLES DE PUBLICATION (RESPECTE CES RÈGLES EXACTEMENT):\n`;
+
+    let totalWeekly = 0;
+    publicationRules.forEach((rule: any, i: number) => {
+      const perWeek = rule.period === "day" ? rule.frequency * 7 :
+                     rule.period === "week" ? rule.frequency :
+                     rule.frequency / 4;
+      totalWeekly += perWeek;
+
+      prompt += `${i + 1}. ${rule.platform.toUpperCase()} - ${rule.contentType} : ${rule.frequency} publication${rule.frequency > 1 ? 's' : ''} par ${rule.period === "day" ? "jour" : rule.period === "week" ? "semaine" : "mois"}\n`;
+    });
+
+    const totalMonthly = Math.round(totalWeekly * 4);
+    prompt += `\nTOTAL: Génère environ ${totalMonthly} suggestions pour le mois.\n\n`;
+
+    prompt += `IMPORTANT - RÉPARTITION:\n`;
+    publicationRules.forEach((rule: any) => {
+      const perMonth = rule.period === "day" ? rule.frequency * 30 :
+                      rule.period === "week" ? rule.frequency * 4 :
+                      rule.frequency;
+      prompt += `- ${Math.round(perMonth)} contenus de type "${rule.contentType}" pour ${rule.platform}\n`;
+    });
+    prompt += `\n`;
+  }
+
   if (marketAnalysis?.trends_analysis?.current_trends) {
     prompt += `TENDANCES DU MARCHÉ:\n`;
     marketAnalysis.trends_analysis.current_trends.slice(0, 5).forEach((trend: string, i: number) => {
@@ -107,7 +134,7 @@ function buildCalendarPrompt(businessInfo: any) {
     });
     prompt += `\n`;
   }
-  
+
   if (marketingStrategy?.target_segments) {
     prompt += `AUDIENCES CIBLES:\n`;
     if (Array.isArray(marketingStrategy.target_segments)) {
@@ -117,7 +144,7 @@ function buildCalendarPrompt(businessInfo: any) {
     }
     prompt += `\n`;
   }
-  
+
   if (marketingStrategy?.content_strategy?.content_calendar?.themes_by_month) {
     const themes = Object.values(marketingStrategy.content_strategy.content_calendar.themes_by_month).flat();
     prompt += `THÈMES MARKETING:\n`;
@@ -126,24 +153,37 @@ function buildCalendarPrompt(businessInfo: any) {
     });
     prompt += `\n`;
   }
-  
-  prompt += `FORMAT DE RÉPONSE (génère 15-20 suggestions):\n`;
+
+  const suggestedCount = publicationRules && publicationRules.length > 0
+    ? Math.round(publicationRules.reduce((total: number, rule: any) => {
+        const perMonth = rule.period === "day" ? rule.frequency * 30 :
+                        rule.period === "week" ? rule.frequency * 4 :
+                        rule.frequency;
+        return total + perMonth;
+      }, 0))
+    : 15-20;
+
+  prompt += `FORMAT DE RÉPONSE (génère ${suggestedCount} suggestions):\n`;
   prompt += `Pour chaque suggestion, utilise EXACTEMENT ce format:\n\n`;
   prompt += `Type: [article|social|video|email|ad|image]\n`;
   prompt += `Titre: [titre accrocheur et spécifique, pas de placeholder]\n`;
   prompt += `Description: [description détaillée de 2-3 phrases du contenu réel]\n`;
   prompt += `Plateforme: [linkedin,facebook,instagram,twitter,youtube,website,email]\n`;
   prompt += `Objectif: [Promotion|Engagement|Éducation|Notoriété|Conversion]\n\n`;
-  
+
   prompt += `IMPORTANT:\n`;
   prompt += `- Génère du contenu SPÉCIFIQUE à ${name} et ${industry}\n`;
   prompt += `- Pas de placeholders comme [date] ou [produit]\n`;
-  prompt += `- Varie les types de contenu et les plateformes\n`;
+  if (publicationRules && publicationRules.length > 0) {
+    prompt += `- RESPECTE STRICTEMENT les règles de publication (nombre et type de contenus par plateforme)\n`;
+  } else {
+    prompt += `- Varie les types de contenu et les plateformes\n`;
+  }
   prompt += `- Alterne entre différents objectifs marketing\n`;
   prompt += `- Adapte le ton selon la plateforme\n\n`;
-  
+
   prompt += `Commence la génération maintenant:`;
-  
+
   return prompt;
 }
 

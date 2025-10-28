@@ -533,6 +533,7 @@ export function UnifiedContentCalendar({
           marketingStrategy,
           competitorAnalysis
         },
+        publicationRules: publicationRules,
         existingItems: contentItems,
         keepExisting: !regenerate
       });
@@ -601,7 +602,7 @@ export function UnifiedContentCalendar({
 
       toast.success("Paramètres sauvegardés !");
 
-      // Proposer de générer le calendrier avec les nouvelles règles
+      // Générer automatiquement le calendrier avec les nouvelles règles
       if (rules.length > 0) {
         const totalPerWeek = rules.reduce((total, rule) => {
           if (rule.period === "day") return total + rule.frequency * 7;
@@ -610,10 +611,13 @@ export function UnifiedContentCalendar({
           return total;
         }, 0);
 
-        toast.success(
-          `Calendrier configuré : ~${Math.round(totalPerWeek)} publications/semaine`,
-          { description: "Cliquez sur 'Générer avec l'IA' pour créer votre calendrier" }
+        toast.info(
+          `Configuration : ~${Math.round(totalPerWeek)} publications/semaine`,
+          { description: "Génération du calendrier en cours..." }
         );
+
+        // Appeler la génération IA avec les règles de publication
+        await generateAISuggestions(false);
       }
     } catch (error) {
       console.error("Error saving calendar settings:", error);
