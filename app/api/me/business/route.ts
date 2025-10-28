@@ -3,7 +3,6 @@ import { isAuthenticated } from "@/lib/auth-simple";
 import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
 import { nanoid } from "nanoid";
-import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 import { calculateBusinessCompletion } from "@/lib/business-utils";
 
 // GET /api/me/business - Liste tous les business de l'utilisateur
@@ -14,26 +13,20 @@ export async function GET() {
   }
 
   try {
-    let businesses;
-    
-    if (isUsingMemoryDB()) {
-      console.log("Using in-memory database for businesses");
-      const memoryDB = getMemoryDB();
-      businesses = await memoryDB.find({
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      businesses = await Business.find({
-        user_id: user.id,
-        is_active: true
-      })
-        .sort({ _createdAt: -1 })
-        .limit(50)
-        .select('-__v')
-        .lean();
+    if (!process.env.MONGODB_URI) {
+      console.error('❌ CRITICAL: MONGODB_URI not configured');
+      return NextResponse.json({ ok: false, error: "Database not configured" }, { status: 500 });
     }
+
+    await dbConnect();
+    const businesses = await Business.find({
+      user_id: user.id,
+      is_active: true
+    })
+      .sort({ _createdAt: -1 })
+      .limit(50)
+      .select('-__v')
+      .lean();
 
     // Calculer le score de complétion pour chaque business
     const businessesWithScores = businesses.map((business: any) => {
@@ -46,6 +39,8 @@ export async function GET() {
       };
     });
 
+    console.log(`🏢 [Business] Loaded ${businessesWithScores.length} businesses for user ${user.id} from MongoDB`);
+
     return NextResponse.json({
       ok: true,
       businesses: businessesWithScores,
@@ -54,16 +49,10 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching businesses:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    
-    // En production, log plus de détails
-    if (process.env.NODE_ENV === "production") {
-      console.error("Database type:", isUsingMemoryDB() ? "memory" : "mongodb");
-      console.error("MongoDB URI configured:", !!process.env.MONGODB_URI);
-    }
-    
+
     return NextResponse.json(
-      { 
-        ok: false, 
+      {
+        ok: false,
         error: "Failed to fetch businesses",
         details: process.env.NODE_ENV === "development" ? errorMessage : undefined
       },
@@ -89,7 +78,6 @@ export async function POST(request: NextRequest) {
   }
 
   console.log(`📝 Creating business for user: ${user.email} (${user.id})`);
-  console.log(`🗄️  Database: ${isUsingMemoryDB() ? 'MEMORY (temporary)' : 'MongoDB (persistent)'}`);
 
   try {
     const body = await request.json();
@@ -112,22 +100,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let existingCount: number;
-    
-    if (isUsingMemoryDB()) {
-      console.log("Using in-memory database for business creation");
-      const memoryDB = getMemoryDB();
-      existingCount = await memoryDB.countDocuments({
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      existingCount = await Business.countDocuments({
-        user_id: user.id,
-        is_active: true
-      });
-    }
+    await dbConnect();
+
+    const existingCount = await Business.countDocuments({
+      user_id: user.id,
+      is_active: true
+    });
 
     if (existingCount >= 10) {
       return NextResponse.json(
@@ -175,24 +153,15 @@ export async function POST(request: NextRequest) {
       is_active: true
     };
 
-    let createdBusiness;
+    const business = await Business.create(businessData);
+    const createdBusiness = await Business.findById(business._id)
+      .select('-__v')
+      .lean();
 
-    if (isUsingMemoryDB()) {
-      console.warn('⚠️  Using in-memory database - business will NOT be persisted!');
-      const memoryDB = getMemoryDB();
-      createdBusiness = await memoryDB.create(businessData);
-    } else {
-      await dbConnect();
-      const business = await Business.create(businessData);
-      createdBusiness = await Business.findById(business._id)
-        .select('-__v')
-        .lean();
-
-      console.log(`✅ Business "${name}" successfully saved to MongoDB`);
-      console.log(`   - Business ID: ${businessData.business_id}`);
-      console.log(`   - MongoDB _id: ${business._id}`);
-      console.log(`   - User: ${user.email} (${user.id})`);
-    }
+    console.log(`✅ Business "${name}" successfully saved to MongoDB`);
+    console.log(`   - Business ID: ${businessData.business_id}`);
+    console.log(`   - MongoDB _id: ${business._id}`);
+    console.log(`   - User: ${user.email} (${user.id})`);
 
     return NextResponse.json({
       ok: true,
@@ -202,7 +171,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error("Error creating business:", error);
-    
+
     // Gérer les erreurs de duplication
     if ((error as Error & {code?: number}).code === 11000) {
       return NextResponse.json(
