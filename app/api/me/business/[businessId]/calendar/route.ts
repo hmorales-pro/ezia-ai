@@ -41,6 +41,7 @@ export async function GET(
       success: true,
       calendar: calendarDoc ? {
         items: calendarDoc.items,
+        publicationRules: calendarDoc.publicationRules || [],
         updatedAt: calendarDoc.updatedAt,
         userId: calendarDoc.userId
       } : null
@@ -81,7 +82,33 @@ export async function POST(
     }
 
     // Récupérer les données du calendrier
-    const { calendar } = await request.json();
+    const body = await request.json();
+    const { calendar, publicationRules } = body;
+
+    // Si on reçoit seulement publicationRules (sans calendar)
+    if (publicationRules && !calendar) {
+      await dbConnect();
+
+      const calendarDoc = await Calendar.findOneAndUpdate(
+        { businessId, userId },
+        {
+          businessId,
+          userId,
+          publicationRules,
+          updatedAt: new Date(),
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
+
+      return NextResponse.json({
+        success: true,
+        message: "Publication rules saved successfully",
+        publicationRules: calendarDoc.publicationRules,
+      });
+    }
 
     if (!calendar || !Array.isArray(calendar)) {
       return NextResponse.json(

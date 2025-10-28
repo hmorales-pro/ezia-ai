@@ -30,10 +30,19 @@ export interface IContentItem {
   };
 }
 
+export interface IPublicationRule {
+  id: string;
+  platform: string;
+  contentType: string;
+  frequency: number;
+  period: "day" | "week" | "month";
+}
+
 export interface ICalendar {
   businessId: string;
   userId: string;
   items: IContentItem[];
+  publicationRules?: IPublicationRule[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -76,6 +85,18 @@ const ContentItemSchema = new mongoose.Schema({
   },
 }, { _id: false });
 
+const PublicationRuleSchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  platform: { type: String, required: true },
+  contentType: { type: String, required: true },
+  frequency: { type: Number, required: true },
+  period: {
+    type: String,
+    enum: ['day', 'week', 'month'],
+    required: true
+  }
+}, { _id: false });
+
 const CalendarSchema = new mongoose.Schema<ICalendar>({
   businessId: {
     type: String,
@@ -88,6 +109,7 @@ const CalendarSchema = new mongoose.Schema<ICalendar>({
     index: true,
   },
   items: [ContentItemSchema],
+  publicationRules: [PublicationRuleSchema],
   createdAt: {
     type: Date,
     default: Date.now,

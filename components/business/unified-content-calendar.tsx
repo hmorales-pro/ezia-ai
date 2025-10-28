@@ -439,6 +439,11 @@ export function UnifiedContentCalendar({
         // Fallback sur le stockage local si pas de calendrier sauvegardé
         setContentItems(global.unifiedContentItems[businessId] || []);
       }
+
+      // Charger les règles de publication
+      if (response.data.calendar?.publicationRules) {
+        setPublicationRules(response.data.calendar.publicationRules);
+      }
     } catch (error) {
       console.error("Error loading calendar:", error);
       // Fallback sur le stockage local
@@ -580,6 +585,39 @@ export function UnifiedContentCalendar({
       console.error(error);
     } finally {
       setGeneratingCalendar(false);
+    }
+  };
+
+  // Gérer la sauvegarde des paramètres de publication
+  const handleSaveSettings = async (rules: PublicationRule[]) => {
+    setPublicationRules(rules);
+    setShowSettings(false);
+
+    // Sauvegarder dans MongoDB
+    try {
+      await api.post(`/api/me/business/${businessId}/calendar`, {
+        publicationRules: rules
+      });
+
+      toast.success("Paramètres sauvegardés !");
+
+      // Proposer de générer le calendrier avec les nouvelles règles
+      if (rules.length > 0) {
+        const totalPerWeek = rules.reduce((total, rule) => {
+          if (rule.period === "day") return total + rule.frequency * 7;
+          if (rule.period === "week") return total + rule.frequency;
+          if (rule.period === "month") return total + (rule.frequency / 4);
+          return total;
+        }, 0);
+
+        toast.success(
+          `Calendrier configuré : ~${Math.round(totalPerWeek)} publications/semaine`,
+          { description: "Cliquez sur 'Générer avec l'IA' pour créer votre calendrier" }
+        );
+      }
+    } catch (error) {
+      console.error("Error saving calendar settings:", error);
+      toast.error("Erreur lors de la sauvegarde des paramètres");
     }
   };
 
@@ -981,6 +1019,18 @@ export function UnifiedContentCalendar({
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowSettings(!showSettings)}
+              className={cn(
+                "flex items-center gap-2",
+                showSettings && "bg-purple-100 border-purple-300"
+              )}
+            >
+              <Settings className="w-4 h-4" />
+              Paramètres
+            </Button>
             {hasAICalendar ? (
               <>
                 <Button
@@ -1053,9 +1103,20 @@ export function UnifiedContentCalendar({
             </Button>
           </div>
         </div>
-        
+
+        {/* Panneau de paramètres */}
+        {showSettings && (
+          <div className="mt-6">
+            <ContentCalendarSettings
+              businessId={businessId}
+              existingRules={publicationRules}
+              onSettingsSaved={handleSaveSettings}
+            />
+          </div>
+        )}
+
         {/* Indicateur de personnalisation */}
-        {hasAICalendar && (
+        {hasAICalendar && !showSettings && (
           <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
