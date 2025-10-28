@@ -3,18 +3,10 @@ import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import { MarketAnalysis } from '@/models/MarketAnalysis';
+import { Business } from '@/models/Business';
 import { MarketResearchDeepSeek } from '@/lib/agents/market-research-deepseek';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-// Utiliser le même stockage en mémoire que business-simple
-declare global {
-  var businesses: any[];
-}
-
-if (!global.businesses) {
-  global.businesses = [];
-}
 
 /**
  * GET - Récupérer l'analyse de marché existante
@@ -114,11 +106,16 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // Récupérer le business depuis le stockage en mémoire
+    // Récupérer le business depuis MongoDB
+    await dbConnect();
     console.log(`🔍 Recherche business: businessId=${businessId}, userId=${userId}`);
-    const business = global.businesses.find(
-      b => b.business_id === businessId && b.userId === userId
-    );
+
+    const business = await Business.findOne({
+      business_id: businessId,
+      user_id: userId,
+      is_active: true
+    }).lean();
+
     console.log(`📊 Business trouvé:`, business ? `${business.name} (${business.business_id})` : 'AUCUN');
 
     if (!business) {
