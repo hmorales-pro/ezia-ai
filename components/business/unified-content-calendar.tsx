@@ -36,6 +36,15 @@ import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { useUser } from "@/hooks/useUser";
 import { DynamicContentForm } from "./dynamic-content-form";
+import { ContentCalendarSettings } from "./content-calendar-settings";
+
+interface PublicationRule {
+  id: string;
+  platform: string;
+  contentType: string;
+  frequency: number;
+  period: "day" | "week" | "month";
+}
 
 interface ContentItem {
   id: string;
@@ -362,7 +371,9 @@ export function UnifiedContentCalendar({
   const [hasAICalendar, setHasAICalendar] = useState(false);
   const [imageQuota, setImageQuota] = useState({ used: 0, quota: 0, remaining: 0 });
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
-  
+  const [publicationRules, setPublicationRules] = useState<PublicationRule[]>([]);
+  const [showSettings, setShowSettings] = useState(false);
+
   const [formData, setFormData] = useState({
     title: "",
     type: "article" as ContentItem["type"],
