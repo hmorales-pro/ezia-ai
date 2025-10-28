@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth-simple";
 import dbConnect from "@/lib/mongodb";
 import { Subscription, EZIA_PLANS } from "@/models/Subscription";
-import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 
 // GET - Récupérer l'abonnement de l'utilisateur
 export async function GET(request: NextRequest) {
   const user = await isAuthenticated();
-  
+
   // Si pas d'utilisateur connecté, retourner les plans par défaut
   if (user instanceof NextResponse || !user) {
     return NextResponse.json({
@@ -18,57 +17,33 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    let subscription;
-    
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      subscription = await memoryDB.getSubscription(user.id);
-      
-      // Créer un abonnement gratuit par défaut si inexistant
-      if (!subscription) {
-        subscription = {
-          user_id: user.id,
-          plan: 'free',
-          status: 'active',
-          features: EZIA_PLANS.free.features,
-          billing: {
-            amount: 0,
-            currency: 'EUR',
-            interval: 'monthly'
-          },
-          usage: {
-            businesses_created: 0,
-            analyses_this_month: 0,
-            websites_created: 0
-          },
-          created_at: new Date(),
-          updated_at: new Date()
-        };
-        await memoryDB.createSubscription(subscription);
-      }
-    } else {
-      await dbConnect();
-      subscription = await Subscription.findOne({ user_id: user.id });
-      
-      // Créer un abonnement gratuit par défaut si inexistant
-      if (!subscription) {
-        subscription = await Subscription.create({
-          user_id: user.id,
-          plan: 'free',
-          status: 'active',
-          features: EZIA_PLANS.free.features,
-          billing: {
-            amount: 0,
-            currency: 'EUR',
-            interval: 'monthly'
-          },
-          usage: {
-            businesses_created: 0,
-            analyses_this_month: 0,
-            websites_created: 0
-          }
-        });
-      }
+    if (!process.env.MONGODB_URI) {
+      console.error('❌ CRITICAL: MONGODB_URI not configured');
+      return NextResponse.json({ error: "Database not configured" }, { status: 500 });
+    }
+
+    await dbConnect();
+    let subscription = await Subscription.findOne({ user_id: user.id });
+
+    // Créer un abonnement gratuit par défaut si inexistant
+    if (!subscription) {
+      subscription = await Subscription.create({
+        user_id: user.id,
+        plan: 'free',
+        status: 'active',
+        features: EZIA_PLANS.free.features,
+        billing: {
+          amount: 0,
+          currency: 'EUR',
+          interval: 'monthly'
+        },
+        usage: {
+          businesses_created: 0,
+          analyses_this_month: 0,
+          websites_created: 0
+        }
+      });
+      console.log(`💳 [Subscription] Created free plan for user ${user.id} in MongoDB`);
     }
 
     return NextResponse.json({
@@ -94,7 +69,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const { plan } = await request.json();
-    
+
     if (!['free', 'starter', 'pro', 'enterprise'].includes(plan)) {
       return NextResponse.json(
         { error: "Invalid plan" },
@@ -102,11 +77,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!process.env.MONGODB_URI) {
+      console.error('❌ CRITICAL: MONGODB_URI not configured');
+      return NextResponse.json({ error: "Database not configured" }, { status: 500 });
+    }
+
     const planDetails = EZIA_PLANS[plan as keyof typeof EZIA_PLANS];
-    
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      const subscription = await memoryDB.updateSubscription(user.id, {
+
+    await dbConnect();
+    const subscription = await Subscription.findOneAndUpdate(
+      { user_id: user.id },
+      {
         plan,
         status: 'active',
         features: planDetails.features,
@@ -114,39 +95,19 @@ export async function POST(request: NextRequest) {
           amount: planDetails.price,
           currency: 'EUR',
           interval: 'monthly',
-          next_billing_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // +30 jours
+          next_billing_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         },
         updated_at: new Date()
-      });
-      
-      return NextResponse.json({
-        subscription,
-        message: `Abonnement mis à jour vers ${planDetails.name}`
-      });
-    } else {
-      await dbConnect();
-      const subscription = await Subscription.findOneAndUpdate(
-        { user_id: user.id },
-        {
-          plan,
-          status: 'active',
-          features: planDetails.features,
-          billing: {
-            amount: planDetails.price,
-            currency: 'EUR',
-            interval: 'monthly',
-            next_billing_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-          },
-          updated_at: new Date()
-        },
-        { new: true, upsert: true }
-      );
-      
-      return NextResponse.json({
-        subscription,
-        message: `Abonnement mis à jour vers ${planDetails.name}`
-      });
-    }
+      },
+      { new: true, upsert: true }
+    );
+
+    console.log(`💳 [Subscription] Updated user ${user.id} to ${plan} plan in MongoDB`);
+
+    return NextResponse.json({
+      subscription,
+      message: `Abonnement mis à jour vers ${planDetails.name}`
+    });
   } catch (error) {
     console.error("Subscription update error:", error);
     return NextResponse.json(
@@ -165,7 +126,7 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const { usage_type, increment = 1 } = await request.json();
-    
+
     if (!['businesses_created', 'analyses_this_month', 'websites_created'].includes(usage_type)) {
       return NextResponse.json(
         { error: "Invalid usage type" },
@@ -173,23 +134,24 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      const subscription = await memoryDB.incrementUsage(user.id, usage_type, increment);
-      return NextResponse.json({ subscription });
-    } else {
-      await dbConnect();
-      const subscription = await Subscription.findOneAndUpdate(
-        { user_id: user.id },
-        {
-          $inc: { [`usage.${usage_type}`]: increment },
-          updated_at: new Date()
-        },
-        { new: true }
-      );
-      
-      return NextResponse.json({ subscription });
+    if (!process.env.MONGODB_URI) {
+      console.error('❌ CRITICAL: MONGODB_URI not configured');
+      return NextResponse.json({ error: "Database not configured" }, { status: 500 });
     }
+
+    await dbConnect();
+    const subscription = await Subscription.findOneAndUpdate(
+      { user_id: user.id },
+      {
+        $inc: { [`usage.${usage_type}`]: increment },
+        updated_at: new Date()
+      },
+      { new: true }
+    );
+
+    console.log(`💳 [Subscription] Updated usage ${usage_type} for user ${user.id} in MongoDB`);
+
+    return NextResponse.json({ subscription });
   } catch (error) {
     console.error("Usage update error:", error);
     return NextResponse.json(

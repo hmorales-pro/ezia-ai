@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth-simple";
 import dbConnect from "@/lib/mongodb";
 import { Business } from "@/models/Business";
-import { getMemoryDB, isUsingMemoryDB } from "@/lib/memory-db";
 import { nanoid } from "nanoid";
 
 // GET /api/me/business/[businessId]/goals - Liste tous les objectifs
@@ -17,27 +16,24 @@ export async function GET(
 
   try {
     const { businessId } = await params;
-    let business;
-    
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      });
-    } else {
-      await dbConnect();
-      business = await Business.findOne({
-        business_id: businessId,
-        user_id: user.id,
-        is_active: true
-      }).lean();
+
+    if (!process.env.MONGODB_URI) {
+      console.error('❌ CRITICAL: MONGODB_URI not configured');
+      return NextResponse.json({ error: "Database not configured" }, { status: 500 });
     }
+
+    await dbConnect();
+    const business = await Business.findOne({
+      business_id: businessId,
+      user_id: user.id,
+      is_active: true
+    }).lean();
 
     if (!business) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
+
+    console.log(`🎯 [Goals] Loaded ${business.goals?.length || 0} goals for business ${businessId} from MongoDB`);
 
     return NextResponse.json({
       ok: true,
@@ -102,61 +98,38 @@ export async function POST(
       }]
     };
 
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      const business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id
-      });
-      
-      if (!business) {
-        return NextResponse.json({ error: "Business not found" }, { status: 404 });
-      }
-
-      business.goals = business.goals || [];
-      business.goals.push(newGoal);
-      await memoryDB.updateBusiness(businessId, { goals: business.goals });
-
-      // Ajouter une interaction Ezia
-      const interaction = {
-        timestamp: new Date(),
-        agent: "Ezia",
-        interaction_type: "goal_creation",
-        summary: `Nouvel objectif créé : "${title}"`,
-        recommendations: [
-          "Définissez des jalons intermédiaires",
-          "Suivez régulièrement votre progression",
-          "Ajustez vos actions pour atteindre cet objectif"
-        ]
-      };
-      await memoryDB.updateBusinessInteraction(businessId, interaction);
-    } else {
-      await dbConnect();
-      const result = await Business.findOneAndUpdate(
-        { business_id: businessId, user_id: user.id },
-        { 
-          $push: { 
-            goals: newGoal,
-            ezia_interactions: {
-              timestamp: new Date(),
-              agent: "Ezia",
-              interaction_type: "goal_creation",
-              summary: `Nouvel objectif créé : "${title}"`,
-              recommendations: [
-                "Définissez des jalons intermédiaires",
-                "Suivez régulièrement votre progression",
-                "Ajustez vos actions pour atteindre cet objectif"
-              ]
-            }
-          }
-        },
-        { new: true }
-      );
-
-      if (!result) {
-        return NextResponse.json({ error: "Business not found" }, { status: 404 });
-      }
+    if (!process.env.MONGODB_URI) {
+      console.error('❌ CRITICAL: MONGODB_URI not configured');
+      return NextResponse.json({ error: "Database not configured" }, { status: 500 });
     }
+
+    await dbConnect();
+    const result = await Business.findOneAndUpdate(
+      { business_id: businessId, user_id: user.id },
+      {
+        $push: {
+          goals: newGoal,
+          ezia_interactions: {
+            timestamp: new Date(),
+            agent: "Ezia",
+            interaction_type: "goal_creation",
+            summary: `Nouvel objectif créé : "${title}"`,
+            recommendations: [
+              "Définissez des jalons intermédiaires",
+              "Suivez régulièrement votre progression",
+              "Ajustez vos actions pour atteindre cet objectif"
+            ]
+          }
+        }
+      },
+      { new: true }
+    );
+
+    if (!result) {
+      return NextResponse.json({ error: "Business not found" }, { status: 404 });
+    }
+
+    console.log(`🎯 [Goals] Created goal "${title}" for business ${businessId} in MongoDB`);
 
     return NextResponse.json({
       ok: true,
@@ -217,84 +190,48 @@ export async function PATCH(
       update.note = note;
     }
 
-    if (isUsingMemoryDB()) {
-      const memoryDB = getMemoryDB();
-      const business = await memoryDB.findOne({
-        business_id: businessId,
-        user_id: user.id
-      });
-      
-      if (!business) {
-        return NextResponse.json({ error: "Business not found" }, { status: 404 });
-      }
+    if (!process.env.MONGODB_URI) {
+      console.error('❌ CRITICAL: MONGODB_URI not configured');
+      return NextResponse.json({ error: "Database not configured" }, { status: 500 });
+    }
 
-      const goalIndex = business.goals?.findIndex((g: any) => g.goal_id === goal_id);
-      if (goalIndex === -1 || goalIndex === undefined) {
-        return NextResponse.json({ error: "Goal not found" }, { status: 404 });
-      }
+    await dbConnect();
 
-      // Mettre à jour l'objectif
-      if (progress !== undefined) {
-        business.goals[goalIndex].progress = update.progress;
-      }
-      if (status) {
-        business.goals[goalIndex].status = status;
-        if (status === 'completed') {
-          business.goals[goalIndex].completed_at = new Date();
-        }
-      }
-      
-      // Ajouter la mise à jour à l'historique
-      business.goals[goalIndex].updates = business.goals[goalIndex].updates || [];
-      business.goals[goalIndex].updates.push(update);
+    // Construire la mise à jour MongoDB
+    const updateQuery: any = {
+      $push: { "goals.$[goal].updates": update }
+    };
 
-      // Ajouter un jalon si fourni
-      if (milestone) {
-        business.goals[goalIndex].milestones = business.goals[goalIndex].milestones || [];
-        business.goals[goalIndex].milestones.push({
-          ...milestone,
-          achieved_at: new Date()
-        });
-      }
-
-      await memoryDB.updateBusiness(businessId, { goals: business.goals });
-    } else {
-      await dbConnect();
-      
-      // Construire la mise à jour MongoDB
-      const updateQuery: any = {
-        $push: { "goals.$[goal].updates": update }
-      };
-
-      if (progress !== undefined) {
-        updateQuery.$set = { ...updateQuery.$set, "goals.$[goal].progress": update.progress };
-      }
-      if (status) {
-        updateQuery.$set = { ...updateQuery.$set, "goals.$[goal].status": status };
-        if (status === 'completed') {
-          updateQuery.$set["goals.$[goal].completed_at"] = new Date();
-        }
-      }
-      if (milestone) {
-        updateQuery.$push["goals.$[goal].milestones"] = {
-          ...milestone,
-          achieved_at: new Date()
-        };
-      }
-
-      const result = await Business.findOneAndUpdate(
-        { business_id: businessId, user_id: user.id },
-        updateQuery,
-        { 
-          arrayFilters: [{ "goal.goal_id": goal_id }],
-          new: true 
-        }
-      );
-
-      if (!result) {
-        return NextResponse.json({ error: "Business or goal not found" }, { status: 404 });
+    if (progress !== undefined) {
+      updateQuery.$set = { ...updateQuery.$set, "goals.$[goal].progress": update.progress };
+    }
+    if (status) {
+      updateQuery.$set = { ...updateQuery.$set, "goals.$[goal].status": status };
+      if (status === 'completed') {
+        updateQuery.$set["goals.$[goal].completed_at"] = new Date();
       }
     }
+    if (milestone) {
+      updateQuery.$push["goals.$[goal].milestones"] = {
+        ...milestone,
+        achieved_at: new Date()
+      };
+    }
+
+    const result = await Business.findOneAndUpdate(
+      { business_id: businessId, user_id: user.id },
+      updateQuery,
+      {
+        arrayFilters: [{ "goal.goal_id": goal_id }],
+        new: true
+      }
+    );
+
+    if (!result) {
+      return NextResponse.json({ error: "Business or goal not found" }, { status: 404 });
+    }
+
+    console.log(`🎯 [Goals] Updated goal ${goal_id} for business ${businessId} in MongoDB`);
 
     return NextResponse.json({
       ok: true,
