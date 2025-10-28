@@ -1583,7 +1583,22 @@ export function UnifiedContentCalendar({
             </div>
           )}
           
-          <DialogFooter>
+          <DialogFooter className="gap-2">
+            <div className="flex-1">
+              <Button
+                variant="outline"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={() => {
+                  if (previewItem && window.confirm(`Supprimer "${previewItem.title}" ?`)) {
+                    handleDeleteContent(previewItem.id);
+                    setShowPreviewDialog(false);
+                  }
+                }}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Supprimer
+              </Button>
+            </div>
             <Button variant="outline" onClick={() => setShowPreviewDialog(false)}>
               Fermer
             </Button>
@@ -1601,7 +1616,7 @@ export function UnifiedContentCalendar({
             )}
             {previewItem?.status === "generated" && (
               <>
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => {
                     handleGenerateSingleContent(previewItem);
@@ -1611,7 +1626,7 @@ export function UnifiedContentCalendar({
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Régénérer
                 </Button>
-                <Button 
+                <Button
                   onClick={() => {
                     handlePublishContent(previewItem);
                     setShowPreviewDialog(false);
