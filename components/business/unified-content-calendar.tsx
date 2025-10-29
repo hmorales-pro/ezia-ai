@@ -375,6 +375,7 @@ export function UnifiedContentCalendar({
   const [showSettings, setShowSettings] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<ContentItem | null>(null);
+  const [generatingItemIds, setGeneratingItemIds] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -694,6 +695,7 @@ export function UnifiedContentCalendar({
 
   const handleGenerateSingleContent = async (item: ContentItem) => {
     setLoading(true);
+    setGeneratingItemIds(prev => [...prev, item.id]);
     const updated = contentItems.map(c =>
       c.id === item.id ? { ...c, status: "generating" as const, content: "" } : c
     );
@@ -842,6 +844,7 @@ export function UnifiedContentCalendar({
       toast.error("Erreur lors de la génération du contenu");
     } finally {
       setLoading(false);
+      setGeneratingItemIds(prev => prev.filter(id => id !== item.id));
     }
   };
 
@@ -850,18 +853,18 @@ export function UnifiedContentCalendar({
       toast.error("Veuillez sélectionner au moins un contenu");
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
       // Mettre à jour le statut de tous les éléments sélectionnés
-      const updated = contentItems.map(item => 
-        selectedItems.includes(item.id) 
-          ? { ...item, status: "generating" as const } 
+      const updated = contentItems.map(item =>
+        selectedItems.includes(item.id)
+          ? { ...item, status: "generating" as const }
           : item
       );
       await saveContentItems(updated);
-      
+
       // Générer le contenu pour chaque élément sélectionné
       for (const itemId of selectedItems) {
         const item = contentItems.find(c => c.id === itemId);
@@ -870,15 +873,54 @@ export function UnifiedContentCalendar({
           await handleGenerateSingleContent(item);
         }
       }
-      
+
       toast.success(`${selectedItems.length} contenus générés avec succès !`);
       setSelectedItems([]);
       setShowBulkGenerateDialog(false);
-      
+
     } catch (error) {
       toast.error("Erreur lors de la génération en masse");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateAllSuggested = async () => {
+    const suggestedItems = contentItems.filter(item => item.status === "suggested");
+
+    if (suggestedItems.length === 0) {
+      toast.error("Aucun contenu suggéré à générer");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Générer automatiquement ${suggestedItems.length} contenus suggérés ?\n\nCela peut prendre plusieurs minutes.`
+    );
+
+    if (!confirmed) return;
+
+    setLoading(true);
+    toast.info(`Génération de ${suggestedItems.length} contenus en cours...`);
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const item of suggestedItems) {
+      try {
+        await handleGenerateSingleContent(item);
+        successCount++;
+      } catch (error) {
+        errorCount++;
+        console.error(`Erreur génération ${item.title}:`, error);
+      }
+    }
+
+    setLoading(false);
+
+    if (errorCount === 0) {
+      toast.success(`✅ ${successCount} contenus générés avec succès !`);
+    } else {
+      toast.warning(`${successCount} réussis, ${errorCount} échecs`);
     }
   };
   
@@ -1046,11 +1088,31 @@ export function UnifiedContentCalendar({
             </Button>
             {hasAICalendar ? (
               <>
+                {stats.suggested > 0 && (
+                  <Button
+                    size="sm"
+                    onClick={handleGenerateAllSuggested}
+                    disabled={loading || generatingCalendar || generatingItemIds.length > 0}
+                    className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Génération... ({stats.suggested - generatingItemIds.length}/{stats.suggested})
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4 mr-2" />
+                        Générer tout ({stats.suggested})
+                      </>
+                    )}
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => generateAISuggestions(true)}
-                  disabled={generatingCalendar}
+                  disabled={generatingCalendar || loading}
                 >
                   {generatingCalendar ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -1061,7 +1123,7 @@ export function UnifiedContentCalendar({
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" disabled={loading || generatingCalendar}>
                       <MoreVertical className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -1617,10 +1679,20 @@ export function UnifiedContentCalendar({
                   handleGenerateSingleContent(previewItem);
                   setShowPreviewDialog(false);
                 }}
+                disabled={loading || generatingItemIds.includes(previewItem.id)}
                 className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white"
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Générer le contenu
+                {generatingItemIds.includes(previewItem.id) ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Génération...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Générer le contenu
+                  </>
+                )}
               </Button>
             )}
             {previewItem?.status === "generated" && (
@@ -1631,8 +1703,13 @@ export function UnifiedContentCalendar({
                     handleGenerateSingleContent(previewItem);
                     setShowPreviewDialog(false);
                   }}
+                  disabled={loading || generatingItemIds.includes(previewItem.id)}
                 >
-                  <RefreshCw className="w-4 h-4 mr-2" />
+                  {generatingItemIds.includes(previewItem.id) ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                  )}
                   Régénérer
                 </Button>
                 <Button
