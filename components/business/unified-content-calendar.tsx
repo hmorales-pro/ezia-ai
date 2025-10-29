@@ -373,6 +373,8 @@ export function UnifiedContentCalendar({
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [publicationRules, setPublicationRules] = useState<PublicationRule[]>([]);
   const [showSettings, setShowSettings] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<ContentItem | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -680,7 +682,14 @@ export function UnifiedContentCalendar({
   const handleDeleteContent = (id: string) => {
     const updatedItems = contentItems.filter(item => item.id !== id);
     saveContentItems(updatedItems);
+    setShowDeleteConfirm(false);
+    setItemToDelete(null);
     toast.success("Contenu supprimé");
+  };
+
+  const confirmDelete = (item: ContentItem) => {
+    setItemToDelete(item);
+    setShowDeleteConfirm(true);
   };
 
   const handleGenerateSingleContent = async (item: ContentItem) => {
@@ -1589,9 +1598,9 @@ export function UnifiedContentCalendar({
                 variant="outline"
                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 onClick={() => {
-                  if (previewItem && window.confirm(`Supprimer "${previewItem.title}" ?`)) {
-                    handleDeleteContent(previewItem.id);
+                  if (previewItem) {
                     setShowPreviewDialog(false);
+                    confirmDelete(previewItem);
                   }
                 }}
               >
@@ -1650,18 +1659,18 @@ export function UnifiedContentCalendar({
               Générer {selectedItems.length} contenus automatiquement
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
               Les contenus suivants seront générés par l'IA en fonction de vos analyses de marché et de votre stratégie marketing :
             </p>
-            
+
             <ScrollArea className="h-[200px] w-full rounded-md border p-4">
               <div className="space-y-2">
                 {selectedItems.map(itemId => {
                   const item = contentItems.find(c => c.id === itemId);
                   if (!item) return null;
-                  
+
                   return (
                     <div key={itemId} className="flex items-center gap-2 text-sm">
                       {item.agent_emoji && <span>{item.agent_emoji}</span>}
@@ -1671,7 +1680,7 @@ export function UnifiedContentCalendar({
                 })}
               </div>
             </ScrollArea>
-            
+
             <div className="p-3 bg-orange-50 rounded-lg">
               <p className="text-sm text-orange-800">
                 <AlertCircle className="w-4 h-4 inline mr-1" />
@@ -1679,12 +1688,12 @@ export function UnifiedContentCalendar({
               </p>
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowBulkGenerateDialog(false)}>
               Annuler
             </Button>
-            <Button 
+            <Button
               onClick={handleGenerateBulkContent}
               disabled={loading}
               className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white"
@@ -1700,6 +1709,86 @@ export function UnifiedContentCalendar({
                   Lancer la génération
                 </>
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Confirmation de suppression */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-red-100 rounded-full">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl">Supprimer ce contenu ?</DialogTitle>
+                <DialogDescription className="mt-1">
+                  Cette action est irréversible
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          {itemToDelete && (
+            <div className="space-y-4 py-4">
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-start gap-3">
+                  {itemToDelete.agent_emoji && (
+                    <span className="text-2xl">{itemToDelete.agent_emoji}</span>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-gray-900 truncate">
+                      {itemToDelete.title}
+                    </h4>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge className={getStatusColor(itemToDelete.status)} variant="outline">
+                        {getStatusLabel(itemToDelete.status)}
+                      </Badge>
+                      <span className="text-xs text-gray-500">
+                        {format(new Date(itemToDelete.date), "d MMMM yyyy", { locale: fr })}
+                      </span>
+                    </div>
+                    {itemToDelete.description && (
+                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                        {itemToDelete.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-800">
+                  Le contenu sera définitivement supprimé du calendrier et ne pourra pas être récupéré.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteConfirm(false);
+                setItemToDelete(null);
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (itemToDelete) {
+                  handleDeleteContent(itemToDelete.id);
+                }
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Supprimer définitivement
             </Button>
           </DialogFooter>
         </DialogContent>
