@@ -376,6 +376,7 @@ export function UnifiedContentCalendar({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<ContentItem | null>(null);
   const [generatingItemIds, setGeneratingItemIds] = useState<string[]>([]);
+  const [bulkGenerationProgress, setBulkGenerationProgress] = useState({ completed: 0, total: 0 });
 
   const [formData, setFormData] = useState({
     title: "",
@@ -894,28 +895,52 @@ export function UnifiedContentCalendar({
     }
 
     const confirmed = window.confirm(
-      `Générer automatiquement ${suggestedItems.length} contenus suggérés ?\n\nCela peut prendre plusieurs minutes.`
+      `Générer automatiquement ${suggestedItems.length} contenus suggérés ?\n\nGénération en parallèle (3 à la fois).`
     );
 
     if (!confirmed) return;
 
     setLoading(true);
+    setBulkGenerationProgress({ completed: 0, total: suggestedItems.length });
     toast.info(`Génération de ${suggestedItems.length} contenus en cours...`);
 
     let successCount = 0;
     let errorCount = 0;
+    const BATCH_SIZE = 3; // Générer 3 contenus en parallèle
 
-    for (const item of suggestedItems) {
-      try {
-        await handleGenerateSingleContent(item);
-        successCount++;
-      } catch (error) {
-        errorCount++;
-        console.error(`Erreur génération ${item.title}:`, error);
+    // Générer par batches de 3
+    for (let i = 0; i < suggestedItems.length; i += BATCH_SIZE) {
+      const batch = suggestedItems.slice(i, i + BATCH_SIZE);
+
+      // Lancer toutes les générations du batch en parallèle
+      const promises = batch.map(async (item) => {
+        try {
+          await handleGenerateSingleContent(item);
+          successCount++;
+          // Mettre à jour la progression immédiatement
+          setBulkGenerationProgress(prev => ({ ...prev, completed: prev.completed + 1 }));
+          return { success: true, item };
+        } catch (error) {
+          errorCount++;
+          console.error(`Erreur génération ${item.title}:`, error);
+          // Compter aussi les erreurs dans la progression
+          setBulkGenerationProgress(prev => ({ ...prev, completed: prev.completed + 1 }));
+          return { success: false, item, error };
+        }
+      });
+
+      // Attendre que le batch soit terminé
+      await Promise.allSettled(promises);
+
+      // Mettre à jour le toast avec la progression
+      const completed = successCount + errorCount;
+      if (completed < suggestedItems.length) {
+        toast.info(`Génération en cours... ${completed}/${suggestedItems.length}`);
       }
     }
 
     setLoading(false);
+    setBulkGenerationProgress({ completed: 0, total: 0 });
 
     if (errorCount === 0) {
       toast.success(`✅ ${successCount} contenus générés avec succès !`);
@@ -1095,10 +1120,10 @@ export function UnifiedContentCalendar({
                     disabled={loading || generatingCalendar || generatingItemIds.length > 0}
                     className="bg-gradient-to-r from-[#6D3FC8] to-[#5A35A5] hover:from-[#5A35A5] hover:to-[#4A2B87] text-white"
                   >
-                    {loading ? (
+                    {loading && bulkGenerationProgress.total > 0 ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Génération... ({stats.suggested - generatingItemIds.length}/{stats.suggested})
+                        Génération... ({bulkGenerationProgress.completed}/{bulkGenerationProgress.total})
                       </>
                     ) : (
                       <>
