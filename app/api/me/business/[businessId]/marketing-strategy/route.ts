@@ -4,18 +4,11 @@ import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import { MarketingStrategy } from '@/models/MarketingStrategy';
 import { MarketAnalysis } from '@/models/MarketAnalysis';
+import { Business } from '@/models/Business';
 import { MarketingStrategyDeepSeek } from '@/lib/agents/marketing-strategy-deepseek';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-// Utiliser le même stockage en mémoire que business-simple
-declare global {
-  var businesses: any[];
-}
-
-if (!global.businesses) {
-  global.businesses = [];
-}
+const MONGODB_URI = process.env.MONGODB_URI;
 
 /**
  * GET - Récupérer la stratégie marketing existante
@@ -99,11 +92,21 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // Récupérer le business depuis le stockage en mémoire
-    console.log(`🔍 Recherche business: businessId=${businessId}, userId=${userId}`);
-    const business = global.businesses.find(
-      b => b.business_id === businessId && b.userId === userId
-    );
+    // Vérifier MongoDB disponible
+    if (!MONGODB_URI) {
+      console.error('[Marketing Strategy] ❌ MONGODB_URI non configuré');
+      return NextResponse.json(
+        { error: 'Configuration MongoDB manquante' },
+        { status: 500 }
+      );
+    }
+
+    await dbConnect();
+
+    // Récupérer le business depuis MongoDB
+    console.log(`🔍 [MongoDB] Recherche business: businessId=${businessId}, userId=${userId}`);
+    const business = await Business.findOne({ business_id: businessId, userId });
+
     console.log(`📊 Business trouvé:`, business ? `${business.name} (${business.business_id})` : 'AUCUN');
 
     if (!business) {
@@ -118,8 +121,6 @@ export async function POST(
     // Récupérer les paramètres optionnels du body
     const body = await request.json().catch(() => ({}));
     const { forceRefresh = false } = body;
-
-    await dbConnect();
 
     // Vérifier si une stratégie existe déjà
     const existingStrategy = await MarketingStrategy.findOne({ businessId, userId });
