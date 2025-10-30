@@ -6,16 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
+import {
   ArrowLeft,
-  Mail, 
+  Mail,
   Loader2,
   CheckCircle2,
   Send
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Footer } from '@/components/ui/footer';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -52,25 +51,26 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen bg-[#ebe7e1] flex flex-col">
+      {/* Main content - centered */}
       <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          {/* Logo */}
-          <Link href="/" className="flex items-center justify-center gap-3 mb-8">
-            <div className="relative w-12 h-12">
-              <Image
-                src="/img/mascottes/Ezia.png"
-                alt="Ezia"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <span className="text-3xl font-bold bg-gradient-to-r from-[#6D3FC8] to-[#8B5CF6] bg-clip-text text-transparent">
-              Ezia
-            </span>
-          </Link>
+        <div className="w-full max-w-lg">
+          {/* Card with integrated logo */}
+          <div className="bg-white rounded-3xl shadow-2xl p-10">
+            {/* Logo inside card */}
+            <Link href="/" className="flex items-center justify-center gap-3 mb-8">
+              <div className="relative w-14 h-14">
+                <Image
+                  src="/img/mascottes/Ezia.png"
+                  alt="Ezia"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <span className="text-4xl font-bold bg-gradient-to-r from-[#6D3FC8] to-[#8B5CF6] bg-clip-text text-transparent">
+                Ezia
+              </span>
+            </Link>
 
-          {/* Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-8">
           {!success ? (
             <>
               <div className="text-center mb-6">
@@ -126,8 +126,8 @@ export default function ForgotPasswordPage() {
               </form>
 
               <div className="mt-6 text-center">
-                <Link 
-                  href="/auth/login" 
+                <Link
+                  href="/auth/login"
                   className="inline-flex items-center text-sm text-[#6D3FC8] hover:underline font-medium"
                 >
                   <ArrowLeft className="w-4 h-4 mr-1" />
@@ -145,7 +145,7 @@ export default function ForgotPasswordPage() {
                 Email envoyé !
               </h2>
               <p className="text-gray-600 mb-6">
-                Vérifiez votre boîte de réception. Si vous avez un compte avec nous, 
+                Vérifiez votre boîte de réception. Si vous avez un compte avec nous,
                 vous recevrez un email avec les instructions pour réinitialiser votre mot de passe.
               </p>
               <p className="text-sm text-gray-500 mb-6">
@@ -171,8 +171,32 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <Footer />
+      {/* Minimal footer */}
+      <footer className="py-6 px-4 border-t border-gray-200 bg-white/50">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-600">
+          <p>
+            © {new Date().getFullYear()} Ezia.ai - Tous droits réservés
+          </p>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:text-[#6D3FC8] transition-colors">
+              Confidentialité
+            </Link>
+            <span>•</span>
+            <Link href="/terms" className="hover:text-[#6D3FC8] transition-colors">
+              CGU
+            </Link>
+            <span>•</span>
+            <a
+              href="https://eziom.fr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#6D3FC8] transition-colors"
+            >
+              Propulsé par Eziom
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
