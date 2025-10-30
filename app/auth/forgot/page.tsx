@@ -51,25 +51,26 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#ebe7e1] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <Link href="/" className="flex items-center justify-center gap-3 mb-8">
-          <div className="relative w-12 h-12">
-            <Image
-              src="/img/mascottes/Ezia.png"
-              alt="Ezia"
-              fill
-              className="object-contain"
-            />
-          </div>
-          <span className="text-3xl font-bold bg-gradient-to-r from-[#6D3FC8] to-[#8B5CF6] bg-clip-text text-transparent">
-            Ezia
-          </span>
-        </Link>
+    <div className="min-h-screen bg-[#ebe7e1] flex flex-col">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <Link href="/" className="flex items-center justify-center gap-3 mb-8">
+            <div className="relative w-12 h-12">
+              <Image
+                src="/img/mascottes/Ezia.png"
+                alt="Ezia"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <span className="text-3xl font-bold bg-gradient-to-r from-[#6D3FC8] to-[#8B5CF6] bg-clip-text text-transparent">
+              Ezia
+            </span>
+          </Link>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Card */}
+          <div className="bg-white rounded-2xl shadow-xl p-8">
           {!success ? (
             <>
               <div className="text-center mb-6">
@@ -166,9 +167,10 @@ export default function ForgotPasswordPage() {
               </Link>
             </div>
           )}
+          </div>
         </div>
       </div>
-      
+
       {/* Footer */}
       <Footer />
     </div>
