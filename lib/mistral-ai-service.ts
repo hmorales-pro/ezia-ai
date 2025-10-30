@@ -94,16 +94,38 @@ export async function generateWithMistralAPI(
         "Content-Type": "application/json",
         "Authorization": `Bearer ${mistralApiKey}`
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(requestBody),
+      signal: AbortSignal.timeout(30000) // 30 secondes timeout
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error("Mistral API error:", error);
+      const errorText = await response.text();
+      let error;
+      try {
+        error = JSON.parse(errorText);
+      } catch {
+        error = { message: errorText };
+      }
+
+      console.error(`[Mistral] ❌ API Error ${response.status}:`, error);
+
+      // Gestion spécifique des erreurs courantes
+      if (response.status === 429) {
+        console.error("[Mistral] ⚠️ RATE LIMIT - Trop de requêtes");
+      } else if (response.status === 401) {
+        console.error("[Mistral] ⚠️ UNAUTHORIZED - Clé API invalide");
+      } else if (response.status === 500 || response.status === 503) {
+        console.error("[Mistral] ⚠️ SERVICE UNAVAILABLE - API Mistral en panne");
+      }
+
       if (isWebsiteGeneration) {
         return generateDefaultWebsite(prompt);
       }
-      return generateDefaultBusinessResponse(prompt, systemContext);
+      return {
+        success: false,
+        error: `Mistral API error ${response.status}: ${error.message || 'Unknown error'}`,
+        ...generateDefaultBusinessResponse(prompt, systemContext)
+      };
     }
 
     const data = await response.json();

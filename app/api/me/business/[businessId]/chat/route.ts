@@ -93,21 +93,29 @@ RAPPEL: Sois naturel, empathique et apporte de la valeur à chaque échange.`;
 
     if (MISTRAL_API_KEY) {
       try {
+        console.log(`[Ezia Chat] Calling Mistral API with key: ${MISTRAL_API_KEY.substring(0, 8)}...`);
         const response = await generateWithMistralAPI(
           prompt,
           "Tu es Ezia, assistant business empathique et expert. Sois conversationnel et naturel.",
           MISTRAL_API_KEY
         );
-        
+
+        console.log(`[Ezia Chat] Mistral response success: ${response.success}`);
+
         if (response.success && response.content) {
           aiResponse = response.content;
-          
+          console.log(`[Ezia Chat] AI Response length: ${aiResponse.length} chars`);
+
           // Extraire les données structurées
           extractedData = await extractDataFromConversation(message, aiResponse, collectedData);
+        } else {
+          console.error(`[Ezia Chat] ⚠️ Mistral failed - success: ${response.success}, error: ${response.error}`);
         }
       } catch (error) {
-        console.error("[Ezia Chat] Mistral API error:", error);
+        console.error("[Ezia Chat] ❌ Mistral API exception:", error);
       }
+    } else {
+      console.error("[Ezia Chat] ❌ NO MISTRAL_API_KEY - Using fallback");
     }
     
     // Fallback si pas d'API ou erreur
@@ -129,7 +137,11 @@ RAPPEL: Sois naturel, empathique et apporte de la valeur à chaque échange.`;
       response: aiResponse,
       extractedData: extractedData,
       suggestions: suggestions,
-      personaSuggestions: personaSuggestions
+      personaSuggestions: personaSuggestions,
+      debug: {
+        usingMistral: !!MISTRAL_API_KEY && aiResponse !== "",
+        fallbackUsed: !aiResponse || aiResponse === generateFallbackResponse(message, collectedData, completionScore)
+      }
     });
     
   } catch (error) {
