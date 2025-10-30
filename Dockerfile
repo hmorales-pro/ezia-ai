@@ -45,6 +45,9 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# Install tini to handle signals and prevent zombie processes
+RUN apk add --no-cache tini
+
 # Add non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
@@ -68,6 +71,9 @@ EXPOSE 3000
 
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
+
+# Use tini as init system to prevent zombie processes
+ENTRYPOINT ["/sbin/tini", "--"]
 
 # Use startup script to properly load environment variables from Dokploy
 CMD ["./start.sh"]

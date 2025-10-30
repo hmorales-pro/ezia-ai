@@ -39,5 +39,7 @@ export NEXT_PUBLIC_APP_URL
 export NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 # Démarrer le serveur Next.js standalone
+# Note: exec remplace le shell par Node.js, permettant à tini de gérer les signaux proprement
 echo "🌐 Starting Next.js standalone server..."
+echo "⚡ Using tini as init system to prevent zombie processes"
 exec node server.js
