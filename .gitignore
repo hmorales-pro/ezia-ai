@@ -60,3 +60,4 @@ Screenshot*
 *.json.backup
 php-env-production
 *.bak
+.docker-archive/

@@ -42,10 +42,11 @@ yarn-error.log*
 # Typescript
 *.tsbuildinfo
 
-# Docker
-Dockerfile
-docker-compose.yml
-.dockerignore
+# Docker archive
+.docker-archive/
+Dockerfile.*
+docker-compose.*.yml
+*.dockerignore
 
 # Documentation
 *.md
@@ -72,9 +73,10 @@ Thumbs.db
 tmp/
 temp/
 
-# Scripts
+# Scripts (but keep start.sh)
 scripts/
 *.sh
+!start.sh
 
 # Tests
 __tests__
